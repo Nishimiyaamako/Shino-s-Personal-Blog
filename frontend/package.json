@@ -1,7 +1,17 @@
 {
   "name": "personal-blog-frontend",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
-  "description": "Personal Blog 前端占位工程（Vite + TypeScript）",
-  "scripts": {}
+  "type": "module",
+  "description": "Personal Blog 前端基础骨架（Vite + TypeScript + Vanilla SPA）",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit --project tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^7.2.0"
+  }
 }
