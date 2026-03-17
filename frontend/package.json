@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Personal Blog 前端基础骨架（Vite + TypeScript + Vanilla SPA）",
+  "description": "Personal Blog 前端基础骨架 Vite + TypeScript + Vanilla SPA",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
