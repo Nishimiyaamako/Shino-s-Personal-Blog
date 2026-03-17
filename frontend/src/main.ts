@@ -1,6 +1,9 @@
+import './styles/global.css';
+
 import { PRIMARY_NAV_LINKS, resolveRoute } from './router';
 
 const SITE_TITLE = 'Personal Blog';
+const SITE_SUBTITLE = '内容优先的个人博客';
 
 const appRoot = document.querySelector<HTMLDivElement>('#app');
 
@@ -17,20 +20,46 @@ function renderApp(): void {
   document.title = `${pageTitle} | ${SITE_TITLE}`;
 
   appElement.innerHTML = `
-<header>
-  <p><strong>${SITE_TITLE}</strong> · Vanilla TS SPA Skeleton</p>
-  <nav aria-label="主导航">
-    ${renderNavigation()}
-    <a href="/404" data-link>/404</a>
-  </nav>
-  <hr />
-</header>
-${route.render(context)}
+<a class="skip-link" href="#main-content">跳到正文</a>
+<div class="app-shell">
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="/" class="brand" data-link>
+        <strong>${SITE_TITLE}</strong>
+        <span>${SITE_SUBTITLE}</span>
+      </a>
+      <nav class="site-nav" aria-label="主导航">
+        ${renderNavigation(context.pathname)}
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content" class="site-main" tabindex="-1">
+    ${route.render(context)}
+  </main>
+
+  <footer class="site-footer">
+    <p>© ${new Date().getFullYear()} ${SITE_TITLE}. Built with Vite + TypeScript.</p>
+  </footer>
+</div>
 `;
 }
 
-function renderNavigation(): string {
-  return PRIMARY_NAV_LINKS.map(({ href, label }) => `<a href="${href}" data-link>${label}</a>`).join(' | ');
+function renderNavigation(pathname: string): string {
+  return PRIMARY_NAV_LINKS.map(({ href, label }) => {
+    const isActive = isNavActive(pathname, href);
+    const activeClass = isActive ? 'is-active' : '';
+    const current = isActive ? ' aria-current="page"' : '';
+    return `<a href="${href}" data-link class="${activeClass}"${current}>${label}</a>`;
+  }).join('');
+}
+
+function isNavActive(currentPath: string, navHref: string): boolean {
+  if (navHref === '/') {
+    return currentPath === '/';
+  }
+
+  return currentPath === navHref || currentPath.startsWith(`${navHref}/`);
 }
 
 function navigateTo(path: string, options: { replace?: boolean } = {}): void {

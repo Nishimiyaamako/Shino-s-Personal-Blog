@@ -1,12 +1,18 @@
+import { renderPostList } from '../components/post-list';
+import { loadPosts } from '../data/posts';
 import type { PageRenderer } from '../types/router';
 
-export const renderPostsPage: PageRenderer = () => `
-<main>
-  <h1>文章列表（占位）</h1>
-  <p>后续这里会展示 Markdown 文章摘要列表。</p>
-  <ul>
-    <li><a href="/posts/hello-world" data-link>/posts/hello-world</a></li>
-    <li><a href="/posts/first-week-note" data-link>/posts/first-week-note</a></li>
-  </ul>
-</main>
+export const renderPostsPage: PageRenderer = () => {
+  const posts = loadPosts();
+
+  return `
+<section class="page page-posts">
+  <header class="page-header">
+    <h1>文章</h1>
+    <p>按发布日期倒序展示，仅包含已发布内容。</p>
+  </header>
+
+  ${renderPostList(posts, { emptyHint: '暂无已发布文章。' })}
+</section>
 `;
+};

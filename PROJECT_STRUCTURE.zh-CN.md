@@ -115,3 +115,24 @@
 - `/api/search`
 - `/api/comment`
 - `/api/admin/*`
+
+## 4) 2026-03-18 结构更新补记（主体页 + 内容协议）
+
+新增关键文件（节选）：
+
+- `docs/ai-workflow/MEMORY.md`
+- `docs/ai-workflow/STOP_HOOKS.md`
+- `docs/ai-workflow/README.md`
+- `frontend/src/styles/global.css`
+- `frontend/src/types/content.ts`
+- `frontend/src/data/posts.ts`
+- `frontend/src/components/post-list.ts`
+- `frontend/src/utils/date.ts`
+- `frontend/src/content/posts/*.md`（示例文章）
+
+改动关键文件（节选）：
+
+- `frontend/src/main.ts`（全局 App Shell + 导航高亮）
+- `frontend/src/router/index.ts`（文章 slug 不存在时回落 404）
+- `frontend/src/pages/*.ts`（占位页替换为真实主体结构）
+- `docs/content-spec.md`（前端内容协议定稿）

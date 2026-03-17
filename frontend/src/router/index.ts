@@ -1,3 +1,4 @@
+import { hasPublishedPostSlug } from '../data/posts';
 import { renderArchivePage } from '../pages/archive';
 import { renderAboutPage } from '../pages/about';
 import { renderHomePage } from '../pages/home';
@@ -41,13 +42,19 @@ export function resolveRoute(pathname: string): RouteResolution {
   for (const route of ROUTE_RECORDS) {
     const params = matchPath(route.path, normalizedPath);
 
-    if (params !== null) {
-      return {
-        route,
-        context: { params, pathname: normalizedPath },
-        isFallback: false
-      };
+    if (params === null) {
+      continue;
     }
+
+    if (route.path === '/posts/:slug' && !hasPublishedPostSlug(params.slug ?? '')) {
+      continue;
+    }
+
+    return {
+      route,
+      context: { params, pathname: normalizedPath },
+      isFallback: false
+    };
   }
 
   return {
