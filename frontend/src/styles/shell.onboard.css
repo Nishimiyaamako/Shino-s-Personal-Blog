@@ -12,11 +12,11 @@
   /* 作用：定义样式变量 --bg-base，用于全局复用与统一调参。 */
   --bg-soft: rgb(245 232 214);
   /* 作用：定义样式变量 --bg-soft，用于全局复用与统一调参。 */
-  --surface-color: rgb(255 255 255 / 0.75);
+  --surface-color: rgb(253 250 243 / 0.9);
   /* 作用：定义样式变量 --surface-color，用于全局复用与统一调参。 */
-  --surface-color-strong: rgb(255 255 255 / 0.75);
+  --surface-color-strong: rgb(253 250 243 / 0.95);
   /* 作用：定义样式变量 --surface-color-strong，用于全局复用与统一调参。 */
-  --surface-color-hover: rgb(255 255 255 / 0.82);
+  --surface-color-hover: rgb(255 255 255 / 0.88);
   /* 作用：定义样式变量 --surface-color-hover，用于全局复用与统一调参。 */
 
   --border-color: rgb(172 97 37 / 0.2);
@@ -35,30 +35,32 @@
   /* 作用：定义样式变量 --overlay-strong，用于全局阅读保护遮罩。 */
   --overlay-soft: rgb(245 232 214 / 0.32);
   /* 作用：定义样式变量 --overlay-soft，用于背景层次柔化。 */
-  --header-bg: rgb(255 255 255 / 0.75);
+  --header-bg: rgb(253 250 243 / 0.9);
   /* 作用：定义样式变量 --header-bg，用于顶部悬浮栏背景。 */
-  --action-button-border-color: rgb(127 98 77 / 0.34);
+  --button-text-color: rgb(255 255 255);
+  /* 作用：定义样式变量 --button-text-color，用于强调按钮文字可读性。 */
+  --action-button-border-color: rgb(172 97 37 / 0.45);
   /* 作用：定义样式变量 --action-button-border-color，用于强调按钮轮廓。 */
-  --nav-active-border-color: rgb(127 98 77 / 0.34);
-  --nav-active-bg: rgb(255 255 255 / 0.75);
-  --inline-code-border: rgb(127 98 77 / 0.28);
-  --inline-code-bg: rgb(255 255 255 / 0.75);
+  --nav-active-border-color: rgb(172 97 37 / 0.35);
+  --nav-active-bg: rgb(172 97 37 / 0.12);
+  --inline-code-border: rgb(172 97 37 / 0.28);
+  --inline-code-bg: rgb(255 255 255 / 0.55);
   --inline-code-text: rgb(123 63 22);
-  --ghost-surface-bg: rgb(255 255 255 / 0.75);
-  --step-border-color: rgb(127 98 77 / 0.2);
-  --step-surface-bg: rgb(255 255 255 / 0.75);
-  --pre-border-color: rgb(127 98 77 / 0.25);
-  --pre-bg: rgb(255 255 255 / 0.75);
-  --focus-ring-color: rgb(127 98 77 / 0.55);
-  --friend-hover-border-color: rgb(127 98 77 / 0.46);
+  --ghost-surface-bg: rgb(253 250 243 / 0.76);
+  --step-border-color: rgb(172 97 37 / 0.2);
+  --step-surface-bg: rgb(255 255 255 / 0.35);
+  --pre-border-color: rgb(172 97 37 / 0.25);
+  --pre-bg: rgb(255 255 255 / 0.62);
+  --focus-ring-color: rgb(172 97 37 / 0.55);
+  --friend-hover-border-color: rgb(172 97 37 / 0.46);
   --friend-hover-shadow: 0 10px 24px rgb(79 49 28 / 0.15);
   --friend-active-shadow: 0 6px 14px rgb(79 49 28 / 0.13);
-  --avatar-border-color: rgb(127 98 77 / 0.25);
-  --avatar-bg: rgb(255 255 255 / 0.75);
-  --copy-button-border: rgb(127 98 77 / 0.34);
-  --copy-button-bg: rgb(255 255 255 / 0.75);
-  --copy-button-border-hover: rgb(127 98 77 / 0.5);
-  --copy-button-bg-hover: rgb(255 255 255 / 0.82);
+  --avatar-border-color: rgb(172 97 37 / 0.25);
+  --avatar-bg: rgb(255 255 255 / 0.55);
+  --copy-button-border: rgb(172 97 37 / 0.34);
+  --copy-button-bg: rgb(172 97 37 / 0.08);
+  --copy-button-border-hover: rgb(172 97 37 / 0.5);
+  --copy-button-bg-hover: rgb(172 97 37 / 0.16);
   --success-border-color: rgb(57 143 80 / 0.45);
   --success-bg: rgb(57 143 80 / 0.14);
   --success-text: rgb(47 125 72);
@@ -417,9 +419,9 @@ a:hover {
   /* 作用：控制 border-radius 边框与轮廓质感，影响模块识别度。 */
   border: 1px solid var(--action-button-border-color);
   /* 作用：控制 border 边框与轮廓质感，影响模块识别度。 */
-  background: var(--surface-color-strong);
+  background: var(--accent-color);
   /* 作用：控制 background 背景表现，影响层次与氛围。 */
-  color: var(--accent-color-strong);
+  color: var(--button-text-color);
   /* 作用：控制 color 视觉表现，影响文字或整体观感强度。 */
   font-size: 0.92rem;
   /* 作用：控制 font-size 排版细节，影响阅读性与信息层级。 */
@@ -725,7 +727,7 @@ a:hover {
   /* 作用：控制 display 布局定位行为，影响元素在页面中的排布方式。 */
   -webkit-box-orient: vertical;
   /* 作用：设置 -webkit-box-orient 参数，影响当前模块的视觉与布局表现。 */
-  /* -webkit-line-clamp: 2; */
+  -webkit-line-clamp: 2;
   /* 作用：设置 -webkit-line-clamp 参数，影响当前模块的视觉与布局表现。 */
   overflow: hidden;
   /* 作用：控制 overflow 溢出处理策略，避免内容破版。 */
