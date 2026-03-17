@@ -3,5 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "description": "Personal Blog 后端占位工程（Elysia.js）",
-  "scripts": {}
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts"
+  },
+  "dependencies": {
+    "elysia": "latest"
+  }
 }

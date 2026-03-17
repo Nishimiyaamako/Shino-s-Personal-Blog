@@ -1,5 +1,11 @@
 import type { PageRenderer } from '../types/router';
 
+/**
+ * 渲染标签总览页（占位版）。
+ *
+ * 用于展示站点所有标签入口，
+ * 便于用户按主题浏览文章。
+ */
 export const renderTagsPage: PageRenderer = () => `
 <main>
   <h1>标签总览（占位）</h1>
