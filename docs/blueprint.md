@@ -88,7 +88,6 @@
 - `/tags` 标签总览页
 - `/tags/:tag` 标签详情页
 - `/archive` 归档页
-- `/friends` 友链页
 - `/about` 关于页
 - `/404` 未找到页面
 
@@ -100,7 +99,6 @@
 
 - `/api/health`
 - `/api/stats`
-- `/api/friends`
 
 后续可扩展：
 
