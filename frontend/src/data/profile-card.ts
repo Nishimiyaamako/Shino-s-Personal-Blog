@@ -1,8 +1,8 @@
 import type { ProfileCardConfig } from '../types/profile-card';
 
 export const PROFILE_CARD_CONFIG: ProfileCardConfig = {
-  name: 'Your Name',
-  bio: '这里是我的博客小角落，记录工程实践、学习笔记和一些生活灵感。',
+  name: '长筱团子',
+  bio: 'Luna say maybe',
   avatar: 'https://placehold.co/120x120/png?text=ME',
   contacts: [
     {

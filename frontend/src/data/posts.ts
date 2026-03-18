@@ -27,6 +27,11 @@ marked.use({
 
 let allPostCache: PostDetail[] | null = null;
 
+export interface PublishedWritingStats {
+  postCount: number;
+  wordCount: number;
+}
+
 export function loadPosts(): PostSummary[] {
   return getPublishedPosts().map((post) => toSummary(post));
 }
@@ -99,6 +104,16 @@ export function getArchiveStats(): ArchiveStat[] {
   }
 
   return Array.from(countMap.values()).sort((left, right) => right.key.localeCompare(left.key, 'en'));
+}
+
+export function getPublishedWritingStats(): PublishedWritingStats {
+  const publishedPosts = getPublishedPosts();
+  const wordCount = publishedPosts.reduce((total, post) => total + countPlainTextChars(post.contentMarkdown), 0);
+
+  return {
+    postCount: publishedPosts.length,
+    wordCount
+  };
 }
 
 function getPublishedPosts(): PostDetail[] {
@@ -349,6 +364,25 @@ function expectStatus(value: unknown, sourcePath: string): PostFrontmatter['stat
 
 function normalizeTag(tag: string): string {
   return tag.trim().toLowerCase();
+}
+
+function countPlainTextChars(markdown: string): number {
+  const plainText = markdown
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`[^`\r\n]*`/g, ' ')
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/^>\s?/gm, '')
+    .replace(/^[-*+]\s+/gm, '')
+    .replace(/^\d+\.\s+/gm, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/[*_~]/g, '')
+    .replace(/\r?\n/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return plainText.replace(/\s+/g, '').length;
 }
 
 function stripQuotes(value: string): string {

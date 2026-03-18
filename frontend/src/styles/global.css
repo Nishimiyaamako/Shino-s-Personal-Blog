@@ -285,6 +285,40 @@ a:hover {
   word-break: break-all;
 }
 
+.profile-card-divider {
+  height: 1px;
+  background: var(--border);
+}
+
+.profile-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.profile-stat-card {
+  margin: 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+  text-align: center;
+}
+
+.profile-stat-value {
+  margin: 0;
+  font-size: 1.12rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text);
+}
+
+.profile-stat-label {
+  margin: var(--space-1) 0 0;
+  font-size: 0.8rem;
+  color: var(--text-subtle);
+}
+
 .hero-card,
 .page-section,
 .post-card,

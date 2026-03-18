@@ -1,9 +1,12 @@
+import { getPublishedWritingStats } from '../data/posts';
 import { PROFILE_CARD_CONFIG } from '../data/profile-card';
 import type { ProfilePlatform } from '../types/profile-card';
 import { escapeHtml } from '../utils/escape-html';
 
 export function renderProfileCard(): string {
   const profile = PROFILE_CARD_CONFIG;
+  const writingStats = getPublishedWritingStats();
+  const totalWordsInW = `${(writingStats.wordCount / 10000).toFixed(1)}w`;
 
   return `
 <aside class="profile-card" aria-label="个人资料卡片">
@@ -32,6 +35,19 @@ export function renderProfileCard(): string {
       })
       .join('')}
   </ul>
+
+  <div class="profile-card-divider" aria-hidden="true"></div>
+
+  <section class="profile-stat-grid" aria-label="写作统计">
+    <div class="profile-stat-card">
+      <p class="profile-stat-value">${writingStats.postCount}</p>
+      <p class="profile-stat-label">总文章数</p>
+    </div>
+    <div class="profile-stat-card">
+      <p class="profile-stat-value">${totalWordsInW}</p>
+      <p class="profile-stat-label">总字数</p>
+    </div>
+  </section>
 </aside>
 `;
 }
