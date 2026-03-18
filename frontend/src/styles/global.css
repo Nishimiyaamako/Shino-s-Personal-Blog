@@ -286,6 +286,67 @@ a:hover {
   gap: var(--space-2);
 }
 
+.friend-link-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-4);
+}
+
+.friend-link-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+}
+
+.friend-link-anchor {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+  padding: var(--space-4);
+  color: inherit;
+  text-decoration: none;
+}
+
+.friend-link-anchor:hover {
+  text-decoration: none;
+}
+
+.friend-link-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: none;
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+}
+
+.friend-link-content {
+  min-width: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+
+.friend-link-content h2 {
+  margin: 0;
+  line-height: 1.35;
+  font-size: 1.05rem;
+}
+
+.friend-link-content p {
+  margin: 0;
+  color: var(--text-subtle);
+}
+
+.friend-link-url {
+  color: var(--brand);
+  font-size: 0.88rem;
+  word-break: break-all;
+}
+
 .markdown-content {
   line-height: 1.8;
 }
@@ -337,6 +398,12 @@ a:hover {
   padding: var(--space-5) 0 var(--space-6);
   color: var(--text-subtle);
   font-size: 0.92rem;
+}
+
+@media (max-width: 560px) {
+  .friend-link-anchor {
+    align-items: center;
+  }
 }
 
 @media (max-width: 640px) {

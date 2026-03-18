@@ -38,7 +38,7 @@ function renderApp(): void {
     ${route.render(context)}
   </main>
 
-  <footer class="site-footer">
+  <footer class="site-footer" style="text-align: center;">
     <p>© ${new Date().getFullYear()} ${SITE_TITLE}. Built with Vite + TypeScript.</p>
   </footer>
 </div>

@@ -1,6 +1,7 @@
 import { hasPublishedPostSlug } from '../data/posts';
 import { renderArchivePage } from '../pages/archive';
 import { renderAboutPage } from '../pages/about';
+import { renderFriendsPage } from '../pages/friends';
 import { renderHomePage } from '../pages/home';
 import { renderNotFoundPage } from '../pages/not-found';
 import { renderPostDetailPage } from '../pages/post-detail';
@@ -18,6 +19,7 @@ export const ROUTE_RECORDS: RouteRecord[] = [
   { path: '/tags', title: '标签总览', render: renderTagsPage },
   { path: '/tags/:tag', title: '标签详情', render: renderTagDetailPage },
   { path: '/archive', title: '归档', render: renderArchivePage },
+  { path: '/friends', title: '友链', render: renderFriendsPage },
   { path: '/about', title: '关于', render: renderAboutPage },
   { path: NOT_FOUND_PATH, title: '404', render: renderNotFoundPage }
 ];
@@ -27,6 +29,7 @@ export const PRIMARY_NAV_LINKS = [
   { href: '/posts', label: '文章' },
   { href: '/tags', label: '标签' },
   { href: '/archive', label: '归档' },
+  { href: '/friends', label: '友链' },
   { href: '/about', label: '关于' }
 ] as const;
 
