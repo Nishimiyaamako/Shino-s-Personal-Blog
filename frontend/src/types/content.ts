@@ -35,6 +35,24 @@ export interface ArchiveStat {
   count: number;
 }
 
+export interface ArchiveTimelinePost {
+  title: string;
+  slug: string;
+  date: string;
+  month: number;
+  day: number;
+}
+
+export interface ArchiveTimelineYear {
+  year: number;
+  posts: ArchiveTimelinePost[];
+}
+
+export interface ArchiveTimelineData {
+  totalPosts: number;
+  years: ArchiveTimelineYear[];
+}
+
 export class ContentValidationError extends Error {
   constructor(
     message: string,

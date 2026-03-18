@@ -13,8 +13,12 @@ if (!appRoot) {
 }
 
 const appElement = appRoot;
+let cleanupPageEnhancements: (() => void) | null = null;
 
 function renderApp(): void {
+  cleanupPageEnhancements?.();
+  cleanupPageEnhancements = null;
+
   const { route, context, isFallback } = resolveRoute(window.location.pathname);
   const pageTitle = isFallback ? `404 (${context.pathname})` : route.title;
   const hasProfileCard = shouldRenderProfileCard(route.path);
@@ -53,6 +57,8 @@ function renderApp(): void {
   </footer>
 </div>
 `;
+
+  cleanupPageEnhancements = setupPageEnhancements(context.pathname);
 }
 
 function shouldRenderProfileCard(routePath: string): boolean {
@@ -88,6 +94,90 @@ function navigateTo(path: string, options: { replace?: boolean } = {}): void {
 
   renderApp();
   window.scrollTo(0, 0);
+}
+
+function setupPageEnhancements(pathname: string): (() => void) | null {
+  const cleanups: Array<() => void> = [];
+
+  if (pathname === '/archive') {
+    const cleanupArchiveTimeline = setupArchiveTimelineReveal();
+    if (cleanupArchiveTimeline) {
+      cleanups.push(cleanupArchiveTimeline);
+    }
+  }
+
+  if (!cleanups.length) {
+    return null;
+  }
+
+  return () => {
+    for (const cleanup of cleanups) {
+      cleanup();
+    }
+  };
+}
+
+function setupArchiveTimelineReveal(): (() => void) | null {
+  const timelineElement = document.querySelector<HTMLElement>('.archive-timeline');
+
+  if (!timelineElement) {
+    return null;
+  }
+
+  const revealTargets = Array.from(
+    timelineElement.querySelectorAll<HTMLElement>('.archive-year-group, .archive-timeline-end')
+  );
+
+  if (!revealTargets.length) {
+    return null;
+  }
+
+  const revealAll = (): void => {
+    for (const target of revealTargets) {
+      target.classList.add('is-visible');
+    }
+  };
+
+  const reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (reducedMotionMediaQuery.matches || typeof IntersectionObserver === 'undefined') {
+    revealAll();
+    return null;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) {
+          continue;
+        }
+
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      }
+    },
+    { threshold: 0.15 }
+  );
+
+  for (const target of revealTargets) {
+    observer.observe(target);
+  }
+
+  const handleReducedMotionChange = (event: MediaQueryListEvent): void => {
+    if (!event.matches) {
+      return;
+    }
+
+    observer.disconnect();
+    revealAll();
+  };
+
+  reducedMotionMediaQuery.addEventListener('change', handleReducedMotionChange);
+
+  return () => {
+    observer.disconnect();
+    reducedMotionMediaQuery.removeEventListener('change', handleReducedMotionChange);
+  };
 }
 
 function shouldHandleLinkClick(event: MouseEvent, anchor: HTMLAnchorElement): boolean {

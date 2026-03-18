@@ -3,6 +3,9 @@ import { marked } from 'marked';
 import {
   ContentValidationError,
   type ArchiveStat,
+  type ArchiveTimelineData,
+  type ArchiveTimelinePost,
+  type ArchiveTimelineYear,
   type PostDetail,
   type PostFrontmatter,
   type PostSummary,
@@ -104,6 +107,40 @@ export function getArchiveStats(): ArchiveStat[] {
   }
 
   return Array.from(countMap.values()).sort((left, right) => right.key.localeCompare(left.key, 'en'));
+}
+
+export function getArchiveTimeline(): ArchiveTimelineData {
+  const yearMap = new Map<number, ArchiveTimelinePost[]>();
+
+  for (const post of getPublishedPosts()) {
+    const [yearText, monthText, dayText] = post.date.split('-');
+    const year = Number(yearText);
+    const month = Number(monthText);
+    const day = Number(dayText);
+    const currentPosts = yearMap.get(year) ?? [];
+
+    currentPosts.push({
+      title: post.title,
+      slug: post.slug,
+      date: post.date,
+      month,
+      day
+    });
+
+    yearMap.set(year, currentPosts);
+  }
+
+  const years: ArchiveTimelineYear[] = Array.from(yearMap.entries())
+    .sort((left, right) => right[0] - left[0])
+    .map(([year, posts]) => ({
+      year,
+      posts: posts.sort((left, right) => right.date.localeCompare(left.date, 'en'))
+    }));
+
+  return {
+    totalPosts: years.reduce((total, year) => total + year.posts.length, 0),
+    years
+  };
 }
 
 export function getPublishedWritingStats(): PublishedWritingStats {

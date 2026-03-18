@@ -191,6 +191,10 @@ a:hover {
   gap: var(--space-5);
 }
 
+.page > * {
+  min-width: 0;
+}
+
 .profile-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -440,6 +444,226 @@ a:hover {
   gap: var(--space-2);
 }
 
+.archive-timeline {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  padding: var(--space-5) var(--space-4) calc(var(--space-5) + var(--space-2));
+  overflow: hidden;
+}
+
+.archive-timeline::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    130deg,
+    color-mix(in srgb, var(--brand) 10%, transparent),
+    color-mix(in srgb, var(--brand) 4%, transparent) 40%,
+    transparent 72%
+  );
+  pointer-events: none;
+}
+
+.archive-timeline::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: var(--space-5);
+  bottom: calc(var(--space-5) + var(--space-3));
+  width: 2px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--brand) 50%, var(--border)),
+    color-mix(in srgb, var(--brand) 20%, var(--border))
+  );
+}
+
+.archive-year-group,
+.archive-timeline-end {
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.55s cubic-bezier(0.22, 0.61, 0.36, 1), transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.archive-year-group.is-visible,
+.archive-timeline-end.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.archive-year-group + .archive-year-group {
+  margin-top: var(--space-5);
+}
+
+.archive-year-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  position: relative;
+}
+
+.archive-year-dot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--brand) 60%, var(--surface));
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--brand) 35%, transparent);
+}
+
+.archive-year-label {
+  margin: 0;
+  position: relative;
+  z-index: 1;
+  padding: 0 var(--space-2);
+  font-size: clamp(1.35rem, 2vw, 1.65rem);
+  letter-spacing: 0.06em;
+  background: var(--surface);
+}
+
+.archive-year-count {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.55rem;
+  padding: 0 0.62rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  color: var(--text-subtle);
+  background: color-mix(in srgb, var(--brand) 12%, var(--surface-soft));
+}
+
+.archive-posts-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.archive-post-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  opacity: 0;
+  transition:
+    opacity 0.48s cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 0.48s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition-delay: calc(var(--pi, 0) * 60ms + 120ms);
+}
+
+.archive-year-group.is-visible .archive-post-item {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.archive-post-item.is-left {
+  justify-content: flex-end;
+  padding-right: calc(50% + 1.45rem);
+  transform: translateX(-16px);
+}
+
+.archive-post-item.is-right {
+  justify-content: flex-start;
+  padding-left: calc(50% + 1.45rem);
+  transform: translateX(16px);
+}
+
+.archive-post-dot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  background: color-mix(in srgb, var(--brand) 36%, var(--surface-soft));
+  border: 2px solid var(--surface);
+}
+
+.archive-post-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: 0.4rem 0.7rem;
+  border-radius: var(--radius-sm);
+  transition:
+    background-color 0.22s ease,
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.archive-post-item.is-left .archive-post-card {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.archive-post-card:hover,
+.archive-post-card:focus-within {
+  background: color-mix(in srgb, var(--brand) 10%, var(--surface-soft));
+  transform: translateY(-1px);
+}
+
+.archive-post-date {
+  flex: none;
+  font-size: 0.79rem;
+  color: var(--text-subtle);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.archive-post-link {
+  min-width: 0;
+  color: var(--text);
+  line-height: 1.45;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.archive-post-link:hover {
+  color: var(--brand);
+}
+
+.archive-post-link:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.archive-timeline-end {
+  margin: var(--space-4) 0 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-subtle);
+}
+
+.archive-timeline-end-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--brand) 28%, var(--surface-soft));
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--brand) 24%, transparent);
+}
+
 .friend-link-list {
   margin: 0;
   padding: 0;
@@ -503,6 +727,10 @@ a:hover {
 
 .markdown-content {
   line-height: 1.8;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .markdown-content > :first-child {
@@ -534,11 +762,15 @@ a:hover {
   border-radius: var(--radius-sm);
   background: var(--surface-soft);
   border: 1px solid var(--border);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .markdown-content pre code {
   background: transparent;
   padding: 0;
+  white-space: inherit;
 }
 
 .markdown-content blockquote {
@@ -574,6 +806,49 @@ a:hover {
     max-height: none;
     overflow: visible;
   }
+
+  .archive-timeline::after {
+    left: 1.35rem;
+    transform: none;
+  }
+
+  .archive-year-marker {
+    justify-content: flex-start;
+    padding-left: calc(var(--space-4) + 0.65rem);
+  }
+
+  .archive-year-dot {
+    left: 1.35rem;
+  }
+
+  .archive-year-label {
+    padding-left: 0;
+    background: transparent;
+  }
+
+  .archive-post-dot {
+    left: 1.35rem;
+    transform: translate(-50%, -50%);
+  }
+
+  .archive-post-item.is-left,
+  .archive-post-item.is-right {
+    justify-content: flex-start;
+    padding-left: calc(var(--space-4) + 1.35rem);
+    padding-right: 0;
+    transform: translateX(-10px);
+  }
+
+  .archive-post-item.is-left .archive-post-card,
+  .archive-post-item.is-right .archive-post-card {
+    flex-direction: row;
+    text-align: left;
+  }
+
+  .archive-timeline-end {
+    justify-content: flex-start;
+    padding-left: calc(var(--space-4) + 0.65rem);
+  }
 }
 
 @media (max-width: 640px) {
@@ -600,5 +875,48 @@ a:hover {
 
   .site-main {
     padding-top: var(--space-5);
+  }
+
+  .archive-timeline {
+    padding: var(--space-4) var(--space-3) var(--space-4);
+  }
+
+  .archive-timeline::after {
+    left: 1.1rem;
+    top: var(--space-4);
+    bottom: calc(var(--space-4) + var(--space-2));
+  }
+
+  .archive-year-marker,
+  .archive-timeline-end {
+    padding-left: calc(var(--space-3) + 0.55rem);
+  }
+
+  .archive-year-dot,
+  .archive-post-dot {
+    left: 1.1rem;
+  }
+
+  .archive-post-item.is-left,
+  .archive-post-item.is-right {
+    padding-left: calc(var(--space-3) + 1.25rem);
+  }
+
+  .archive-post-date {
+    font-size: 0.75rem;
+  }
+
+  .archive-post-link {
+    font-size: 0.9rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .archive-year-group,
+  .archive-post-item,
+  .archive-timeline-end {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 }
