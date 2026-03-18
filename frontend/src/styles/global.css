@@ -207,8 +207,9 @@ a:hover {
 
 .profile-card-header {
   display: grid;
-  justify-items: start;
+  justify-items: center;
   gap: var(--space-3);
+  text-align: center;
 }
 
 .profile-card-avatar {
@@ -307,15 +308,15 @@ a:hover {
 
 .profile-stat-value {
   margin: 0;
-  font-size: 1.12rem;
+  font-size: 0.9rem;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.5;
   color: var(--text);
 }
 
 .profile-stat-label {
   margin: var(--space-1) 0 0;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   color: var(--text-subtle);
 }
 
@@ -371,6 +372,7 @@ a:hover {
 
 .section-head h2,
 .page-section h2 {
+  font-size: 1rem;
   margin: 0;
 }
 

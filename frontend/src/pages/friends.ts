@@ -5,11 +5,6 @@ import { escapeHtml } from '../utils/escape-html';
 export const renderFriendsPage: PageRenderer = () => {
   return `
 <section class="page page-friends">
-  <header class="page-header">
-    <h1>友链</h1>
-    <p>和优秀站点互相连接，欢迎常来串门 ✨</p>
-  </header>
-
   ${
     FRIEND_LINKS.length
       ? `<ul class="friend-link-list">

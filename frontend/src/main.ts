@@ -3,8 +3,8 @@ import './styles/global.css';
 import { renderProfileCard } from './components/profile-card';
 import { PRIMARY_NAV_LINKS, resolveRoute } from './router';
 
-const SITE_TITLE = 'Personal Blog';
-const SITE_SUBTITLE = '内容优先的个人博客';
+const SITE_TITLE = 'Shino';
+const SITE_SUBTITLE = '';
 
 const appRoot = document.querySelector<HTMLDivElement>('#app');
 

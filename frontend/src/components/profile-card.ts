@@ -6,7 +6,7 @@ import { escapeHtml } from '../utils/escape-html';
 export function renderProfileCard(): string {
   const profile = PROFILE_CARD_CONFIG;
   const writingStats = getPublishedWritingStats();
-  const totalWordsInW = `${(writingStats.wordCount / 10000).toFixed(1)}w`;
+  const totalWordsInW = `${(writingStats.wordCount / 10000).toFixed(1)}W`;
 
   return `
 <aside class="profile-card" aria-label="个人资料卡片">
@@ -23,7 +23,8 @@ export function renderProfileCard(): string {
       .map((contact) => {
         const attrs = getContactAnchorAttrs(contact.href);
 
-        return `<li>
+        return `
+    <li>
       <a href="${escapeHtml(contact.href)}" class="profile-contact-link"${attrs}>
         <span class="profile-contact-platform">
           ${renderPlatformIcon(contact.platform)}
@@ -40,12 +41,12 @@ export function renderProfileCard(): string {
 
   <section class="profile-stat-grid" aria-label="写作统计">
     <div class="profile-stat-card">
-      <p class="profile-stat-value">${writingStats.postCount}</p>
-      <p class="profile-stat-label">总文章数</p>
+    <p class="profile-stat-label">文章数</p>
+    <p class="profile-stat-value">${writingStats.postCount} 篇</p>
     </div>
     <div class="profile-stat-card">
-      <p class="profile-stat-value">${totalWordsInW}</p>
       <p class="profile-stat-label">总字数</p>
+      <p class="profile-stat-value">${totalWordsInW}</p>
     </div>
   </section>
 </aside>

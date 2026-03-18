@@ -25,7 +25,7 @@
 
 ## 1) 项目快照（预算 ≤ 25 行）
 
-- 项目名：`Personal Blog`
+- 项目名：`Shino's Bolg`
 - 项目根目录：`/home/shino/Codes/Personal Blog`
 - 技术栈：`Frontend: Vite + TypeScript (Vanilla SPA); Backend: Elysia.js placeholder; Content: Markdown`
 - 后端存在：`yes`
