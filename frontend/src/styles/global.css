@@ -471,8 +471,8 @@ a:hover {
   content: '';
   position: absolute;
   left: 50%;
-  top: var(--space-5);
-  bottom: calc(var(--space-5) + var(--space-3));
+  top: calc(var(--space-5) + 0.7rem);
+  bottom: calc(var(--space-5) + var(--space-3) + 0.7rem);
   width: 2px;
   transform: translateX(-50%);
   border-radius: 999px;
@@ -506,7 +506,7 @@ a:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
+  min-height: 1.9rem;
   margin-bottom: var(--space-3);
   position: relative;
 }
@@ -526,16 +526,22 @@ a:hover {
 
 .archive-year-label {
   margin: 0;
-  position: relative;
+  position: absolute;
+  left: calc(50% + 1.05rem);
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 1;
-  padding: 0 var(--space-2);
+  padding: 0 var(--space-1);
   font-size: clamp(1.35rem, 2vw, 1.65rem);
   letter-spacing: 0.06em;
-  background: var(--surface);
+  background: transparent;
 }
 
 .archive-year-count {
-  position: relative;
+  position: absolute;
+  right: calc(50% + 1.05rem);
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 1;
   display: inline-flex;
   align-items: center;
@@ -648,20 +654,36 @@ a:hover {
 
 .archive-timeline-end {
   margin: var(--space-4) 0 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--space-2);
+  position: relative;
+  min-height: 2.15rem;
   color: var(--text-subtle);
 }
 
 .archive-timeline-end-dot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   width: 10px;
   height: 10px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--brand) 28%, var(--surface-soft));
   border: 2px solid var(--surface);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--brand) 24%, transparent);
+  z-index: 2;
+}
+
+.archive-timeline-end > span:last-child {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 0.6rem);
+  transform: translateX(-50%);
+  z-index: 1;
+  padding: 0 var(--space-2);
+  font-size: 0.76rem;
+  line-height: 1.25;
+  background: var(--surface);
+  white-space: nowrap;
 }
 
 .friend-link-list {
@@ -814,6 +836,7 @@ a:hover {
 
   .archive-year-marker {
     justify-content: flex-start;
+    gap: var(--space-2);
     padding-left: calc(var(--space-4) + 0.65rem);
   }
 
@@ -822,8 +845,19 @@ a:hover {
   }
 
   .archive-year-label {
-    padding-left: 0;
+    position: static;
+    top: auto;
+    left: auto;
+    transform: none;
+    padding: 0 var(--space-1);
     background: transparent;
+  }
+
+  .archive-year-count {
+    position: static;
+    top: auto;
+    right: auto;
+    transform: none;
   }
 
   .archive-post-dot {
@@ -845,9 +879,13 @@ a:hover {
     text-align: left;
   }
 
-  .archive-timeline-end {
-    justify-content: flex-start;
-    padding-left: calc(var(--space-4) + 0.65rem);
+  .archive-timeline-end-dot {
+    left: 1.35rem;
+  }
+
+  .archive-timeline-end > span:last-child {
+    left: 1.35rem;
+    transform: translateX(var(--space-2));
   }
 }
 
@@ -883,18 +921,26 @@ a:hover {
 
   .archive-timeline::after {
     left: 1.1rem;
-    top: var(--space-4);
-    bottom: calc(var(--space-4) + var(--space-2));
+    top: calc(var(--space-4) + 0.45rem);
+    bottom: calc(var(--space-4) + var(--space-2) + 0.45rem);
   }
 
-  .archive-year-marker,
-  .archive-timeline-end {
+  .archive-year-marker {
     padding-left: calc(var(--space-3) + 0.55rem);
   }
 
   .archive-year-dot,
   .archive-post-dot {
     left: 1.1rem;
+  }
+
+  .archive-timeline-end-dot {
+    left: 1.1rem;
+  }
+
+  .archive-timeline-end > span:last-child {
+    left: 1.1rem;
+    transform: translateX(var(--space-2));
   }
 
   .archive-post-item.is-left,
