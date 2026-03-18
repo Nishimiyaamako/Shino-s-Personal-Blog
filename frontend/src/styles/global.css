@@ -23,6 +23,8 @@
   --space-4: 1rem;
   --space-5: 1.5rem;
   --space-6: 2rem;
+
+  --profile-sticky-top: 84px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -162,9 +164,125 @@ a:hover {
   padding: var(--space-6) 0 var(--space-6);
 }
 
+.site-main-layout {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.site-page-content {
+  min-width: 0;
+}
+
+.site-main--with-profile {
+  width: min(1120px, calc(100% - 2rem));
+}
+
+.site-main--with-profile .site-main-layout {
+  grid-template-columns: minmax(220px, 260px) minmax(0, 1fr);
+  align-items: start;
+}
+
+.site-main--with-profile .site-page-content {
+  max-width: 760px;
+}
+
 .page {
   display: grid;
   gap: var(--space-5);
+}
+
+.profile-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  padding: var(--space-4);
+  display: grid;
+  gap: var(--space-4);
+  position: sticky;
+  top: var(--profile-sticky-top);
+  max-height: calc(100vh - var(--profile-sticky-top) - var(--space-5));
+  overflow: auto;
+}
+
+.profile-card-header {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-3);
+}
+
+.profile-card-avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+}
+
+.profile-card-meta h2 {
+  margin: 0;
+  font-size: 1.08rem;
+  line-height: 1.35;
+}
+
+.profile-card-meta p {
+  margin: var(--space-2) 0 0;
+  color: var(--text-subtle);
+  font-size: 0.94rem;
+}
+
+.profile-contact-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.profile-contact-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 40px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+  color: inherit;
+  text-decoration: none;
+}
+
+.profile-contact-link:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+  text-decoration: none;
+}
+
+.profile-contact-link:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 1px;
+}
+
+.profile-contact-platform {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--brand);
+  font-weight: 600;
+}
+
+.profile-contact-icon {
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+}
+
+.profile-contact-label {
+  color: var(--text-subtle);
+  font-size: 0.88rem;
+  word-break: break-all;
 }
 
 .hero-card,
@@ -403,6 +521,22 @@ a:hover {
 @media (max-width: 560px) {
   .friend-link-anchor {
     align-items: center;
+  }
+}
+
+@media (max-width: 960px) {
+  .site-main--with-profile {
+    width: min(760px, calc(100% - 2rem));
+  }
+
+  .site-main--with-profile .site-main-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-card {
+    position: static;
+    max-height: none;
+    overflow: visible;
   }
 }
 

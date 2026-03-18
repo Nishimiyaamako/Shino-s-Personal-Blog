@@ -1,5 +1,6 @@
 import './styles/global.css';
 
+import { renderProfileCard } from './components/profile-card';
 import { PRIMARY_NAV_LINKS, resolveRoute } from './router';
 
 const SITE_TITLE = 'Personal Blog';
@@ -16,6 +17,15 @@ const appElement = appRoot;
 function renderApp(): void {
   const { route, context, isFallback } = resolveRoute(window.location.pathname);
   const pageTitle = isFallback ? `404 (${context.pathname})` : route.title;
+  const hasProfileCard = shouldRenderProfileCard(route.path);
+  const mainClassName = hasProfileCard ? 'site-main site-main--with-profile' : 'site-main';
+  const pageContent = route.render(context);
+  const mainLayout = hasProfileCard
+    ? `<div class="site-main-layout">
+        ${renderProfileCard()}
+        <div class="site-page-content">${pageContent}</div>
+      </div>`
+    : `<div class="site-page-content">${pageContent}</div>`;
 
   document.title = `${pageTitle} | ${SITE_TITLE}`;
 
@@ -34,8 +44,8 @@ function renderApp(): void {
     </div>
   </header>
 
-  <main id="main-content" class="site-main" tabindex="-1">
-    ${route.render(context)}
+  <main id="main-content" class="${mainClassName}" tabindex="-1">
+    ${mainLayout}
   </main>
 
   <footer class="site-footer" style="text-align: center;">
@@ -43,6 +53,10 @@ function renderApp(): void {
   </footer>
 </div>
 `;
+}
+
+function shouldRenderProfileCard(routePath: string): boolean {
+  return routePath === '/' || routePath === '/posts' || routePath === '/posts/:slug';
 }
 
 function renderNavigation(pathname: string): string {
