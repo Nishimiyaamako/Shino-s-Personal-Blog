@@ -38,10 +38,8 @@ export const renderArchivePage: PageRenderer = () => {
   return `
 <section class="page page-archive">
   <header class="page-header">
-    <h1>归档</h1>
     <p>共 ${archiveTimeline.totalPosts} 篇文章，记录一路走过的脚印。</p>
   </header>
-
   ${
     archiveTimeline.years.length
       ? `<section class="archive-timeline" aria-label="文章归档时间线">

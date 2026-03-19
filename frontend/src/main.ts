@@ -3,7 +3,7 @@ import './styles/global.css';
 import { renderProfileCard } from './components/profile-card';
 import { PRIMARY_NAV_LINKS, resolveRoute } from './router';
 
-const SITE_TITLE = 'Shino';
+const SITE_TITLE = 'ShinoLog';
 const SITE_SUBTITLE = '';
 
 const appRoot = document.querySelector<HTMLDivElement>('#app');
@@ -53,7 +53,8 @@ function renderApp(): void {
   </main>
 
   <footer class="site-footer" style="text-align: center;">
-    <p>© ${new Date().getFullYear()} ${SITE_TITLE}. Built with Vite + TypeScript.</p>
+    <p>© ${new Date().getFullYear()} NagaShino. All rights reserved.</p>
+    <p>Powered by Vite + TypeScript.</p>
   </footer>
 </div>
 `;
@@ -99,6 +100,13 @@ function navigateTo(path: string, options: { replace?: boolean } = {}): void {
 function setupPageEnhancements(pathname: string): (() => void) | null {
   const cleanups: Array<() => void> = [];
 
+  if (pathname === '/tags') {
+    const cleanupTagCloudInteractions = setupTagCloudInteractions();
+    if (cleanupTagCloudInteractions) {
+      cleanups.push(cleanupTagCloudInteractions);
+    }
+  }
+
   if (pathname === '/archive') {
     const cleanupArchiveTimeline = setupArchiveTimelineReveal();
     if (cleanupArchiveTimeline) {
@@ -114,6 +122,124 @@ function setupPageEnhancements(pathname: string): (() => void) | null {
     for (const cleanup of cleanups) {
       cleanup();
     }
+  };
+}
+
+function setupTagCloudInteractions(): (() => void) | null {
+  const tagsPageElement = document.querySelector<HTMLElement>('.page-tags');
+
+  if (!tagsPageElement) {
+    return null;
+  }
+
+  const panelElement = tagsPageElement.querySelector<HTMLElement>('[data-role="tag-posts-panel"]');
+  const panelTitleElement = tagsPageElement.querySelector<HTMLElement>('[data-role="tag-posts-title"]');
+  const panelMetaElement = tagsPageElement.querySelector<HTMLElement>('[data-role="tag-posts-meta"]');
+  const panelContentElement = tagsPageElement.querySelector<HTMLElement>('[data-role="tag-posts-content"]');
+  const closeButtonElement = tagsPageElement.querySelector<HTMLButtonElement>('[data-role="tag-posts-close"]');
+  const bubbleElements = Array.from(tagsPageElement.querySelectorAll<HTMLButtonElement>('.tag-bubble[data-tag]'));
+
+  if (
+    !panelElement ||
+    !panelTitleElement ||
+    !panelMetaElement ||
+    !panelContentElement ||
+    !closeButtonElement ||
+    !bubbleElements.length
+  ) {
+    return null;
+  }
+
+  const templateMap = new Map<string, string>();
+
+  for (const templateElement of tagsPageElement.querySelectorAll<HTMLTemplateElement>('template[data-tag-template]')) {
+    const tag = templateElement.dataset.tagTemplate ?? '';
+
+    if (!tag) {
+      continue;
+    }
+
+    templateMap.set(tag, templateElement.innerHTML.trim());
+  }
+
+  const reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let activeBubbleElement: HTMLButtonElement | null = null;
+
+  const setPanelOpenState = (isOpen: boolean): void => {
+    panelElement.hidden = !isOpen;
+    panelElement.classList.toggle('is-open', isOpen);
+    panelElement.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+  };
+
+  const clearActiveBubbleState = (): void => {
+    if (!activeBubbleElement) {
+      return;
+    }
+
+    activeBubbleElement.classList.remove('is-active');
+    activeBubbleElement = null;
+  };
+
+  const closePanel = (): void => {
+    clearActiveBubbleState();
+    panelContentElement.innerHTML = '';
+    setPanelOpenState(false);
+  };
+
+  const openPanel = (bubbleElement: HTMLButtonElement): void => {
+    const tag = bubbleElement.dataset.tag ?? '';
+    const parsedCount = Number.parseInt(bubbleElement.dataset.count ?? '0', 10);
+    const postCount = Number.isFinite(parsedCount) ? Math.max(0, parsedCount) : 0;
+    const templateHtml = templateMap.get(tag) ?? '';
+
+    panelTitleElement.textContent = tag ? `#${tag}` : '#(empty)';
+
+    panelContentElement.innerHTML = templateHtml || '<p class="empty-hint">当前标签下暂无已发布文章。</p>';
+
+    if (activeBubbleElement && activeBubbleElement !== bubbleElement) {
+      activeBubbleElement.classList.remove('is-active');
+    }
+
+    bubbleElement.classList.add('is-active');
+    activeBubbleElement = bubbleElement;
+
+    setPanelOpenState(true);
+
+    panelElement.scrollIntoView({
+      behavior: reducedMotionMediaQuery.matches ? 'auto' : 'smooth',
+      block: 'start'
+    });
+  };
+
+  const handleBubbleClick = (event: Event): void => {
+    const bubbleElement = event.currentTarget;
+
+    if (!(bubbleElement instanceof HTMLButtonElement)) {
+      return;
+    }
+
+    if (activeBubbleElement === bubbleElement && panelElement.classList.contains('is-open')) {
+      closePanel();
+      return;
+    }
+
+    openPanel(bubbleElement);
+  };
+
+  setPanelOpenState(false);
+
+  for (const bubbleElement of bubbleElements) {
+    bubbleElement.addEventListener('click', handleBubbleClick);
+  }
+
+  closeButtonElement.addEventListener('click', closePanel);
+
+  return () => {
+    for (const bubbleElement of bubbleElements) {
+      bubbleElement.removeEventListener('click', handleBubbleClick);
+    }
+
+    closeButtonElement.removeEventListener('click', closePanel);
   };
 }
 
