@@ -7,7 +7,7 @@ export const renderPostsPage: PageRenderer = () => {
 
   return `
 <section class="page page-posts">
-  ${renderPostList(posts, { emptyHint: '暂无已发布文章。' })}
+  ${renderPostList(posts, { emptyHint: '暂无已发布文章。', variant: 'posts' })}
 </section>
 `;
 };

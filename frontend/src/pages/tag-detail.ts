@@ -19,7 +19,7 @@ export const renderTagDetailPage: PageRenderer = ({ params }) => {
     <a href="/tags" data-link class="tag-detail-back-link">← 返回标签页</a>
   </header>
 
-  ${renderPostList(posts, { emptyHint: '当前标签下暂无已发布文章。' })}
+  ${renderPostList(posts, { emptyHint: '当前标签下暂无已发布文章。', variant: 'posts' })}
 </section>
 `;
 };

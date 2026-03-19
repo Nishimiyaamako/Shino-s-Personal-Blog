@@ -182,6 +182,7 @@ function setupTagCloudInteractions(): (() => void) | null {
 
   const closePanel = (): void => {
     clearActiveBubbleState();
+    panelMetaElement.textContent = '';
     panelContentElement.innerHTML = '';
     setPanelOpenState(false);
   };
@@ -193,6 +194,7 @@ function setupTagCloudInteractions(): (() => void) | null {
     const templateHtml = templateMap.get(tag) ?? '';
 
     panelTitleElement.textContent = tag ? `#${tag}` : '#(empty)';
+    panelMetaElement.textContent = `${postCount} 篇文章`;
 
     panelContentElement.innerHTML = templateHtml || '<p class="empty-hint">当前标签下暂无已发布文章。</p>';
 
