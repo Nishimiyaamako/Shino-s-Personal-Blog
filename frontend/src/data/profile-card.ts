@@ -18,7 +18,7 @@ export const PROFILE_CARD_CONFIG: ProfileCardConfig = {
     {
       platform: 'gmail',
       label: '',
-      href: 'https://mail.google.com/mail/u/0/#inbox'
+      href: 'nagashinoamako@gmail.com'
     }
   ]
 };

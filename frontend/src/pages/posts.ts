@@ -7,11 +7,6 @@ export const renderPostsPage: PageRenderer = () => {
 
   return `
 <section class="page page-posts">
-  <header class="page-header">
-    <h1>文章</h1>
-    <p>按发布日期倒序展示，仅包含已发布内容。</p>
-  </header>
-
   ${renderPostList(posts, { emptyHint: '暂无已发布文章。' })}
 </section>
 `;

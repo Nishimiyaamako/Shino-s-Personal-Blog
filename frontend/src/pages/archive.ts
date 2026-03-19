@@ -44,7 +44,7 @@ export const renderArchivePage: PageRenderer = () => {
     archiveTimeline.years.length
       ? `<section class="archive-timeline" aria-label="文章归档时间线">
           ${timelineGroupsHtml}
-          <p class="archive-timeline-end"><span class="archive-timeline-end-dot" aria-hidden="true"></span><span>故事从这里开始</span></p>
+          <p class="archive-timeline-end"><span class="archive-timeline-end-dot" aria-hidden="true"></span><span>旅途的开始</span></p>
         </section>`
       : '<p class="empty-hint">暂无归档内容，第一篇故事正在路上。</p>'
   }

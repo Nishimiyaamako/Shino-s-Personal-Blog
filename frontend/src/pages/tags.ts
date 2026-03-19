@@ -3,7 +3,7 @@ import { getPostsByTag, getTagStats } from '../data/posts';
 import type { PageRenderer } from '../types/router';
 import { escapeHtml } from '../utils/escape-html';
 
-const TAG_COLOR_VARIANTS = ['blue', 'cyan', 'neutral'] as const;
+const TAG_COLOR_VARIANTS = ['strawberry', 'bubble', 'mauve'] as const;
 
 export const renderTagsPage: PageRenderer = () => {
   const tagStats = getTagStats();
