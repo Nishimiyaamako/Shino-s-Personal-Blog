@@ -117,6 +117,16 @@ function navigateTo(path: string, options: { replace?: boolean } = {}): void {
 function setupPageEnhancements(pathname: string): (() => void) | null {
   const cleanups: Array<() => void> = [];
 
+  const cleanupRouteEnterTransition = setupRouteEnterTransition();
+  if (cleanupRouteEnterTransition) {
+    cleanups.push(cleanupRouteEnterTransition);
+  }
+
+  const cleanupGlobalMotionChoreography = setupGlobalMotionChoreography();
+  if (cleanupGlobalMotionChoreography) {
+    cleanups.push(cleanupGlobalMotionChoreography);
+  }
+
   if (pathname === '/tags') {
     const cleanupTagCloudInteractions = setupTagCloudInteractions();
     if (cleanupTagCloudInteractions) {
@@ -139,6 +149,172 @@ function setupPageEnhancements(pathname: string): (() => void) | null {
     for (const cleanup of cleanups) {
       cleanup();
     }
+  };
+}
+
+const PAGE_STAGGER_SELECTORS = [
+  ':scope > .page-header',
+  ':scope > .section-head',
+  ':scope > .page-section',
+  ':scope > .hero-card',
+  ':scope > .page-not-found',
+  ':scope > .tag-filter-shell',
+  ':scope > .tag-result-shell',
+  ':scope > .tag-detail-header',
+  ':scope > .archive-timeline',
+  ':scope > .markdown-content',
+  ':scope > .empty-hint'
+] as const;
+
+const PAGE_SCROLL_REVEAL_SELECTORS = [
+  '.post-list--posts > .post-card',
+  '.post-list--tag-panel > .post-card',
+  '.friend-link-list > .friend-link-card',
+  '.stats-list > li'
+] as const;
+
+function setupRouteEnterTransition(): (() => void) | null {
+  const reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (reducedMotionMediaQuery.matches) {
+    return null;
+  }
+
+  const routeEnterTargets = Array.from(
+    document.querySelectorAll<HTMLElement>('.site-page-content, .profile-card, .site-footer')
+  );
+
+  if (!routeEnterTargets.length) {
+    return null;
+  }
+
+  for (const [index, targetElement] of routeEnterTargets.entries()) {
+    targetElement.classList.add('route-enter-target');
+    targetElement.style.setProperty('--route-enter-delay', `${index * 38}ms`);
+  }
+
+  const frameId = window.requestAnimationFrame(() => {
+    for (const targetElement of routeEnterTargets) {
+      targetElement.classList.add('is-entered');
+    }
+  });
+
+  const handleReducedMotionChange = (event: MediaQueryListEvent): void => {
+    if (!event.matches) {
+      return;
+    }
+
+    window.cancelAnimationFrame(frameId);
+    for (const targetElement of routeEnterTargets) {
+      targetElement.classList.add('is-entered');
+    }
+  };
+
+  reducedMotionMediaQuery.addEventListener('change', handleReducedMotionChange);
+
+  return () => {
+    window.cancelAnimationFrame(frameId);
+    reducedMotionMediaQuery.removeEventListener('change', handleReducedMotionChange);
+  };
+}
+
+function setupGlobalMotionChoreography(): (() => void) | null {
+  const reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const pageElement = document.querySelector<HTMLElement>('.site-page-content > .page');
+
+  if (!pageElement || reducedMotionMediaQuery.matches) {
+    return null;
+  }
+
+  const staggerTargetSet = new Set<HTMLElement>();
+
+  for (const selector of PAGE_STAGGER_SELECTORS) {
+    for (const targetElement of pageElement.querySelectorAll<HTMLElement>(selector)) {
+      staggerTargetSet.add(targetElement);
+    }
+  }
+
+  const staggerTargets = Array.from(staggerTargetSet);
+
+  for (const [index, targetElement] of staggerTargets.entries()) {
+    targetElement.classList.add('motion-stagger-item');
+    targetElement.style.setProperty('--motion-index', String(index));
+  }
+
+  let revealStaggerFrameId = window.requestAnimationFrame(() => {
+    for (const targetElement of staggerTargets) {
+      targetElement.classList.add('is-visible');
+    }
+  });
+
+  const observeTargets = Array.from(
+    pageElement.querySelectorAll<HTMLElement>(PAGE_SCROLL_REVEAL_SELECTORS.join(','))
+  );
+
+  for (const [index, targetElement] of observeTargets.entries()) {
+    targetElement.classList.add('motion-observe-item');
+    targetElement.style.setProperty('--motion-index', String(index % 8));
+  }
+
+  const revealObservedImmediately = (): void => {
+    for (const targetElement of observeTargets) {
+      targetElement.classList.add('is-visible');
+    }
+  };
+
+  let observer: IntersectionObserver | null = null;
+
+  if (!observeTargets.length) {
+    // noop
+  } else if (typeof IntersectionObserver === 'undefined') {
+    revealObservedImmediately();
+  } else {
+    observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) {
+            continue;
+          }
+
+          entry.target.classList.add('is-visible');
+          observer?.unobserve(entry.target);
+        }
+      },
+      {
+        threshold: 0.16,
+        rootMargin: '0px 0px -8% 0px'
+      }
+    );
+
+    for (const targetElement of observeTargets) {
+      observer.observe(targetElement);
+    }
+  }
+
+  const handleReducedMotionChange = (event: MediaQueryListEvent): void => {
+    if (!event.matches) {
+      return;
+    }
+
+    window.cancelAnimationFrame(revealStaggerFrameId);
+    revealStaggerFrameId = 0;
+    observer?.disconnect();
+    revealObservedImmediately();
+
+    for (const targetElement of staggerTargets) {
+      targetElement.classList.add('is-visible');
+    }
+  };
+
+  reducedMotionMediaQuery.addEventListener('change', handleReducedMotionChange);
+
+  return () => {
+    if (revealStaggerFrameId) {
+      window.cancelAnimationFrame(revealStaggerFrameId);
+    }
+
+    observer?.disconnect();
+    reducedMotionMediaQuery.removeEventListener('change', handleReducedMotionChange);
   };
 }
 

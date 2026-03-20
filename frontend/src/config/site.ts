@@ -6,8 +6,7 @@ export const SITE_CONFIG = {
     poweredBy: 'Powered by Vite + TypeScript.',
     icpRecordText: '蜀ICP备2026012160号',
     icpRecordUrl: 'https://beian.miit.gov.cn/',
-    // 当前未办理公安联网备案时留空；拿到备案号后再填写并显示。
-    publicSecurityRecordText: '',
-    publicSecurityRecordUrl: ''
+    publicSecurityRecordText: '川公网安备51150302000177号',
+    publicSecurityRecordUrl: 'https://beian.mps.gov.cn/#/query/webSearch?code=51150302000177'
   }
 } as const;
