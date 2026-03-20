@@ -54,6 +54,10 @@
 - 决策：内容源使用 `import.meta.glob(...?raw)` 直接读取本地 Markdown。
 - 决策：`/tags` 升级为「标签云 + 本页展开文章面板」，主交互不再是直接跳转。
 - 决策：标签页 Delight 风格采用蓝青+中性色、1~5 级尺寸和低位移动效；保留 `prefers-reduced-motion` 兜底。
+- 决策：首版生产部署采用 1Panel 静态站点，仅发布 `frontend/dist`，后端继续占位不启用。
+- 决策：发布流程固定为“本地构建 -> 打包 dist -> 上传 1Panel 根目录 -> Nginx SPA 回退”。
+- 决策：ICP备案与公安备案信息集中在 `frontend/src/config/site.ts` 统一维护。
+- 决策：在未取得公安联网备案号前，页脚仅展示 ICP 备案，公安备案字段留空且不渲染。
 
 ## 4) 已踩坑与回归风险（预算 ≤ 40 行）
 
@@ -67,13 +71,17 @@
   - 防护：交互层对模板缺失走 empty hint 回退，不中断页面逻辑。
 - 风险：路由切换时重复绑定标签页事件导致状态错乱。
   - 防护：所有 `/tags` 事件监听都纳入 `setupPageEnhancements` cleanup 生命周期。
+- 风险：1Panel 未配置 `try_files $uri $uri/ /index.html` 会导致二级路由刷新 404。
+  - 防护：提供 `deploy/nginx/1panel-static-spa-snippet.conf` 并在上线清单强制核查。
+- 风险：备案文案与跳转链接不一致会影响公安联网验证。
+  - 防护：上线前在 `frontend/src/config/site.ts` 核对真实编号并二次构建上传。
 
 ## 5) 当前任务与下一步（预算 ≤ 35 行）
 
-- 当前任务：完成标签页 Delight 改造后的交互与样式验证（桌面/移动端）。
-- 下一步 1：补充更多真实标签数据，复核标签云尺寸梯度是否均衡。
-- 下一步 2：为 `/tags` 交互补充轻量 e2e/DOM 回归用例。
-- 下一步 3：评估标签页是否需要加入搜索或筛选能力。
+- 当前任务：完成 1Panel 静态部署资产落地（构建脚本 + Nginx 片段 + 发布文档）。
+- 下一步 1：在真实 1Panel 服务器按 `deploy/1panel-static-deploy.md` 完成首发上线。
+- 下一步 2：拿到公安联网备案号后，在 `frontend/src/config/site.ts` 填写并重新构建。
+- 下一步 3：上线后执行 `curl` 与浏览器双端验收（HTTPS、路由刷新、备案跳转）。
 
 ## 6) 最近更新记录（预算 ≤ 10 行）
 
@@ -82,6 +90,8 @@
 - 2026-03-18：完成单栏主体页、Markdown 渲染、标签/归档统计。
 - 2026-03-19：去除 `/tags` 展开面板（`.tag-posts-panel.is-open`）背景卡片视觉。
 - 2026-03-19：完成 `/tags` 标签云 + 本页展开面板 + `/tags/:tag` 统一风格改造。
+- 2026-03-20：新增 1Panel 静态部署脚本/文档/Nginx 片段，并将备案信息改为 `site.ts` 可配置。
+- 2026-03-20：备案展示改为“ICP 必显 + 公安可选”，并新增 `frontend-dist-latest.tar.gz` 上传别名。
 
 ---
 

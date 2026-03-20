@@ -38,7 +38,7 @@ export const renderTagsPage: PageRenderer = () => {
                         <span class="tag-name">#${escapeHtml(tag)}</span>
                         <span class="tag-count">${count}</span>
                       </button>
-                    </li>`
+                  </li>`
                 )
                 .join('')}
             </ul>

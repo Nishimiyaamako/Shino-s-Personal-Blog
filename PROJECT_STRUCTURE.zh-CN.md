@@ -5,7 +5,7 @@
 ## 0) 维护约定
 
 - 只要工程结构发生变化（新增 / 删除 / 重命名目录或关键文件），就同步更新本文件。
-- 本文件当前状态已同步至：**2026-03-14（前端最小骨架 + 本地生成目录说明）**。
+- 本文件当前状态已同步至：**2026-03-20（1Panel 静态部署资产补齐）**。
 
 ## 1) 注释版目录树
 
@@ -136,3 +136,17 @@
 - `frontend/src/router/index.ts`（文章 slug 不存在时回落 404）
 - `frontend/src/pages/*.ts`（占位页替换为真实主体结构）
 - `docs/content-spec.md`（前端内容协议定稿）
+
+## 5) 2026-03-20 结构更新补记（1Panel 静态部署）
+
+新增关键文件（节选）：
+
+- `frontend/src/config/site.ts`（站点标题、ICP备案、公安备案统一配置）
+- `deploy/1panel-static-deploy.md`（1Panel 静态站点上线指引）
+- `deploy/nginx/1panel-static-spa-snippet.conf`（SPA 刷新回退 + 缓存配置片段）
+- `deploy/scripts/build-frontend-dist.sh`（本地构建并打包 dist）
+
+改动关键文件（节选）：
+
+- `frontend/src/main.ts`（页脚备案展示改为可配置，补齐 ICP + 公安备案双入口）
+- `frontend/src/styles/global.css`（新增备案信息行样式）

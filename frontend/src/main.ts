@@ -1,10 +1,10 @@
 import './styles/global.css';
 
 import { renderProfileCard } from './components/profile-card';
+import { SITE_CONFIG } from './config/site';
 import { PRIMARY_NAV_LINKS, resolveRoute } from './router';
 
-const SITE_TITLE = 'ShinoLog';
-const SITE_SUBTITLE = '';
+const { title: SITE_TITLE, subtitle: SITE_SUBTITLE, footer: SITE_FOOTER } = SITE_CONFIG;
 
 const appRoot = document.querySelector<HTMLDivElement>('#app');
 
@@ -52,9 +52,10 @@ function renderApp(): void {
     ${mainLayout}
   </main>
 
-  <footer class="site-footer" style="text-align: center;">
-    <p>© ${new Date().getFullYear()} NagaShino. All rights reserved.</p>
-    <p>Powered by Vite + TypeScript.</p>
+  <footer class="site-footer" aria-label="站点备案信息">
+    <p>© ${new Date().getFullYear()} ${SITE_FOOTER.copyrightOwner}. All rights reserved.</p>
+    <p>${SITE_FOOTER.poweredBy}</p>
+    ${renderFooterRecords()}
   </footer>
 </div>
 `;
@@ -81,6 +82,22 @@ function isNavActive(currentPath: string, navHref: string): boolean {
   }
 
   return currentPath === navHref || currentPath.startsWith(`${navHref}/`);
+}
+
+function renderFooterRecords(): string {
+  const hasPublicSecurityRecord = Boolean(SITE_FOOTER.publicSecurityRecordText && SITE_FOOTER.publicSecurityRecordUrl);
+
+  if (!hasPublicSecurityRecord) {
+    return `<p class="site-footer-records">
+      <a href="${SITE_FOOTER.icpRecordUrl}" rel="noreferrer" target="_blank">${SITE_FOOTER.icpRecordText}</a>
+    </p>`;
+  }
+
+  return `<p class="site-footer-records">
+    <a href="${SITE_FOOTER.icpRecordUrl}" rel="noreferrer" target="_blank">${SITE_FOOTER.icpRecordText}</a>
+    <span class="site-footer-divider" aria-hidden="true">|</span>
+    <a href="${SITE_FOOTER.publicSecurityRecordUrl}" rel="noreferrer" target="_blank">${SITE_FOOTER.publicSecurityRecordText}</a>
+  </p>`;
 }
 
 function navigateTo(path: string, options: { replace?: boolean } = {}): void {

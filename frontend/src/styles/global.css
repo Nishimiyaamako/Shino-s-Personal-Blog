@@ -1420,6 +1420,35 @@ a:hover {
   color: var(--text-subtle);
   font-size: 0.92rem;
   border-top: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
+  text-align: center;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.site-footer p {
+  margin: 0;
+}
+
+.site-footer-records {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.site-footer-records a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.site-footer-records a:hover {
+  color: var(--brand);
+  text-decoration: underline;
+}
+
+.site-footer-divider {
+  color: color-mix(in srgb, var(--text-subtle) 65%, var(--surface));
 }
 
 @media (max-width: 560px) {
