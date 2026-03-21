@@ -30,15 +30,15 @@ export function renderPostList(posts: PostSummary[], options: RenderPostListOpti
   return `
 <ul class="${listClassName}">
   ${posts
-    .map((post, index) => {
-      const isHomeVariant = variant === 'home';
-      const coverUrl = `/images/covers/${post.slug}.webp`;
-      const coverImage = renderCoverImage(coverUrl);
-      const cardClassName = `post-card post-card--${variant}${isHomeVariant ? ' onload-animation' : ''}`;
-      const cardStyle = isHomeVariant ? ` style="--onload-delay: ${80 + index * 50}ms;"` : '';
+      .map((post, index) => {
+        const isHomeVariant = variant === 'home';
+        const coverUrl = `/images/covers/${post.slug}.webp`;
+        const coverImage = renderCoverImage(coverUrl);
+        const cardClassName = `post-card post-card--${variant}${isHomeVariant ? ' onload-animation' : ''}`;
+        const cardStyle = isHomeVariant ? ` style="--onload-delay: ${80 + index * 50}ms;"` : '';
 
-      if (isHomeVariant) {
-        return `
+        if (isHomeVariant) {
+          return `
   <li class="${cardClassName}"${cardStyle}>
     <article class="post-card-article post-card-home-article">
       <div class="post-card-body">
@@ -49,8 +49,8 @@ export function renderPostList(posts: PostSummary[], options: RenderPostListOpti
         <p class="post-card-summary">${escapeHtml(post.summary)}</p>
         <ul class="tag-list">
           ${post.tags
-            .map((tag) => `<li><a href="/tags/${tag}" data-link>#${escapeHtml(tag)}</a></li>`)
-            .join('')}
+              .map((tag) => `<li><a href="/tags/${tag}" data-link>#${escapeHtml(tag)}</a></li>`)
+              .join('')}
         </ul>
       </div>
       <a class="post-card-home-cover" href="/posts/${post.slug}" data-link aria-label="阅读：${escapeHtml(post.title)}">
@@ -58,11 +58,11 @@ export function renderPostList(posts: PostSummary[], options: RenderPostListOpti
       </a>
     </article>
   </li>`;
-      }
+        }
 
-      const coverClassName = 'post-card-cover';
+        const coverClassName = 'post-card-cover';
 
-      return `
+        return `
   <li class="${cardClassName}"${cardStyle}>
     <article class="post-card-article">
       <a class="${coverClassName}" href="/posts/${post.slug}" data-link aria-label="阅读：${escapeHtml(post.title)}">
@@ -77,13 +77,13 @@ export function renderPostList(posts: PostSummary[], options: RenderPostListOpti
       <p class="post-card-summary">${escapeHtml(post.summary)}</p>
       <ul class="tag-list">
         ${post.tags
-          .map((tag) => `<li><a href="/tags/${tag}" data-link>#${escapeHtml(tag)}</a></li>`)
-          .join('')}
+            .map((tag) => `<li><a href="/tags/${tag}" data-link>#${escapeHtml(tag)}</a></li>`)
+            .join('')}
       </ul>
       </div>
     </article>
   </li>`;
-    })
-    .join('')}
+      })
+      .join('')}
 </ul>`;
 }

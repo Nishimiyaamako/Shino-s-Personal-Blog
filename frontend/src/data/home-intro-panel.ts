@@ -4,7 +4,7 @@ export const HOME_INTRO_PANEL_CONFIG: HomeIntroPanelConfig = {
   facts: [
     { label: '年龄', value: '21' },
     { label: '开源仓库项目', value: '2' },
-    { label: '最近在研究', value: '网站开发' }
+    { label: '最近在研究', value: 'Web全栈开发' }
   ],
   techStack: [
     { key: 'typescript', label: 'TypeScript' },

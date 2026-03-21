@@ -1,38 +1,78 @@
 import { HOME_INTRO_PANEL_CONFIG } from '../data/home-intro-panel';
+import type { IconifyIcon } from '@iconify/types';
+import { HOME_TECH_ICONIFY_DEFAULT_SIZE, HOME_TECH_ICONIFY_MAP } from '../data/home-tech-iconify';
+import {
+	siBun,
+	siDocker,
+	siJavascript,
+	siLinux,
+	siNginx,
+	siNodedotjs,
+	siPostgresql,
+	siRedis,
+	siTailwindcss,
+	siTypescript,
+	siVite
+} from 'simple-icons';
+import type { SimpleIcon } from 'simple-icons';
+import elysiaIconRaw from '../assets/icons/elysia.svg?raw';
 import type { HomeTechStackItem, HomeTechStackKey } from '../types/home-intro-panel';
 import { escapeHtml } from '../utils/escape-html';
 
-const TECH_GLYPH_MAP: Record<HomeTechStackKey, string> = {
-  typescript: 'TS',
-  javascript: 'JS',
-  vite: 'VT',
-  bun: 'BN',
-  elysia: 'EL',
-  nodejs: 'ND',
-  docker: 'DK',
-  nginx: 'NX',
-  linux: 'LX',
-  postgresql: 'PG',
-  redis: 'RD',
-  tailwind: 'TW'
+const DEFAULT_ICON_WIDTH = HOME_TECH_ICONIFY_DEFAULT_SIZE.width;
+const DEFAULT_ICON_HEIGHT = HOME_TECH_ICONIFY_DEFAULT_SIZE.height;
+
+const TECH_ICONIFY_MAP: Partial<Record<HomeTechStackKey, IconifyIcon>> = {
+	...HOME_TECH_ICONIFY_MAP,
+	elysia: createIconFromRawSvg(elysiaIconRaw),
+};
+
+const TECH_GLYPH_FALLBACK_MAP: Record<HomeTechStackKey, string> = {
+	typescript: 'TS',
+	javascript: 'JS',
+	vite: 'VT',
+	bun: 'BN',
+	elysia: 'EL',
+	nodejs: 'ND',
+	docker: 'DK',
+	nginx: 'NX',
+	linux: 'LX',
+	postgresql: 'PG',
+	redis: 'RD',
+	tailwind: 'TW'
+};
+
+const TECH_SIMPLE_ICON_FALLBACK_MAP: Partial<Record<HomeTechStackKey, SimpleIcon>> = {
+	typescript: siTypescript,
+	javascript: siJavascript,
+	vite: siVite,
+	bun: siBun,
+	elysia: siBun,
+	nodejs: siNodedotjs,
+	docker: siDocker,
+	nginx: siNginx,
+	linux: siLinux,
+	postgresql: siPostgresql,
+	redis: siRedis,
+	tailwind: siTailwindcss
 };
 
 export function renderHomeIntroPanel(): string {
-  const { facts, techStack, hobbies } = HOME_INTRO_PANEL_CONFIG;
+	const { facts, techStack, hobbies } = HOME_INTRO_PANEL_CONFIG;
 
-  return `
+	return `
 <section class="home-intro-panel page-section" aria-label="个人信息展示板">
   <div class="home-intro-panel-grid">
     <dl class="home-intro-fact-list" aria-label="基础信息">
       ${facts
-        .map(
-          (item) => `
+			.map(
+				(item) => `
         <div class="home-intro-fact-row">
           <dt>${escapeHtml(item.label)}</dt>
           <dd>${escapeHtml(item.value)}</dd>
         </div>`
-        )
-        .join('')}
+			)
+			.join('')}
     </dl>
 
     <div class="home-intro-side">
@@ -45,11 +85,11 @@ export function renderHomeIntroPanel(): string {
         <p class="home-intro-side-title">Hobbies · 爱好</p>
         <ul class="home-intro-hobby-list">
           ${hobbies
-            .map(
-              (hobby) =>
-                `<li class="home-intro-hobby-item"><span>${escapeHtml(hobby)}</span></li>`
-            )
-            .join('')}
+			.map(
+				(hobby) =>
+					`<li class="home-intro-hobby-item"><span>${escapeHtml(hobby)}</span></li>`
+			)
+			.join('')}
         </ul>
       </section>
     </div>
@@ -59,11 +99,11 @@ export function renderHomeIntroPanel(): string {
 }
 
 function renderTechStackWindow(techStack: HomeTechStackItem[]): string {
-  if (!techStack.length) {
-    return '<p class="empty-hint">技术栈正在整理中。</p>';
-  }
+	if (!techStack.length) {
+		return '<p class="empty-hint">技术栈正在整理中。</p>';
+	}
 
-  return `
+	return `
 <div class="home-intro-tech-window" role="region" aria-label="技术栈循环窗口">
   <div class="home-intro-tech-track">
     ${renderTechStackList(techStack)}
@@ -73,29 +113,105 @@ function renderTechStackWindow(techStack: HomeTechStackItem[]): string {
 }
 
 function renderTechStackList(techStack: HomeTechStackItem[], options: { clone?: boolean } = {}): string {
-  const cloneAttr = options.clone ? ' aria-hidden="true"' : '';
+	const cloneAttr = options.clone ? ' aria-hidden="true"' : '';
 
-  return `
+	return `
 <ul class="home-intro-tech-list"${cloneAttr}>
   ${techStack
-    .map(
-      (stack) => `
+			.map(
+				(stack) => `
     <li class="home-intro-tech-item">
       <span class="home-intro-tech-badge" data-tech="${escapeHtml(stack.key)}" title="${escapeHtml(stack.label)}">
-        ${renderTechStackIcon(stack.key)}
+        ${renderTechStackIcon(stack.key, stack.label)}
         <span class="home-intro-visually-hidden">${escapeHtml(stack.label)}</span>
       </span>
     </li>`
-    )
-    .join('')}
+			)
+			.join('')}
 </ul>`;
 }
 
-function renderTechStackIcon(key: HomeTechStackKey): string {
-  const glyph = TECH_GLYPH_MAP[key];
+function renderTechStackIcon(key: HomeTechStackKey, label: string): string {
+	const iconifyIcon = TECH_ICONIFY_MAP[key];
+	if (iconifyIcon) {
+		return renderIconifyIcon(iconifyIcon);
+	}
 
-  return `<svg class="home-intro-tech-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-    <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" fill="none" stroke="currentColor" stroke-width="1.4"></rect>
-    <text x="12" y="15" text-anchor="middle" font-size="7" font-weight="700" fill="currentColor">${glyph}</text>
+	const fallbackIcon = TECH_SIMPLE_ICON_FALLBACK_MAP[key];
+	if (fallbackIcon) {
+		return `<svg class="home-intro-tech-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="${fallbackIcon.path}" fill="currentColor"></path>
   </svg>`;
+	}
+
+	return renderLetterFallback(key, label);
+}
+
+function renderIconifyIcon(icon: IconifyIcon): string {
+	const left = icon.left ?? 0;
+	const top = icon.top ?? 0;
+	const width = icon.width ?? DEFAULT_ICON_WIDTH;
+	const height = icon.height ?? DEFAULT_ICON_HEIGHT;
+	const body = icon.body ?? '';
+
+	return `<svg class="home-intro-tech-icon" viewBox="${left} ${top} ${width} ${height}" aria-hidden="true" focusable="false">
+    ${body}
+  </svg>`;
+}
+
+function renderLetterFallback(key: HomeTechStackKey, label: string): string {
+	const fallbackByKey = TECH_GLYPH_FALLBACK_MAP[key];
+	const fallbackByLabel = label.slice(0, 2).toUpperCase().replace(/[^A-Z0-9]/g, '');
+	const shortLabel = fallbackByKey || fallbackByLabel || 'IX';
+
+	return `<svg class="home-intro-tech-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" fill="none" stroke="currentColor" stroke-width="1.4"></rect>
+    <text x="12" y="15" text-anchor="middle" font-size="7" font-weight="700" fill="currentColor">${escapeHtml(shortLabel)}</text>
+  </svg>`;
+}
+
+function createIconFromRawSvg(rawSvg: string): IconifyIcon {
+	const body = extractSvgBody(rawSvg);
+	const viewBox = extractViewBox(rawSvg);
+
+	return {
+		body,
+		...viewBox
+	};
+}
+
+function extractSvgBody(rawSvg: string): string {
+	const rawBody = rawSvg.replace(/^[\s\S]*?<svg[^>]*>/i, '').replace(/<\/svg>\s*$/i, '').trim();
+
+	if (!rawBody) {
+		return '<rect x="3" y="3" width="18" height="18" rx="4" fill="currentColor"></rect>';
+	}
+
+	return rawBody.replace(/\b(fill|stroke)=["']([^"']*)["']/gi, (_match, attr: string, value: string) => {
+		if (value.toLowerCase() === 'none') {
+			return `${attr}="${value}"`;
+		}
+
+		return `${attr}="currentColor"`;
+	});
+}
+
+function extractViewBox(rawSvg: string): Pick<IconifyIcon, 'left' | 'top' | 'width' | 'height'> {
+	const matchedViewBox = rawSvg.match(/\bviewBox=["']([^"']+)["']/i)?.[1] ?? '';
+	const parts = matchedViewBox
+		.split(/[,\s]+/)
+		.map((part) => Number.parseFloat(part))
+		.filter((part) => Number.isFinite(part));
+
+	if (parts.length === 4) {
+		const [left, top, width, height] = parts;
+		return { left, top, width, height };
+	}
+
+	return {
+		left: 0,
+		top: 0,
+		width: DEFAULT_ICON_WIDTH,
+		height: DEFAULT_ICON_HEIGHT
+	};
 }
