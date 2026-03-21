@@ -15,7 +15,16 @@ export type HomeTechStackKey =
   | 'linux'
   | 'postgresql'
   | 'redis'
-  | 'tailwind';
+  | 'tailwind'
+  | 'arch'
+  | 'c'
+  | 'claudecode'
+  | 'codex'
+  | 'vscode'
+  | 'git'
+  | 'github'
+  | 'vim'
+  | 'photoshop';
 
 export interface HomeTechStackItem {
   key: HomeTechStackKey;

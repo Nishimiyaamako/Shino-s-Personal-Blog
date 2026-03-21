@@ -2,8 +2,13 @@ import { HOME_INTRO_PANEL_CONFIG } from '../data/home-intro-panel';
 import type { IconifyIcon } from '@iconify/types';
 import { HOME_TECH_ICONIFY_DEFAULT_SIZE, HOME_TECH_ICONIFY_MAP } from '../data/home-tech-iconify';
 import {
+	siArchlinux,
 	siBun,
+	siC,
+	siClaude,
 	siDocker,
+	siGit,
+	siGithub,
 	siJavascript,
 	siLinux,
 	siNginx,
@@ -12,6 +17,7 @@ import {
 	siRedis,
 	siTailwindcss,
 	siTypescript,
+	siVim,
 	siVite
 } from 'simple-icons';
 import type { SimpleIcon } from 'simple-icons';
@@ -39,7 +45,16 @@ const TECH_GLYPH_FALLBACK_MAP: Record<HomeTechStackKey, string> = {
 	linux: 'LX',
 	postgresql: 'PG',
 	redis: 'RD',
-	tailwind: 'TW'
+	tailwind: 'TW',
+	arch: 'AR',
+	c: 'C',
+	claudecode: 'CL',
+	codex: 'CX',
+	vscode: 'VS',
+	git: 'GT',
+	github: 'GH',
+	vim: 'VM',
+	photoshop: 'PS'
 };
 
 const TECH_SIMPLE_ICON_FALLBACK_MAP: Partial<Record<HomeTechStackKey, SimpleIcon>> = {
@@ -54,7 +69,13 @@ const TECH_SIMPLE_ICON_FALLBACK_MAP: Partial<Record<HomeTechStackKey, SimpleIcon
 	linux: siLinux,
 	postgresql: siPostgresql,
 	redis: siRedis,
-	tailwind: siTailwindcss
+	tailwind: siTailwindcss,
+	arch: siArchlinux,
+	c: siC,
+	claudecode: siClaude,
+	git: siGit,
+	github: siGithub,
+	vim: siVim
 };
 
 export function renderHomeIntroPanel(): string {
@@ -187,13 +208,7 @@ function extractSvgBody(rawSvg: string): string {
 		return '<rect x="3" y="3" width="18" height="18" rx="4" fill="currentColor"></rect>';
 	}
 
-	return rawBody.replace(/\b(fill|stroke)=["']([^"']*)["']/gi, (_match, attr: string, value: string) => {
-		if (value.toLowerCase() === 'none') {
-			return `${attr}="${value}"`;
-		}
-
-		return `${attr}="currentColor"`;
-	});
+	return rawBody;
 }
 
 function extractViewBox(rawSvg: string): Pick<IconifyIcon, 'left' | 'top' | 'width' | 'height'> {

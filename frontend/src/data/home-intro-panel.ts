@@ -18,7 +18,16 @@ export const HOME_INTRO_PANEL_CONFIG: HomeIntroPanelConfig = {
     { key: 'linux', label: 'Linux' },
     { key: 'postgresql', label: 'PostgreSQL' },
     { key: 'redis', label: 'Redis' },
-    { key: 'tailwind', label: 'Tailwind CSS' }
+    { key: 'tailwind', label: 'Tailwind CSS' },
+    { key: 'arch', label: 'Arch Linux' },
+    { key: 'c', label: 'C Language' },
+    { key: 'claudecode', label: 'Claude Code' },
+    { key: 'codex', label: 'Codex' },
+    { key: 'vscode', label: 'VS Code' },
+    { key: 'git', label: 'Git' },
+    { key: 'github', label: 'GitHub' },
+    { key: 'vim', label: 'Vim' },
+    { key: 'photoshop', label: 'Photoshop' }
   ],
   hobbies: ['ACG社区吃瓜', '长跑', '骑行', '折腾电子垃圾']
 };

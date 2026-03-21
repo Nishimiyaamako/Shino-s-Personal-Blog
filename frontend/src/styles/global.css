@@ -529,6 +529,7 @@ a:hover {
 
 .home-intro-tech-window {
   --intro-window-bg: color-mix(in srgb, var(--surface-soft) 72%, var(--surface));
+  --home-intro-tech-gap: 0.62rem;
 
   position: relative;
   overflow: hidden;
@@ -536,7 +537,7 @@ a:hover {
   border: 1px solid color-mix(in srgb, var(--accent-berry) 34%, var(--border));
   border-radius: var(--radius-sm);
   background: var(--intro-window-bg);
-  padding: 0.48rem 0;
+  padding: 0.48rem 0.86rem;
   isolation: isolate;
 }
 
@@ -570,11 +571,11 @@ a:hover {
 
 .home-intro-tech-list {
   margin: 0;
-  padding: 0 0.86rem;
+  padding: 0 var(--home-intro-tech-gap) 0 0;
   list-style: none;
   display: flex;
   align-items: center;
-  gap: 0.62rem;
+  gap: var(--home-intro-tech-gap);
   flex: none;
 }
 
@@ -666,6 +667,51 @@ a:hover {
 .home-intro-tech-badge[data-tech='tailwind'] {
   --tech-bg: color-mix(in srgb, #38bdf8 20%, var(--surface));
   --tech-fg: color-mix(in srgb, #0f6e95 84%, var(--text));
+}
+
+.home-intro-tech-badge[data-tech='arch'] {
+  --tech-bg: color-mix(in srgb, #1793d1 22%, var(--surface));
+  --tech-fg: color-mix(in srgb, #0a5e88 84%, var(--text));
+}
+
+.home-intro-tech-badge[data-tech='c'] {
+  --tech-bg: color-mix(in srgb, #a8b9cc 24%, var(--surface));
+  --tech-fg: color-mix(in srgb, #445d7a 84%, var(--text));
+}
+
+.home-intro-tech-badge[data-tech='claudecode'] {
+  --tech-bg: color-mix(in srgb, #d97757 22%, var(--surface));
+  --tech-fg: color-mix(in srgb, #8a4f39 84%, var(--text));
+}
+
+.home-intro-tech-badge[data-tech='codex'] {
+  --tech-bg: color-mix(in srgb, #10a37f 20%, var(--surface));
+  --tech-fg: color-mix(in srgb, #0f6d56 84%, var(--text));
+}
+
+.home-intro-tech-badge[data-tech='vscode'] {
+  --tech-bg: color-mix(in srgb, #007acc 24%, var(--surface));
+  --tech-fg: color-mix(in srgb, #00528a 84%, var(--text));
+}
+
+.home-intro-tech-badge[data-tech='git'] {
+  --tech-bg: color-mix(in srgb, #f05032 22%, var(--surface));
+  --tech-fg: color-mix(in srgb, #9f311d 84%, var(--text));
+}
+
+.home-intro-tech-badge[data-tech='github'] {
+  --tech-bg: color-mix(in srgb, #181717 18%, var(--surface));
+  --tech-fg: color-mix(in srgb, #171515 84%, var(--text));
+}
+
+.home-intro-tech-badge[data-tech='vim'] {
+  --tech-bg: color-mix(in srgb, #019733 22%, var(--surface));
+  --tech-fg: color-mix(in srgb, #0a6327 84%, var(--text));
+}
+
+.home-intro-tech-badge[data-tech='photoshop'] {
+  --tech-bg: color-mix(in srgb, #31a8ff 22%, var(--surface));
+  --tech-fg: color-mix(in srgb, #005f9c 84%, var(--text));
 }
 
 .home-intro-tech-icon {
