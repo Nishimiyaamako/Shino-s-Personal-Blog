@@ -36,15 +36,21 @@
   --motion-duration-feedback: 140ms;
   --motion-duration-state: 240ms;
   --motion-duration-enter: 460ms;
-  --motion-duration-route-enter: 260ms;
+  --motion-duration-enter-home: 520ms;
+  --motion-duration-profile-edge-enter: 820ms;
+  --motion-duration-route-enter: 220ms;
   --motion-stagger-step: 56ms;
+  --motion-stagger-step-home: 72ms;
+  --motion-stagger-step-card: 104ms;
 
   --motion-ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
   --motion-ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
   --motion-ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
   --motion-distance-enter: 14px;
-  --motion-distance-route: 10px;
+  --motion-home-left-distance: 28px;
+  --motion-profile-edge-distance: 108vw;
+  --motion-distance-route: 8px;
   --motion-distance-hover: 2px;
 }
 
@@ -69,16 +75,22 @@
 @media (max-width: 960px) {
   :root {
     --motion-distance-enter: 12px;
-    --motion-distance-route: 9px;
+    --motion-home-left-distance: 24px;
+    --motion-distance-route: 7px;
     --motion-stagger-step: 48ms;
+    --motion-stagger-step-home: 64ms;
+    --motion-stagger-step-card: 96ms;
   }
 }
 
 @media (max-width: 640px) {
   :root {
     --motion-distance-enter: 10px;
-    --motion-distance-route: 8px;
+    --motion-home-left-distance: 20px;
+    --motion-distance-route: 6px;
     --motion-stagger-step: 42ms;
+    --motion-stagger-step-home: 56ms;
+    --motion-stagger-step-card: 90ms;
   }
 }
 
@@ -1081,13 +1093,6 @@ a:hover {
   --home-cover-gap: 0.72rem;
 }
 
-.post-list--home .onload-animation {
-  opacity: 0;
-  transform: translateY(var(--motion-distance-enter));
-  animation: post-card-onload-enter var(--motion-duration-enter) var(--motion-ease-out-quint) forwards;
-  animation-delay: var(--onload-delay, 0ms);
-}
-
 .post-card-home-article {
   position: relative;
   min-height: clamp(156px, 21vw, 214px);
@@ -1521,18 +1526,6 @@ a:hover {
   border-radius: 4px;
 }
 
-@keyframes post-card-onload-enter {
-  from {
-    opacity: 0;
-    transform: translateY(var(--motion-distance-enter));
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 @keyframes post-cover-scroll-album-in {
   from {
     opacity: 0;
@@ -1556,6 +1549,30 @@ a:hover {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes home-card-left-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(calc(var(--motion-home-left-distance) * -1), calc(var(--motion-distance-enter) * 0.45), 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes profile-card-edge-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(var(--motion-profile-edge-translate-x), calc(var(--motion-distance-enter) * 0.35), 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
   }
 }
 
@@ -1594,6 +1611,51 @@ a:hover {
     opacity var(--motion-duration-route-enter) var(--motion-ease-out-quart),
     transform var(--motion-duration-route-enter) var(--motion-ease-out-quart);
   transition-delay: var(--route-enter-delay, 0ms);
+}
+
+.motion-left-pop-item {
+  opacity: 0;
+  transform: translate3d(calc(var(--motion-home-left-distance) * -1), calc(var(--motion-distance-enter) * 0.45), 0);
+  will-change: transform, opacity;
+}
+
+.motion-left-pop-item.is-visible {
+  animation: home-card-left-enter var(--motion-duration-enter-home) var(--motion-ease-out-quint) forwards;
+  animation-delay: calc(var(--motion-index, 0) * var(--motion-stagger-step-home) + 72ms);
+}
+
+.motion-profile-edge-enter {
+  opacity: 0;
+  transform: translate3d(
+    var(--motion-profile-edge-translate-x, calc(var(--motion-profile-edge-distance) * -1)),
+    calc(var(--motion-distance-enter) * 0.35),
+    0
+  );
+  will-change: transform, opacity;
+}
+
+.motion-profile-edge-enter--from-left {
+  --motion-profile-edge-translate-x: calc(var(--motion-profile-edge-distance) * -1);
+}
+
+.motion-profile-edge-enter--from-right {
+  --motion-profile-edge-translate-x: var(--motion-profile-edge-distance);
+}
+
+.motion-profile-edge-enter.is-visible {
+  animation: profile-card-edge-enter var(--motion-duration-profile-edge-enter) var(--motion-ease-out-quint) forwards;
+  animation-delay: 84ms;
+}
+
+.motion-card-rise {
+  opacity: 0;
+  transform: translateY(var(--motion-distance-enter));
+  will-change: transform, opacity;
+}
+
+.motion-card-rise.is-visible {
+  animation: tag-bubble-rise var(--motion-duration-enter) var(--motion-ease-out-quint) forwards;
+  animation-delay: calc(var(--motion-index, 0) * var(--motion-stagger-step-card) + 80ms);
 }
 
 .motion-stagger-item,
@@ -2395,6 +2457,9 @@ a:hover {
 @media (prefers-reduced-motion: reduce) {
 
   .route-enter-target,
+  .motion-left-pop-item,
+  .motion-profile-edge-enter,
+  .motion-card-rise,
   .motion-stagger-item,
   .motion-observe-item,
   .archive-year-group,
@@ -2406,10 +2471,12 @@ a:hover {
   }
 
   .tag-bubble,
+  .motion-left-pop-item,
+  .motion-profile-edge-enter,
+  .motion-card-rise,
   .tag-posts-panel,
   .tag-posts-panel-close,
   .tag-detail-back-link,
-  .post-list--home .onload-animation,
   .post-list--posts .post-card-cover,
   .post-list--tag-panel .post-card-cover,
   .site-nav a,
@@ -2427,11 +2494,6 @@ a:hover {
   }
 
   .tag-bubble {
-    opacity: 1 !important;
-    transform: none !important;
-  }
-
-  .post-list--home .onload-animation {
     opacity: 1 !important;
     transform: none !important;
   }

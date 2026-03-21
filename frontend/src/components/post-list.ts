@@ -30,16 +30,15 @@ export function renderPostList(posts: PostSummary[], options: RenderPostListOpti
   return `
 <ul class="${listClassName}">
   ${posts
-      .map((post, index) => {
+      .map((post) => {
         const isHomeVariant = variant === 'home';
         const coverUrl = `/images/covers/${post.slug}.webp`;
         const coverImage = renderCoverImage(coverUrl);
-        const cardClassName = `post-card post-card--${variant}${isHomeVariant ? ' onload-animation' : ''}`;
-        const cardStyle = isHomeVariant ? ` style="--onload-delay: ${80 + index * 50}ms;"` : '';
+        const cardClassName = `post-card post-card--${variant}`;
 
         if (isHomeVariant) {
           return `
-  <li class="${cardClassName}"${cardStyle}>
+  <li class="${cardClassName}" data-motion-card>
     <article class="post-card-article post-card-home-article">
       <div class="post-card-body">
         <header class="post-card-header">
@@ -63,7 +62,7 @@ export function renderPostList(posts: PostSummary[], options: RenderPostListOpti
         const coverClassName = 'post-card-cover is-pending';
 
         return `
-  <li class="${cardClassName}"${cardStyle}>
+  <li class="${cardClassName}" data-motion-card>
     <article class="post-card-article">
       <a class="${coverClassName}" href="/posts/${post.slug}" data-link aria-label="阅读：${escapeHtml(post.title)}">
         ${coverImage}

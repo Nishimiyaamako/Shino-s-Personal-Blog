@@ -14,6 +14,9 @@ if (!appRoot) {
 
 const appElement = appRoot;
 let cleanupPageEnhancements: (() => void) | null = null;
+type MotionScopeNode = Document | Element;
+let refreshPostCardMotion: ((scope?: MotionScopeNode) => void) | null = null;
+let hasRenderedInitialAppView = false;
 
 function renderApp(): void {
   cleanupPageEnhancements?.();
@@ -64,7 +67,9 @@ function renderApp(): void {
 </div>
 `;
 
-  cleanupPageEnhancements = setupPageEnhancements(context.pathname);
+  const isInitialRender = !hasRenderedInitialAppView;
+  cleanupPageEnhancements = setupPageEnhancements(context.pathname, { isInitialRender });
+  hasRenderedInitialAppView = true;
 }
 
 function shouldRenderProfileCard(routePath: string): boolean {
@@ -131,12 +136,32 @@ function navigateTo(path: string, options: { replace?: boolean } = {}): void {
   window.scrollTo(0, 0);
 }
 
-function setupPageEnhancements(pathname: string): (() => void) | null {
+function setupPageEnhancements(
+  pathname: string,
+  options: { isInitialRender: boolean }
+): (() => void) | null {
   const cleanups: Array<() => void> = [];
 
   const cleanupRouteEnterTransition = setupRouteEnterTransition();
   if (cleanupRouteEnterTransition) {
     cleanups.push(cleanupRouteEnterTransition);
+  }
+
+  const cleanupProfileCardEdgeEnterMotion = setupProfileCardEdgeEnterMotion({
+    shouldRun: options.isInitialRender
+  });
+  if (cleanupProfileCardEdgeEnterMotion) {
+    cleanups.push(cleanupProfileCardEdgeEnterMotion);
+  }
+
+  const cleanupSidePanelLeftPopMotion = setupSidePanelLeftPopMotion();
+  if (cleanupSidePanelLeftPopMotion) {
+    cleanups.push(cleanupSidePanelLeftPopMotion);
+  }
+
+  const cleanupPostCardRiseMotion = setupPostCardRiseMotion();
+  if (cleanupPostCardRiseMotion) {
+    cleanups.push(cleanupPostCardRiseMotion);
   }
 
   const cleanupGlobalMotionChoreography = setupGlobalMotionChoreography();
@@ -179,7 +204,7 @@ function setupPageEnhancements(pathname: string): (() => void) | null {
 const PAGE_STAGGER_SELECTORS = [
   ':scope > .page-header',
   ':scope > .section-head',
-  ':scope > .page-section',
+  ':scope > .page-section:not(.home-intro-panel)',
   ':scope > .hero-card',
   ':scope > .page-not-found',
   ':scope > .tag-filter-shell',
@@ -192,11 +217,19 @@ const PAGE_STAGGER_SELECTORS = [
 ] as const;
 
 const PAGE_SCROLL_REVEAL_SELECTORS = [
-  '.post-list--posts > .post-card',
-  '.post-list--tag-panel > .post-card',
   '.friend-link-list > .friend-link-card',
   '.stats-list > li'
 ] as const;
+
+const POST_CARD_MOTION_SELECTORS = [
+  '.post-list--home > .post-card[data-motion-card]',
+  '.post-list--posts > .post-card[data-motion-card]',
+  '.post-list--tag-panel > .post-card[data-motion-card]'
+] as const;
+const PROFILE_CARD_SELECTOR = '.profile-card';
+const SIDE_PANEL_LEFT_POP_SELECTORS = ['.page-home > .home-intro-panel'] as const;
+const POST_LIST_SELECTOR = '.post-list';
+const POST_CARD_ROW_TOLERANCE_PX = 10;
 
 function setupRouteEnterTransition(): (() => void) | null {
   const reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -206,7 +239,7 @@ function setupRouteEnterTransition(): (() => void) | null {
   }
 
   const routeEnterTargets = Array.from(
-    document.querySelectorAll<HTMLElement>('.site-page-content, .profile-card, .site-footer')
+    document.querySelectorAll<HTMLElement>('.site-page-content, .site-footer')
   );
 
   if (!routeEnterTargets.length) {
@@ -215,7 +248,7 @@ function setupRouteEnterTransition(): (() => void) | null {
 
   for (const [index, targetElement] of routeEnterTargets.entries()) {
     targetElement.classList.add('route-enter-target');
-    targetElement.style.setProperty('--route-enter-delay', `${index * 38}ms`);
+    targetElement.style.setProperty('--route-enter-delay', `${index * 24}ms`);
   }
 
   const frameId = window.requestAnimationFrame(() => {
@@ -240,6 +273,379 @@ function setupRouteEnterTransition(): (() => void) | null {
   return () => {
     window.cancelAnimationFrame(frameId);
     reducedMotionMediaQuery.removeEventListener('change', handleReducedMotionChange);
+  };
+}
+
+function setupProfileCardEdgeEnterMotion(options: { shouldRun: boolean }): (() => void) | null {
+  if (!options.shouldRun) {
+    return null;
+  }
+
+  const profileCardElement = document.querySelector<HTMLElement>(PROFILE_CARD_SELECTOR);
+
+  if (!profileCardElement) {
+    return null;
+  }
+
+  const reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (reducedMotionMediaQuery.matches) {
+    return null;
+  }
+
+  const cardRect = profileCardElement.getBoundingClientRect();
+  const cardCenterX = cardRect.left + cardRect.width / 2;
+  const viewportCenterX = window.innerWidth / 2;
+  const shouldEnterFromLeft = cardCenterX <= viewportCenterX;
+
+  profileCardElement.classList.add('motion-profile-edge-enter');
+  profileCardElement.classList.toggle('motion-profile-edge-enter--from-left', shouldEnterFromLeft);
+  profileCardElement.classList.toggle('motion-profile-edge-enter--from-right', !shouldEnterFromLeft);
+
+  let revealFrameId = window.requestAnimationFrame(() => {
+    profileCardElement.classList.add('is-visible');
+  });
+
+  const handleReducedMotionChange = (event: MediaQueryListEvent): void => {
+    if (!event.matches) {
+      return;
+    }
+
+    if (revealFrameId) {
+      window.cancelAnimationFrame(revealFrameId);
+      revealFrameId = 0;
+    }
+
+    profileCardElement.classList.add('is-visible');
+  };
+
+  reducedMotionMediaQuery.addEventListener('change', handleReducedMotionChange);
+
+  return () => {
+    if (revealFrameId) {
+      window.cancelAnimationFrame(revealFrameId);
+      revealFrameId = 0;
+    }
+
+    reducedMotionMediaQuery.removeEventListener('change', handleReducedMotionChange);
+  };
+}
+
+function setupSidePanelLeftPopMotion(): (() => void) | null {
+  const reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const targetElements = Array.from(
+    document.querySelectorAll<HTMLElement>(SIDE_PANEL_LEFT_POP_SELECTORS.join(','))
+  );
+
+  if (!targetElements.length) {
+    return null;
+  }
+
+  const orderedTargets = targetElements
+    .map((targetElement, domIndex) => {
+      const rect = targetElement.getBoundingClientRect();
+
+      return {
+        targetElement,
+        top: rect.top,
+        left: rect.left,
+        domIndex
+      };
+    })
+    .sort((leftEntry, rightEntry) => {
+      if (leftEntry.top !== rightEntry.top) {
+        return leftEntry.top - rightEntry.top;
+      }
+
+      if (leftEntry.left !== rightEntry.left) {
+        return leftEntry.left - rightEntry.left;
+      }
+
+      return leftEntry.domIndex - rightEntry.domIndex;
+    })
+    .map((entry) => entry.targetElement);
+
+  for (const [index, targetElement] of orderedTargets.entries()) {
+    targetElement.classList.add('motion-left-pop-item');
+    targetElement.style.setProperty('--motion-index', String(index));
+  }
+
+  let revealFrameId = window.requestAnimationFrame(() => {
+    for (const targetElement of orderedTargets) {
+      targetElement.classList.add('is-visible');
+    }
+  });
+
+  const handleReducedMotionChange = (event: MediaQueryListEvent): void => {
+    if (!event.matches) {
+      return;
+    }
+
+    window.cancelAnimationFrame(revealFrameId);
+    revealFrameId = 0;
+
+    for (const targetElement of orderedTargets) {
+      targetElement.classList.add('is-visible');
+    }
+  };
+
+  reducedMotionMediaQuery.addEventListener('change', handleReducedMotionChange);
+
+  return () => {
+    if (revealFrameId) {
+      window.cancelAnimationFrame(revealFrameId);
+      revealFrameId = 0;
+    }
+
+    reducedMotionMediaQuery.removeEventListener('change', handleReducedMotionChange);
+  };
+}
+
+function orderPostCardsByVisualFlow(cardElements: readonly HTMLElement[]): HTMLElement[] {
+  if (cardElements.length <= 1) {
+    return [...cardElements];
+  }
+
+  const sortedByTopThenLeft = cardElements
+    .map((cardElement) => {
+      const rect = cardElement.getBoundingClientRect();
+      return {
+        cardElement,
+        top: rect.top,
+        left: rect.left
+      };
+    })
+    .sort((leftEntry, rightEntry) => {
+      if (leftEntry.top !== rightEntry.top) {
+        return leftEntry.top - rightEntry.top;
+      }
+
+      return leftEntry.left - rightEntry.left;
+    });
+
+  const rows: Array<{ anchorTop: number; items: Array<{ cardElement: HTMLElement; left: number }> }> = [];
+
+  for (const entry of sortedByTopThenLeft) {
+    let matchedRow = rows.find((row) => Math.abs(entry.top - row.anchorTop) <= POST_CARD_ROW_TOLERANCE_PX);
+
+    if (!matchedRow) {
+      matchedRow = {
+        anchorTop: entry.top,
+        items: []
+      };
+      rows.push(matchedRow);
+    } else {
+      matchedRow.anchorTop = (matchedRow.anchorTop + entry.top) / 2;
+    }
+
+    matchedRow.items.push({
+      cardElement: entry.cardElement,
+      left: entry.left
+    });
+  }
+
+  rows.sort((leftRow, rightRow) => leftRow.anchorTop - rightRow.anchorTop);
+
+  const orderedCards: HTMLElement[] = [];
+
+  for (const row of rows) {
+    row.items.sort((leftItem, rightItem) => leftItem.left - rightItem.left);
+    for (const rowItem of row.items) {
+      orderedCards.push(rowItem.cardElement);
+    }
+  }
+
+  return orderedCards;
+}
+
+function setupPostCardRiseMotion(): (() => void) | null {
+  const reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const observedCardSet = new Set<HTMLElement>();
+  const cardOrderMap = new WeakMap<HTMLElement, number>();
+  let observer: IntersectionObserver | null = null;
+  let revealFrameId = 0;
+
+  const revealCards = (cardElements: readonly HTMLElement[]): void => {
+    for (const cardElement of cardElements) {
+      cardElement.classList.add('is-visible');
+
+      if (observedCardSet.has(cardElement)) {
+        observer?.unobserve(cardElement);
+        observedCardSet.delete(cardElement);
+      }
+    }
+  };
+
+  const ensureObserver = (): IntersectionObserver | null => {
+    if (observer) {
+      return observer;
+    }
+
+    if (typeof IntersectionObserver === 'undefined') {
+      return null;
+    }
+
+    observer = new IntersectionObserver(
+      (entries) => {
+        const intersectingCards = entries
+          .filter((entry) => entry.isIntersecting && entry.target instanceof HTMLElement)
+          .map((entry) => entry.target as HTMLElement)
+          .sort((leftCard, rightCard) => (cardOrderMap.get(leftCard) ?? 0) - (cardOrderMap.get(rightCard) ?? 0));
+
+        revealCards(intersectingCards);
+      },
+      {
+        threshold: 0.16,
+        rootMargin: '0px 0px -8% 0px'
+      }
+    );
+
+    return observer;
+  };
+
+  const runPostCardMotion = (scope: MotionScopeNode = document): void => {
+    const cardElements = Array.from(
+      scope.querySelectorAll<HTMLElement>(POST_CARD_MOTION_SELECTORS.join(','))
+    );
+
+    if (!cardElements.length) {
+      return;
+    }
+
+    const cardElementsByList = new Map<HTMLElement, HTMLElement[]>();
+
+    for (const cardElement of cardElements) {
+      const listElement = cardElement.closest<HTMLElement>(POST_LIST_SELECTOR);
+      if (!listElement) {
+        continue;
+      }
+
+      const currentListCards = cardElementsByList.get(listElement) ?? [];
+      currentListCards.push(cardElement);
+      cardElementsByList.set(listElement, currentListCards);
+    }
+
+    const listEntries = Array.from(cardElementsByList.entries())
+      .map(([listElement, listCardElements]) => {
+        const listRect = listElement.getBoundingClientRect();
+
+        return {
+          listElement,
+          listCardElements,
+          top: listRect.top,
+          left: listRect.left
+        };
+      })
+      .sort((leftEntry, rightEntry) => {
+        if (leftEntry.top !== rightEntry.top) {
+          return leftEntry.top - rightEntry.top;
+        }
+
+        return leftEntry.left - rightEntry.left;
+      });
+
+    const orderedCards: HTMLElement[] = [];
+    let globalOrder = 0;
+
+    for (const { listCardElements } of listEntries) {
+      const orderedCardsInList = orderPostCardsByVisualFlow(listCardElements);
+
+      for (const [index, cardElement] of orderedCardsInList.entries()) {
+        cardElement.classList.add('motion-card-rise');
+        cardElement.style.setProperty('--motion-index', String(index));
+        cardOrderMap.set(cardElement, globalOrder);
+        orderedCards.push(cardElement);
+        globalOrder += 1;
+      }
+    }
+
+    if (reducedMotionMediaQuery.matches) {
+      revealCards(orderedCards);
+      return;
+    }
+
+    if (revealFrameId) {
+      window.cancelAnimationFrame(revealFrameId);
+      revealFrameId = 0;
+    }
+
+    if (typeof IntersectionObserver === 'undefined') {
+      revealFrameId = window.requestAnimationFrame(() => {
+        revealCards(orderedCards);
+      });
+      return;
+    }
+
+    const initialVisibleCards: HTMLElement[] = [];
+    const deferredCards: HTMLElement[] = [];
+
+    for (const cardElement of orderedCards) {
+      if (cardElement.classList.contains('is-visible')) {
+        if (observedCardSet.has(cardElement)) {
+          observer?.unobserve(cardElement);
+          observedCardSet.delete(cardElement);
+        }
+        continue;
+      }
+
+      const rect = cardElement.getBoundingClientRect();
+      const isWithinInitialViewport = rect.bottom >= 0 && rect.top <= window.innerHeight * 0.94;
+
+      if (isWithinInitialViewport) {
+        initialVisibleCards.push(cardElement);
+      } else {
+        deferredCards.push(cardElement);
+      }
+    }
+
+    revealFrameId = window.requestAnimationFrame(() => {
+      revealCards(initialVisibleCards);
+    });
+
+    const nextObserver = ensureObserver();
+    if (!nextObserver) {
+      revealCards(deferredCards);
+      return;
+    }
+
+    for (const cardElement of deferredCards) {
+      if (observedCardSet.has(cardElement)) {
+        continue;
+      }
+      nextObserver.observe(cardElement);
+      observedCardSet.add(cardElement);
+    }
+  };
+
+  const handleReducedMotionChange = (): void => {
+    observer?.disconnect();
+    observedCardSet.clear();
+
+    if (revealFrameId) {
+      window.cancelAnimationFrame(revealFrameId);
+      revealFrameId = 0;
+    }
+
+    runPostCardMotion(document);
+  };
+
+  reducedMotionMediaQuery.addEventListener('change', handleReducedMotionChange);
+  refreshPostCardMotion = runPostCardMotion;
+  runPostCardMotion(document);
+
+  return () => {
+    if (revealFrameId) {
+      window.cancelAnimationFrame(revealFrameId);
+      revealFrameId = 0;
+    }
+
+    observer?.disconnect();
+    observedCardSet.clear();
+    reducedMotionMediaQuery.removeEventListener('change', handleReducedMotionChange);
+
+    if (refreshPostCardMotion === runPostCardMotion) {
+      refreshPostCardMotion = null;
+    }
   };
 }
 
@@ -320,7 +726,7 @@ function setupGlobalMotionChoreography(): (() => void) | null {
     if (!event.matches) {
       return;
     }
-
+    a
     window.cancelAnimationFrame(revealStaggerFrameId);
     revealStaggerFrameId = 0;
     observer?.disconnect();
@@ -700,6 +1106,7 @@ function setupTagCloudInteractions(): (() => void) | null {
   const TAG_BUBBLE_COLUMN_TOLERANCE = 8;
   let activeBubbleElement: HTMLButtonElement | null = null;
   let tagBubbleColumnSyncFrameId = 0;
+  let panelCardMotionFrameId = 0;
   let resizeObserver: ResizeObserver | null = null;
 
   const syncTagBubbleColumnIndex = (): void => {
@@ -789,6 +1196,15 @@ function setupTagCloudInteractions(): (() => void) | null {
     activeBubbleElement = bubbleElement;
 
     setPanelOpenState(true);
+
+    if (panelCardMotionFrameId) {
+      window.cancelAnimationFrame(panelCardMotionFrameId);
+    }
+
+    panelCardMotionFrameId = window.requestAnimationFrame(() => {
+      panelCardMotionFrameId = 0;
+      refreshPostCardMotion?.(panelContentElement);
+    });
   };
 
   const handleBubbleClick = (event: Event): void => {
@@ -829,6 +1245,11 @@ function setupTagCloudInteractions(): (() => void) | null {
     if (tagBubbleColumnSyncFrameId) {
       window.cancelAnimationFrame(tagBubbleColumnSyncFrameId);
       tagBubbleColumnSyncFrameId = 0;
+    }
+
+    if (panelCardMotionFrameId) {
+      window.cancelAnimationFrame(panelCardMotionFrameId);
+      panelCardMotionFrameId = 0;
     }
 
     resizeObserver?.disconnect();
