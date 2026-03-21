@@ -16,7 +16,6 @@ const appElement = appRoot;
 let cleanupPageEnhancements: (() => void) | null = null;
 type MotionScopeNode = Document | Element;
 let refreshPostCardMotion: ((scope?: MotionScopeNode) => void) | null = null;
-let hasRenderedInitialAppView = false;
 
 function renderApp(): void {
   cleanupPageEnhancements?.();
@@ -67,9 +66,7 @@ function renderApp(): void {
 </div>
 `;
 
-  const isInitialRender = !hasRenderedInitialAppView;
-  cleanupPageEnhancements = setupPageEnhancements(context.pathname, { isInitialRender });
-  hasRenderedInitialAppView = true;
+  cleanupPageEnhancements = setupPageEnhancements(context.pathname);
 }
 
 function shouldRenderProfileCard(routePath: string): boolean {
@@ -136,22 +133,12 @@ function navigateTo(path: string, options: { replace?: boolean } = {}): void {
   window.scrollTo(0, 0);
 }
 
-function setupPageEnhancements(
-  pathname: string,
-  options: { isInitialRender: boolean }
-): (() => void) | null {
+function setupPageEnhancements(pathname: string): (() => void) | null {
   const cleanups: Array<() => void> = [];
 
   const cleanupRouteEnterTransition = setupRouteEnterTransition();
   if (cleanupRouteEnterTransition) {
     cleanups.push(cleanupRouteEnterTransition);
-  }
-
-  const cleanupProfileCardEdgeEnterMotion = setupProfileCardEdgeEnterMotion({
-    shouldRun: options.isInitialRender
-  });
-  if (cleanupProfileCardEdgeEnterMotion) {
-    cleanups.push(cleanupProfileCardEdgeEnterMotion);
   }
 
   const cleanupSidePanelLeftPopMotion = setupSidePanelLeftPopMotion();
@@ -226,10 +213,14 @@ const POST_CARD_MOTION_SELECTORS = [
   '.post-list--posts > .post-card[data-motion-card]',
   '.post-list--tag-panel > .post-card[data-motion-card]'
 ] as const;
-const PROFILE_CARD_SELECTOR = '.profile-card';
-const SIDE_PANEL_LEFT_POP_SELECTORS = ['.page-home > .home-intro-panel'] as const;
+const SIDE_PANEL_LEFT_POP_SELECTORS = [
+  '.profile-card',
+  '.page-home > .home-intro-panel'
+] as const;
 const POST_LIST_SELECTOR = '.post-list';
+const HOME_POST_LIST_CLASS = 'post-list--home';
 const POST_CARD_ROW_TOLERANCE_PX = 10;
+const POST_CARD_STAGGER_CAP = 10;
 
 function setupRouteEnterTransition(): (() => void) | null {
   const reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -272,61 +263,6 @@ function setupRouteEnterTransition(): (() => void) | null {
 
   return () => {
     window.cancelAnimationFrame(frameId);
-    reducedMotionMediaQuery.removeEventListener('change', handleReducedMotionChange);
-  };
-}
-
-function setupProfileCardEdgeEnterMotion(options: { shouldRun: boolean }): (() => void) | null {
-  if (!options.shouldRun) {
-    return null;
-  }
-
-  const profileCardElement = document.querySelector<HTMLElement>(PROFILE_CARD_SELECTOR);
-
-  if (!profileCardElement) {
-    return null;
-  }
-
-  const reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-  if (reducedMotionMediaQuery.matches) {
-    return null;
-  }
-
-  const cardRect = profileCardElement.getBoundingClientRect();
-  const cardCenterX = cardRect.left + cardRect.width / 2;
-  const viewportCenterX = window.innerWidth / 2;
-  const shouldEnterFromLeft = cardCenterX <= viewportCenterX;
-
-  profileCardElement.classList.add('motion-profile-edge-enter');
-  profileCardElement.classList.toggle('motion-profile-edge-enter--from-left', shouldEnterFromLeft);
-  profileCardElement.classList.toggle('motion-profile-edge-enter--from-right', !shouldEnterFromLeft);
-
-  let revealFrameId = window.requestAnimationFrame(() => {
-    profileCardElement.classList.add('is-visible');
-  });
-
-  const handleReducedMotionChange = (event: MediaQueryListEvent): void => {
-    if (!event.matches) {
-      return;
-    }
-
-    if (revealFrameId) {
-      window.cancelAnimationFrame(revealFrameId);
-      revealFrameId = 0;
-    }
-
-    profileCardElement.classList.add('is-visible');
-  };
-
-  reducedMotionMediaQuery.addEventListener('change', handleReducedMotionChange);
-
-  return () => {
-    if (revealFrameId) {
-      window.cancelAnimationFrame(revealFrameId);
-      revealFrameId = 0;
-    }
-
     reducedMotionMediaQuery.removeEventListener('change', handleReducedMotionChange);
   };
 }
@@ -458,6 +394,31 @@ function orderPostCardsByVisualFlow(cardElements: readonly HTMLElement[]): HTMLE
   return orderedCards;
 }
 
+function orderPostCardsTopToBottom(cardElements: readonly HTMLElement[]): HTMLElement[] {
+  if (cardElements.length <= 1) {
+    return [...cardElements];
+  }
+
+  return cardElements
+    .map((cardElement, domIndex) => {
+      const rect = cardElement.getBoundingClientRect();
+
+      return {
+        cardElement,
+        top: rect.top,
+        domIndex
+      };
+    })
+    .sort((leftEntry, rightEntry) => {
+      if (leftEntry.top !== rightEntry.top) {
+        return leftEntry.top - rightEntry.top;
+      }
+
+      return leftEntry.domIndex - rightEntry.domIndex;
+    })
+    .map((entry) => entry.cardElement);
+}
+
 function setupPostCardRiseMotion(): (() => void) | null {
   const reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   const observedCardSet = new Set<HTMLElement>();
@@ -547,12 +508,16 @@ function setupPostCardRiseMotion(): (() => void) | null {
     const orderedCards: HTMLElement[] = [];
     let globalOrder = 0;
 
-    for (const { listCardElements } of listEntries) {
-      const orderedCardsInList = orderPostCardsByVisualFlow(listCardElements);
+    for (const { listElement, listCardElements } of listEntries) {
+      const isHomeList = listElement.classList.contains(HOME_POST_LIST_CLASS);
+      const orderedCardsInList = isHomeList
+        ? orderPostCardsTopToBottom(listCardElements)
+        : orderPostCardsByVisualFlow(listCardElements);
 
       for (const [index, cardElement] of orderedCardsInList.entries()) {
         cardElement.classList.add('motion-card-rise');
-        cardElement.style.setProperty('--motion-index', String(index));
+        cardElement.classList.toggle('motion-card-rise--home', isHomeList);
+        cardElement.style.setProperty('--motion-index', String(Math.min(index, POST_CARD_STAGGER_CAP)));
         cardOrderMap.set(cardElement, globalOrder);
         orderedCards.push(cardElement);
         globalOrder += 1;
@@ -726,7 +691,7 @@ function setupGlobalMotionChoreography(): (() => void) | null {
     if (!event.matches) {
       return;
     }
-    a
+
     window.cancelAnimationFrame(revealStaggerFrameId);
     revealStaggerFrameId = 0;
     observer?.disconnect();
