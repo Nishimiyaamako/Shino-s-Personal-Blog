@@ -29,9 +29,11 @@ export const renderPostDetailPage: PageRenderer = ({ params }) => {
     <p>${escapeHtml(post.summary)}</p>
   </header>
 
-  <section class="markdown-content">
-    ${post.contentHtml}
-  </section>
+  <div class="post-detail-layout">
+    <section class="markdown-content">
+      ${post.contentHtml}
+    </section>
+  </div>
 </article>
 `;
 };

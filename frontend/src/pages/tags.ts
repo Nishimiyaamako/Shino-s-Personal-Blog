@@ -13,19 +13,14 @@ export const renderTagsPage: PageRenderer = () => {
 
   return `
 <section class="page page-tags">
-  ${
-    tagStats.length
+  ${tagStats.length
       ? `<section class="tag-filter-shell">
-          <header class="tag-filter-head">
-            <h2>标签筛选</h2>
-            <p>点选任意标签，下面会展开对应文章列表。</p>
-          </header>
           <section class="tag-cloud-section" aria-label="标签云">
             <ul class="tag-cloud">
               ${tagStats
-                .map(
-                  ({ tag, count }, index) =>
-                    `<li>
+        .map(
+          ({ tag, count }, index) =>
+            `<li>
                       <button
                         type="button"
                         class="tag-bubble"
@@ -39,8 +34,8 @@ export const renderTagsPage: PageRenderer = () => {
                         <span class="tag-count">${count}</span>
                       </button>
                   </li>`
-                )
-                .join('')}
+        )
+        .join('')}
             </ul>
           </section>
         </section>
@@ -67,16 +62,16 @@ export const renderTagsPage: PageRenderer = () => {
 
         <div class="tag-posts-templates" aria-hidden="true">
           ${tagStats
-            .map(
-              ({ tag }) => `
+        .map(
+          ({ tag }) => `
             <template data-tag-template="${escapeHtml(tag)}">
               ${renderPostList(getPostsByTag(tag), { emptyHint: '当前标签下暂无已发布文章。', variant: 'tag-panel' })}
             </template>`
-            )
-            .join('')}
+        )
+        .join('')}
         </div>`
       : '<p class="empty-hint">暂无标签。</p>'
-  }
+    }
 </section>
 `;
 };

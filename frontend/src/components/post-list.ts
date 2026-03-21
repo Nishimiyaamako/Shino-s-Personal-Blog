@@ -10,9 +10,9 @@ interface RenderPostListOptions {
 }
 
 const COVER_IMAGE_ONLOAD_HANDLER =
-  "const article = this.closest('.post-card-article'); if (article) { article.classList.add('has-cover'); article.classList.remove('no-cover'); } if (this.parentElement) { this.parentElement.classList.add('has-cover'); } this.classList.remove('is-pending'); this.classList.remove('is-hidden');";
+  "const article = this.closest('.post-card-article'); if (article) { article.classList.add('has-cover'); article.classList.remove('no-cover'); } if (this.parentElement) { this.parentElement.classList.add('has-cover'); this.parentElement.classList.remove('is-pending'); } this.classList.remove('is-pending'); this.classList.remove('is-hidden');";
 const COVER_IMAGE_ONERROR_HANDLER =
-  "const article = this.closest('.post-card-article'); if (article) { article.classList.remove('has-cover'); article.classList.add('no-cover'); } if (this.parentElement) { this.parentElement.classList.remove('has-cover'); } this.classList.add('is-hidden'); this.classList.remove('is-pending'); this.onerror = null;";
+  "const article = this.closest('.post-card-article'); if (article) { article.classList.remove('has-cover'); article.classList.add('no-cover'); } if (this.parentElement) { this.parentElement.classList.remove('has-cover'); this.parentElement.classList.remove('is-pending'); } this.classList.add('is-hidden'); this.classList.remove('is-pending'); this.onerror = null;";
 
 function renderCoverImage(coverUrl: string): string {
   // 防回归：不要在初始态用 display:none 隐藏 lazy 图片，否则可能永远不触发加载。
@@ -60,7 +60,7 @@ export function renderPostList(posts: PostSummary[], options: RenderPostListOpti
   </li>`;
         }
 
-        const coverClassName = 'post-card-cover';
+        const coverClassName = 'post-card-cover is-pending';
 
         return `
   <li class="${cardClassName}"${cardStyle}>

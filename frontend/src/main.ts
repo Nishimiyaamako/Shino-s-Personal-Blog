@@ -22,12 +22,16 @@ function renderApp(): void {
   const { route, context, isFallback } = resolveRoute(window.location.pathname);
   const pageTitle = isFallback ? `404 (${context.pathname})` : route.title;
   const hasProfileCard = shouldRenderProfileCard(route.path);
-  const mainClassName = hasProfileCard ? 'site-main site-main--with-profile' : 'site-main';
+  const hasPostTocRail = route.path === '/posts/:slug';
+  const mainClassName = hasProfileCard
+    ? `site-main site-main--with-profile${hasPostTocRail ? ' site-main--with-post-toc' : ''}`
+    : 'site-main';
   const pageContent = route.render(context);
   const mainLayout = hasProfileCard
-    ? `<div class="site-main-layout">
+    ? `<div class="site-main-layout${hasPostTocRail ? ' site-main-layout--with-toc' : ''}">
         ${renderProfileCard()}
         <div class="site-page-content">${pageContent}</div>
+        ${hasPostTocRail ? renderPostTocRail() : ''}
       </div>`
     : `<div class="site-page-content">${pageContent}</div>`;
 
@@ -100,6 +104,19 @@ function renderFooterRecords(): string {
   </p>`;
 }
 
+function renderPostTocRail(): string {
+  return `
+<aside class="post-toc-rail" data-role="post-toc" aria-label="文章目录" aria-hidden="true" hidden>
+  <nav class="post-toc-card" aria-label="文章目录导航">
+    <p class="post-toc-title">目录</p>
+    <div class="post-toc-scroll-area">
+      <ul class="post-toc-list" data-role="post-toc-list"></ul>
+    </div>
+  </nav>
+</aside>
+`;
+}
+
 function navigateTo(path: string, options: { replace?: boolean } = {}): void {
   const url = new URL(path, window.location.origin);
   const nextPathname = url.pathname;
@@ -134,6 +151,13 @@ function setupPageEnhancements(pathname: string): (() => void) | null {
     }
   }
 
+  if (pathname.startsWith('/posts/')) {
+    const cleanupPostDetailToc = setupPostDetailToc();
+    if (cleanupPostDetailToc) {
+      cleanups.push(cleanupPostDetailToc);
+    }
+  }
+
   if (pathname === '/archive') {
     const cleanupArchiveTimeline = setupArchiveTimelineReveal();
     if (cleanupArchiveTimeline) {
@@ -162,6 +186,7 @@ const PAGE_STAGGER_SELECTORS = [
   ':scope > .tag-result-shell',
   ':scope > .tag-detail-header',
   ':scope > .archive-timeline',
+  ':scope > .post-detail-layout',
   ':scope > .markdown-content',
   ':scope > .empty-hint'
 ] as const;
@@ -318,6 +343,283 @@ function setupGlobalMotionChoreography(): (() => void) | null {
   };
 }
 
+function setupPostDetailToc(): (() => void) | null {
+  const postPageElement = document.querySelector<HTMLElement>('.page-post-detail');
+  const markdownContentElement = postPageElement?.querySelector<HTMLElement>('.markdown-content');
+  const tocElement = document.querySelector<HTMLElement>('[data-role="post-toc"]');
+  const tocListElement = document.querySelector<HTMLElement>('[data-role="post-toc-list"]');
+
+  if (!postPageElement || !markdownContentElement || !tocElement || !tocListElement) {
+    return null;
+  }
+
+  const setTocVisibleState = (isVisible: boolean): void => {
+    tocElement.hidden = !isVisible;
+    tocElement.setAttribute('aria-hidden', isVisible ? 'false' : 'true');
+    tocElement.classList.toggle('is-visible', isVisible);
+  };
+
+  const headingElements = Array.from(
+    markdownContentElement.querySelectorAll<HTMLHeadingElement>('h1, h2, h3')
+  );
+
+  if (!headingElements.length) {
+    setTocVisibleState(false);
+    return null;
+  }
+
+  const usedIdSet = new Set<string>();
+
+  for (const headingElement of headingElements) {
+    const normalizedCurrentId = normalizeHeadingId(headingElement.id);
+
+    if (normalizedCurrentId && !usedIdSet.has(normalizedCurrentId)) {
+      headingElement.id = normalizedCurrentId;
+      usedIdSet.add(normalizedCurrentId);
+      continue;
+    }
+
+    const generatedId = createUniqueHeadingId(
+      getHeadingTextContent(headingElement),
+      usedIdSet
+    );
+
+    headingElement.id = generatedId;
+    usedIdSet.add(generatedId);
+  }
+
+  interface TocHeadingItem {
+    id: string;
+    headingElement: HTMLHeadingElement;
+    linkElement: HTMLAnchorElement;
+    itemElement: HTMLLIElement;
+  }
+
+  const tocHeadingItems: TocHeadingItem[] = [];
+  tocListElement.innerHTML = '';
+
+  for (const headingElement of headingElements) {
+    const level = Number.parseInt(headingElement.tagName.slice(1), 10);
+    const text = getHeadingTextContent(headingElement);
+
+    if (!headingElement.id || !text) {
+      continue;
+    }
+
+    const listItemElement = document.createElement('li');
+    listItemElement.className = 'post-toc-item';
+    listItemElement.style.setProperty('--post-toc-indent', String(Math.max(0, level - 1)));
+
+    const linkElement = document.createElement('a');
+    linkElement.className = 'post-toc-link';
+    linkElement.setAttribute('href', `#${encodeURIComponent(headingElement.id)}`);
+    linkElement.setAttribute('data-toc-target', headingElement.id);
+    linkElement.textContent = text;
+
+    listItemElement.append(linkElement);
+    tocListElement.append(listItemElement);
+
+    tocHeadingItems.push({
+      id: headingElement.id,
+      headingElement,
+      linkElement,
+      itemElement: listItemElement
+    });
+  }
+
+  if (!tocHeadingItems.length) {
+    setTocVisibleState(false);
+    return null;
+  }
+
+  setTocVisibleState(true);
+
+  const tocHeadingMap = new Map<string, TocHeadingItem>();
+
+  for (const tocHeadingItem of tocHeadingItems) {
+    tocHeadingMap.set(tocHeadingItem.id, tocHeadingItem);
+  }
+
+  let activeHeadingId = '';
+
+  const setActiveHeading = (nextActiveId: string): void => {
+    if (!nextActiveId || nextActiveId === activeHeadingId) {
+      return;
+    }
+
+    activeHeadingId = nextActiveId;
+
+    for (const tocHeadingItem of tocHeadingItems) {
+      const isActive = tocHeadingItem.id === nextActiveId;
+      tocHeadingItem.itemElement.classList.toggle('is-active', isActive);
+
+      if (isActive) {
+        tocHeadingItem.linkElement.setAttribute('aria-current', 'location');
+      } else {
+        tocHeadingItem.linkElement.removeAttribute('aria-current');
+      }
+    }
+  };
+
+  const findActiveHeadingIdByViewport = (): string => {
+    const activationOffset = 136;
+    let currentItem = tocHeadingItems[0];
+
+    for (const tocHeadingItem of tocHeadingItems) {
+      if (tocHeadingItem.headingElement.getBoundingClientRect().top <= activationOffset) {
+        currentItem = tocHeadingItem;
+        continue;
+      }
+
+      break;
+    }
+
+    return currentItem.id;
+  };
+
+  const syncActiveHeadingFromViewport = (): void => {
+    setActiveHeading(findActiveHeadingIdByViewport());
+  };
+
+  const handleTocClick = (event: Event): void => {
+    const targetElement = event.target;
+    if (!(targetElement instanceof Element)) {
+      return;
+    }
+
+    const linkElement = targetElement.closest<HTMLAnchorElement>('.post-toc-link[data-toc-target]');
+    if (!linkElement) {
+      return;
+    }
+
+    const targetId = linkElement.dataset.tocTarget ?? '';
+    const targetHeadingItem = tocHeadingMap.get(targetId);
+    if (!targetHeadingItem) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    targetHeadingItem.headingElement.scrollIntoView({
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+      block: 'start'
+    });
+
+    setActiveHeading(targetId);
+    window.history.replaceState(
+      null,
+      '',
+      `${window.location.pathname}${window.location.search}#${encodeURIComponent(targetId)}`
+    );
+  };
+
+  tocListElement.addEventListener('click', handleTocClick);
+
+  let observer: IntersectionObserver | null = null;
+  const handleWindowScroll = (): void => {
+    syncActiveHeadingFromViewport();
+  };
+  const handleWindowResize = (): void => {
+    syncActiveHeadingFromViewport();
+  };
+
+  if (typeof IntersectionObserver === 'undefined') {
+    window.addEventListener('scroll', handleWindowScroll, { passive: true });
+    window.addEventListener('resize', handleWindowResize);
+  } else {
+    observer = new IntersectionObserver(() => {
+      syncActiveHeadingFromViewport();
+    }, {
+      root: null,
+      rootMargin: '-20% 0px -65% 0px',
+      threshold: [0, 1]
+    });
+
+    for (const tocHeadingItem of tocHeadingItems) {
+      observer.observe(tocHeadingItem.headingElement);
+    }
+
+    window.addEventListener('resize', handleWindowResize);
+  }
+
+  let initialSyncFrameId = window.requestAnimationFrame(() => {
+    const hashTargetId = decodeHashTargetId(window.location.hash);
+    const hashTargetItem = hashTargetId ? tocHeadingMap.get(hashTargetId) : undefined;
+
+    if (hashTargetItem) {
+      hashTargetItem.headingElement.scrollIntoView({
+        behavior: 'auto',
+        block: 'start'
+      });
+      setActiveHeading(hashTargetItem.id);
+      return;
+    }
+
+    syncActiveHeadingFromViewport();
+  });
+
+  return () => {
+    tocListElement.removeEventListener('click', handleTocClick);
+    observer?.disconnect();
+    window.removeEventListener('scroll', handleWindowScroll);
+    window.removeEventListener('resize', handleWindowResize);
+
+    if (initialSyncFrameId) {
+      window.cancelAnimationFrame(initialSyncFrameId);
+      initialSyncFrameId = 0;
+    }
+  };
+}
+
+function getHeadingTextContent(headingElement: HTMLHeadingElement): string {
+  return headingElement.textContent?.trim().replace(/\s+/g, ' ') ?? '';
+}
+
+function normalizeHeadingId(id: string): string {
+  return id.trim();
+}
+
+function createUniqueHeadingId(title: string, usedIdSet: Set<string>): string {
+  const baseId = slugifyHeadingText(title) || 'section';
+  let nextId = baseId;
+  let suffix = 2;
+
+  while (usedIdSet.has(nextId)) {
+    nextId = `${baseId}-${suffix}`;
+    suffix += 1;
+  }
+
+  return nextId;
+}
+
+function slugifyHeadingText(input: string): string {
+  return input
+    .trim()
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function decodeHashTargetId(hashValue: string): string {
+  const trimmed = hashValue.trim();
+
+  if (!trimmed.startsWith('#') || trimmed.length <= 1) {
+    return '';
+  }
+
+  const rawTarget = trimmed.slice(1);
+
+  try {
+    return decodeURIComponent(rawTarget);
+  } catch {
+    return rawTarget;
+  }
+}
+
 function setupTagCloudInteractions(): (() => void) | null {
   const tagsPageElement = document.querySelector<HTMLElement>('.page-tags');
 
@@ -330,6 +632,7 @@ function setupTagCloudInteractions(): (() => void) | null {
   const panelMetaElement = tagsPageElement.querySelector<HTMLElement>('[data-role="tag-posts-meta"]');
   const panelContentElement = tagsPageElement.querySelector<HTMLElement>('[data-role="tag-posts-content"]');
   const closeButtonElement = tagsPageElement.querySelector<HTMLButtonElement>('[data-role="tag-posts-close"]');
+  const tagCloudElement = tagsPageElement.querySelector<HTMLElement>('.tag-cloud');
   const bubbleElements = Array.from(tagsPageElement.querySelectorAll<HTMLButtonElement>('.tag-bubble[data-tag]'));
 
   if (
@@ -338,6 +641,7 @@ function setupTagCloudInteractions(): (() => void) | null {
     !panelMetaElement ||
     !panelContentElement ||
     !closeButtonElement ||
+    !tagCloudElement ||
     !bubbleElements.length
   ) {
     return null;
@@ -355,8 +659,56 @@ function setupTagCloudInteractions(): (() => void) | null {
     templateMap.set(tag, templateElement.innerHTML.trim());
   }
 
-  const reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const TAG_BUBBLE_COLUMN_TOLERANCE = 8;
   let activeBubbleElement: HTMLButtonElement | null = null;
+  let tagBubbleColumnSyncFrameId = 0;
+  let resizeObserver: ResizeObserver | null = null;
+
+  const syncTagBubbleColumnIndex = (): void => {
+    const bubbleLayoutEntries = bubbleElements
+      .map((bubbleElement) => ({
+        bubbleElement,
+        left: bubbleElement.getBoundingClientRect().left
+      }))
+      .sort((leftEntry, rightEntry) => leftEntry.left - rightEntry.left);
+
+    const columnAnchorList: number[] = [];
+
+    for (const { bubbleElement, left } of bubbleLayoutEntries) {
+      let matchedColumnIndex = -1;
+
+      for (let index = 0; index < columnAnchorList.length; index += 1) {
+        if (Math.abs(left - columnAnchorList[index]) <= TAG_BUBBLE_COLUMN_TOLERANCE) {
+          matchedColumnIndex = index;
+          break;
+        }
+      }
+
+      if (matchedColumnIndex === -1) {
+        columnAnchorList.push(left);
+        matchedColumnIndex = columnAnchorList.length - 1;
+      } else {
+        columnAnchorList[matchedColumnIndex] = (columnAnchorList[matchedColumnIndex] + left) / 2;
+      }
+
+      bubbleElement.style.setProperty('--tag-col-index', String(matchedColumnIndex));
+    }
+  };
+
+  const scheduleTagBubbleColumnSync = (): void => {
+    if (tagBubbleColumnSyncFrameId) {
+      return;
+    }
+
+    tagBubbleColumnSyncFrameId = window.requestAnimationFrame(() => {
+      tagBubbleColumnSyncFrameId = 0;
+      syncTagBubbleColumnIndex();
+    });
+  };
+
+  const handleTagCloudResize = (): void => {
+    scheduleTagBubbleColumnSync();
+  };
 
   const setPanelOpenState = (isOpen: boolean): void => {
     panelElement.hidden = !isOpen;
@@ -399,11 +751,6 @@ function setupTagCloudInteractions(): (() => void) | null {
     activeBubbleElement = bubbleElement;
 
     setPanelOpenState(true);
-
-    panelElement.scrollIntoView({
-      behavior: reducedMotionMediaQuery.matches ? 'auto' : 'smooth',
-      block: 'start'
-    });
   };
 
   const handleBubbleClick = (event: Event): void => {
@@ -422,6 +769,17 @@ function setupTagCloudInteractions(): (() => void) | null {
   };
 
   setPanelOpenState(false);
+  scheduleTagBubbleColumnSync();
+
+  if (typeof ResizeObserver !== 'undefined') {
+    resizeObserver = new ResizeObserver(() => {
+      scheduleTagBubbleColumnSync();
+    });
+
+    resizeObserver.observe(tagCloudElement);
+  } else {
+    window.addEventListener('resize', handleTagCloudResize);
+  }
 
   for (const bubbleElement of bubbleElements) {
     bubbleElement.addEventListener('click', handleBubbleClick);
@@ -430,6 +788,14 @@ function setupTagCloudInteractions(): (() => void) | null {
   closeButtonElement.addEventListener('click', closePanel);
 
   return () => {
+    if (tagBubbleColumnSyncFrameId) {
+      window.cancelAnimationFrame(tagBubbleColumnSyncFrameId);
+      tagBubbleColumnSyncFrameId = 0;
+    }
+
+    resizeObserver?.disconnect();
+    window.removeEventListener('resize', handleTagCloudResize);
+
     for (const bubbleElement of bubbleElements) {
       bubbleElement.removeEventListener('click', handleBubbleClick);
     }
