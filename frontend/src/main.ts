@@ -490,6 +490,14 @@ function setupPostDetailToc(): (() => void) | null {
   };
 
   const findActiveHeadingIdByViewport = (): string => {
+    const viewportBottom = window.scrollY + window.innerHeight;
+    const pageBottom = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+    const isNearPageBottom = pageBottom - viewportBottom <= 2;
+
+    if (isNearPageBottom) {
+      return tocHeadingItems[tocHeadingItems.length - 1].id;
+    }
+
     const activationOffset = 136;
     let currentItem = tocHeadingItems[0];
 
@@ -569,6 +577,7 @@ function setupPostDetailToc(): (() => void) | null {
       observer.observe(tocHeadingItem.headingElement);
     }
 
+    window.addEventListener('scroll', handleWindowScroll, { passive: true });
     window.addEventListener('resize', handleWindowResize);
   }
 
