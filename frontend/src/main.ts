@@ -440,7 +440,33 @@ function setupPostDetailToc(): (() => void) | null {
     tocHeadingMap.set(tocHeadingItem.id, tocHeadingItem);
   }
 
+  tocListElement.style.setProperty('--post-toc-progress-height', '0px');
+
   let activeHeadingId = '';
+
+  const syncTocProgressIndicator = (): void => {
+    const activeHeadingItem = (activeHeadingId ? tocHeadingMap.get(activeHeadingId) : undefined) ?? tocHeadingItems[0];
+
+    if (!activeHeadingItem) {
+      tocListElement.style.setProperty('--post-toc-progress-height', '0px');
+      return;
+    }
+
+    const lastHeadingItem = tocHeadingItems[tocHeadingItems.length - 1];
+    if (lastHeadingItem && activeHeadingItem.id === lastHeadingItem.id) {
+      tocListElement.style.setProperty('--post-toc-progress-height', `${Math.round(tocListElement.scrollHeight)}px`);
+      return;
+    }
+
+    const listRect = tocListElement.getBoundingClientRect();
+    const activeItemRect = activeHeadingItem.itemElement.getBoundingClientRect();
+    const progressHeight = Math.min(
+      tocListElement.scrollHeight,
+      Math.max(0, activeItemRect.top - listRect.top + activeItemRect.height / 2)
+    );
+
+    tocListElement.style.setProperty('--post-toc-progress-height', `${Math.round(progressHeight)}px`);
+  };
 
   const setActiveHeading = (nextActiveId: string): void => {
     if (!nextActiveId || nextActiveId === activeHeadingId) {
@@ -459,6 +485,8 @@ function setupPostDetailToc(): (() => void) | null {
         tocHeadingItem.linkElement.removeAttribute('aria-current');
       }
     }
+
+    syncTocProgressIndicator();
   };
 
   const findActiveHeadingIdByViewport = (): string => {
@@ -479,6 +507,7 @@ function setupPostDetailToc(): (() => void) | null {
 
   const syncActiveHeadingFromViewport = (): void => {
     setActiveHeading(findActiveHeadingIdByViewport());
+    syncTocProgressIndicator();
   };
 
   const handleTocClick = (event: Event): void => {

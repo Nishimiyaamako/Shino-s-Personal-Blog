@@ -2029,14 +2029,38 @@ a:hover {
 
 .post-toc-list {
   margin: 0;
-  padding: 0;
+  padding: 0 0 0 0.88rem;
   list-style: none;
   display: grid;
   gap: 0.12rem;
+  position: relative;
+  --post-toc-progress-height: 0px;
+}
+
+.post-toc-list::before,
+.post-toc-list::after {
+  content: '';
+  position: absolute;
+  left: 0.3rem;
+  top: 0;
+  width: 2px;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.post-toc-list::before {
+  height: 100%;
+  background: color-mix(in srgb, var(--accent-berry) 18%, var(--border));
+}
+
+.post-toc-list::after {
+  height: var(--post-toc-progress-height);
+  background: color-mix(in srgb, var(--accent-berry) 70%, var(--brand));
+  transition: height var(--motion-duration-state) var(--motion-ease-out-quart);
 }
 
 .post-toc-item {
-  padding-left: calc(var(--post-toc-indent, 0) * 0.75rem);
+  padding-left: calc(0.18rem + var(--post-toc-indent, 0) * 0.75rem);
 }
 
 .post-toc-link {
@@ -2064,7 +2088,6 @@ a:hover {
   color: color-mix(in srgb, var(--accent-berry) 84%, var(--text));
   font-weight: 600;
   background: color-mix(in srgb, var(--accent-berry-soft) 86%, transparent);
-  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--accent-berry) 62%, transparent);
   transform: translateX(1px);
 }
 
