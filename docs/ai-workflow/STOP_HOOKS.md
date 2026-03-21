@@ -34,9 +34,9 @@
 
 ### Hook ID: `task-stop-memory-sync`
 
-- **Trigger**：任务完成前最后一步。
-- **Condition**：出现新决策/新风险/约束更新/下一步变更。
-- **Action**：回写 `MEMORY.md`（区块 3/4/5/6），并保持前 200 行高信噪比。
+- **Trigger**：每次产生仓库改动后立即执行（同一轮改动批次），并在任务完成前再执行一次兜底。
+- **Condition**：命中任何受管文件改动（代码/样式/配置/文档）；若无可记录信息需显式标注 `SKIP` 原因。
+- **Action**：回写 `MEMORY.md`（至少区块 3/4/5/6），并保持前 200 行高信噪比。
 - **On Fail**：显式标注 memory sync 未完成及原因。
 - **Output Contract**：必须输出 `Checks Run / Findings / Next Action`。
 

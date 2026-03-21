@@ -11,7 +11,7 @@
 ## 2) 标准工作回路
 
 ```text
-需求 -> 计划 -> plan-stop-audit -> 实施 -> code-stop-typecheck -> task-stop-memory-sync -> 交付
+需求 -> 计划 -> plan-stop-audit -> 实施(每次修改后自动 task-stop-memory-sync) -> code-stop-typecheck -> task-stop-memory-sync(兜底) -> 交付
 ```
 
 ## 3) 初始化参数回显
@@ -26,4 +26,4 @@
 1. 先补齐 `MEMORY.md` 的项目专属约束与已踩坑。
 2. 在真实任务里跑一次完整闭环。
 3. 收尾时固定输出：`Checks Run / Findings / Next Action`。
-4. 每次任务后回写 MEMORY（决策/风险/下一步/更新记录）。
+4. 每次修改后自动回写 MEMORY，任务收尾再做一次兜底 sync（决策/风险/下一步/更新记录）。
