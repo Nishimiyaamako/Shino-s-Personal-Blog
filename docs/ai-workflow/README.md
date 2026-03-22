@@ -11,7 +11,7 @@
 ## 2) 标准工作回路
 
 ```text
-需求 -> 计划 -> plan-stop-audit -> 实施(每次修改后自动 task-stop-memory-sync) -> code-stop-typecheck -> task-stop-memory-sync(兜底) -> 交付
+需求 -> 计划 -> plan-stop-audit -> frontend-preflight-skill-stack(仅 frontend 改动) -> 实施(每次修改后自动 task-stop-memory-sync) -> code-stop-typecheck -> task-stop-memory-sync(兜底) -> 交付
 ```
 
 ## 3) 初始化参数回显
@@ -27,3 +27,10 @@
 2. 在真实任务里跑一次完整闭环。
 3. 收尾时固定输出：`Checks Run / Findings / Next Action`。
 4. 每次修改后自动回写 MEMORY，任务收尾再做一次兜底 sync（决策/风险/下一步/更新记录）。
+
+## 5) 前端技能自动路由（默认）
+
+- 触发条件：任务将修改 `frontend/` 目录内任意受管文件。
+- 默认技能链：`frontend-design -> harden -> polish`（固定顺序）。
+- 优先级：用户显式点名的 skill 优先于默认技能链。
+- 例外：非 frontend 改动任务不触发该链。

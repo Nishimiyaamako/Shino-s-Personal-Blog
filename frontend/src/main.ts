@@ -153,11 +153,25 @@ function renderFooterRecords(): string {
 
 function renderPostTocRail(): string {
   return `
-<aside class="post-toc-rail" data-role="post-toc" aria-label="文章目录" aria-hidden="true" hidden>
-  <nav class="post-toc-card" aria-label="文章目录导航">
-    <p class="post-toc-title">目录</p>
-    <div class="post-toc-scroll-area">
-      <ul class="post-toc-list" data-role="post-toc-list"></ul>
+<aside class="post-toc-rail" aria-label="文章侧边栏工具">
+  <nav class="post-toc-card" data-role="post-toc" aria-label="文章目录导航">
+    <section class="post-toc-panel" data-role="post-toc-panel" aria-hidden="true" hidden>
+      <p class="post-toc-title">目录</p>
+      <div class="post-toc-scroll-area">
+        <ul class="post-toc-list" data-role="post-toc-list"></ul>
+      </div>
+    </section>
+    <div class="post-toc-btt-wrap" data-role="post-detail-scroll-top-wrap" aria-hidden="true">
+      <div class="post-toc-btt-inner">
+        <button type="button" class="post-detail-scroll-top" data-role="post-detail-scroll-top" aria-label="回到顶部">
+          <span class="btt-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="18 15 12 9 6 15"></polyline>
+            </svg>
+          </span>
+          <span class="btt-percent" data-role="post-detail-scroll-top-percent">0%</span>
+        </button>
+      </div>
     </div>
   </nav>
 </aside>
@@ -213,6 +227,11 @@ function setupPageEnhancements(pathname: string): (() => void) | null {
     const cleanupPostDetailBackButton = setupPostDetailBackButton();
     if (cleanupPostDetailBackButton) {
       cleanups.push(cleanupPostDetailBackButton);
+    }
+
+    const cleanupPostDetailScrollTopButton = setupPostDetailScrollTopButton();
+    if (cleanupPostDetailScrollTopButton) {
+      cleanups.push(cleanupPostDetailScrollTopButton);
     }
 
     const cleanupPostDetailToc = setupPostDetailToc();
@@ -791,20 +810,80 @@ function setupPostDetailBackButton(): (() => void) | null {
   };
 }
 
+function setupPostDetailScrollTopButton(): (() => void) | null {
+  const scrollTopButtonElement = document.querySelector<HTMLButtonElement>('[data-role="post-detail-scroll-top"]');
+  const scrollTopButtonWrapElement = document.querySelector<HTMLElement>('[data-role="post-detail-scroll-top-wrap"]');
+
+  if (!scrollTopButtonElement) {
+    return null;
+  }
+
+  const percentElement = scrollTopButtonElement.querySelector<HTMLElement>('[data-role="post-detail-scroll-top-percent"]');
+  const VISIBILITY_THRESHOLD = 8;
+
+  const syncButtonState = (): void => {
+    const scrollTop = Math.max(window.scrollY, 0);
+    const maxScrollableHeight = Math.max(
+      document.documentElement.scrollHeight,
+      document.body.scrollHeight
+    ) - window.innerHeight;
+    const progressRatio = maxScrollableHeight > 0 ? scrollTop / maxScrollableHeight : 0;
+    const progressPercent = Math.max(0, Math.min(100, Math.round(progressRatio * 100)));
+    const shouldShow = scrollTop > VISIBILITY_THRESHOLD;
+
+    scrollTopButtonElement.classList.toggle('is-visible', shouldShow);
+    scrollTopButtonWrapElement?.classList.toggle('is-visible', shouldShow);
+    scrollTopButtonWrapElement?.setAttribute('aria-hidden', shouldShow ? 'false' : 'true');
+    if (percentElement) {
+      percentElement.textContent = `${progressPercent}%`;
+    }
+  };
+
+  const handleWindowScroll = (): void => {
+    syncButtonState();
+  };
+
+  const handleWindowResize = (): void => {
+    syncButtonState();
+  };
+
+  const handleButtonClick = (event: MouseEvent): void => {
+    event.preventDefault();
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({
+      top: 0,
+      behavior: prefersReducedMotion ? 'auto' : 'smooth'
+    });
+  };
+
+  syncButtonState();
+  window.addEventListener('scroll', handleWindowScroll, { passive: true });
+  window.addEventListener('resize', handleWindowResize);
+  scrollTopButtonElement.addEventListener('click', handleButtonClick);
+
+  return () => {
+    window.removeEventListener('scroll', handleWindowScroll);
+    window.removeEventListener('resize', handleWindowResize);
+    scrollTopButtonElement.removeEventListener('click', handleButtonClick);
+  };
+}
+
 function setupPostDetailToc(): (() => void) | null {
   const postPageElement = document.querySelector<HTMLElement>('.page-post-detail');
   const markdownContentElement = postPageElement?.querySelector<HTMLElement>('.markdown-content');
   const tocElement = document.querySelector<HTMLElement>('[data-role="post-toc"]');
+  const tocPanelElement = tocElement?.querySelector<HTMLElement>('[data-role="post-toc-panel"]');
   const tocListElement = document.querySelector<HTMLElement>('[data-role="post-toc-list"]');
 
-  if (!postPageElement || !markdownContentElement || !tocElement || !tocListElement) {
+  if (!postPageElement || !markdownContentElement || !tocElement || !tocPanelElement || !tocListElement) {
     return null;
   }
 
   const setTocVisibleState = (isVisible: boolean): void => {
-    tocElement.hidden = !isVisible;
-    tocElement.setAttribute('aria-hidden', isVisible ? 'false' : 'true');
-    tocElement.classList.toggle('is-visible', isVisible);
+    tocPanelElement.hidden = !isVisible;
+    tocPanelElement.setAttribute('aria-hidden', isVisible ? 'false' : 'true');
+    tocElement.classList.toggle('has-toc', isVisible);
   };
 
   const headingElements = Array.from(

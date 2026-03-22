@@ -2162,6 +2162,106 @@ a:hover {
   padding: var(--space-4);
   display: grid;
   gap: var(--space-3);
+  align-content: start;
+}
+
+.post-toc-card:not(.has-toc) {
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.post-toc-panel {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.post-toc-btt-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transform: translateY(0.22rem);
+  pointer-events: none;
+  transition:
+    grid-template-rows var(--motion-duration-state) var(--motion-ease-out-quart),
+    opacity var(--motion-duration-state) var(--motion-ease-out-quart),
+    transform var(--motion-duration-state) var(--motion-ease-out-quart);
+}
+
+.post-toc-btt-wrap.is-visible {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.post-toc-btt-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.post-detail-scroll-top {
+  position: static;
+  z-index: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.42rem;
+  width: 100%;
+  min-width: 0;
+  padding: 0.48rem 0.62rem;
+  border: 1px solid color-mix(in srgb, var(--accent-berry) 24%, var(--border));
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--surface) 72%, var(--brand-soft));
+  color: color-mix(in srgb, var(--accent-berry) 82%, var(--text));
+  box-shadow: none;
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(0.28rem);
+  pointer-events: none;
+  transition:
+    opacity var(--motion-duration-state) var(--motion-ease-out-quart),
+    transform var(--motion-duration-state) var(--motion-ease-out-quart),
+    border-color var(--motion-duration-state) var(--motion-ease-out-quart),
+    background-color var(--motion-duration-state) var(--motion-ease-out-quart),
+    color var(--motion-duration-state) var(--motion-ease-out-quart),
+    box-shadow var(--motion-duration-state) var(--motion-ease-out-quart);
+}
+
+.post-detail-scroll-top.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.post-detail-scroll-top:hover {
+  border-color: color-mix(in srgb, var(--accent-berry) 38%, var(--border));
+  background: color-mix(in srgb, var(--surface) 64%, var(--brand-soft));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-berry) 14%, transparent);
+}
+
+.post-detail-scroll-top:active {
+  transform: translateY(1px);
+}
+
+.post-detail-scroll-top:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.btt-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btt-percent {
+  font-size: 0.73rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .post-toc-title {
@@ -2331,8 +2431,37 @@ a:hover {
     padding: var(--space-3);
   }
 
+  .post-toc-card:not(.has-toc) {
+    padding: 0;
+  }
+
   .post-toc-scroll-area {
     max-height: min(44vh, 15rem);
+  }
+
+  .post-toc-btt-wrap {
+    display: contents;
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .post-toc-btt-inner {
+    overflow: visible;
+  }
+
+  .post-detail-scroll-top {
+    position: fixed;
+    right: max(0.85rem, env(safe-area-inset-right));
+    bottom: max(0.85rem, env(safe-area-inset-bottom));
+    z-index: 12;
+    width: auto;
+    min-width: 4rem;
+    border-radius: 999px;
+    padding: 0.45rem 0.58rem;
+    box-shadow: var(--shadow);
+    background: color-mix(in srgb, var(--surface) 88%, var(--brand-soft));
+    transform: translateY(0.35rem);
   }
 
   .home-intro-fact-list {
@@ -2476,6 +2605,17 @@ a:hover {
     font-size: 0.82rem;
   }
 
+  .post-detail-scroll-top {
+    right: max(0.7rem, env(safe-area-inset-right));
+    bottom: max(0.7rem, env(safe-area-inset-bottom));
+    min-width: 4rem;
+    padding: 0.45rem 0.58rem;
+  }
+
+  .btt-percent {
+    font-size: 0.69rem;
+  }
+
   .tag-cloud-section {
     padding: 0;
   }
@@ -2577,6 +2717,8 @@ a:hover {
   .tag-posts-panel-close,
   .tag-detail-back-link,
   .post-detail-back-button,
+  .post-toc-btt-wrap,
+  .post-detail-scroll-top,
   .post-list--posts .post-card-cover,
   .post-list--tag-panel .post-card-cover,
   .site-nav a,

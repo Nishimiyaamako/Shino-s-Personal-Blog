@@ -24,6 +24,14 @@
 - **On Fail**：先补计划，不直接进入编码。
 - **Output Contract**：必须输出 `Checks Run / Findings / Next Action`。
 
+### Hook ID: `frontend-preflight-skill-stack`
+
+- **Trigger**：进入实现前且任务命中 frontend 改动。
+- **Condition**：本次任务会修改 `frontend/` 下任意受管文件（代码/样式/资源/配置/文档）。
+- **Action**：默认先声明并应用技能链 `frontend-design -> harden -> polish`；若用户显式点名其他 skill，则按用户指定执行，不强行追加默认链。
+- **On Fail**：显式输出 `SKIP` 原因并继续任务，不阻断实现流程。
+- **Output Contract**：必须输出 `Checks Run / Findings / Next Action`。
+
 ### Hook ID: `code-stop-typecheck`
 
 - **Trigger**：编码收尾前。
