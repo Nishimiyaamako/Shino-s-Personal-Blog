@@ -29,6 +29,12 @@ export const renderPostDetailPage: PageRenderer = ({ params }) => {
     <p>${escapeHtml(post.summary)}</p>
   </header>
 
+  <div class="post-detail-back-row">
+    <button type="button" class="post-detail-back-button" data-role="post-detail-back" aria-label="返回上一页">
+      ← 返回
+    </button>
+  </div>
+
   <div class="post-detail-layout">
     <section class="markdown-content">
       ${post.contentHtml}

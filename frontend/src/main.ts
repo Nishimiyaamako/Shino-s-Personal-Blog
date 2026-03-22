@@ -16,6 +16,51 @@ const appElement = appRoot;
 let cleanupPageEnhancements: (() => void) | null = null;
 type MotionScopeNode = Document | Element;
 let refreshPostCardMotion: ((scope?: MotionScopeNode) => void) | null = null;
+const HISTORY_STATE_NAV_INDEX_KEY = '__appNavIndex' as const;
+type AppHistoryState = Record<string, unknown> & {
+  [HISTORY_STATE_NAV_INDEX_KEY]?: number;
+};
+let currentHistoryIndex = 0;
+
+function cloneHistoryState(state: unknown = window.history.state): Record<string, unknown> {
+  if (!state || typeof state !== 'object' || Array.isArray(state)) {
+    return {};
+  }
+
+  return { ...(state as Record<string, unknown>) };
+}
+
+function readHistoryIndex(state: unknown = window.history.state): number | null {
+  if (!state || typeof state !== 'object' || Array.isArray(state)) {
+    return null;
+  }
+
+  const maybeIndex = (state as AppHistoryState)[HISTORY_STATE_NAV_INDEX_KEY];
+  return Number.isInteger(maybeIndex) && maybeIndex !== undefined && maybeIndex >= 0 ? maybeIndex : null;
+}
+
+function createHistoryStateWithIndex(index: number, state: unknown = window.history.state): AppHistoryState {
+  return {
+    ...cloneHistoryState(state),
+    [HISTORY_STATE_NAV_INDEX_KEY]: index
+  };
+}
+
+function ensureHistoryIndexState(): void {
+  const existingIndex = readHistoryIndex(window.history.state);
+
+  if (existingIndex !== null) {
+    currentHistoryIndex = existingIndex;
+    return;
+  }
+
+  currentHistoryIndex = 0;
+  window.history.replaceState(
+    createHistoryStateWithIndex(currentHistoryIndex),
+    '',
+    `${window.location.pathname}${window.location.search}${window.location.hash}`
+  );
+}
 
 function renderApp(): void {
   cleanupPageEnhancements?.();
@@ -124,9 +169,10 @@ function navigateTo(path: string, options: { replace?: boolean } = {}): void {
   const nextPathname = url.pathname;
 
   if (options.replace) {
-    window.history.replaceState(null, '', nextPathname);
+    window.history.replaceState(createHistoryStateWithIndex(currentHistoryIndex), '', nextPathname);
   } else if (window.location.pathname !== nextPathname) {
-    window.history.pushState(null, '', nextPathname);
+    currentHistoryIndex += 1;
+    window.history.pushState(createHistoryStateWithIndex(currentHistoryIndex), '', nextPathname);
   }
 
   renderApp();
@@ -164,6 +210,11 @@ function setupPageEnhancements(pathname: string): (() => void) | null {
   }
 
   if (pathname.startsWith('/posts/')) {
+    const cleanupPostDetailBackButton = setupPostDetailBackButton();
+    if (cleanupPostDetailBackButton) {
+      cleanups.push(cleanupPostDetailBackButton);
+    }
+
     const cleanupPostDetailToc = setupPostDetailToc();
     if (cleanupPostDetailToc) {
       cleanups.push(cleanupPostDetailToc);
@@ -190,6 +241,7 @@ function setupPageEnhancements(pathname: string): (() => void) | null {
 
 const PAGE_STAGGER_SELECTORS = [
   ':scope > .page-header',
+  ':scope > .post-detail-back-row',
   ':scope > .section-head',
   ':scope > .page-section:not(.home-intro-panel)',
   ':scope > .hero-card',
@@ -714,6 +766,31 @@ function setupGlobalMotionChoreography(): (() => void) | null {
   };
 }
 
+function setupPostDetailBackButton(): (() => void) | null {
+  const backButtonElement = document.querySelector<HTMLButtonElement>('[data-role="post-detail-back"]');
+
+  if (!backButtonElement) {
+    return null;
+  }
+
+  const handleBackButtonClick = (event: MouseEvent): void => {
+    event.preventDefault();
+
+    if (currentHistoryIndex > 0) {
+      window.history.back();
+      return;
+    }
+
+    navigateTo('/posts', { replace: true });
+  };
+
+  backButtonElement.addEventListener('click', handleBackButtonClick);
+
+  return () => {
+    backButtonElement.removeEventListener('click', handleBackButtonClick);
+  };
+}
+
 function setupPostDetailToc(): (() => void) | null {
   const postPageElement = document.querySelector<HTMLElement>('.page-post-detail');
   const markdownContentElement = postPageElement?.querySelector<HTMLElement>('.markdown-content');
@@ -916,7 +993,7 @@ function setupPostDetailToc(): (() => void) | null {
 
     setActiveHeading(targetId);
     window.history.replaceState(
-      null,
+      createHistoryStateWithIndex(currentHistoryIndex),
       '',
       `${window.location.pathname}${window.location.search}#${encodeURIComponent(targetId)}`
     );
@@ -1342,8 +1419,10 @@ document.addEventListener('click', (event) => {
   navigateTo(href);
 });
 
-window.addEventListener('popstate', () => {
+window.addEventListener('popstate', (event) => {
+  currentHistoryIndex = readHistoryIndex(event.state) ?? 0;
   renderApp();
 });
 
+ensureHistoryIndexState();
 renderApp();

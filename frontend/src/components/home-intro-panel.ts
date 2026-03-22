@@ -3,18 +3,24 @@ import type { IconifyIcon } from '@iconify/types';
 import { HOME_TECH_ICONIFY_DEFAULT_SIZE, HOME_TECH_ICONIFY_MAP } from '../data/home-tech-iconify';
 import {
 	siArchlinux,
+	siBlender,
 	siBun,
 	siC,
 	siClaude,
+	siCloudflare,
+	siCss,
 	siDocker,
 	siGit,
 	siGithub,
+	siHtml5,
 	siJavascript,
 	siLinux,
 	siNginx,
 	siNodedotjs,
+	siOllama,
 	siPostgresql,
 	siRedis,
+	siRust,
 	siTailwindcss,
 	siTypescript,
 	siVim,
@@ -22,6 +28,7 @@ import {
 } from 'simple-icons';
 import type { SimpleIcon } from 'simple-icons';
 import elysiaIconRaw from '../assets/icons/elysia.svg?raw';
+import comfyuiIconRaw from '../assets/icons/comfyui.svg?raw';
 import type { HomeTechStackItem, HomeTechStackKey } from '../types/home-intro-panel';
 import { escapeHtml } from '../utils/escape-html';
 
@@ -31,11 +38,19 @@ const DEFAULT_ICON_HEIGHT = HOME_TECH_ICONIFY_DEFAULT_SIZE.height;
 const TECH_ICONIFY_MAP: Partial<Record<HomeTechStackKey, IconifyIcon>> = {
 	...HOME_TECH_ICONIFY_MAP,
 	elysia: createIconFromRawSvg(elysiaIconRaw),
+	comfyui: createIconFromRawSvg(comfyuiIconRaw),
 };
 
 const TECH_GLYPH_FALLBACK_MAP: Record<HomeTechStackKey, string> = {
 	typescript: 'TS',
+	html5: 'H5',
+	css3: 'C3',
 	javascript: 'JS',
+	rust: 'RS',
+	cloudflare: 'CF',
+	blender: 'BL',
+	comfyui: 'CU',
+	ollama: 'OL',
 	vite: 'VT',
 	bun: 'BN',
 	elysia: 'EL',
@@ -59,7 +74,13 @@ const TECH_GLYPH_FALLBACK_MAP: Record<HomeTechStackKey, string> = {
 
 const TECH_SIMPLE_ICON_FALLBACK_MAP: Partial<Record<HomeTechStackKey, SimpleIcon>> = {
 	typescript: siTypescript,
+	html5: siHtml5,
+	css3: siCss,
 	javascript: siJavascript,
+	rust: siRust,
+	cloudflare: siCloudflare,
+	blender: siBlender,
+	ollama: siOllama,
 	vite: siVite,
 	bun: siBun,
 	elysia: siBun,
@@ -76,6 +97,16 @@ const TECH_SIMPLE_ICON_FALLBACK_MAP: Partial<Record<HomeTechStackKey, SimpleIcon
 	git: siGit,
 	github: siGithub,
 	vim: siVim
+};
+
+interface RenderableTechStackItem extends HomeTechStackItem {
+	isFill?: boolean;
+}
+
+const TECH_STACK_FILL_ITEM: RenderableTechStackItem = {
+	key: 'html5',
+	label: 'HTML5',
+	isFill: true
 };
 
 export function renderHomeIntroPanel(): string {
@@ -124,8 +155,49 @@ function renderTechStackWindow(techStack: HomeTechStackItem[]): string {
 		return '<p class="empty-hint">技术栈正在整理中。</p>';
 	}
 
+	const { topRow, bottomRow } = splitTechStackIntoDualRows(techStack);
+
 	return `
 <div class="home-intro-tech-window" role="region" aria-label="技术栈循环窗口">
+  <div class="home-intro-tech-marquee">
+    ${renderTechStackRow(topRow)}
+    ${renderTechStackRow(bottomRow, { linked: true })}
+  </div>
+</div>`;
+}
+
+function splitTechStackIntoDualRows(
+	techStack: HomeTechStackItem[]
+): { topRow: RenderableTechStackItem[]; bottomRow: RenderableTechStackItem[] } {
+	const topRow: RenderableTechStackItem[] = [];
+	const bottomRow: RenderableTechStackItem[] = [];
+
+	techStack.forEach((stack, index) => {
+		const targetRow = index % 2 === 0 ? topRow : bottomRow;
+		targetRow.push(stack);
+	});
+
+	if (topRow.length === bottomRow.length) {
+		return { topRow, bottomRow };
+	}
+
+	if (topRow.length > bottomRow.length) {
+		bottomRow.push(TECH_STACK_FILL_ITEM);
+	} else {
+		topRow.push(TECH_STACK_FILL_ITEM);
+	}
+
+	return { topRow, bottomRow };
+}
+
+function renderTechStackRow(
+	techStack: RenderableTechStackItem[],
+	options: { linked?: boolean } = {}
+): string {
+	const rowClassName = options.linked ? ' home-intro-tech-row--linked' : '';
+
+	return `
+<div class="home-intro-tech-row${rowClassName}">
   <div class="home-intro-tech-track">
     ${renderTechStackList(techStack)}
     ${renderTechStackList(techStack, { clone: true })}
@@ -133,7 +205,7 @@ function renderTechStackWindow(techStack: HomeTechStackItem[]): string {
 </div>`;
 }
 
-function renderTechStackList(techStack: HomeTechStackItem[], options: { clone?: boolean } = {}): string {
+function renderTechStackList(techStack: RenderableTechStackItem[], options: { clone?: boolean } = {}): string {
 	const cloneAttr = options.clone ? ' aria-hidden="true"' : '';
 
 	return `
@@ -141,10 +213,10 @@ function renderTechStackList(techStack: HomeTechStackItem[], options: { clone?: 
   ${techStack
 			.map(
 				(stack) => `
-    <li class="home-intro-tech-item">
+    <li class="home-intro-tech-item"${stack.isFill ? ' data-tech-fill="true" aria-hidden="true"' : ''}>
       <span class="home-intro-tech-badge" data-tech="${escapeHtml(stack.key)}" title="${escapeHtml(stack.label)}">
         ${renderTechStackIcon(stack.key, stack.label)}
-        <span class="home-intro-visually-hidden">${escapeHtml(stack.label)}</span>
+        ${stack.isFill ? '' : `<span class="home-intro-visually-hidden">${escapeHtml(stack.label)}</span>`}
       </span>
     </li>`
 			)

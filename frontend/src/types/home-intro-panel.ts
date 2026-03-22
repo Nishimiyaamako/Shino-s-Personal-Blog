@@ -5,7 +5,14 @@ export interface HomeIntroFactItem {
 
 export type HomeTechStackKey =
   | 'typescript'
+  | 'html5'
+  | 'css3'
   | 'javascript'
+  | 'rust'
+  | 'cloudflare'
+  | 'blender'
+  | 'comfyui'
+  | 'ollama'
   | 'vite'
   | 'bun'
   | 'elysia'

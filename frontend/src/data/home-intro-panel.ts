@@ -9,6 +9,12 @@ export const HOME_INTRO_PANEL_CONFIG: HomeIntroPanelConfig = {
   techStack: [
     { key: 'typescript', label: 'TypeScript' },
     { key: 'javascript', label: 'JavaScript' },
+    { key: 'css3', label: 'CSS3' },
+    { key: 'rust', label: 'Rust' },
+    { key: 'cloudflare', label: 'Cloudflare' },
+    { key: 'blender', label: 'Blender' },
+    { key: 'comfyui', label: 'ComfyUI' },
+    { key: 'ollama', label: 'Ollama' },
     { key: 'vite', label: 'Vite' },
     { key: 'bun', label: 'Bun' },
     { key: 'elysia', label: 'Elysia.js' },
