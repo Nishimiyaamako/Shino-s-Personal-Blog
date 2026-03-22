@@ -352,6 +352,11 @@ function setupPageEnhancements(pathname: string): (() => void) | null {
   }
 
   if (pathname === '/posts') {
+    const cleanupPostDateSortToggle = setupPostDateSortToggle();
+    if (cleanupPostDateSortToggle) {
+      cleanups.push(cleanupPostDateSortToggle);
+    }
+
     const cleanupPostThemeFilter = setupPostThemeFilter();
     if (cleanupPostThemeFilter) {
       cleanups.push(cleanupPostThemeFilter);
@@ -1567,6 +1572,80 @@ function setupTagCloudInteractions(): (() => void) | null {
     }
 
     closeButtonElement.removeEventListener('click', closePanel);
+  };
+}
+
+function setupPostDateSortToggle(): (() => void) | null {
+  type PostDateSortDirection = 'desc' | 'asc';
+
+  const postsPageElement = document.querySelector<HTMLElement>('.page-posts');
+
+  if (!postsPageElement) {
+    return null;
+  }
+
+  const postListElement = postsPageElement.querySelector<HTMLElement>('.post-list--posts');
+  const sortToggleButton = postsPageElement.querySelector<HTMLButtonElement>('[data-role="post-date-sort-toggle"]');
+
+  if (!postListElement || !sortToggleButton) {
+    return null;
+  }
+
+  const postEntries = Array.from(postListElement.querySelectorAll<HTMLElement>(':scope > .post-card')).map(
+    (postItemElement, originalIndex) => ({
+      postItemElement,
+      originalIndex,
+      postDate: (postItemElement.querySelector<HTMLTimeElement>('time[datetime]')?.dateTime ?? '').trim()
+    })
+  );
+
+  if (!postEntries.length) {
+    return null;
+  }
+
+  let sortDirection: PostDateSortDirection = 'desc';
+
+  const syncSortToggleState = (): void => {
+    const isAscending = sortDirection === 'asc';
+
+    sortToggleButton.setAttribute('aria-pressed', isAscending ? 'true' : 'false');
+    sortToggleButton.dataset.sortDirection = sortDirection;
+    sortToggleButton.setAttribute(
+      'aria-label',
+      isAscending ? '当前排序：正序，点击切换为倒序' : '当前排序：倒序，点击切换为正序'
+    );
+  };
+
+  const applySort = (nextSortDirection: PostDateSortDirection): void => {
+    const sortedEntries = [...postEntries].sort((leftEntry, rightEntry) => {
+      if (leftEntry.postDate !== rightEntry.postDate) {
+        return nextSortDirection === 'desc'
+          ? rightEntry.postDate.localeCompare(leftEntry.postDate, 'en')
+          : leftEntry.postDate.localeCompare(rightEntry.postDate, 'en');
+      }
+
+      return leftEntry.originalIndex - rightEntry.originalIndex;
+    });
+
+    for (const { postItemElement } of sortedEntries) {
+      postListElement.append(postItemElement);
+    }
+
+    refreshPostCardMotion?.(postsPageElement);
+  };
+
+  const handleSortToggleClick = (): void => {
+    sortDirection = sortDirection === 'desc' ? 'asc' : 'desc';
+    applySort(sortDirection);
+    syncSortToggleState();
+  };
+
+  applySort(sortDirection);
+  syncSortToggleState();
+  sortToggleButton.addEventListener('click', handleSortToggleClick);
+
+  return () => {
+    sortToggleButton.removeEventListener('click', handleSortToggleClick);
   };
 }
 

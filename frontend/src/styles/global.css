@@ -2324,6 +2324,89 @@ a:hover {
   color: var(--text-subtle);
 }
 
+.posts-toolbar {
+  margin-bottom: var(--space-3);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.post-date-sort-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.34rem;
+  min-height: 1.9rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--text-subtle) 18%, var(--border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 94%, var(--surface-soft));
+  color: var(--text-subtle);
+  font: inherit;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  transition:
+    border-color var(--motion-duration-state) var(--motion-ease-out-quart),
+    background-color var(--motion-duration-state) var(--motion-ease-out-quart),
+    color var(--motion-duration-state) var(--motion-ease-out-quart),
+    transform var(--motion-duration-state) var(--motion-ease-out-quart);
+}
+
+.post-date-sort-caption {
+  width: 0.92rem;
+  height: 0.92rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: color-mix(in srgb, var(--text) 70%, var(--text-subtle));
+}
+
+.post-date-sort-arrow {
+  width: 0.9rem;
+  height: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: color-mix(in srgb, var(--text) 70%, var(--text-subtle));
+  transition: transform var(--motion-duration-state) var(--motion-ease-out-quart);
+}
+
+.post-date-sort-caption svg,
+.post-date-sort-arrow svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.post-date-sort-toggle[data-sort-direction='desc'] .post-date-sort-arrow {
+  transform: rotate(180deg);
+}
+
+.post-date-sort-toggle:hover {
+  border-color: color-mix(in srgb, var(--accent-berry) 24%, var(--border));
+  background: color-mix(in srgb, var(--surface) 90%, var(--brand-soft));
+  color: color-mix(in srgb, var(--text) 78%, var(--text-subtle));
+  transform: translateY(calc(var(--motion-distance-hover) * -0.2));
+}
+
+.post-date-sort-toggle:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--brand-soft) 68%, var(--brand));
+  outline-offset: 2px;
+}
+
+.post-date-sort-toggle[aria-pressed='true'] {
+  border-color: color-mix(in srgb, var(--accent-berry) 30%, var(--border));
+  background: color-mix(in srgb, var(--surface) 88%, var(--brand-soft));
+}
+
+.post-date-sort-toggle:hover .post-date-sort-caption,
+.post-date-sort-toggle:hover .post-date-sort-arrow {
+  color: color-mix(in srgb, var(--text) 82%, var(--accent-berry));
+}
+
 .post-theme-empty-hint {
   margin-top: var(--space-2);
   text-align: center;
@@ -3021,6 +3104,8 @@ a:hover {
   .tag-posts-panel-close,
   .tag-detail-back-link,
   .post-detail-back-button,
+  .post-date-sort-toggle,
+  .post-date-sort-arrow,
   .post-theme-filter-btn,
   .post-theme-reset-btn,
   .post-toc-btt-wrap,
