@@ -15,12 +15,12 @@ export const renderArchivePage: PageRenderer = () => {
         </div>
         <div class="archive-posts-container">
           ${yearGroup.posts
-            .map((post, postIndex) => {
-              const sideClass = post.month % 2 === 1 ? 'is-left' : 'is-right';
-              const monthText = String(post.month).padStart(2, '0');
-              const dayText = String(post.day).padStart(2, '0');
+          .map((post, postIndex) => {
+            const sideClass = post.month % 2 === 1 ? 'is-left' : 'is-right';
+            const monthText = String(post.month).padStart(2, '0');
+            const dayText = String(post.day).padStart(2, '0');
 
-              return `
+            return `
               <article class="archive-post-item ${sideClass}" style="--pi: ${postIndex}">
                 <div class="archive-post-card">
                   <time class="archive-post-date" datetime="${post.date}">${monthText}-${dayText}</time>
@@ -28,8 +28,8 @@ export const renderArchivePage: PageRenderer = () => {
                 </div>
                 <span class="archive-post-dot" aria-hidden="true"></span>
               </article>`;
-            })
-            .join('')}
+          })
+          .join('')}
         </div>
       </section>`
     )
@@ -37,17 +37,14 @@ export const renderArchivePage: PageRenderer = () => {
 
   return `
 <section class="page page-archive">
-  <header class="page-header">
-    <p>共 ${archiveTimeline.totalPosts} 篇文章，记录一路走过的脚印。</p>
-  </header>
-  ${
-    archiveTimeline.years.length
+
+  ${archiveTimeline.years.length
       ? `<section class="archive-timeline" aria-label="文章归档时间线">
           ${timelineGroupsHtml}
           <p class="archive-timeline-end"><span class="archive-timeline-end-dot" aria-hidden="true"></span><span>旅途的开始</span></p>
         </section>`
       : '<p class="empty-hint">暂无归档内容，第一篇故事正在路上。</p>'
-  }
+    }
 </section>
 `;
 };

@@ -35,5 +35,5 @@ export const HOME_INTRO_PANEL_CONFIG: HomeIntroPanelConfig = {
     { key: 'vim', label: 'Vim' },
     { key: 'photoshop', label: 'Photoshop' }
   ],
-  hobbies: ['ACG社区吃瓜', '长跑', '骑行', '折腾电子垃圾']
+  hobbies: ['ACGNd社区吃瓜', '长跑', '骑行', '折腾电子垃圾']
 };

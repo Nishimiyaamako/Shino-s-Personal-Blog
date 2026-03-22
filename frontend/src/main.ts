@@ -74,6 +74,7 @@ function renderApp(): void {
   const hasPostTocRail = route.path === '/posts/:slug';
   const hasPostThemeRail = route.path === '/posts';
   const hasFloatingScrollTopButton = shouldRenderFloatingScrollTopButton(route.path);
+  const headerClassName = 'site-header site-header--wide';
   const mainClassName = hasProfileCard
     ? `site-main site-main--with-profile${hasPostTocRail ? ' site-main--with-post-toc' : ''}${hasPostThemeRail ? ' site-main--with-post-theme' : ''}`
     : 'site-main';
@@ -92,7 +93,7 @@ function renderApp(): void {
   appElement.innerHTML = `
 <a class="skip-link" href="#main-content">跳到正文</a>
 <div class="app-shell">
-  <header class="site-header">
+  <header class="${headerClassName}">
     <div class="site-header-inner">
       <a href="/" class="brand" data-link>
         <strong>${SITE_TITLE}</strong>
