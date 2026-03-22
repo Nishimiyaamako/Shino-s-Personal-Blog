@@ -1,6 +1,7 @@
 import type { PostSummary } from '../types/content';
 import { escapeHtml } from '../utils/escape-html';
 import { formatDateLabel } from '../utils/date';
+import { normalizeThemeKey } from '../utils/theme';
 
 type PostListVariant = 'default' | 'home' | 'posts' | 'tag-panel';
 
@@ -35,10 +36,12 @@ export function renderPostList(posts: PostSummary[], options: RenderPostListOpti
         const coverUrl = `/images/covers/${post.slug}.webp`;
         const coverImage = renderCoverImage(coverUrl);
         const cardClassName = `post-card post-card--${variant}`;
+        const postThemeKey = post.theme ? normalizeThemeKey(post.theme) : '';
+        const postThemeAttribute = postThemeKey ? ` data-post-theme-key="${escapeHtml(postThemeKey)}"` : '';
 
         if (isHomeVariant) {
           return `
-  <li class="${cardClassName}" data-motion-card>
+  <li class="${cardClassName}" data-motion-card${postThemeAttribute}>
     <article class="post-card-article post-card-home-article">
       <div class="post-card-body">
         <header class="post-card-header">
@@ -62,7 +65,7 @@ export function renderPostList(posts: PostSummary[], options: RenderPostListOpti
         const coverClassName = 'post-card-cover is-pending';
 
         return `
-  <li class="${cardClassName}" data-motion-card>
+  <li class="${cardClassName}" data-motion-card${postThemeAttribute}>
     <article class="post-card-article">
       <a class="${coverClassName}" href="/posts/${post.slug}" data-link aria-label="阅读：${escapeHtml(post.title)}">
         ${coverImage}

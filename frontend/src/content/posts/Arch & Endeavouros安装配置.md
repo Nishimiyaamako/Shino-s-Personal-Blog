@@ -2,6 +2,7 @@
 title: "Arch & Endeavouros 安装配置"
 slug: arch-endeavouros-setup
 date: 2026-03-08
+theme: 安装配置
 tags:
   - linux
   - archlinux

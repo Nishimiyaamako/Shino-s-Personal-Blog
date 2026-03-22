@@ -2,6 +2,7 @@
 title: "LibreChat API 设置（Docker）"
 slug: librechat-api-setup
 date: 2026-03-08
+theme: 安装配置
 tags:
   - linux
   - docker

@@ -2,7 +2,9 @@ import './styles/global.css';
 
 import { renderProfileCard } from './components/profile-card';
 import { SITE_CONFIG } from './config/site';
-import { PRIMARY_NAV_LINKS, resolveRoute } from './router';
+import { getThemeStats } from './data/posts';
+import { PRIMARY_NAV_LINKS, resolveRoute, type PrimaryNavIcon } from './router';
+import { escapeHtml } from './utils/escape-html';
 
 const { title: SITE_TITLE, subtitle: SITE_SUBTITLE, footer: SITE_FOOTER } = SITE_CONFIG;
 
@@ -70,15 +72,18 @@ function renderApp(): void {
   const pageTitle = isFallback ? `404 (${context.pathname})` : route.title;
   const hasProfileCard = shouldRenderProfileCard(route.path);
   const hasPostTocRail = route.path === '/posts/:slug';
+  const hasPostThemeRail = route.path === '/posts';
+  const hasFloatingScrollTopButton = shouldRenderFloatingScrollTopButton(route.path);
   const mainClassName = hasProfileCard
-    ? `site-main site-main--with-profile${hasPostTocRail ? ' site-main--with-post-toc' : ''}`
+    ? `site-main site-main--with-profile${hasPostTocRail ? ' site-main--with-post-toc' : ''}${hasPostThemeRail ? ' site-main--with-post-theme' : ''}`
     : 'site-main';
   const pageContent = route.render(context);
   const mainLayout = hasProfileCard
-    ? `<div class="site-main-layout${hasPostTocRail ? ' site-main-layout--with-toc' : ''}">
+    ? `<div class="site-main-layout${hasPostTocRail ? ' site-main-layout--with-toc' : ''}${hasPostThemeRail ? ' site-main-layout--with-theme' : ''}">
         ${renderProfileCard()}
         <div class="site-page-content">${pageContent}</div>
         ${hasPostTocRail ? renderPostTocRail() : ''}
+        ${hasPostThemeRail ? renderPostThemeRail() : ''}
       </div>`
     : `<div class="site-page-content">${pageContent}</div>`;
 
@@ -103,6 +108,8 @@ function renderApp(): void {
     ${mainLayout}
   </main>
 
+  ${hasFloatingScrollTopButton ? renderFloatingScrollTopButton() : ''}
+
   <footer class="site-footer" aria-label="站点备案信息">
     <p>© ${new Date().getFullYear()} ${SITE_FOOTER.copyrightOwner}. All rights reserved.</p>
     <p>${SITE_FOOTER.poweredBy}</p>
@@ -118,13 +125,74 @@ function shouldRenderProfileCard(routePath: string): boolean {
   return routePath === '/' || routePath === '/posts' || routePath === '/posts/:slug';
 }
 
+function shouldRenderFloatingScrollTopButton(routePath: string): boolean {
+  return (
+    routePath === '/' ||
+    routePath === '/posts' ||
+    routePath === '/tags' ||
+    routePath === '/tags/:tag' ||
+    routePath === '/archive'
+  );
+}
+
 function renderNavigation(pathname: string): string {
-  return PRIMARY_NAV_LINKS.map(({ href, label }) => {
+  return PRIMARY_NAV_LINKS.map(({ href, label, icon }) => {
     const isActive = isNavActive(pathname, href);
     const activeClass = isActive ? 'is-active' : '';
     const current = isActive ? ' aria-current="page"' : '';
-    return `<a href="${href}" data-link class="${activeClass}"${current}>${label}</a>`;
+    return `<a href="${href}" data-link class="${activeClass}"${current}>
+      <span class="site-nav-icon" aria-hidden="true">${renderNavIcon(icon)}</span>
+      <span class="site-nav-label">${label}</span>
+    </a>`;
   }).join('');
+}
+
+function renderNavIcon(icon: PrimaryNavIcon): string {
+  switch (icon) {
+    case 'home':
+      return `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M3 10.5 12 3l9 7.5" />
+  <path d="M5.5 9.5V20h13V9.5" />
+  <path d="M9.5 20v-6h5v6" />
+</svg>`;
+    case 'posts':
+      return `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="5" y="3.5" width="14" height="17" rx="2.5" />
+  <path d="M8.5 8h7M8.5 12h7M8.5 16h4.5" />
+</svg>`;
+    case 'tags':
+      return `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M20 12.5 12.5 20a2 2 0 0 1-2.8 0L3 13.3V4h9.3l7.7 7.7a2 2 0 0 1 0 2.8Z" />
+  <circle cx="8.4" cy="8.4" r="1.3" />
+</svg>`;
+    case 'archive':
+      return `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="3.5" y="4" width="17" height="5" rx="1.5" />
+  <path d="M5.5 9v9.5A1.5 1.5 0 0 0 7 20h10a1.5 1.5 0 0 0 1.5-1.5V9" />
+  <path d="M10 13h4" />
+</svg>`;
+    case 'friends':
+      return `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="8" cy="9" r="2.6" />
+  <circle cx="16.2" cy="8.3" r="2.2" />
+  <path d="M3.8 18.8a4.8 4.8 0 0 1 8.4 0" />
+  <path d="M13 18.8a4.1 4.1 0 0 1 7.2 0" />
+</svg>`;
+    case 'about':
+      return `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="12" cy="12" r="9" />
+  <path d="M12 10.2v6.2" />
+  <circle cx="12" cy="7.4" r=".8" fill="currentColor" stroke="none" />
+</svg>`;
+    default:
+      return '';
+  }
 }
 
 function isNavActive(currentPath: string, navHref: string): boolean {
@@ -178,6 +246,61 @@ function renderPostTocRail(): string {
 `;
 }
 
+function renderPostThemeRail(): string {
+  const themeStats = getThemeStats();
+
+  const themeButtons = themeStats
+    .map(
+      (themeStat) => `<li class="post-theme-item">
+      <button
+        type="button"
+        class="post-theme-filter-btn"
+        data-role="post-theme-filter-btn"
+        data-theme-key="${escapeHtml(themeStat.key)}"
+        aria-pressed="false"
+      >
+        <span class="post-theme-filter-label">${escapeHtml(themeStat.label)}</span>
+        <span class="post-theme-filter-count">${themeStat.count}</span>
+      </button>
+    </li>`
+    )
+    .join('');
+
+  const emptyState = `<p class="post-theme-empty">暂未配置主题分类，可在文章 frontmatter 中填写 <code>theme</code>。</p>`;
+
+  return `
+<aside class="post-theme-rail" aria-label="主题分类筛选">
+  <section class="post-theme-card" data-role="post-theme-card">
+    <p class="post-theme-title">主题分类</p>
+    ${themeStats.length
+      ? `<ul class="post-theme-list">${themeButtons}</ul>
+        <button type="button" class="post-theme-reset-btn" data-role="post-theme-reset-btn" hidden>返回全部文章</button>`
+      : emptyState}
+  </section>
+</aside>
+`;
+}
+
+function renderFloatingScrollTopButton(): string {
+  return `
+<div class="floating-scroll-top-wrap" data-role="post-detail-scroll-top-wrap" aria-hidden="true">
+  <button
+    type="button"
+    class="post-detail-scroll-top post-detail-scroll-top--floating"
+    data-role="post-detail-scroll-top"
+    aria-label="回到顶部"
+  >
+    <span class="btt-icon" aria-hidden="true">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="18 15 12 9 6 15"></polyline>
+      </svg>
+    </span>
+    <span class="btt-percent" data-role="post-detail-scroll-top-percent">0%</span>
+  </button>
+</div>
+`;
+}
+
 function navigateTo(path: string, options: { replace?: boolean } = {}): void {
   const url = new URL(path, window.location.origin);
   const nextPathname = url.pathname;
@@ -216,6 +339,11 @@ function setupPageEnhancements(pathname: string): (() => void) | null {
     cleanups.push(cleanupGlobalMotionChoreography);
   }
 
+  const cleanupScrollTopButton = setupScrollTopButton();
+  if (cleanupScrollTopButton) {
+    cleanups.push(cleanupScrollTopButton);
+  }
+
   if (pathname === '/tags') {
     const cleanupTagCloudInteractions = setupTagCloudInteractions();
     if (cleanupTagCloudInteractions) {
@@ -223,15 +351,17 @@ function setupPageEnhancements(pathname: string): (() => void) | null {
     }
   }
 
+  if (pathname === '/posts') {
+    const cleanupPostThemeFilter = setupPostThemeFilter();
+    if (cleanupPostThemeFilter) {
+      cleanups.push(cleanupPostThemeFilter);
+    }
+  }
+
   if (pathname.startsWith('/posts/')) {
     const cleanupPostDetailBackButton = setupPostDetailBackButton();
     if (cleanupPostDetailBackButton) {
       cleanups.push(cleanupPostDetailBackButton);
-    }
-
-    const cleanupPostDetailScrollTopButton = setupPostDetailScrollTopButton();
-    if (cleanupPostDetailScrollTopButton) {
-      cleanups.push(cleanupPostDetailScrollTopButton);
     }
 
     const cleanupPostDetailToc = setupPostDetailToc();
@@ -810,9 +940,11 @@ function setupPostDetailBackButton(): (() => void) | null {
   };
 }
 
-function setupPostDetailScrollTopButton(): (() => void) | null {
+function setupScrollTopButton(): (() => void) | null {
   const scrollTopButtonElement = document.querySelector<HTMLButtonElement>('[data-role="post-detail-scroll-top"]');
   const scrollTopButtonWrapElement = document.querySelector<HTMLElement>('[data-role="post-detail-scroll-top-wrap"]');
+  const pageContentElement = document.querySelector<HTMLElement>('.site-page-content');
+  const footerElement = document.querySelector<HTMLElement>('.site-footer');
 
   if (!scrollTopButtonElement) {
     return null;
@@ -820,6 +952,59 @@ function setupPostDetailScrollTopButton(): (() => void) | null {
 
   const percentElement = scrollTopButtonElement.querySelector<HTMLElement>('[data-role="post-detail-scroll-top-percent"]');
   const VISIBILITY_THRESHOLD = 8;
+  const FLOATING_BREAKPOINT = 960;
+  const MIN_FLOATING_RIGHT = 16;
+  const isFloatingScrollTopButton = Boolean(scrollTopButtonWrapElement?.classList.contains('floating-scroll-top-wrap'));
+
+  const syncFloatingPositionState = (): void => {
+    if (!scrollTopButtonWrapElement || !isFloatingScrollTopButton) {
+      return;
+    }
+
+    const viewportWidth = window.innerWidth;
+    const isDesktop = viewportWidth > FLOATING_BREAKPOINT;
+
+    if (isDesktop && pageContentElement) {
+      const contentRect = pageContentElement.getBoundingClientRect();
+      const rightBlankWidth = Math.max(0, viewportWidth - contentRect.right);
+      const targetRight = Math.max(MIN_FLOATING_RIGHT, rightBlankWidth / 2);
+      scrollTopButtonWrapElement.style.setProperty('--floating-scroll-right', `${Math.round(targetRight)}px`);
+    } else {
+      scrollTopButtonWrapElement.style.removeProperty('--floating-scroll-right');
+    }
+
+    if (!isDesktop || !footerElement) {
+      scrollTopButtonWrapElement.style.removeProperty('--floating-scroll-footer-offset');
+      return;
+    }
+
+    const wrapStyle = getComputedStyle(scrollTopButtonWrapElement);
+    const rootFontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    const floatingBottomRaw = wrapStyle.getPropertyValue('--floating-scroll-bottom').trim();
+    const floatingFooterGapRaw = wrapStyle.getPropertyValue('--floating-scroll-footer-gap').trim();
+
+    const parseCssSizeToPx = (value: string, fallback: number): number => {
+      if (!value) {
+        return fallback;
+      }
+
+      if (value.endsWith('rem')) {
+        const remValue = Number.parseFloat(value);
+        return Number.isFinite(remValue) ? remValue * rootFontSize : fallback;
+      }
+
+      const parsedValue = Number.parseFloat(value);
+      return Number.isFinite(parsedValue) ? parsedValue : fallback;
+    };
+
+    const baseBottom = parseCssSizeToPx(floatingBottomRaw, 2 * rootFontSize);
+    const footerGap = parseCssSizeToPx(floatingFooterGapRaw, 8);
+    const footerRect = footerElement.getBoundingClientRect();
+    const requiredBottom = window.innerHeight - footerRect.top + footerGap;
+    const footerOffset = Math.max(0, requiredBottom - baseBottom);
+
+    scrollTopButtonWrapElement.style.setProperty('--floating-scroll-footer-offset', `${Math.round(footerOffset)}px`);
+  };
 
   const syncButtonState = (): void => {
     const scrollTop = Math.max(window.scrollY, 0);
@@ -834,6 +1019,7 @@ function setupPostDetailScrollTopButton(): (() => void) | null {
     scrollTopButtonElement.classList.toggle('is-visible', shouldShow);
     scrollTopButtonWrapElement?.classList.toggle('is-visible', shouldShow);
     scrollTopButtonWrapElement?.setAttribute('aria-hidden', shouldShow ? 'false' : 'true');
+    syncFloatingPositionState();
     if (percentElement) {
       percentElement.textContent = `${progressPercent}%`;
     }
@@ -1381,6 +1567,92 @@ function setupTagCloudInteractions(): (() => void) | null {
     }
 
     closeButtonElement.removeEventListener('click', closePanel);
+  };
+}
+
+function setupPostThemeFilter(): (() => void) | null {
+  const postsPageElement = document.querySelector<HTMLElement>('.page-posts');
+
+  if (!postsPageElement) {
+    return null;
+  }
+
+  const themeButtons = Array.from(
+    document.querySelectorAll<HTMLButtonElement>('[data-role="post-theme-filter-btn"]')
+  );
+  const resetButtonElement = document.querySelector<HTMLButtonElement>('[data-role="post-theme-reset-btn"]');
+  const postItems = Array.from(
+    postsPageElement.querySelectorAll<HTMLElement>('.post-list--posts > .post-card')
+  );
+  const emptyHintElement = postsPageElement.querySelector<HTMLElement>('[data-role="post-theme-empty-hint"]');
+
+  if (!themeButtons.length || !postItems.length || !emptyHintElement || !resetButtonElement) {
+    return null;
+  }
+
+  let activeThemeKey = '';
+
+  const syncThemeState = (nextThemeKey: string): void => {
+    activeThemeKey = nextThemeKey;
+
+    for (const buttonElement of themeButtons) {
+      const buttonThemeKey = buttonElement.dataset.themeKey ?? '';
+      const isActive = buttonThemeKey === activeThemeKey;
+      buttonElement.classList.toggle('is-active', isActive);
+      buttonElement.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    }
+
+    let visiblePostCount = 0;
+
+    for (const postItemElement of postItems) {
+      const postThemeKey = (postItemElement.dataset.postThemeKey ?? '').trim();
+      const shouldShow = !activeThemeKey || postThemeKey === activeThemeKey;
+      postItemElement.hidden = !shouldShow;
+
+      if (shouldShow) {
+        visiblePostCount += 1;
+      }
+    }
+
+    resetButtonElement.hidden = !activeThemeKey;
+    emptyHintElement.hidden = visiblePostCount > 0;
+  };
+
+  const handleThemeButtonClick = (event: Event): void => {
+    const targetElement = event.currentTarget;
+
+    if (!(targetElement instanceof HTMLButtonElement)) {
+      return;
+    }
+
+    const nextThemeKey = targetElement.dataset.themeKey ?? '';
+    syncThemeState(nextThemeKey);
+  };
+
+  const handleResetButtonClick = (): void => {
+    syncThemeState('');
+  };
+
+  for (const themeButtonElement of themeButtons) {
+    themeButtonElement.addEventListener('click', handleThemeButtonClick);
+  }
+
+  resetButtonElement.addEventListener('click', handleResetButtonClick);
+
+  syncThemeState('');
+
+  return () => {
+    for (const themeButtonElement of themeButtons) {
+      themeButtonElement.removeEventListener('click', handleThemeButtonClick);
+    }
+    resetButtonElement.removeEventListener('click', handleResetButtonClick);
+
+    for (const postItemElement of postItems) {
+      postItemElement.hidden = false;
+    }
+
+    resetButtonElement.hidden = true;
+    emptyHintElement.hidden = true;
   };
 }
 

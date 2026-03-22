@@ -4,6 +4,7 @@ export interface PostFrontmatter {
   title: string;
   slug: string;
   date: string;
+  theme?: string;
   tags: string[];
   summary: string;
   status: PostStatus;
@@ -13,6 +14,7 @@ export interface PostSummary {
   title: string;
   slug: string;
   date: string;
+  theme?: string;
   tags: string[];
   summary: string;
 }
@@ -25,6 +27,12 @@ export interface PostDetail extends PostSummary {
 
 export interface TagStat {
   tag: string;
+  count: number;
+}
+
+export interface ThemeStat {
+  key: string;
+  label: string;
   count: number;
 }
 

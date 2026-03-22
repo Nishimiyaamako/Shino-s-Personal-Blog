@@ -11,6 +11,7 @@ import { renderTagsPage } from '../pages/tags';
 import type { PageRenderContext, RouteParams, RouteRecord } from '../types/router';
 
 const NOT_FOUND_PATH = '/404';
+export type PrimaryNavIcon = 'home' | 'posts' | 'tags' | 'archive' | 'friends' | 'about';
 
 export const ROUTE_RECORDS: RouteRecord[] = [
   { path: '/', title: '首页', render: renderHomePage },
@@ -25,12 +26,12 @@ export const ROUTE_RECORDS: RouteRecord[] = [
 ];
 
 export const PRIMARY_NAV_LINKS = [
-  { href: '/', label: '首页' },
-  { href: '/posts', label: '文章' },
-  { href: '/tags', label: '标签' },
-  { href: '/archive', label: '归档' },
-  { href: '/friends', label: '友链' },
-  { href: '/about', label: '关于' }
+  { href: '/', label: '首页', icon: 'home' },
+  { href: '/posts', label: '文章', icon: 'posts' },
+  { href: '/tags', label: '标签', icon: 'tags' },
+  { href: '/archive', label: '归档', icon: 'archive' },
+  { href: '/friends', label: '友链', icon: 'friends' },
+  { href: '/about', label: '关于', icon: 'about' }
 ] as const;
 
 export interface RouteResolution {

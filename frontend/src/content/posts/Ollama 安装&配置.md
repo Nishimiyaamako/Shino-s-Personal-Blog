@@ -2,6 +2,7 @@
 title: "Ollama 安装与配置"
 slug: ollama-install-config
 date: 2026-03-08
+theme: 安装配置
 tags:
   - ollama
   - linux

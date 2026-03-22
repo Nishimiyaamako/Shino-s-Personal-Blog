@@ -1,5 +1,6 @@
 import DOMPurify from 'dompurify';
 import { marked } from 'marked';
+import { THEME_ORDER } from '../config/themes';
 import {
   ContentValidationError,
   type ArchiveStat,
@@ -9,8 +10,10 @@ import {
   type PostDetail,
   type PostFrontmatter,
   type PostSummary,
-  type TagStat
+  type TagStat,
+  type ThemeStat
 } from '../types/content';
+import { normalizeThemeKey } from '../utils/theme';
 
 const SLUG_REGEXP = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const DATE_REGEXP = /^\d{4}-\d{2}-\d{2}$/;
@@ -81,6 +84,75 @@ export function getTagStats(): TagStat[] {
 
       return left.tag.localeCompare(right.tag, 'en');
     });
+}
+
+export function getThemeStats(): ThemeStat[] {
+  interface ThemeAccumulator {
+    key: string;
+    label: string;
+    count: number;
+    latestPostDate: string;
+  }
+
+  const countMap = new Map<string, ThemeAccumulator>();
+  const themeOrderMap = new Map<string, number>(
+    THEME_ORDER.map((themeKey, index) => [normalizeThemeKey(themeKey), index])
+  );
+
+  for (const post of getPublishedPosts()) {
+    if (!post.theme) {
+      continue;
+    }
+
+    const key = normalizeThemeKey(post.theme);
+
+    if (!key) {
+      continue;
+    }
+
+    const existing = countMap.get(key);
+    if (existing) {
+      existing.count += 1;
+      if (post.date.localeCompare(existing.latestPostDate, 'en') > 0) {
+        existing.latestPostDate = post.date;
+      }
+      continue;
+    }
+
+    countMap.set(key, {
+      key,
+      label: post.theme,
+      count: 1,
+      latestPostDate: post.date
+    });
+  }
+
+  const sortedThemeAccumulators = Array.from(countMap.values()).sort((left, right) => {
+    const leftOrderIndex = themeOrderMap.get(left.key);
+    const rightOrderIndex = themeOrderMap.get(right.key);
+    const hasLeftWeight = leftOrderIndex !== undefined;
+    const hasRightWeight = rightOrderIndex !== undefined;
+
+    if (hasLeftWeight && hasRightWeight && leftOrderIndex !== rightOrderIndex) {
+      return leftOrderIndex - rightOrderIndex;
+    }
+
+    if (hasLeftWeight !== hasRightWeight) {
+      return hasLeftWeight ? -1 : 1;
+    }
+
+    if (left.latestPostDate !== right.latestPostDate) {
+      return right.latestPostDate.localeCompare(left.latestPostDate, 'en');
+    }
+
+    return left.label.localeCompare(right.label, 'zh-Hans-CN');
+  });
+
+  return sortedThemeAccumulators.map(({ key, label, count }) => ({
+    key,
+    label,
+    count
+  }));
 }
 
 export function getArchiveStats(): ArchiveStat[] {
@@ -292,6 +364,7 @@ function validatePostFrontmatter(frontmatter: Record<string, unknown>, sourcePat
   const title = expectNonEmptyString(frontmatter.title, 'title', sourcePath);
   const slug = expectSlug(frontmatter.slug, sourcePath);
   const date = expectIsoDate(frontmatter.date, sourcePath);
+  const theme = expectOptionalTheme(frontmatter.theme, sourcePath);
   const tags = expectTagArray(frontmatter.tags, sourcePath);
   const summary = expectNonEmptyString(frontmatter.summary, 'summary', sourcePath);
   const status = expectStatus(frontmatter.status, sourcePath);
@@ -300,6 +373,7 @@ function validatePostFrontmatter(frontmatter: Record<string, unknown>, sourcePat
     title,
     slug,
     date,
+    theme,
     tags,
     summary,
     status
@@ -357,6 +431,24 @@ function expectIsoDate(value: unknown, sourcePath: string): string {
   }
 
   return dateText;
+}
+
+function expectOptionalTheme(value: unknown, sourcePath: string): string | undefined {
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+
+  if (typeof value !== 'string') {
+    throw new ContentValidationError('theme 必须是 string', sourcePath, 'theme');
+  }
+
+  const normalized = value.trim().replace(/\s+/g, ' ');
+
+  if (!normalized) {
+    return undefined;
+  }
+
+  return normalized;
 }
 
 function expectTagArray(value: unknown, sourcePath: string): string[] {
@@ -454,6 +546,7 @@ function toSummary(post: PostDetail): PostSummary {
     title: post.title,
     slug: post.slug,
     date: post.date,
+    theme: post.theme,
     tags: [...post.tags],
     summary: post.summary
   };
