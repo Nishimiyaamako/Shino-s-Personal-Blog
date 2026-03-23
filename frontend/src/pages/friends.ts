@@ -3,19 +3,18 @@ import type { PageRenderer } from '../types/router';
 import { escapeHtml } from '../utils/escape-html';
 
 export const renderFriendsPage: PageRenderer = () => {
-  const friendLinkTemplate = `name: '你的站点名称',
-description: '一句简短介绍',
+  const friendLinkTemplate = `name: 'ShinoLog',
+description: '某个状态混沌家伙的Blog',
 avatar: 'https://example.com/avatar.png',
-url: ''`;
+url: 'https://nagashino.top/'`;
 
   return `
 <section class="page page-friends">
-  ${
-    FRIEND_LINKS.length
+  ${FRIEND_LINKS.length
       ? `<ul class="friend-link-list">
           ${FRIEND_LINKS
-            .map(
-              (link) => `
+        .map(
+          (link) => `
             <li class="friend-link-card">
               <a href="${escapeHtml(link.url)}" class="friend-link-anchor" target="_blank" rel="noopener noreferrer">
                 <img
@@ -32,11 +31,11 @@ url: ''`;
                 </div>
               </a>
             </li>`
-            )
-            .join('')}
+        )
+        .join('')}
         </ul>`
       : '<p class="empty-hint">暂无友链。</p>'
-  }
+    }
   <section class="friend-link-add-card" aria-label="添加我的链接">
     <button
       type="button"
@@ -46,8 +45,7 @@ url: ''`;
     >
       复制
     </button>
-    <p class="friend-link-add-title">添加我的链接</p>
-    <p class="friend-link-add-hint">复制下面模板，补全后发我即可：</p>
+    <p class="friend-link-add-title">添加我</p>
     <pre class="friend-link-add-url"><code data-role="friend-link-add-url">${escapeHtml(friendLinkTemplate)}</code></pre>
   </section>
 </section>

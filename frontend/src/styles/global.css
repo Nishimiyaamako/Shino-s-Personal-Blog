@@ -307,6 +307,17 @@ a:hover {
   padding: var(--space-6) 0 var(--space-6);
 }
 
+.site-main--friends {
+  display: flex;
+}
+
+.site-main--friends>.site-page-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .site-main-layout {
   display: grid;
   gap: var(--space-5);
@@ -2046,7 +2057,11 @@ a:hover {
   max-width: min(720px, 100%);
   margin-inline: auto;
   padding-top: var(--space-5);
-  padding-bottom: calc(8.8rem + env(safe-area-inset-bottom));
+  padding-bottom: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  gap: var(--space-4);
 }
 
 .friend-link-list {
@@ -2127,46 +2142,41 @@ a:hover {
 }
 
 .friend-link-add-card {
-  --friend-link-bottom-base: max(0.7rem, env(safe-area-inset-bottom));
-  --friend-link-footer-offset: 0px;
-  position: fixed;
-  left: 50%;
-  bottom: calc(var(--friend-link-bottom-base) + var(--friend-link-footer-offset));
-  transform: translateX(-50%);
-  width: min(760px, calc(100% - 2rem));
-  z-index: 11;
-  margin: 0;
-  padding: var(--space-3);
+  position: relative;
+  align-self: center;
+  margin: auto 0 0;
+  width: min(680px, 100%);
+  padding: 0.82rem 0.9rem;
   border-radius: var(--radius-sm);
   border: 1px dashed color-mix(in srgb, var(--brand) 26%, var(--border));
   background: color-mix(in srgb, var(--surface-soft) 72%, var(--surface));
-  box-shadow: 0 10px 20px color-mix(in srgb, var(--accent-berry) 10%, transparent);
+  box-shadow: 0 8px 16px color-mix(in srgb, var(--accent-berry) 10%, transparent);
   display: grid;
-  gap: 0.32rem;
+  gap: 0.28rem;
 }
 
 .friend-link-add-title {
   margin: 0;
   color: color-mix(in srgb, var(--text-subtle) 88%, var(--text));
-  font-size: 0.84rem;
+  font-size: 0.78rem;
   font-weight: 600;
 }
 
 .friend-link-add-hint {
   margin: 0;
-  padding-right: 4rem;
+  padding-right: 3.5rem;
   color: var(--text-subtle);
-  font-size: 0.74rem;
+  font-size: 0.68rem;
   line-height: 1.4;
 }
 
 .friend-link-add-url {
   margin: 0;
-  padding: 0.42rem 0.5rem;
+  padding: 0.38rem 0.46rem;
   border: 1px solid color-mix(in srgb, var(--brand) 14%, var(--border));
   border-radius: 6px;
   background: color-mix(in srgb, var(--surface) 86%, transparent);
-  font-size: 0.66rem;
+  font-size: 0.6rem;
   line-height: 1.4;
   color: color-mix(in srgb, var(--text-subtle) 92%, var(--text));
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
@@ -2183,15 +2193,15 @@ a:hover {
 
 .friend-link-copy-button {
   position: absolute;
-  top: 0.56rem;
-  right: 0.56rem;
+  top: 0.5rem;
+  right: 0.5rem;
   border: 1px solid color-mix(in srgb, var(--border) 90%, var(--brand-soft));
   background: color-mix(in srgb, var(--surface) 86%, transparent);
   color: var(--text-subtle);
   border-radius: 999px;
-  font-size: 0.66rem;
+  font-size: 0.58rem;
   line-height: 1;
-  padding: 0.29rem 0.52rem;
+  padding: 0.22rem 0.42rem;
   cursor: pointer;
   transition:
     color var(--motion-duration-feedback) var(--motion-ease-out-quart),
@@ -2863,34 +2873,30 @@ a:hover {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .page-friends {
-    padding-bottom: calc(10.2rem + env(safe-area-inset-bottom));
-  }
-
   .friend-link-add-card {
-    --friend-link-bottom-base: max(0.55rem, env(safe-area-inset-bottom));
-    padding: 0.65rem 0.72rem;
+    width: min(100%, 620px);
+    padding: 0.68rem 0.74rem;
   }
 
   .friend-link-add-title {
-    font-size: 0.8rem;
+    font-size: 0.74rem;
   }
 
   .friend-link-add-hint {
-    padding-right: 3.55rem;
-    font-size: 0.7rem;
+    padding-right: 3.2rem;
+    font-size: 0.64rem;
   }
 
   .friend-link-add-url {
-    font-size: 0.64rem;
+    font-size: 0.58rem;
     line-height: 1.4;
   }
 
   .friend-link-copy-button {
-    top: 0.45rem;
-    right: 0.45rem;
-    font-size: 0.62rem;
-    padding: 0.24rem 0.45rem;
+    top: 0.42rem;
+    right: 0.42rem;
+    font-size: 0.56rem;
+    padding: 0.2rem 0.38rem;
   }
 }
 

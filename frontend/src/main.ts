@@ -73,11 +73,13 @@ function renderApp(): void {
   const hasProfileCard = shouldRenderProfileCard(route.path);
   const hasPostTocRail = route.path === '/posts/:slug';
   const hasPostThemeRail = route.path === '/posts';
+  const isFriendsPage = route.path === '/friends';
   const hasFloatingScrollTopButton = shouldRenderFloatingScrollTopButton(route.path);
   const headerClassName = 'site-header site-header--wide';
-  const mainClassName = hasProfileCard
+  const baseMainClassName = hasProfileCard
     ? `site-main site-main--with-profile${hasPostTocRail ? ' site-main--with-post-toc' : ''}${hasPostThemeRail ? ' site-main--with-post-theme' : ''}`
     : 'site-main';
+  const mainClassName = `${baseMainClassName}${isFriendsPage ? ' site-main--friends' : ''}`;
   const pageContent = route.render(context);
   const mainLayout = hasProfileCard
     ? `<div class="site-main-layout${hasPostTocRail ? ' site-main-layout--with-toc' : ''}${hasPostThemeRail ? ' site-main-layout--with-theme' : ''}">
@@ -1950,8 +1952,6 @@ function setupArchiveTimelineReveal(): (() => void) | null {
 function setupFriendLinkCopyButton(): (() => void) | null {
   const copyButtonElement = document.querySelector<HTMLButtonElement>('[data-role="friend-link-copy"]');
   const linkTextElement = document.querySelector<HTMLElement>('[data-role="friend-link-add-url"]');
-  const addCardElement = document.querySelector<HTMLElement>('.friend-link-add-card');
-  const footerElement = document.querySelector<HTMLElement>('.site-footer');
 
   if (!copyButtonElement || !linkTextElement) {
     return null;
@@ -1963,9 +1963,7 @@ function setupFriendLinkCopyButton(): (() => void) | null {
     return null;
   }
 
-  const FOOTER_SAFE_GAP = 10;
   let resetTimer = 0;
-  let footerSyncFrameId = 0;
   let isCopying = false;
 
   const setButtonLabel = (label: string, state: 'default' | 'success' | 'error' = 'default'): void => {
@@ -2031,52 +2029,15 @@ function setupFriendLinkCopyButton(): (() => void) | null {
     void copyLink();
   };
 
-  const syncFooterOffset = (): void => {
-    if (!addCardElement || !footerElement) {
-      return;
-    }
-
-    addCardElement.style.setProperty('--friend-link-footer-offset', '0px');
-
-    const cardRect = addCardElement.getBoundingClientRect();
-    const footerRect = footerElement.getBoundingClientRect();
-    const nextFooterOffset = Math.max(0, cardRect.bottom + FOOTER_SAFE_GAP - footerRect.top);
-
-    addCardElement.style.setProperty('--friend-link-footer-offset', `${Math.ceil(nextFooterOffset)}px`);
-  };
-
-  const scheduleFooterOffsetSync = (): void => {
-    if (footerSyncFrameId) {
-      return;
-    }
-
-    footerSyncFrameId = window.requestAnimationFrame(() => {
-      footerSyncFrameId = 0;
-      syncFooterOffset();
-    });
-  };
-
   copyButtonElement.addEventListener('click', handleCopyClick);
-  window.addEventListener('scroll', scheduleFooterOffsetSync, { passive: true });
-  window.addEventListener('resize', scheduleFooterOffsetSync);
-  scheduleFooterOffsetSync();
 
   return () => {
     copyButtonElement.removeEventListener('click', handleCopyClick);
-    window.removeEventListener('scroll', scheduleFooterOffsetSync);
-    window.removeEventListener('resize', scheduleFooterOffsetSync);
 
     if (resetTimer) {
       window.clearTimeout(resetTimer);
       resetTimer = 0;
     }
-
-    if (footerSyncFrameId) {
-      window.cancelAnimationFrame(footerSyncFrameId);
-      footerSyncFrameId = 0;
-    }
-
-    addCardElement?.style.removeProperty('--friend-link-footer-offset');
   };
 }
 
