@@ -320,6 +320,11 @@ function navigateTo(path: string, options: { replace?: boolean } = {}): void {
 function setupPageEnhancements(pathname: string): (() => void) | null {
   const cleanups: Array<() => void> = [];
 
+  const cleanupMobileSidePanelPlacement = setupMobileSidePanelPlacement(pathname);
+  if (cleanupMobileSidePanelPlacement) {
+    cleanups.push(cleanupMobileSidePanelPlacement);
+  }
+
   const cleanupRouteEnterTransition = setupRouteEnterTransition();
   if (cleanupRouteEnterTransition) {
     cleanups.push(cleanupRouteEnterTransition);
@@ -428,6 +433,141 @@ const POST_LIST_SELECTOR = '.post-list';
 const HOME_POST_LIST_CLASS = 'post-list--home';
 const POST_CARD_ROW_TOLERANCE_PX = 10;
 const POST_CARD_STAGGER_CAP = 10;
+const MOBILE_SIDE_PANEL_MEDIA_QUERY = '(max-width: 1024px)';
+
+function restoreNodePlacement(node: HTMLElement, parent: Node, nextSibling: ChildNode | null): void {
+  if (nextSibling && nextSibling.parentNode === parent) {
+    parent.insertBefore(node, nextSibling);
+    return;
+  }
+
+  parent.appendChild(node);
+}
+
+function setupMobileSidePanelPlacement(pathname: string): (() => void) | null {
+  const mediaQuery = window.matchMedia(MOBILE_SIDE_PANEL_MEDIA_QUERY);
+  const shouldHandlePostsPage = pathname === '/posts';
+  const shouldHandlePostDetailPage = pathname.startsWith('/posts/');
+
+  const postThemeRailElement = shouldHandlePostsPage
+    ? document.querySelector<HTMLElement>('.post-theme-rail')
+    : null;
+  const postThemeCardElement = postThemeRailElement?.querySelector<HTMLElement>('.post-theme-card') ?? null;
+  const postsToolbarElement = shouldHandlePostsPage
+    ? document.querySelector<HTMLElement>('.page-posts [data-role="posts-toolbar"]')
+    : null;
+  const postTocRailElement = shouldHandlePostDetailPage
+    ? document.querySelector<HTMLElement>('.post-toc-rail')
+    : null;
+  const postDetailLayoutElement = shouldHandlePostDetailPage
+    ? document.querySelector<HTMLElement>('.page-post-detail .post-detail-layout')
+    : null;
+  const markdownContentElement = postDetailLayoutElement?.querySelector<HTMLElement>('.markdown-content') ?? null;
+
+  const originalPostThemeParent = postThemeRailElement?.parentNode ?? null;
+  const originalPostThemeNextSibling = postThemeRailElement?.nextSibling ?? null;
+  const originalPostTocParent = postTocRailElement?.parentNode ?? null;
+  const originalPostTocNextSibling = postTocRailElement?.nextSibling ?? null;
+
+  if (!postThemeRailElement && !postTocRailElement) {
+    return null;
+  }
+
+  let postThemeToggleButton: HTMLButtonElement | null = null;
+  let handlePostThemeToggleClick: (() => void) | null = null;
+
+  const syncPostThemeCollapsedState = (isCollapsed: boolean): void => {
+    if (!postThemeCardElement) {
+      return;
+    }
+
+    postThemeCardElement.classList.toggle('is-collapsed', isCollapsed);
+    if (postThemeToggleButton) {
+      postThemeToggleButton.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+    }
+  };
+
+  const ensurePostThemeToggleButton = (): void => {
+    if (!postThemeCardElement || !postsToolbarElement || postThemeToggleButton) {
+      return;
+    }
+
+    postThemeToggleButton = document.createElement('button');
+    postThemeToggleButton.type = 'button';
+    postThemeToggleButton.className = 'post-theme-mobile-toggle';
+    postThemeToggleButton.setAttribute('aria-label', '切换主题筛选展开状态');
+    postThemeToggleButton.textContent = '主题筛选';
+    postsToolbarElement.append(postThemeToggleButton);
+
+    handlePostThemeToggleClick = () => {
+      const isCollapsed = postThemeCardElement.classList.contains('is-collapsed');
+      syncPostThemeCollapsedState(!isCollapsed);
+    };
+
+    postThemeToggleButton.addEventListener('click', handlePostThemeToggleClick);
+  };
+
+  const applyPlacement = (): void => {
+    const isMobileViewport = mediaQuery.matches;
+
+    if (postThemeRailElement && originalPostThemeParent && shouldHandlePostsPage) {
+      if (isMobileViewport && postsToolbarElement?.parentNode) {
+        postsToolbarElement.insertAdjacentElement('afterend', postThemeRailElement);
+        postThemeRailElement.classList.add('is-inline-mobile');
+        ensurePostThemeToggleButton();
+        if (postThemeToggleButton) {
+          postThemeToggleButton.hidden = false;
+        }
+        syncPostThemeCollapsedState(true);
+      } else {
+        restoreNodePlacement(postThemeRailElement, originalPostThemeParent, originalPostThemeNextSibling);
+        postThemeRailElement.classList.remove('is-inline-mobile');
+        if (postThemeToggleButton) {
+          postThemeToggleButton.hidden = true;
+        }
+        syncPostThemeCollapsedState(false);
+      }
+    }
+
+    if (postTocRailElement && originalPostTocParent && shouldHandlePostDetailPage) {
+      if (isMobileViewport && postDetailLayoutElement && markdownContentElement) {
+        postDetailLayoutElement.insertBefore(postTocRailElement, markdownContentElement);
+        postTocRailElement.classList.add('is-inline-mobile');
+      } else {
+        restoreNodePlacement(postTocRailElement, originalPostTocParent, originalPostTocNextSibling);
+        postTocRailElement.classList.remove('is-inline-mobile');
+      }
+    }
+  };
+
+  const handleViewportChange = (): void => {
+    applyPlacement();
+  };
+
+  applyPlacement();
+  mediaQuery.addEventListener('change', handleViewportChange);
+
+  return () => {
+    mediaQuery.removeEventListener('change', handleViewportChange);
+
+    if (postThemeRailElement && originalPostThemeParent) {
+      restoreNodePlacement(postThemeRailElement, originalPostThemeParent, originalPostThemeNextSibling);
+      postThemeRailElement.classList.remove('is-inline-mobile');
+    }
+
+    if (postTocRailElement && originalPostTocParent) {
+      restoreNodePlacement(postTocRailElement, originalPostTocParent, originalPostTocNextSibling);
+      postTocRailElement.classList.remove('is-inline-mobile');
+    }
+
+    syncPostThemeCollapsedState(false);
+
+    if (postThemeToggleButton && handlePostThemeToggleClick) {
+      postThemeToggleButton.removeEventListener('click', handlePostThemeToggleClick);
+      postThemeToggleButton.remove();
+    }
+  };
+}
 
 function setupRouteEnterTransition(): (() => void) | null {
   const reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');

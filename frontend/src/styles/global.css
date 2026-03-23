@@ -2249,6 +2249,44 @@ a:hover {
   align-content: start;
 }
 
+.post-theme-card.is-collapsed .post-theme-list,
+.post-theme-card.is-collapsed .post-theme-reset-btn {
+  display: none;
+}
+
+.post-theme-mobile-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.9rem;
+  padding: 0.28rem 0.62rem;
+  border: 1px solid color-mix(in srgb, var(--accent-berry) 24%, var(--border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 90%, var(--brand-soft));
+  color: color-mix(in srgb, var(--accent-berry) 82%, var(--text));
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.25;
+  cursor: pointer;
+  transition:
+    border-color var(--motion-duration-state) var(--motion-ease-out-quart),
+    background-color var(--motion-duration-state) var(--motion-ease-out-quart),
+    color var(--motion-duration-state) var(--motion-ease-out-quart),
+    transform var(--motion-duration-state) var(--motion-ease-out-quart);
+}
+
+.post-theme-mobile-toggle:hover {
+  border-color: color-mix(in srgb, var(--accent-berry) 36%, var(--border));
+  background: color-mix(in srgb, var(--surface) 84%, var(--brand-soft));
+  transform: translateY(calc(var(--motion-distance-hover) * -0.25));
+}
+
+.post-theme-mobile-toggle:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
 .post-theme-title {
   margin: 0;
   font-size: 0.9rem;
@@ -2718,7 +2756,30 @@ a:hover {
   }
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1200px) {
+  /* 首页兜底：<=1200 统一单列，资料卡始终在顶部 */
+  .site-main--with-profile:not(.site-main--with-post-theme):not(.site-main--with-post-toc) .site-main-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .site-main--with-profile:not(.site-main--with-post-theme):not(.site-main--with-post-toc) .site-main-layout>.profile-card {
+    grid-column: 1;
+    position: static;
+    max-height: none;
+    overflow: visible;
+    justify-self: stretch;
+    width: auto;
+    max-width: none;
+    order: 1;
+  }
+
+  .site-main--with-profile:not(.site-main--with-post-theme):not(.site-main--with-post-toc) .site-main-layout>.site-page-content {
+    grid-column: 1;
+    order: 2;
+  }
+}
+
+@media (max-width: 1024px) {
   .site-header-inner {
     width: var(--layout-narrow);
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
@@ -2765,6 +2826,11 @@ a:hover {
     max-width: none;
   }
 
+  .site-main--with-profile.site-main--with-post-theme .profile-card,
+  .site-main--with-profile.site-main--with-post-toc .profile-card {
+    display: none;
+  }
+
   .post-list--posts {
     column-count: 1;
   }
@@ -2792,14 +2858,35 @@ a:hover {
     max-width: none;
     position: static;
     top: auto;
+    order: 2;
+  }
+
+  .site-main--with-profile.site-main--with-post-theme .site-page-content {
+    order: 3;
+  }
+
+  .post-toc-rail.is-inline-mobile,
+  .post-theme-rail.is-inline-mobile {
+    width: 100%;
+    max-width: 100%;
+    position: static;
+    top: auto;
   }
 
   .post-toc-card {
-    padding: var(--space-3);
+    padding: 0.625rem 0.75rem;
   }
 
   .post-theme-card {
     padding: var(--space-3);
+  }
+
+  .posts-toolbar {
+    gap: var(--space-2);
+  }
+
+  .post-theme-mobile-toggle {
+    display: inline-flex;
   }
 
   .post-toc-card:not(.has-toc) {
@@ -2807,7 +2894,16 @@ a:hover {
   }
 
   .post-toc-scroll-area {
-    max-height: min(44vh, 15rem);
+    max-height: min(36vh, 12rem);
+  }
+
+  .post-toc-title {
+    font-size: 0.72rem;
+  }
+
+  .post-toc-link {
+    font-size: 0.8rem;
+    line-height: 1.35;
   }
 
   .post-toc-btt-wrap {
@@ -3006,8 +3102,12 @@ a:hover {
     padding-top: var(--space-5);
   }
 
+  .post-toc-scroll-area {
+    max-height: min(32vh, 10rem);
+  }
+
   .post-toc-link {
-    font-size: 0.82rem;
+    font-size: 0.78rem;
   }
 
   .floating-scroll-top-wrap {
