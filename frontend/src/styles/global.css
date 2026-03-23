@@ -2871,6 +2871,7 @@ a:hover {
     max-width: 100%;
     position: static;
     top: auto;
+    margin-bottom: var(--space-3);
   }
 
   .post-toc-card {
@@ -2879,6 +2880,10 @@ a:hover {
 
   .post-theme-card {
     padding: var(--space-3);
+  }
+
+  .post-theme-card.is-collapsed {
+    display: none;
   }
 
   .posts-toolbar {
