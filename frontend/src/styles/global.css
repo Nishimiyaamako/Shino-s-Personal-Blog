@@ -2041,32 +2041,43 @@ a:hover {
   white-space: nowrap;
 }
 
+.page-friends {
+  width: 100%;
+  max-width: min(720px, 100%);
+  margin-inline: auto;
+  padding-top: var(--space-5);
+  padding-bottom: calc(8.8rem + env(safe-area-inset-bottom));
+}
+
 .friend-link-list {
   margin: 0;
   padding: 0;
   list-style: none;
   display: grid;
-  gap: var(--space-4);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
 }
 
 .friend-link-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 6px 14px color-mix(in srgb, var(--accent-berry) 10%, transparent);
   transition:
     transform var(--motion-duration-state) var(--motion-ease-out-quart),
     border-color var(--motion-duration-state) var(--motion-ease-out-quart),
     box-shadow var(--motion-duration-state) var(--motion-ease-out-quart);
+  height: 100%;
 }
 
 .friend-link-anchor {
   display: flex;
-  gap: var(--space-4);
+  gap: var(--space-3);
   align-items: flex-start;
-  padding: var(--space-4);
+  padding: var(--space-3);
   color: inherit;
   text-decoration: none;
+  height: 100%;
 }
 
 .friend-link-anchor:hover {
@@ -2076,12 +2087,12 @@ a:hover {
 .friend-link-card:hover {
   transform: translateY(calc(var(--motion-distance-hover) * -1));
   border-color: color-mix(in srgb, var(--accent-berry) 34%, var(--border));
-  box-shadow: var(--shadow-strong);
+  box-shadow: 0 10px 20px color-mix(in srgb, var(--accent-berry) 15%, transparent);
 }
 
 .friend-link-avatar {
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   object-fit: cover;
   flex: none;
@@ -2098,18 +2109,115 @@ a:hover {
 .friend-link-content h2 {
   margin: 0;
   line-height: 1.35;
-  font-size: 1.05rem;
+  font-size: 0.96rem;
 }
 
 .friend-link-content p {
   margin: 0;
   color: var(--text-subtle);
+  font-size: 0.84rem;
+  line-height: 1.45;
 }
 
 .friend-link-url {
   color: var(--brand);
-  font-size: 0.88rem;
+  font-size: 0.76rem;
   word-break: break-all;
+  opacity: 0.9;
+}
+
+.friend-link-add-card {
+  --friend-link-bottom-base: max(0.7rem, env(safe-area-inset-bottom));
+  --friend-link-footer-offset: 0px;
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--friend-link-bottom-base) + var(--friend-link-footer-offset));
+  transform: translateX(-50%);
+  width: min(760px, calc(100% - 2rem));
+  z-index: 11;
+  margin: 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px dashed color-mix(in srgb, var(--brand) 26%, var(--border));
+  background: color-mix(in srgb, var(--surface-soft) 72%, var(--surface));
+  box-shadow: 0 10px 20px color-mix(in srgb, var(--accent-berry) 10%, transparent);
+  display: grid;
+  gap: 0.32rem;
+}
+
+.friend-link-add-title {
+  margin: 0;
+  color: color-mix(in srgb, var(--text-subtle) 88%, var(--text));
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.friend-link-add-hint {
+  margin: 0;
+  padding-right: 4rem;
+  color: var(--text-subtle);
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+.friend-link-add-url {
+  margin: 0;
+  padding: 0.42rem 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--brand) 14%, var(--border));
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--surface) 86%, transparent);
+  font-size: 0.66rem;
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--text-subtle) 92%, var(--text));
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+  user-select: all;
+  overflow: auto;
+}
+
+.friend-link-add-url code {
+  color: inherit;
+  font: inherit;
+}
+
+.friend-link-copy-button {
+  position: absolute;
+  top: 0.56rem;
+  right: 0.56rem;
+  border: 1px solid color-mix(in srgb, var(--border) 90%, var(--brand-soft));
+  background: color-mix(in srgb, var(--surface) 86%, transparent);
+  color: var(--text-subtle);
+  border-radius: 999px;
+  font-size: 0.66rem;
+  line-height: 1;
+  padding: 0.29rem 0.52rem;
+  cursor: pointer;
+  transition:
+    color var(--motion-duration-feedback) var(--motion-ease-out-quart),
+    border-color var(--motion-duration-feedback) var(--motion-ease-out-quart),
+    background-color var(--motion-duration-feedback) var(--motion-ease-out-quart);
+}
+
+.friend-link-copy-button:hover {
+  color: color-mix(in srgb, var(--accent-berry) 78%, var(--text));
+  border-color: color-mix(in srgb, var(--accent-berry) 35%, var(--border));
+}
+
+.friend-link-copy-button:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--brand-soft) 68%, var(--brand));
+  outline-offset: 2px;
+}
+
+.friend-link-copy-button.is-copied {
+  color: color-mix(in srgb, var(--accent-berry) 85%, var(--text));
+  border-color: color-mix(in srgb, var(--accent-berry) 42%, var(--border));
+  background: color-mix(in srgb, var(--accent-berry-soft) 78%, transparent);
+}
+
+.friend-link-copy-button.is-error {
+  color: #d34a65;
+  border-color: color-mix(in srgb, #d34a65 46%, var(--border));
 }
 
 .markdown-content {
@@ -2748,6 +2856,42 @@ a:hover {
 
 .site-footer-divider {
   color: color-mix(in srgb, var(--text-subtle) 65%, var(--surface));
+}
+
+@media (max-width: 900px) {
+  .friend-link-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .page-friends {
+    padding-bottom: calc(10.2rem + env(safe-area-inset-bottom));
+  }
+
+  .friend-link-add-card {
+    --friend-link-bottom-base: max(0.55rem, env(safe-area-inset-bottom));
+    padding: 0.65rem 0.72rem;
+  }
+
+  .friend-link-add-title {
+    font-size: 0.8rem;
+  }
+
+  .friend-link-add-hint {
+    padding-right: 3.55rem;
+    font-size: 0.7rem;
+  }
+
+  .friend-link-add-url {
+    font-size: 0.64rem;
+    line-height: 1.4;
+  }
+
+  .friend-link-copy-button {
+    top: 0.45rem;
+    right: 0.45rem;
+    font-size: 0.62rem;
+    padding: 0.24rem 0.45rem;
+  }
 }
 
 @media (max-width: 560px) {

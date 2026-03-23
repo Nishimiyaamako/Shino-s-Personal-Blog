@@ -3,6 +3,11 @@ import type { PageRenderer } from '../types/router';
 import { escapeHtml } from '../utils/escape-html';
 
 export const renderFriendsPage: PageRenderer = () => {
+  const friendLinkTemplate = `name: '你的站点名称',
+description: '一句简短介绍',
+avatar: 'https://example.com/avatar.png',
+url: ''`;
+
   return `
 <section class="page page-friends">
   ${
@@ -32,6 +37,19 @@ export const renderFriendsPage: PageRenderer = () => {
         </ul>`
       : '<p class="empty-hint">暂无友链。</p>'
   }
+  <section class="friend-link-add-card" aria-label="添加我的链接">
+    <button
+      type="button"
+      class="friend-link-copy-button"
+      data-role="friend-link-copy"
+      aria-label="复制友链模板"
+    >
+      复制
+    </button>
+    <p class="friend-link-add-title">添加我的链接</p>
+    <p class="friend-link-add-hint">复制下面模板，补全后发我即可：</p>
+    <pre class="friend-link-add-url"><code data-role="friend-link-add-url">${escapeHtml(friendLinkTemplate)}</code></pre>
+  </section>
 </section>
 `;
 };

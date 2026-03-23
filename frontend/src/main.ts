@@ -388,6 +388,13 @@ function setupPageEnhancements(pathname: string): (() => void) | null {
     }
   }
 
+  if (pathname === '/friends') {
+    const cleanupFriendLinkCopyButton = setupFriendLinkCopyButton();
+    if (cleanupFriendLinkCopyButton) {
+      cleanups.push(cleanupFriendLinkCopyButton);
+    }
+  }
+
   if (!cleanups.length) {
     return null;
   }
@@ -412,6 +419,7 @@ const PAGE_STAGGER_SELECTORS = [
   ':scope > .archive-timeline',
   ':scope > .post-detail-layout',
   ':scope > .markdown-content',
+  ':scope > .friend-link-add-card',
   ':scope > .empty-hint'
 ] as const;
 
@@ -1936,6 +1944,139 @@ function setupArchiveTimelineReveal(): (() => void) | null {
   return () => {
     observer.disconnect();
     reducedMotionMediaQuery.removeEventListener('change', handleReducedMotionChange);
+  };
+}
+
+function setupFriendLinkCopyButton(): (() => void) | null {
+  const copyButtonElement = document.querySelector<HTMLButtonElement>('[data-role="friend-link-copy"]');
+  const linkTextElement = document.querySelector<HTMLElement>('[data-role="friend-link-add-url"]');
+  const addCardElement = document.querySelector<HTMLElement>('.friend-link-add-card');
+  const footerElement = document.querySelector<HTMLElement>('.site-footer');
+
+  if (!copyButtonElement || !linkTextElement) {
+    return null;
+  }
+
+  const copyValue = copyButtonElement.dataset.copyValue ?? linkTextElement.textContent ?? '';
+
+  if (!copyValue.trim()) {
+    return null;
+  }
+
+  const FOOTER_SAFE_GAP = 10;
+  let resetTimer = 0;
+  let footerSyncFrameId = 0;
+  let isCopying = false;
+
+  const setButtonLabel = (label: string, state: 'default' | 'success' | 'error' = 'default'): void => {
+    copyButtonElement.textContent = label;
+    copyButtonElement.classList.toggle('is-copied', state === 'success');
+    copyButtonElement.classList.toggle('is-error', state === 'error');
+  };
+
+  const scheduleReset = (): void => {
+    if (resetTimer) {
+      window.clearTimeout(resetTimer);
+    }
+
+    resetTimer = window.setTimeout(() => {
+      resetTimer = 0;
+      setButtonLabel('复制');
+    }, 1600);
+  };
+
+  const fallbackCopyText = (text: string): boolean => {
+    const textAreaElement = document.createElement('textarea');
+    textAreaElement.value = text;
+    textAreaElement.setAttribute('readonly', 'true');
+    textAreaElement.setAttribute('aria-hidden', 'true');
+    textAreaElement.style.position = 'fixed';
+    textAreaElement.style.opacity = '0';
+    textAreaElement.style.pointerEvents = 'none';
+    textAreaElement.style.left = '-9999px';
+
+    document.body.append(textAreaElement);
+    textAreaElement.select();
+    textAreaElement.setSelectionRange(0, text.length);
+
+    const copied = document.execCommand('copy');
+    textAreaElement.remove();
+    return copied;
+  };
+
+  const copyLink = async (): Promise<void> => {
+    if (isCopying) {
+      return;
+    }
+
+    isCopying = true;
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(copyValue);
+      } else if (!fallbackCopyText(copyValue)) {
+        throw new Error('fallback-copy-failed');
+      }
+
+      setButtonLabel('已复制', 'success');
+    } catch {
+      setButtonLabel('复制失败', 'error');
+    } finally {
+      isCopying = false;
+      scheduleReset();
+    }
+  };
+
+  const handleCopyClick = (): void => {
+    void copyLink();
+  };
+
+  const syncFooterOffset = (): void => {
+    if (!addCardElement || !footerElement) {
+      return;
+    }
+
+    addCardElement.style.setProperty('--friend-link-footer-offset', '0px');
+
+    const cardRect = addCardElement.getBoundingClientRect();
+    const footerRect = footerElement.getBoundingClientRect();
+    const nextFooterOffset = Math.max(0, cardRect.bottom + FOOTER_SAFE_GAP - footerRect.top);
+
+    addCardElement.style.setProperty('--friend-link-footer-offset', `${Math.ceil(nextFooterOffset)}px`);
+  };
+
+  const scheduleFooterOffsetSync = (): void => {
+    if (footerSyncFrameId) {
+      return;
+    }
+
+    footerSyncFrameId = window.requestAnimationFrame(() => {
+      footerSyncFrameId = 0;
+      syncFooterOffset();
+    });
+  };
+
+  copyButtonElement.addEventListener('click', handleCopyClick);
+  window.addEventListener('scroll', scheduleFooterOffsetSync, { passive: true });
+  window.addEventListener('resize', scheduleFooterOffsetSync);
+  scheduleFooterOffsetSync();
+
+  return () => {
+    copyButtonElement.removeEventListener('click', handleCopyClick);
+    window.removeEventListener('scroll', scheduleFooterOffsetSync);
+    window.removeEventListener('resize', scheduleFooterOffsetSync);
+
+    if (resetTimer) {
+      window.clearTimeout(resetTimer);
+      resetTimer = 0;
+    }
+
+    if (footerSyncFrameId) {
+      window.cancelAnimationFrame(footerSyncFrameId);
+      footerSyncFrameId = 0;
+    }
+
+    addCardElement?.style.removeProperty('--friend-link-footer-offset');
   };
 }
 
