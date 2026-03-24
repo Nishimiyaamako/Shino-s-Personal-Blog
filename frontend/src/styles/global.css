@@ -7,27 +7,27 @@
   --ivory-50: #f6f6f4;
 
   --brand: var(--rose-500);
-  --brand-soft: color-mix(in oklch, var(--rose-500) 24%, var(--ivory-50));
+  --brand-soft: color-mix(in srgb, var(--rose-500) 24%, var(--ivory-50));
   --accent-berry: var(--rose-700);
   --accent-secondary: var(--cyan-500);
-  --accent-secondary-soft: color-mix(in oklch, var(--cyan-500) 24%, var(--ivory-50));
-  --ink-dark: color-mix(in oklch, var(--rose-700) 56%, #1d1620);
-  --neutral-metal: color-mix(in oklch, #8e8390 72%, var(--ivory-50));
+  --accent-secondary-soft: color-mix(in srgb, var(--cyan-500) 24%, var(--ivory-50));
+  --ink-dark: color-mix(in srgb, var(--rose-700) 74%, var(--cyan-500));
+  --neutral-metal: color-mix(in srgb, var(--rose-700) 24%, var(--ivory-50));
 
-  --bg: color-mix(in oklch, var(--ivory-50) 94%, #fff9fc);
-  --surface: color-mix(in oklch, var(--ivory-50) 76%, transparent);
-  --surface-elevated: color-mix(in oklch, var(--ivory-50) 66%, transparent);
-  --surface-soft: color-mix(in oklch, var(--ivory-50) 78%, var(--accent-secondary-soft));
-  --text: color-mix(in oklch, #241421 84%, var(--rose-700));
-  --text-subtle: color-mix(in oklch, #6d5b67 82%, var(--rose-700));
-  --border: color-mix(in oklch, var(--rose-500) 22%, var(--ivory-50));
-  --border-strong: color-mix(in oklch, var(--rose-700) 28%, var(--border));
+  --bg: color-mix(in srgb, var(--ivory-50) 90%, var(--rose-500));
+  --surface: color-mix(in srgb, var(--ivory-50) 76%, transparent);
+  --surface-elevated: color-mix(in srgb, var(--ivory-50) 66%, transparent);
+  --surface-soft: color-mix(in srgb, var(--ivory-50) 74%, var(--accent-secondary-soft));
+  --text: color-mix(in srgb, var(--rose-700) 76%, var(--ivory-50));
+  --text-subtle: color-mix(in srgb, var(--rose-700) 56%, var(--ivory-50));
+  --border: color-mix(in srgb, var(--rose-500) 24%, var(--ivory-50));
+  --border-strong: color-mix(in srgb, var(--rose-700) 34%, var(--cyan-500));
 
-  --accent-bubble-soft: color-mix(in oklch, var(--brand-soft) 62%, var(--surface-soft));
-  --accent-mauve-soft: color-mix(in oklch, var(--neutral-metal) 26%, var(--surface-soft));
-  --accent-berry-soft: color-mix(in oklch, var(--rose-500) 18%, var(--surface-soft));
-  --shadow: 0 10px 24px color-mix(in oklch, var(--rose-700) 20%, transparent);
-  --shadow-strong: 0 14px 32px color-mix(in oklch, var(--rose-700) 28%, transparent);
+  --accent-bubble-soft: color-mix(in srgb, var(--brand-soft) 62%, var(--surface-soft));
+  --accent-mauve-soft: color-mix(in srgb, var(--neutral-metal) 26%, var(--surface-soft));
+  --accent-berry-soft: color-mix(in srgb, var(--rose-500) 18%, var(--surface-soft));
+  --shadow: 0 10px 24px color-mix(in srgb, var(--rose-700) 24%, transparent);
+  --shadow-strong: 0 14px 32px color-mix(in srgb, var(--rose-700) 34%, transparent);
 
   --decor-edge-offset: clamp(10px, 2vw, 24px);
   --decor-line-thickness: 2px;
@@ -88,32 +88,32 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: color-mix(in oklch, #151019 88%, #0f1117);
-    --surface: color-mix(in oklch, #2a1d28 72%, transparent);
-    --surface-elevated: color-mix(in oklch, #321f2b 68%, transparent);
-    --surface-soft: color-mix(in oklch, #2b212d 72%, color-mix(in oklch, var(--cyan-500) 18%, #1a151f));
-    --text: color-mix(in oklch, #faeef4 90%, var(--ivory-50));
-    --text-subtle: color-mix(in oklch, #bea9b6 86%, var(--rose-500));
-    --brand-soft: color-mix(in oklch, var(--rose-500) 34%, transparent);
-    --accent-berry: color-mix(in oklch, var(--rose-500) 80%, #ffd3e3);
-    --accent-secondary-soft: color-mix(in oklch, var(--cyan-500) 34%, transparent);
-    --border: color-mix(in oklch, var(--rose-500) 30%, #3d2634);
-    --border-strong: color-mix(in oklch, var(--cyan-500) 22%, var(--border));
-    --accent-bubble-soft: color-mix(in oklch, var(--brand-soft) 66%, var(--surface-soft));
-    --accent-mauve-soft: color-mix(in oklch, var(--neutral-metal) 34%, var(--surface-soft));
-    --accent-berry-soft: color-mix(in oklch, var(--accent-berry) 24%, var(--surface-soft));
-    --shadow: 0 14px 30px rgb(0 0 0 / 42%);
-    --shadow-strong: 0 16px 38px rgb(0 0 0 / 52%);
+    --bg: color-mix(in srgb, var(--rose-700) 84%, var(--cyan-500));
+    --surface: color-mix(in srgb, var(--rose-700) 70%, transparent);
+    --surface-elevated: color-mix(in srgb, var(--rose-700) 62%, transparent);
+    --surface-soft: color-mix(in srgb, var(--rose-700) 56%, var(--cyan-500));
+    --text: color-mix(in srgb, var(--ivory-50) 90%, var(--cyan-500));
+    --text-subtle: color-mix(in srgb, var(--ivory-50) 68%, var(--rose-500));
+    --brand-soft: color-mix(in srgb, var(--rose-500) 34%, transparent);
+    --accent-berry: color-mix(in srgb, var(--rose-500) 84%, var(--ivory-50));
+    --accent-secondary-soft: color-mix(in srgb, var(--cyan-500) 34%, transparent);
+    --border: color-mix(in srgb, var(--rose-500) 34%, transparent);
+    --border-strong: color-mix(in srgb, var(--cyan-500) 42%, var(--rose-500));
+    --accent-bubble-soft: color-mix(in srgb, var(--brand-soft) 66%, var(--surface-soft));
+    --accent-mauve-soft: color-mix(in srgb, var(--neutral-metal) 34%, var(--surface-soft));
+    --accent-berry-soft: color-mix(in srgb, var(--accent-berry) 24%, var(--surface-soft));
+    --shadow: 0 14px 30px color-mix(in srgb, var(--rose-700) 48%, transparent);
+    --shadow-strong: 0 16px 38px color-mix(in srgb, var(--rose-700) 62%, transparent);
 
     --decor-line-opacity: 0.4;
     --decor-shape-opacity: 0.44;
-    --decor-dash-primary: color-mix(in oklch, var(--rose-500) 54%, transparent);
-    --decor-dash-secondary: color-mix(in oklch, var(--cyan-500) 50%, transparent);
-    --decor-dot: color-mix(in oklch, var(--cyan-500) 42%, transparent);
-    --decor-rose-halo: color-mix(in oklch, var(--rose-500) 20%, transparent);
-    --decor-rose-halo-soft: color-mix(in oklch, var(--rose-700) 14%, transparent);
-    --decor-cyan-halo: color-mix(in oklch, var(--cyan-500) 18%, transparent);
-    --decor-cyan-halo-soft: color-mix(in oklch, var(--cyan-500) 12%, transparent);
+    --decor-dash-primary: color-mix(in srgb, var(--rose-500) 54%, transparent);
+    --decor-dash-secondary: color-mix(in srgb, var(--cyan-500) 50%, transparent);
+    --decor-dot: color-mix(in srgb, var(--cyan-500) 42%, transparent);
+    --decor-rose-halo: color-mix(in srgb, var(--rose-500) 20%, transparent);
+    --decor-rose-halo-soft: color-mix(in srgb, var(--rose-700) 14%, transparent);
+    --decor-cyan-halo: color-mix(in srgb, var(--cyan-500) 18%, transparent);
+    --decor-cyan-halo-soft: color-mix(in srgb, var(--cyan-500) 12%, transparent);
   }
 }
 
@@ -452,7 +452,7 @@ a:hover {
 
 .profile-card {
   background: var(--surface-elevated);
-  border: 1px solid var(--border-strong);
+  border: 0;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow);
   backdrop-filter: blur(8px) saturate(112%);
@@ -517,19 +517,17 @@ a:hover {
   min-height: 40px;
   padding: 0 var(--space-3);
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
+  border: 0;
   background: color-mix(in srgb, var(--surface-soft) 82%, var(--brand-soft));
   color: inherit;
   text-decoration: none;
   transition:
-    border-color var(--motion-duration-state) var(--motion-ease-out-quart),
     color var(--motion-duration-state) var(--motion-ease-out-quart),
     transform var(--motion-duration-state) var(--motion-ease-out-quart),
     box-shadow var(--motion-duration-state) var(--motion-ease-out-quart);
 }
 
 .profile-contact-link:hover {
-  border-color: color-mix(in srgb, var(--accent-berry) 50%, var(--border));
   color: var(--accent-berry);
   text-decoration: none;
   transform: translateY(calc(var(--motion-distance-hover) * -0.5));
@@ -576,8 +574,9 @@ a:hover {
   margin: 0;
   padding: var(--space-3);
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
+  border: 0;
   background: color-mix(in srgb, var(--surface-soft) 78%, var(--surface));
+  box-shadow: 0 6px 14px color-mix(in srgb, var(--accent-berry) 12%, transparent);
   text-align: center;
 }
 
@@ -602,7 +601,7 @@ a:hover {
 .page-not-found,
 .page-header {
   background: var(--surface-elevated);
-  border: 1px solid var(--border-strong);
+  border: 0;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow);
   backdrop-filter: blur(8px) saturate(112%);
@@ -1052,7 +1051,7 @@ a:hover {
   display: grid;
   grid-template-rows: auto 1fr;
   background: var(--surface-elevated);
-  border: 1px solid var(--border-strong);
+  border: 0;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow);
   backdrop-filter: blur(8px) saturate(112%);
@@ -1060,14 +1059,12 @@ a:hover {
   overflow: hidden;
   transition:
     transform var(--motion-duration-state) var(--motion-ease-out-quart),
-    border-color var(--motion-duration-state) var(--motion-ease-out-quart),
     box-shadow var(--motion-duration-state) var(--motion-ease-out-quart);
 }
 
 .post-card-article:hover,
 .post-card-article:focus-within {
   transform: translateY(calc(var(--motion-distance-hover) * -1));
-  border-color: color-mix(in srgb, var(--accent-berry) 36%, var(--border));
   box-shadow: var(--shadow-strong);
 }
 
@@ -1075,7 +1072,6 @@ a:hover {
   position: relative;
   display: block;
   aspect-ratio: 16 / 9;
-  border-bottom: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
   background: color-mix(in srgb, var(--surface-soft) 72%, var(--brand-soft));
 }
 
@@ -1118,7 +1114,6 @@ a:hover {
   bottom: 0;
   height: 32%;
   z-index: 1;
-  border-top: 1px dashed color-mix(in oklch, var(--accent-secondary) 44%, transparent);
   background: color-mix(in oklch, var(--accent-secondary-soft) 64%, transparent);
   opacity: 0.55;
   transition: opacity var(--motion-duration-state) var(--motion-ease-out-quart);
@@ -1237,9 +1232,10 @@ a:hover {
   min-width: 3.2rem;
   min-height: 1.65rem;
   padding: 0 0.62rem;
-  border: 1px solid color-mix(in srgb, var(--accent-berry) 40%, var(--border));
+  border: 0;
   border-radius: var(--radius-sm);
   background: color-mix(in srgb, var(--surface) 86%, var(--brand-soft));
+  box-shadow: 0 6px 12px color-mix(in srgb, var(--accent-berry) 16%, transparent);
   color: color-mix(in srgb, var(--accent-berry) 80%, var(--text));
   font-size: 0.74rem;
   font-weight: 700;
@@ -1349,7 +1345,7 @@ a:hover {
   display: block;
   overflow: hidden;
   border-radius: 10px;
-  border: 1px solid color-mix(in srgb, var(--accent-berry) 24%, var(--border));
+  border: 0;
   background: color-mix(in srgb, var(--surface-soft) 78%, var(--brand-soft));
   opacity: 1;
   pointer-events: auto;
@@ -1393,7 +1389,7 @@ a:hover {
   min-height: 30px;
   padding: 0 var(--space-3);
   border-radius: var(--radius-sm);
-  border: 1px solid color-mix(in srgb, var(--brand) 24%, var(--border));
+  border: 2px solid color-mix(in srgb, var(--accent-berry) 54%, var(--brand));
   background: color-mix(in srgb, var(--brand-soft) 46%, var(--surface));
   color: color-mix(in srgb, var(--accent-berry) 72%, var(--text));
   transition:
@@ -1405,7 +1401,7 @@ a:hover {
 
 .tag-list a:hover {
   transform: translateY(calc(var(--motion-distance-hover) * -0.5));
-  border-color: color-mix(in srgb, var(--accent-berry) 45%, var(--border));
+  border-color: color-mix(in srgb, var(--accent-secondary) 60%, var(--accent-berry));
   background: color-mix(in srgb, var(--brand-soft) 65%, var(--surface));
   color: var(--accent-berry);
   text-decoration: none;
@@ -1483,7 +1479,7 @@ a:hover {
   --bubble-text: var(--text);
   --bubble-count-bg: color-mix(in srgb, var(--surface) 82%, var(--bubble-bg));
 
-  border: 1px solid var(--bubble-border);
+  border: 2px solid var(--bubble-border);
   border-radius: 7px;
   background: var(--bubble-bg);
   color: var(--bubble-text);
@@ -1585,14 +1581,14 @@ a:hover {
 }
 
 .tag-bubble.is-active {
-  border-color: transparent;
+  border-color: color-mix(in srgb, var(--accent-secondary) 52%, var(--accent-berry));
   color: var(--surface);
   background: color-mix(in srgb, var(--brand) 62%, var(--surface));
   box-shadow: var(--shadow-strong);
 }
 
 .tag-bubble.is-active .tag-count {
-  background: rgb(255 255 255 / 24%);
+  background: color-mix(in srgb, var(--ivory-50) 24%, transparent);
   color: var(--surface);
 }
 
@@ -1688,7 +1684,7 @@ a:hover {
 
 .tag-detail-header {
   background: var(--surface-elevated);
-  border: 1px solid var(--border-strong);
+  border: 0;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow);
   backdrop-filter: blur(8px) saturate(112%);
@@ -1945,7 +1941,7 @@ a:hover {
 .archive-timeline {
   position: relative;
   background: var(--surface-elevated);
-  border: 1px solid var(--border-strong);
+  border: 0;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow);
   backdrop-filter: blur(8px) saturate(112%);
@@ -2104,10 +2100,9 @@ a:hover {
   min-width: 0;
   padding: 0.4rem 0.7rem;
   border-radius: var(--radius-sm);
-  border: 1px solid transparent;
+  border: 0;
   transition:
     background-color var(--motion-duration-state) var(--motion-ease-out-quart),
-    border-color var(--motion-duration-state) var(--motion-ease-out-quart),
     transform var(--motion-duration-state) var(--motion-ease-out-quart),
     box-shadow var(--motion-duration-state) var(--motion-ease-out-quart);
 }
@@ -2120,7 +2115,6 @@ a:hover {
 .archive-post-card:hover,
 .archive-post-card:focus-within {
   background: color-mix(in srgb, var(--brand) 15%, var(--surface-soft));
-  border-color: color-mix(in srgb, var(--accent-berry) 28%, var(--border));
   transform: translateY(calc(var(--motion-distance-hover) * -0.5));
 }
 
@@ -2209,14 +2203,13 @@ a:hover {
 
 .friend-link-card {
   background: var(--surface-elevated);
-  border: 1px solid var(--border-strong);
+  border: 0;
   border-radius: var(--radius-sm);
   box-shadow: 0 6px 14px color-mix(in srgb, var(--accent-berry) 10%, transparent);
   backdrop-filter: blur(8px) saturate(112%);
   -webkit-backdrop-filter: blur(8px) saturate(112%);
   transition:
     transform var(--motion-duration-state) var(--motion-ease-out-quart),
-    border-color var(--motion-duration-state) var(--motion-ease-out-quart),
     box-shadow var(--motion-duration-state) var(--motion-ease-out-quart);
   height: 100%;
 }
@@ -2237,7 +2230,6 @@ a:hover {
 
 .friend-link-card:hover {
   transform: translateY(calc(var(--motion-distance-hover) * -1));
-  border-color: color-mix(in srgb, var(--accent-berry) 34%, var(--border));
   box-shadow: 0 10px 20px color-mix(in srgb, var(--accent-berry) 15%, transparent);
 }
 
@@ -2284,7 +2276,7 @@ a:hover {
   width: min(680px, 100%);
   padding: 0.82rem 0.9rem;
   border-radius: var(--radius-sm);
-  border: 1px dashed color-mix(in srgb, var(--brand) 26%, var(--border));
+  border: 0;
   background: color-mix(in srgb, var(--surface-soft) 72%, var(--surface));
   box-shadow: 0 8px 16px color-mix(in srgb, var(--accent-berry) 10%, transparent);
   display: grid;
@@ -2309,9 +2301,10 @@ a:hover {
 .friend-link-add-url {
   margin: 0;
   padding: 0.38rem 0.46rem;
-  border: 1px solid color-mix(in srgb, var(--brand) 14%, var(--border));
+  border: 0;
   border-radius: 6px;
   background: color-mix(in srgb, var(--surface) 86%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand) 22%, transparent);
   font-size: 0.6rem;
   line-height: 1.4;
   color: color-mix(in srgb, var(--text-subtle) 92%, var(--text));
@@ -2362,8 +2355,8 @@ a:hover {
 }
 
 .friend-link-copy-button.is-error {
-  color: #d34a65;
-  border-color: color-mix(in srgb, #d34a65 46%, var(--border));
+  color: color-mix(in srgb, var(--rose-500) 86%, var(--accent-berry));
+  border-color: color-mix(in srgb, var(--rose-500) 52%, var(--border));
 }
 
 .markdown-content {
@@ -2494,7 +2487,7 @@ a:hover {
 
 .post-theme-card {
   background: var(--surface-elevated);
-  border: 1px solid var(--border-strong);
+  border: 0;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow);
   backdrop-filter: blur(8px) saturate(112%);
@@ -2747,7 +2740,7 @@ a:hover {
 
 .post-toc-card {
   background: var(--surface-elevated);
-  border: 1px solid var(--border-strong);
+  border: 0;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow);
   backdrop-filter: blur(8px) saturate(112%);
@@ -2760,7 +2753,6 @@ a:hover {
 
 .post-toc-card:not(.has-toc) {
   padding: 0;
-  border-color: transparent;
   background: transparent;
   box-shadow: none;
 }
