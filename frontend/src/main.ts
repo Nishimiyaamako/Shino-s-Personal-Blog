@@ -1,9 +1,10 @@
 import './styles/global.css';
 
+import { renderPostList } from './components/post-list';
 import { renderProfileCard } from './components/profile-card';
 import { SITE_CONFIG } from './config/site';
 import { fetchAboutViewModel } from './data/about';
-import { getThemeStats } from './data/posts';
+import { getPostsByTag, getThemeStats } from './data/posts';
 import { renderAboutPageBody } from './pages/about';
 import { PRIMARY_NAV_LINKS, resolveRoute, type PrimaryNavIcon } from './router';
 import { escapeHtml } from './utils/escape-html';
@@ -1602,6 +1603,7 @@ function decodeHashTargetId(hashValue: string): string {
 }
 
 function setupTagCloudInteractions(): (() => void) | null {
+  const TAG_POST_EMPTY_HINT = '当前标签下暂无已发布文章。';
   const tagsPageElement = document.querySelector<HTMLElement>('.page-tags');
 
   if (!tagsPageElement) {
@@ -1628,23 +1630,12 @@ function setupTagCloudInteractions(): (() => void) | null {
     return null;
   }
 
-  const templateMap = new Map<string, string>();
-
-  for (const templateElement of tagsPageElement.querySelectorAll<HTMLTemplateElement>('template[data-tag-template]')) {
-    const tag = templateElement.dataset.tagTemplate ?? '';
-
-    if (!tag) {
-      continue;
-    }
-
-    templateMap.set(tag, templateElement.innerHTML.trim());
-  }
-
   const TAG_BUBBLE_COLUMN_TOLERANCE = 8;
   let activeBubbleElement: HTMLButtonElement | null = null;
   let tagBubbleColumnSyncFrameId = 0;
   let panelCardMotionFrameId = 0;
   let resizeObserver: ResizeObserver | null = null;
+  const panelContentCache = new Map<string, string>();
 
   const syncTagBubbleColumnIndex = (): void => {
     const bubbleLayoutEntries = bubbleElements
@@ -1692,47 +1683,69 @@ function setupTagCloudInteractions(): (() => void) | null {
     scheduleTagBubbleColumnSync();
   };
 
+  const syncBubbleState = (isPanelOpen: boolean): void => {
+    for (const bubbleElement of bubbleElements) {
+      const isActive = isPanelOpen && bubbleElement === activeBubbleElement;
+      bubbleElement.classList.toggle('is-active', isActive);
+      bubbleElement.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      bubbleElement.setAttribute('aria-expanded', isActive ? 'true' : 'false');
+    }
+  };
+
   const setPanelOpenState = (isOpen: boolean): void => {
     panelElement.hidden = !isOpen;
     panelElement.classList.toggle('is-open', isOpen);
     panelElement.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+    syncBubbleState(isOpen);
   };
 
-  const clearActiveBubbleState = (): void => {
-    if (!activeBubbleElement) {
-      return;
+  const renderTagPanelHtml = (tag: string): string => {
+    const cachedHtml = panelContentCache.get(tag);
+
+    if (cachedHtml !== undefined) {
+      return cachedHtml;
     }
 
-    activeBubbleElement.classList.remove('is-active');
-    activeBubbleElement = null;
+    const nextHtml = renderPostList(getPostsByTag(tag), {
+      emptyHint: TAG_POST_EMPTY_HINT,
+      variant: 'tag-panel'
+    });
+
+    panelContentCache.set(tag, nextHtml);
+    return nextHtml;
   };
 
-  const closePanel = (): void => {
-    clearActiveBubbleState();
+  const closePanel = (options: { returnFocus?: boolean } = {}): void => {
+    const focusTarget = options.returnFocus ? activeBubbleElement : null;
+
+    activeBubbleElement = null;
+    panelTitleElement.textContent = '';
     panelMetaElement.textContent = '';
     panelContentElement.innerHTML = '';
     setPanelOpenState(false);
+
+    if (focusTarget) {
+      focusTarget.focus();
+    }
   };
 
   const openPanel = (bubbleElement: HTMLButtonElement): void => {
     const tag = bubbleElement.dataset.tag ?? '';
     const parsedCount = Number.parseInt(bubbleElement.dataset.count ?? '0', 10);
     const postCount = Number.isFinite(parsedCount) ? Math.max(0, parsedCount) : 0;
-    const templateHtml = templateMap.get(tag) ?? '';
+    const isFirstRender = !panelContentCache.has(tag);
 
     panelTitleElement.textContent = tag ? `#${tag}` : '#(empty)';
     panelMetaElement.textContent = `${postCount} 篇文章`;
-
-    panelContentElement.innerHTML = templateHtml || '<p class="empty-hint">当前标签下暂无已发布文章。</p>';
-
-    if (activeBubbleElement && activeBubbleElement !== bubbleElement) {
-      activeBubbleElement.classList.remove('is-active');
-    }
-
-    bubbleElement.classList.add('is-active');
     activeBubbleElement = bubbleElement;
 
+    if (isFirstRender) {
+      panelElement.setAttribute('aria-busy', 'true');
+    }
+
+    panelContentElement.innerHTML = renderTagPanelHtml(tag);
     setPanelOpenState(true);
+    panelElement.removeAttribute('aria-busy');
 
     if (panelCardMotionFrameId) {
       window.cancelAnimationFrame(panelCardMotionFrameId);
@@ -1759,6 +1772,19 @@ function setupTagCloudInteractions(): (() => void) | null {
     openPanel(bubbleElement);
   };
 
+  const handleCloseButtonClick = (): void => {
+    closePanel({ returnFocus: true });
+  };
+
+  const handleTagPageKeydown = (event: KeyboardEvent): void => {
+    if (event.key !== 'Escape' || !panelElement.classList.contains('is-open')) {
+      return;
+    }
+
+    event.preventDefault();
+    closePanel({ returnFocus: true });
+  };
+
   setPanelOpenState(false);
   scheduleTagBubbleColumnSync();
 
@@ -1776,7 +1802,8 @@ function setupTagCloudInteractions(): (() => void) | null {
     bubbleElement.addEventListener('click', handleBubbleClick);
   }
 
-  closeButtonElement.addEventListener('click', closePanel);
+  closeButtonElement.addEventListener('click', handleCloseButtonClick);
+  tagsPageElement.addEventListener('keydown', handleTagPageKeydown);
 
   return () => {
     if (tagBubbleColumnSyncFrameId) {
@@ -1796,7 +1823,8 @@ function setupTagCloudInteractions(): (() => void) | null {
       bubbleElement.removeEventListener('click', handleBubbleClick);
     }
 
-    closeButtonElement.removeEventListener('click', closePanel);
+    closeButtonElement.removeEventListener('click', handleCloseButtonClick);
+    tagsPageElement.removeEventListener('keydown', handleTagPageKeydown);
   };
 }
 

@@ -70,6 +70,7 @@
 - 决策：前端预留 `GET /api/about -> { markdown: string }` 契约；进入 `/about` 时尝试拉取 API，失败自动回退本地 markdown，并在路由切换时中止请求。
 - 决策：2026-03-26 审计优先级锁定为“视觉一致性优先”，首焦点为标签体系（`tag-list` / `tag-bubble` / `tag-detail-badge`）边框语言统一。
 - 决策：前端样式整改执行顺序锁定为 `normalize -> harden -> optimize`。
+- 决策：`/tags` 展开面板移除预渲染 template，改为运行时按需渲染 `renderPostList(getPostsByTag(tag))` 并做缓存复用。
 
 ## 4) 已踩坑与回归风险（预算 ≤ 40 行）
 
@@ -79,8 +80,8 @@
   - 防护：保持 `frontend/.gitignore` 忽略 `dist/`，必要时清理已追踪产物。
 - 风险：Markdown 原始 HTML 注入导致 XSS。
   - 防护：统一 DOMPurify 清洗，禁止绕过。
-- 风险：`/tags` 展开面板依赖模板注入，缺模板时可能出现空白区。
-  - 防护：交互层对模板缺失走 empty hint 回退，不中断页面逻辑。
+- 风险：`/tags` 展开面板改为运行时按需渲染后，若缓存与 ARIA 状态不同步，可能出现内容/状态错乱。
+  - 防护：`setupTagCloudInteractions` 集中维护 `panelContentCache`、`aria-pressed/aria-expanded`、Esc 关闭与焦点回退。
 - 风险：路由切换时重复绑定标签页事件导致状态错乱。
   - 防护：所有 `/tags` 事件监听都纳入 `setupPageEnhancements` cleanup 生命周期。
 - 风险：1Panel 未配置 `try_files $uri $uri/ /index.html` 会导致二级路由刷新 404。
@@ -106,10 +107,10 @@
 
 ## 5) 当前任务与下一步（预算 ≤ 35 行）
 
-- 当前任务：完成前端综合审计（重点：标签边框/标签云协调性），当前处于“未进入修复”状态。
-- 下一步 1：统一标签体系 token 与边框语言（`tag-list` / `tag-bubble` / `tag-detail-badge`）。
-- 下一步 2：补齐 A11y 基线（target size / aria state / 标题语义 / 焦点回退）。
-- 下一步 3：规划内容解析按需化优化，降低 Markdown eager 全量解析成本。
+- 当前任务：已完成标签体系首轮整改（Normalize/Harden/Optimize），待人工做视觉、键盘流与读屏验收。
+- 下一步 1：人工验收 `/tags` 与 `/tags/:tag` 的 light/dark、hover/focus/active、一键盘流与 Esc 关闭回退。
+- 下一步 2：若继续扩展 A11y 基线，优先推广 44px 命中区与焦点规范到导航区、主题筛选区。
+- 下一步 3：若继续做性能收敛，优先评估 Markdown eager 解析与图标依赖体积。
 
 ## 6) 最近更新记录（预算 ≤ 10 行）
 
@@ -123,6 +124,7 @@
 - 2026-03-22：主题卡片移除“全部主题”，改为筛选后显示“返回全部文章”按钮恢复全量列表。
 - 2026-03-26：重做 `/about`（平铺无卡片、双色叙事、横向+中轴虚线、920px 版心），并完成内容迁移与 API 契约预留（本地 fallback）。
 - 2026-03-26：完成前端样式综合审计（优先视觉一致性），结论 `High 5 / Medium 5 / Low 2`，并锁定标签体系为最高优先级。
+- 2026-03-26：完成标签体系整改：统一 tag token/状态语义、补齐 `/tags` ARIA + Esc/焦点回退，并将标签面板改为按需渲染 + 缓存。
 
 ---
 
