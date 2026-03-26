@@ -21,6 +21,8 @@ let cleanupPageEnhancements: (() => void) | null = null;
 type MotionScopeNode = Document | Element;
 let refreshPostCardMotion: ((scope?: MotionScopeNode) => void) | null = null;
 const HISTORY_STATE_NAV_INDEX_KEY = '__appNavIndex' as const;
+const FIXED_PREVIEW_PALETTE_ID = 'rose_atelier' as const;
+const FIXED_CLARITY_PREVIEW_ID = 'flat_clean' as const;
 type AppHistoryState = Record<string, unknown> & {
   [HISTORY_STATE_NAV_INDEX_KEY]?: number;
 };
@@ -41,6 +43,11 @@ function readHistoryIndex(state: unknown = window.history.state): number | null 
 
   const maybeIndex = (state as AppHistoryState)[HISTORY_STATE_NAV_INDEX_KEY];
   return Number.isInteger(maybeIndex) && maybeIndex !== undefined && maybeIndex >= 0 ? maybeIndex : null;
+}
+
+function applyFixedPreviewState(): void {
+  document.documentElement.setAttribute('data-palette-preview', FIXED_PREVIEW_PALETTE_ID);
+  document.documentElement.setAttribute('data-clarity-preview', FIXED_CLARITY_PREVIEW_ID);
 }
 
 function createHistoryStateWithIndex(index: number, state: unknown = window.history.state): AppHistoryState {
@@ -2165,4 +2172,5 @@ window.addEventListener('popstate', (event) => {
 });
 
 ensureHistoryIndexState();
+applyFixedPreviewState();
 renderApp();
