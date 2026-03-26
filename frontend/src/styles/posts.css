@@ -308,6 +308,10 @@
 .post-list--home .post-card {
   --home-cover-width: clamp(136px, 30%, 210px);
   --home-cover-gap: 0.72rem;
+  --home-card-body-pad-block: 1.05rem;
+  --home-card-body-pad-inline: 1.1rem;
+  --home-date-slot-width: 5.6rem;
+  --home-date-slot-gap: 0.4rem;
 }
 
 .post-card-home-article {
@@ -321,12 +325,45 @@
   position: relative;
   flex: 1 1 auto;
   width: 100%;
-  padding: 1.05rem 1.1rem;
+  padding: var(--home-card-body-pad-block) var(--home-card-body-pad-inline);
   gap: 0.7rem;
+}
+
+.post-card-meta-row {
+  display: block;
+  min-width: 0;
+  margin-top: auto;
+}
+
+.post-card-meta-row .tag-list.tag-list--card {
+  min-width: 0;
+  margin-top: 0;
+}
+
+.post-card-date--home {
+  position: absolute;
+  right: var(--home-card-body-pad-inline);
+  bottom: calc(var(--home-card-body-pad-block) + ((var(--tag-hit-size-compact) - 1lh) / 2));
+  min-width: max-content;
+  text-align: right;
+  z-index: 2;
 }
 
 .post-card--home .post-card-home-article.has-cover .post-card-body {
   width: calc(100% - var(--home-cover-width) - var(--home-cover-gap) - 0.5rem);
+}
+
+.post-card--home .post-card-home-article.has-cover .post-card-date--home {
+  right: calc(var(--home-cover-width) + var(--home-cover-gap) + var(--home-date-slot-gap));
+}
+
+.post-card--home .post-card-home-article.has-cover .post-card-meta-row .tag-list.tag-list--card {
+  max-width: calc(100% - var(--home-date-slot-width) - var(--home-date-slot-gap));
+  padding-right: var(--home-date-slot-gap);
+}
+
+.post-card--home .post-card-home-article.has-cover .post-card-label-item--hide-on-home-cover {
+  display: none;
 }
 
 .post-card-home-cover {
@@ -1500,6 +1537,10 @@
   .post-list--home .post-card {
     --home-cover-width: clamp(88px, 33vw, 126px);
     --home-cover-gap: 0.56rem;
+    --home-card-body-pad-block: 0.86rem;
+    --home-card-body-pad-inline: 0.9rem;
+    --home-date-slot-width: 5rem;
+    --home-date-slot-gap: 0.32rem;
   }
 
   .post-card--home .post-card-article {
@@ -1507,7 +1548,6 @@
   }
 
   .post-card--home .post-card-body {
-    padding: 0.86rem 0.9rem;
     gap: 0.55rem;
   }
 

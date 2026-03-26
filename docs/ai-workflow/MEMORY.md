@@ -111,9 +111,9 @@
 
 ## 5) 当前任务与下一步（预算 ≤ 35 行）
 
-- 当前任务：已完成全局样式分层重构（`global.css` manifest + `tokens/base/layout/content/posts/motion`）与 `dom-style.ts` 样式 helper 收口。
-- 下一步 1：人工回归 `/`、`/about`、`/posts`、`/posts/:slug`、`/tags`、`/tags/:tag`、`/archive`、`/friends` 的 light/dark 与断点表现。
-- 下一步 2：重点验收 nav、tag、theme rail、TOC、floating scroll-top、profile sticky 的 hover/focus/active/reduced-motion。
+- 当前任务：已完成首页文章卡片日期改造——有封面时位于卡片内部、封面左侧的窄槽，无封面时回退到内容区右侧；首页有封面卡片固定隐藏最后一个候选标签。
+- 下一步 1：人工回归首页 5 张最新文章卡片，重点看有图/无图、标签数不同、封面加载成功/失败切换时的日期位置与标签隐藏。
+- 下一步 2：继续验收 `/`、`/about`、`/posts`、`/posts/:slug`、`/tags`、`/tags/:tag`、`/archive`、`/friends` 的 light/dark 与断点表现。
 - 下一步 3：后续若继续做样式抽取，优先从 card shell / control shell recipe 继续收敛，而不是新增更多全局 token。
 
 ## 6) 最近更新记录（预算 ≤ 10 行）
@@ -130,6 +130,7 @@
 - 2026-03-26：完成前端样式综合审计（优先视觉一致性），结论 `High 5 / Medium 5 / Low 2`，并锁定标签体系为最高优先级。
 - 2026-03-26：完成标签体系整改：统一 tag token/状态语义、补齐 `/tags` ARIA + Esc/焦点回退，并将标签面板改为按需渲染 + 缓存。
 - 2026-03-26：将 `global.css` 重构为 manifest，并拆分 `tokens/base/layout/content/posts/motion` 六层；新增 `utils/dom-style.ts` 统一运行时 CSS 变量读写。
+- 2026-03-26：首页最新文章卡片日期改为有封面时位于卡片内部、封面左侧， 无封面时回退到内容区右侧；有封面且标签数 > 1 时固定隐藏最后一个候选标签。
 
 ---
 
