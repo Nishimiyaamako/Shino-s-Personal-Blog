@@ -121,7 +121,7 @@ export function renderPostList(posts: PostSummary[], options: RenderPostListOpti
           ${visibleLabelItems
               .map((item) =>
                 item.kind === 'theme'
-                  ? `<li><a class="tag-chip tag-chip--theme" href="/posts${item.themeKey ? `?theme=${encodeURIComponent(item.themeKey)}` : ''}" data-link${item.themeKey ? ` data-theme-key="${escapeHtml(item.themeKey)}"` : ''} aria-label="查看主题分类：${escapeHtml(item.label)}">${escapeHtml(item.label)}</a></li>`
+                  ? `<li data-role="post-theme-label-item"${item.themeKey ? ` data-theme-key="${escapeHtml(item.themeKey)}"` : ''}><a class="tag-chip tag-chip--theme" href="/posts${item.themeKey ? `?theme=${encodeURIComponent(item.themeKey)}` : ''}" data-link${item.themeKey ? ` data-theme-key="${escapeHtml(item.themeKey)}"` : ''} aria-label="查看主题分类：${escapeHtml(item.label)}">${escapeHtml(item.label)}</a></li>`
                   : `<li><a href="/tags/${item.label}" data-link>#${escapeHtml(item.label)}</a></li>`
               )
               .join('')}
@@ -153,7 +153,7 @@ export function renderPostList(posts: PostSummary[], options: RenderPostListOpti
         ${visibleLabelItems
             .map((item) =>
               item.kind === 'theme'
-                ? `<li><a class="tag-chip tag-chip--theme" href="/posts${item.themeKey ? `?theme=${encodeURIComponent(item.themeKey)}` : ''}" data-link${item.themeKey ? ` data-theme-key="${escapeHtml(item.themeKey)}"` : ''} aria-label="查看主题分类：${escapeHtml(item.label)}">${escapeHtml(item.label)}</a></li>`
+                ? `<li data-role="post-theme-label-item"${item.themeKey ? ` data-theme-key="${escapeHtml(item.themeKey)}"` : ''}><a class="tag-chip tag-chip--theme" href="/posts${item.themeKey ? `?theme=${encodeURIComponent(item.themeKey)}` : ''}" data-link${item.themeKey ? ` data-theme-key="${escapeHtml(item.themeKey)}"` : ''} aria-label="查看主题分类：${escapeHtml(item.label)}">${escapeHtml(item.label)}</a></li>`
                 : `<li><a href="/tags/${item.label}" data-link>#${escapeHtml(item.label)}</a></li>`
             )
             .join('')}

@@ -1971,7 +1971,13 @@ function setupPostThemeFilter(): (() => void) | null {
     for (const postItemElement of postItems) {
       const postThemeKey = (postItemElement.dataset.postThemeKey ?? '').trim();
       const shouldShow = !activeThemeKey || postThemeKey === activeThemeKey;
+      const themeLabelItemElement = postItemElement.querySelector<HTMLElement>('[data-role="post-theme-label-item"]');
+      const themeLabelThemeKey = (themeLabelItemElement?.dataset.themeKey ?? '').trim();
       postItemElement.hidden = !shouldShow;
+
+      if (themeLabelItemElement) {
+        themeLabelItemElement.hidden = Boolean(activeThemeKey) && themeLabelThemeKey === activeThemeKey;
+      }
 
       if (shouldShow) {
         visiblePostCount += 1;
@@ -2017,6 +2023,10 @@ function setupPostThemeFilter(): (() => void) | null {
 
     for (const postItemElement of postItems) {
       postItemElement.hidden = false;
+      const themeLabelItemElement = postItemElement.querySelector<HTMLElement>('[data-role="post-theme-label-item"]');
+      if (themeLabelItemElement) {
+        themeLabelItemElement.hidden = false;
+      }
     }
 
     resetButtonElement.hidden = true;

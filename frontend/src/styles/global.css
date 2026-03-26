@@ -1713,6 +1713,10 @@ a:hover {
   max-width: 100%;
 }
 
+.tag-list.tag-list--card li[hidden] {
+  display: none;
+}
+
 .tag-list.tag-list--card a,
 .tag-list.tag-list--card .tag-chip {
   min-width: 0;
