@@ -1,0 +1,247 @@
+/* Token layer: palette, semantic aliases, material, layout, motion, theme overrides */
+
+:root {
+  color-scheme: light dark;
+
+  /* 全局基础配色（OKLCH） */
+  --p-brand-500: oklch(66% 0.19 358);
+  --p-brand-700: oklch(49% 0.19 357);
+  --p-accent-500: oklch(68% 0.11 317);
+  --p-neutral-50: oklch(97% 0.012 335);
+
+  /* 兼容现有语义命名，避免大面积重构 */
+  --rose-500: var(--p-brand-500);
+  --rose-700: var(--p-brand-700);
+  --cyan-500: var(--p-accent-500);
+  --ivory-50: var(--p-neutral-50);
+
+  --brand: var(--rose-500);
+  --brand-soft: color-mix(in oklch, var(--rose-500) 26%, var(--ivory-50));
+  --accent-berry: var(--rose-700);
+  --accent-secondary: var(--cyan-500);
+  --accent-secondary-soft: color-mix(in oklch, var(--accent-secondary) 24%, var(--ivory-50));
+  --ink-dark: color-mix(in oklch, var(--rose-700) 80%, var(--accent-secondary));
+  --neutral-metal: color-mix(in oklch, var(--rose-700) 24%, var(--ivory-50));
+
+  /* 材质层（定稿：flat_clean） */
+  --material-surface-solid: 96%;
+  --material-surface-elevated-solid: 98%;
+  --material-surface-soft-solid: 95%;
+  --material-surface-dark-solid: 84%;
+  --material-surface-dark-elevated-solid: 90%;
+  --material-surface-dark-soft-solid: 82%;
+  --material-shadow-alpha: 8%;
+  --material-shadow-strong-alpha: 12%;
+  --material-shadow-alpha-dark: 32%;
+  --material-shadow-strong-alpha-dark: 42%;
+  --material-header-backdrop: none;
+  --material-card-backdrop: none;
+  --material-decor-line-opacity: 0.08;
+  --material-decor-shape-opacity: 0.1;
+  --material-post-cover-overlay-opacity: 0.34;
+  --material-post-cover-overlay-hover-opacity: 0.46;
+  --material-post-cover-bottom-opacity: 0.2;
+  --material-post-cover-bottom-hover-opacity: 0.3;
+
+  --bg: #fff;
+  --surface: color-mix(in oklch, var(--ivory-50) var(--material-surface-solid), transparent);
+  --surface-elevated: color-mix(in oklch, var(--ivory-50) var(--material-surface-elevated-solid), transparent);
+  --surface-soft: color-mix(in oklch, var(--ivory-50) var(--material-surface-soft-solid), var(--accent-secondary-soft));
+  --text: color-mix(in oklch, oklch(24% 0.028 338) 72%, var(--rose-700));
+  --text-subtle: color-mix(in oklch, var(--text) 72%, var(--ivory-50));
+  --border: color-mix(in oklch, var(--rose-500) 24%, var(--ivory-50));
+  --border-strong: color-mix(in oklch, var(--rose-700) 34%, var(--accent-secondary));
+  --tag-radius: var(--radius-sm);
+  --tag-border-width: 1px;
+  --tag-hit-size: 40px;
+  --tag-hit-size-compact: 34px;
+  --tag-pad-inline: 0.72rem;
+  --tag-surface: color-mix(in srgb, var(--brand-soft) 58%, var(--surface));
+  --tag-surface-quiet: color-mix(in srgb, var(--surface) 88%, var(--brand-soft));
+  --tag-border-color: color-mix(in srgb, var(--accent-berry) 34%, var(--border));
+  --tag-text-color: color-mix(in srgb, var(--accent-berry) 78%, var(--text));
+  --tag-hover-surface: color-mix(in srgb, var(--brand-soft) 72%, var(--surface));
+  --tag-hover-border-color: color-mix(in srgb, var(--accent-secondary) 30%, var(--accent-berry));
+  --tag-hover-text-color: color-mix(in srgb, var(--accent-berry) 88%, var(--text));
+  --tag-active-surface: color-mix(in srgb, var(--brand) 60%, var(--surface));
+  --tag-active-border-color: color-mix(in srgb, var(--accent-secondary) 38%, var(--accent-berry));
+  --tag-active-text-color: var(--surface);
+  --tag-focus-ring: color-mix(in srgb, var(--brand-soft) 64%, var(--brand));
+  --tag-count-surface: color-mix(in srgb, var(--surface) 82%, var(--brand-soft));
+
+  --accent-bubble-soft: color-mix(in oklch, var(--brand-soft) 62%, var(--surface-soft));
+  --accent-mauve-soft: color-mix(in oklch, var(--neutral-metal) 28%, var(--surface-soft));
+  --accent-berry-soft: color-mix(in oklch, var(--rose-500) 18%, var(--surface-soft));
+  --shadow: 0 10px 24px color-mix(in oklch, var(--rose-700) var(--material-shadow-alpha), transparent);
+  --shadow-strong: 0 14px 32px color-mix(in oklch, var(--rose-700) var(--material-shadow-strong-alpha), transparent);
+  --card-radius-main: 16px;
+  --card-radius-compact: 12px;
+  --card-surface-main: var(--bg);
+  --card-shadow-cool:
+    -1px 1px 0 color-mix(in oklch, var(--accent-secondary) 15%, transparent),
+    -8px 8px 16px color-mix(in oklch, var(--accent-secondary) 11%, transparent);
+  --card-shadow-cool-hover:
+    -2px 2px 0 color-mix(in oklch, var(--accent-secondary) 18%, transparent),
+    -10px 10px 20px color-mix(in oklch, var(--accent-secondary) 15%, transparent);
+  --card-shadow-warm:
+    -1px 1px 0 color-mix(in oklch, var(--brand) 15%, transparent),
+    -8px 8px 16px color-mix(in oklch, var(--accent-berry) 11%, transparent);
+  --card-shadow-warm-hover:
+    -2px 2px 0 color-mix(in oklch, var(--brand) 18%, transparent),
+    -10px 10px 20px color-mix(in oklch, var(--accent-berry) 15%, transparent);
+
+  --decor-edge-offset: clamp(10px, 2vw, 24px);
+  --decor-line-thickness: 2px;
+  --decor-dash-length: 11px;
+  --decor-dash-gap: 14px;
+  --decor-line-opacity: var(--material-decor-line-opacity);
+  --decor-shape-opacity: var(--material-decor-shape-opacity);
+  --decor-dash-duration: 34s;
+  --decor-shape-duration: 48s;
+  --decor-dash-primary: color-mix(in oklch, var(--rose-500) 58%, transparent);
+  --decor-dash-secondary: color-mix(in oklch, var(--cyan-500) 56%, transparent);
+  --decor-dot: color-mix(in oklch, var(--cyan-500) 36%, transparent);
+  --decor-rose-halo: color-mix(in oklch, var(--rose-500) 26%, transparent);
+  --decor-rose-halo-soft: color-mix(in oklch, var(--rose-700) 16%, transparent);
+  --decor-cyan-halo: color-mix(in oklch, var(--cyan-500) 24%, transparent);
+  --decor-cyan-halo-soft: color-mix(in oklch, var(--cyan-500) 14%, transparent);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+
+  --font-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    sans-serif;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+
+  --profile-sticky-top: 96px;
+  --layout-narrow: min(760px, calc(100% - 2rem));
+  --layout-wide: min(1280px, calc(100% - 2rem));
+  --content-width: var(--layout-narrow);
+  --profile-width: clamp(204px, 18vw, 240px);
+  --header-left-col: calc((var(--layout-wide) - var(--content-width)) / 2);
+
+  --motion-duration-feedback: 140ms;
+  --motion-duration-state: 240ms;
+  --motion-duration-enter: 460ms;
+  --motion-duration-enter-home: 520ms;
+  --motion-duration-profile-edge-enter: 820ms;
+  --motion-duration-route-enter: 220ms;
+  --motion-stagger-step: 56ms;
+  --motion-stagger-step-home: 72ms;
+  --motion-stagger-step-card: 104ms;
+
+  --motion-ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --motion-ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --motion-distance-enter: 14px;
+  --motion-home-left-distance: 28px;
+  --motion-profile-edge-distance: 108vw;
+  --motion-distance-route: 8px;
+  --motion-distance-hover: 2px;
+  --motion-transition-feedback: var(--motion-duration-feedback) var(--motion-ease-out-quart);
+  --motion-transition-state: var(--motion-duration-state) var(--motion-ease-out-quart);
+  --focus-ring-outline-soft: 2px solid color-mix(in srgb, var(--brand-soft) 68%, var(--brand));
+  --focus-ring-outline-strong: 2px solid var(--brand);
+  --control-surface-soft: color-mix(in srgb, var(--surface-soft) 82%, var(--brand-soft));
+  --control-shadow-hover: 0 6px 14px color-mix(in srgb, var(--accent-berry) 18%, transparent);
+}
+
+html[data-palette-preview='rose_atelier'] {
+  --p-brand-500: oklch(66% 0.19 358);
+  --p-brand-700: oklch(49% 0.19 357);
+  --p-accent-500: oklch(68% 0.11 317);
+  --p-neutral-50: oklch(97% 0.012 335);
+}
+
+html[data-clarity-preview='flat_clean'] {
+  --bg: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  html[data-palette-preview='rose_atelier'] {
+    --p-brand-500: oklch(74% 0.145 357);
+    --p-brand-700: oklch(59% 0.14 355);
+    --p-accent-500: oklch(77% 0.085 314);
+  }
+
+  :root {
+    --bg: color-mix(in oklch, oklch(16% 0.02 320) 70%, var(--rose-700));
+    --surface: color-mix(in oklch, var(--rose-700) var(--material-surface-dark-solid), transparent);
+    --surface-elevated: color-mix(in oklch, var(--rose-700) var(--material-surface-dark-elevated-solid), transparent);
+    --surface-soft: color-mix(in oklch, var(--rose-700) var(--material-surface-dark-soft-solid), var(--accent-secondary));
+    --text: color-mix(in oklch, var(--ivory-50) 92%, var(--accent-secondary));
+    --text-subtle: color-mix(in oklch, var(--ivory-50) 66%, var(--rose-500));
+    --brand-soft: color-mix(in oklch, var(--rose-500) 34%, transparent);
+    --accent-berry: color-mix(in oklch, var(--rose-500) 84%, var(--ivory-50));
+    --accent-secondary-soft: color-mix(in oklch, var(--accent-secondary) 30%, transparent);
+    --border: color-mix(in oklch, var(--rose-500) 34%, transparent);
+    --border-strong: color-mix(in oklch, var(--accent-secondary) 42%, var(--rose-500));
+    --accent-bubble-soft: color-mix(in oklch, var(--brand-soft) 66%, var(--surface-soft));
+    --accent-mauve-soft: color-mix(in oklch, var(--neutral-metal) 34%, var(--surface-soft));
+    --accent-berry-soft: color-mix(in oklch, var(--accent-berry) 24%, var(--surface-soft));
+    --shadow: 0 14px 30px color-mix(in oklch, var(--rose-700) var(--material-shadow-alpha-dark), transparent);
+    --shadow-strong: 0 16px 38px color-mix(in oklch, var(--rose-700) var(--material-shadow-strong-alpha-dark), transparent);
+    --card-surface-main: color-mix(in oklch, var(--surface-elevated) 90%, var(--surface-soft));
+    --card-shadow-cool:
+      0 0 0 1px color-mix(in oklch, var(--accent-secondary) 14%, transparent),
+      -2px 2px 0 color-mix(in oklch, var(--accent-secondary) 18%, transparent),
+      -9px 9px 18px color-mix(in oklch, var(--accent-secondary) 14%, transparent);
+    --card-shadow-cool-hover:
+      0 0 0 1px color-mix(in oklch, var(--accent-secondary) 18%, transparent),
+      -3px 3px 0 color-mix(in oklch, var(--accent-secondary) 22%, transparent),
+      -12px 12px 22px color-mix(in oklch, var(--accent-secondary) 18%, transparent);
+    --card-shadow-warm:
+      0 0 0 1px color-mix(in oklch, var(--brand) 14%, transparent),
+      -2px 2px 0 color-mix(in oklch, var(--brand) 18%, transparent),
+      -9px 9px 18px color-mix(in oklch, var(--accent-berry) 14%, transparent);
+    --card-shadow-warm-hover:
+      0 0 0 1px color-mix(in oklch, var(--brand) 18%, transparent),
+      -3px 3px 0 color-mix(in oklch, var(--brand) 22%, transparent),
+      -12px 12px 22px color-mix(in oklch, var(--accent-berry) 18%, transparent);
+
+    --decor-line-opacity: calc(var(--material-decor-line-opacity) * 1.08);
+    --decor-shape-opacity: calc(var(--material-decor-shape-opacity) * 1.12);
+    --decor-dash-primary: color-mix(in oklch, var(--rose-500) 54%, transparent);
+    --decor-dash-secondary: color-mix(in oklch, var(--accent-secondary) 50%, transparent);
+    --decor-dot: color-mix(in oklch, var(--accent-secondary) 42%, transparent);
+    --decor-rose-halo: color-mix(in oklch, var(--rose-500) 20%, transparent);
+    --decor-rose-halo-soft: color-mix(in oklch, var(--rose-700) 14%, transparent);
+    --decor-cyan-halo: color-mix(in oklch, var(--accent-secondary) 18%, transparent);
+    --decor-cyan-halo-soft: color-mix(in oklch, var(--accent-secondary) 12%, transparent);
+  }
+}
+
+@media (max-width: 960px) {
+  :root {
+    --motion-distance-enter: 12px;
+    --motion-home-left-distance: 24px;
+    --motion-distance-route: 7px;
+    --motion-stagger-step: 48ms;
+    --motion-stagger-step-home: 64ms;
+    --motion-stagger-step-card: 96ms;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --motion-distance-enter: 10px;
+    --motion-home-left-distance: 20px;
+    --motion-distance-route: 6px;
+    --motion-stagger-step: 42ms;
+    --motion-stagger-step-home: 56ms;
+    --motion-stagger-step-card: 90ms;
+    --decor-edge-offset: 10px;
+    --decor-line-thickness: 1.5px;
+    --decor-dash-length: 8px;
+    --decor-dash-gap: 18px;
+    --decor-line-opacity: calc(var(--material-decor-line-opacity) * 0.76);
+    --decor-shape-opacity: calc(var(--material-decor-shape-opacity) * 0.76);
+  }
+}

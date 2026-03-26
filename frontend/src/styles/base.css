@@ -1,0 +1,102 @@
+/* Base layer: reset, typography, links, shell backdrop */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-base);
+  line-height: 1.65;
+  background: var(--bg);
+  color: var(--text);
+  position: relative;
+  overflow-x: clip;
+}
+
+a {
+  color: var(--brand);
+  text-decoration: none;
+  transition: color var(--motion-transition-feedback);
+}
+
+a:hover {
+  color: color-mix(in oklch, var(--accent-berry) 76%, var(--brand));
+  text-decoration: underline;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+}
+
+.skip-link:focus-visible {
+  left: var(--space-4);
+  z-index: 100;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  position: relative;
+  isolation: isolate;
+}
+
+.app-shell>* {
+  position: relative;
+  z-index: 2;
+}
+
+.app-shell::before,
+.app-shell::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+.app-shell::before {
+  z-index: 0;
+  opacity: var(--decor-shape-opacity);
+  background:
+    radial-gradient(circle at 8% 14%, var(--decor-rose-halo) 0 10rem, transparent 10.5rem),
+    radial-gradient(circle at 88% 20%, var(--decor-cyan-halo) 0 7.8rem, transparent 8.2rem),
+    radial-gradient(circle at 84% 82%, var(--decor-rose-halo-soft) 0 9rem, transparent 9.4rem),
+    radial-gradient(circle at 18% 78%, var(--decor-cyan-halo-soft) 0 7.4rem, transparent 7.8rem);
+  animation: bg-shape-drift var(--decor-shape-duration) var(--motion-ease-out-quint) infinite alternate;
+}
+
+.app-shell::after {
+  z-index: 1;
+  opacity: var(--decor-line-opacity);
+  background:
+    repeating-linear-gradient(90deg,
+      var(--decor-dash-primary) 0 var(--decor-dash-length),
+      transparent var(--decor-dash-length) calc(var(--decor-dash-length) + var(--decor-dash-gap))) left var(--decor-edge-offset) top var(--decor-edge-offset) / calc(100% - (var(--decor-edge-offset) * 2)) var(--decor-line-thickness) no-repeat,
+    repeating-linear-gradient(90deg,
+      var(--decor-dash-secondary) 0 var(--decor-dash-length),
+      transparent var(--decor-dash-length) calc(var(--decor-dash-length) + var(--decor-dash-gap))) left var(--decor-edge-offset) bottom var(--decor-edge-offset) / calc(100% - (var(--decor-edge-offset) * 2)) var(--decor-line-thickness) no-repeat,
+    repeating-linear-gradient(180deg,
+      var(--decor-dash-secondary) 0 var(--decor-dash-length),
+      transparent var(--decor-dash-length) calc(var(--decor-dash-length) + var(--decor-dash-gap))) left var(--decor-edge-offset) top var(--decor-edge-offset) / var(--decor-line-thickness) calc(100% - (var(--decor-edge-offset) * 2)) no-repeat,
+    repeating-linear-gradient(180deg,
+      var(--decor-dash-primary) 0 var(--decor-dash-length),
+      transparent var(--decor-dash-length) calc(var(--decor-dash-length) + var(--decor-dash-gap))) right var(--decor-edge-offset) top var(--decor-edge-offset) / var(--decor-line-thickness) calc(100% - (var(--decor-edge-offset) * 2)) no-repeat,
+    radial-gradient(circle at 15% 24%, var(--decor-dot) 0 2px, transparent 2.4px),
+    radial-gradient(circle at 76% 36%, var(--decor-dot) 0 1.7px, transparent 2.2px),
+    radial-gradient(circle at 30% 82%, var(--decor-dot) 0 1.8px, transparent 2.3px),
+    radial-gradient(circle at 90% 72%, color-mix(in oklch, var(--decor-dot) 64%, transparent) 0 1.5px, transparent 2px);
+  animation: bg-dash-drift var(--decor-dash-duration) linear infinite;
+}

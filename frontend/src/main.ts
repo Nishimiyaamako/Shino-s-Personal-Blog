@@ -7,6 +7,7 @@ import { fetchAboutViewModel } from './data/about';
 import { getPostsByTag, getThemeStats } from './data/posts';
 import { renderAboutPageBody } from './pages/about';
 import { PRIMARY_NAV_LINKS, resolveRoute, type PrimaryNavIcon } from './router';
+import { clearCssVar, readCssLengthPx, setCssPxVar, setCssVar } from './utils/dom-style';
 import { escapeHtml } from './utils/escape-html';
 import { normalizeThemeKey } from './utils/theme';
 
@@ -621,7 +622,7 @@ function setupRouteEnterTransition(): (() => void) | null {
 
   for (const [index, targetElement] of routeEnterTargets.entries()) {
     targetElement.classList.add('route-enter-target');
-    targetElement.style.setProperty('--route-enter-delay', `${index * 24}ms`);
+    setCssVar(targetElement, '--route-enter-delay', `${index * 24}ms`);
   }
 
   const frameId = window.requestAnimationFrame(() => {
@@ -685,7 +686,7 @@ function setupSidePanelLeftPopMotion(): (() => void) | null {
 
   for (const [index, targetElement] of orderedTargets.entries()) {
     targetElement.classList.add('motion-left-pop-item');
-    targetElement.style.setProperty('--motion-index', String(index));
+    setCssVar(targetElement, '--motion-index', String(index));
   }
 
   let revealFrameId = window.requestAnimationFrame(() => {
@@ -899,7 +900,7 @@ function setupPostCardRiseMotion(): (() => void) | null {
       for (const [index, cardElement] of orderedCardsInList.entries()) {
         cardElement.classList.add('motion-card-rise');
         cardElement.classList.toggle('motion-card-rise--home', isHomeList);
-        cardElement.style.setProperty('--motion-index', String(Math.min(index, POST_CARD_STAGGER_CAP)));
+        setCssVar(cardElement, '--motion-index', String(Math.min(index, POST_CARD_STAGGER_CAP)));
         cardOrderMap.set(cardElement, globalOrder);
         orderedCards.push(cardElement);
         globalOrder += 1;
@@ -1016,7 +1017,7 @@ function setupGlobalMotionChoreography(): (() => void) | null {
 
   for (const [index, targetElement] of staggerTargets.entries()) {
     targetElement.classList.add('motion-stagger-item');
-    targetElement.style.setProperty('--motion-index', String(index));
+    setCssVar(targetElement, '--motion-index', String(index));
   }
 
   let revealStaggerFrameId = window.requestAnimationFrame(() => {
@@ -1031,7 +1032,7 @@ function setupGlobalMotionChoreography(): (() => void) | null {
 
   for (const [index, targetElement] of observeTargets.entries()) {
     targetElement.classList.add('motion-observe-item');
-    targetElement.style.setProperty('--motion-index', String(index % 8));
+    setCssVar(targetElement, '--motion-index', String(index % 8));
   }
 
   const revealObservedImmediately = (): void => {
@@ -1201,42 +1202,25 @@ function setupScrollTopButton(): (() => void) | null {
       const contentRect = pageContentElement.getBoundingClientRect();
       const rightBlankWidth = Math.max(0, viewportWidth - contentRect.right);
       const targetRight = Math.max(MIN_FLOATING_RIGHT, rightBlankWidth / 2);
-      scrollTopButtonWrapElement.style.setProperty('--floating-scroll-right', `${Math.round(targetRight)}px`);
+      setCssPxVar(scrollTopButtonWrapElement, '--floating-scroll-right', targetRight);
     } else {
-      scrollTopButtonWrapElement.style.removeProperty('--floating-scroll-right');
+      clearCssVar(scrollTopButtonWrapElement, '--floating-scroll-right');
     }
 
     if (!isDesktop || !footerElement) {
-      scrollTopButtonWrapElement.style.removeProperty('--floating-scroll-footer-offset');
+      clearCssVar(scrollTopButtonWrapElement, '--floating-scroll-footer-offset');
       return;
     }
 
     const wrapStyle = getComputedStyle(scrollTopButtonWrapElement);
     const rootFontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-    const floatingBottomRaw = wrapStyle.getPropertyValue('--floating-scroll-bottom').trim();
-    const floatingFooterGapRaw = wrapStyle.getPropertyValue('--floating-scroll-footer-gap').trim();
-
-    const parseCssSizeToPx = (value: string, fallback: number): number => {
-      if (!value) {
-        return fallback;
-      }
-
-      if (value.endsWith('rem')) {
-        const remValue = Number.parseFloat(value);
-        return Number.isFinite(remValue) ? remValue * rootFontSize : fallback;
-      }
-
-      const parsedValue = Number.parseFloat(value);
-      return Number.isFinite(parsedValue) ? parsedValue : fallback;
-    };
-
-    const baseBottom = parseCssSizeToPx(floatingBottomRaw, 2 * rootFontSize);
-    const footerGap = parseCssSizeToPx(floatingFooterGapRaw, 8);
+    const baseBottom = readCssLengthPx(wrapStyle, '--floating-scroll-bottom', 2 * rootFontSize, rootFontSize);
+    const footerGap = readCssLengthPx(wrapStyle, '--floating-scroll-footer-gap', 8, rootFontSize);
     const footerRect = footerElement.getBoundingClientRect();
     const requiredBottom = window.innerHeight - footerRect.top + footerGap;
     const footerOffset = Math.max(0, requiredBottom - baseBottom);
 
-    scrollTopButtonWrapElement.style.setProperty('--floating-scroll-footer-offset', `${Math.round(footerOffset)}px`);
+    setCssPxVar(scrollTopButtonWrapElement, '--floating-scroll-footer-offset', footerOffset);
   };
 
   const syncButtonState = (): void => {
@@ -1354,7 +1338,7 @@ function setupPostDetailToc(): (() => void) | null {
 
     const listItemElement = document.createElement('li');
     listItemElement.className = 'post-toc-item';
-    listItemElement.style.setProperty('--post-toc-indent', String(Math.max(0, level - 1)));
+    setCssVar(listItemElement, '--post-toc-indent', String(Math.max(0, level - 1)));
 
     const linkElement = document.createElement('a');
     linkElement.className = 'post-toc-link';
@@ -1386,7 +1370,7 @@ function setupPostDetailToc(): (() => void) | null {
     tocHeadingMap.set(tocHeadingItem.id, tocHeadingItem);
   }
 
-  tocListElement.style.setProperty('--post-toc-progress-height', '0px');
+  setCssPxVar(tocListElement, '--post-toc-progress-height', 0);
 
   let activeHeadingId = '';
 
@@ -1394,13 +1378,13 @@ function setupPostDetailToc(): (() => void) | null {
     const activeHeadingItem = (activeHeadingId ? tocHeadingMap.get(activeHeadingId) : undefined) ?? tocHeadingItems[0];
 
     if (!activeHeadingItem) {
-      tocListElement.style.setProperty('--post-toc-progress-height', '0px');
+      setCssPxVar(tocListElement, '--post-toc-progress-height', 0);
       return;
     }
 
     const lastHeadingItem = tocHeadingItems[tocHeadingItems.length - 1];
     if (lastHeadingItem && activeHeadingItem.id === lastHeadingItem.id) {
-      tocListElement.style.setProperty('--post-toc-progress-height', `${Math.round(tocListElement.scrollHeight)}px`);
+      setCssPxVar(tocListElement, '--post-toc-progress-height', tocListElement.scrollHeight);
       return;
     }
 
@@ -1411,7 +1395,7 @@ function setupPostDetailToc(): (() => void) | null {
       Math.max(0, activeItemRect.top - listRect.top + activeItemRect.height / 2)
     );
 
-    tocListElement.style.setProperty('--post-toc-progress-height', `${Math.round(progressHeight)}px`);
+    setCssPxVar(tocListElement, '--post-toc-progress-height', progressHeight);
   };
 
   const setActiveHeading = (nextActiveId: string): void => {
@@ -1666,7 +1650,7 @@ function setupTagCloudInteractions(): (() => void) | null {
         columnAnchorList[matchedColumnIndex] = (columnAnchorList[matchedColumnIndex] + left) / 2;
       }
 
-      bubbleElement.style.setProperty('--tag-col-index', String(matchedColumnIndex));
+      setCssVar(bubbleElement, '--tag-col-index', String(matchedColumnIndex));
     }
   };
 

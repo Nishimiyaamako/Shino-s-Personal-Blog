@@ -71,6 +71,8 @@
 - 决策：2026-03-26 审计优先级锁定为“视觉一致性优先”，首焦点为标签体系（`tag-list` / `tag-bubble` / `tag-detail-badge`）边框语言统一。
 - 决策：前端样式整改执行顺序锁定为 `normalize -> harden -> optimize`。
 - 决策：`/tags` 展开面板移除预渲染 template，改为运行时按需渲染 `renderPostList(getPostsByTag(tag))` 并做缓存复用。
+- 决策：`frontend/src/styles/global.css` 改为样式 manifest，按 `tokens -> base -> layout -> content -> posts -> motion` 顺序聚合子文件。
+- 决策：运行时 CSS 自定义属性读写统一走 `frontend/src/utils/dom-style.ts`，只抽样式 plumbing，不抽象动效算法本身。
 
 ## 4) 已踩坑与回归风险（预算 ≤ 40 行）
 
@@ -104,13 +106,15 @@
   - 防护：修复阶段补齐 `aria-pressed/aria-expanded/aria-controls` 与焦点回退策略并做键盘流检查。
 - 风险：Markdown eager 全量解析在内容增长后会放大首屏性能压力。
   - 防护：规划 summary/detail 分层与按需解析策略，避免列表页承担正文解析成本。
+- 风险：样式拆分后若导入顺序或归属判断错误，容易出现跨文件 cascade 回归。
+  - 防护：固定 `global.css` manifest 顺序，并在 `frontend/src/styles/README.md` 记录文件职责与 token/recipe 使用边界。
 
 ## 5) 当前任务与下一步（预算 ≤ 35 行）
 
-- 当前任务：已完成标签体系首轮整改（Normalize/Harden/Optimize），待人工做视觉、键盘流与读屏验收。
-- 下一步 1：人工验收 `/tags` 与 `/tags/:tag` 的 light/dark、hover/focus/active、一键盘流与 Esc 关闭回退。
-- 下一步 2：若继续扩展 A11y 基线，优先推广 44px 命中区与焦点规范到导航区、主题筛选区。
-- 下一步 3：若继续做性能收敛，优先评估 Markdown eager 解析与图标依赖体积。
+- 当前任务：已完成全局样式分层重构（`global.css` manifest + `tokens/base/layout/content/posts/motion`）与 `dom-style.ts` 样式 helper 收口。
+- 下一步 1：人工回归 `/`、`/about`、`/posts`、`/posts/:slug`、`/tags`、`/tags/:tag`、`/archive`、`/friends` 的 light/dark 与断点表现。
+- 下一步 2：重点验收 nav、tag、theme rail、TOC、floating scroll-top、profile sticky 的 hover/focus/active/reduced-motion。
+- 下一步 3：后续若继续做样式抽取，优先从 card shell / control shell recipe 继续收敛，而不是新增更多全局 token。
 
 ## 6) 最近更新记录（预算 ≤ 10 行）
 
@@ -125,6 +129,7 @@
 - 2026-03-26：重做 `/about`（平铺无卡片、双色叙事、横向+中轴虚线、920px 版心），并完成内容迁移与 API 契约预留（本地 fallback）。
 - 2026-03-26：完成前端样式综合审计（优先视觉一致性），结论 `High 5 / Medium 5 / Low 2`，并锁定标签体系为最高优先级。
 - 2026-03-26：完成标签体系整改：统一 tag token/状态语义、补齐 `/tags` ARIA + Esc/焦点回退，并将标签面板改为按需渲染 + 缓存。
+- 2026-03-26：将 `global.css` 重构为 manifest，并拆分 `tokens/base/layout/content/posts/motion` 六层；新增 `utils/dom-style.ts` 统一运行时 CSS 变量读写。
 
 ---
 
