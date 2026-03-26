@@ -877,8 +877,7 @@ a:hover {
   padding: var(--space-3);
   border-radius: var(--radius-sm);
   border: 0;
-  background: color-mix(in srgb, var(--surface-soft) 78%, var(--surface));
-  box-shadow: 0 6px 14px color-mix(in srgb, var(--accent-berry) 12%, transparent);
+
   text-align: center;
 }
 
@@ -1380,8 +1379,6 @@ a:hover {
 
 .post-list--posts .post-card-cover,
 .post-list--tag-panel .post-card-cover {
-  --post-cover-shadow: 0 10px 24px color-mix(in srgb, var(--accent-berry) 18%, transparent);
-  --post-cover-shadow-strong: 0 14px 30px color-mix(in srgb, var(--accent-berry) 24%, transparent);
 
   overflow: hidden;
   isolation: isolate;
@@ -1694,6 +1691,7 @@ a:hover {
 }
 
 .tag-list a,
+.tag-chip,
 .tag-bubble,
 .tag-detail-badge {
   border-radius: var(--tag-radius);
@@ -1715,7 +1713,8 @@ a:hover {
   max-width: 100%;
 }
 
-.tag-list.tag-list--card a {
+.tag-list.tag-list--card a,
+.tag-list.tag-list--card .tag-chip {
   min-width: 0;
   max-width: 100%;
   font-size: 0.78rem;
@@ -1731,13 +1730,15 @@ a:hover {
     container-type: inline-size;
   }
 
-  .tag-list.tag-list--card a {
+  .tag-list.tag-list--card a,
+  .tag-list.tag-list--card .tag-chip {
     font-size: clamp(0.71rem, calc(0.7rem + 0.02cqi), 0.78rem);
     padding-inline: clamp(0.48rem, calc(0.42rem + 0.06cqi), 0.66rem);
   }
 }
 
-.tag-list a {
+.tag-list a,
+.tag-chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1754,20 +1755,37 @@ a:hover {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.tag-list a,
+.tag-chip {
   transition:
     transform var(--motion-duration-state) var(--motion-ease-out-quart),
     background-color var(--motion-duration-state) var(--motion-ease-out-quart),
     color var(--motion-duration-state) var(--motion-ease-out-quart);
 }
 
-.tag-list a:hover {
+.tag-chip--theme {
+  background: color-mix(in srgb, var(--accent-secondary-soft) 58%, var(--tag-surface));
+  color: color-mix(in srgb, var(--accent-secondary) 72%, var(--tag-text-color));
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.tag-list a:hover,
+.tag-chip:hover {
   transform: translateY(calc(var(--motion-distance-hover) * -0.5));
   background: var(--tag-hover-surface);
   color: var(--tag-hover-text-color);
   text-decoration: none;
 }
 
-.tag-list a:focus-visible {
+.tag-chip--theme:hover {
+  background: color-mix(in srgb, var(--tag-hover-surface) 78%, var(--accent-secondary-soft));
+}
+
+.tag-list a:focus-visible,
+.tag-chip:focus-visible {
   outline: 2px solid var(--tag-focus-ring);
   outline-offset: 2px;
 }

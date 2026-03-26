@@ -12,6 +12,12 @@ interface RenderPostListOptions {
   maxVisibleTags?: number;
 }
 
+interface VisiblePostLabelItem {
+  kind: 'theme' | 'tag';
+  label: string;
+  themeKey?: string;
+}
+
 const COVER_IMAGE_ONLOAD_HANDLER =
   "const article = this.closest('.post-card-article'); if (article) { article.classList.add('has-cover'); article.classList.remove('no-cover'); } if (this.parentElement) { this.parentElement.classList.add('has-cover'); this.parentElement.classList.remove('is-pending'); } this.classList.remove('is-pending'); this.classList.remove('is-hidden');";
 const COVER_IMAGE_ONERROR_HANDLER =
@@ -22,29 +28,63 @@ function renderCoverImage(coverUrl: string): string {
   return `<img class="post-card-cover-image is-pending" src="${escapeHtml(coverUrl)}" alt="" loading="lazy" decoding="async" onload="${COVER_IMAGE_ONLOAD_HANDLER}" onerror="${COVER_IMAGE_ONERROR_HANDLER}" />`;
 }
 
-function resolveVisibleTags(tags: string[], options: Pick<RenderPostListOptions, 'prioritizedTag' | 'maxVisibleTags'>): string[] {
-  const maxVisibleTags = Math.max(0, options.maxVisibleTags ?? 3);
-
-  if (maxVisibleTags === 0 || tags.length === 0) {
-    return [];
-  }
-
-  const normalizedPrioritizedTag = options.prioritizedTag?.trim().toLowerCase() ?? '';
+function resolvePrioritizedTags(tags: string[], prioritizedTagLabel?: string): string[] {
+  const normalizedPrioritizedTag = prioritizedTagLabel?.trim().toLowerCase() ?? '';
 
   if (!normalizedPrioritizedTag) {
-    return tags.slice(0, maxVisibleTags);
+    return [...tags];
   }
 
   const prioritizedTagIndex = tags.findIndex((tag) => tag.trim().toLowerCase() === normalizedPrioritizedTag);
 
   if (prioritizedTagIndex === -1) {
-    return tags.slice(0, maxVisibleTags);
+    return [...tags];
   }
 
-  const prioritizedTag = tags[prioritizedTagIndex];
+  const prioritizedTag = tags[prioritizedTagIndex]!;
   const remainingTags = tags.filter((_, index) => index !== prioritizedTagIndex);
 
-  return [prioritizedTag, ...remainingTags].slice(0, maxVisibleTags);
+  return [prioritizedTag, ...remainingTags];
+}
+
+function resolveVisibleLabelItems(
+  post: PostSummary,
+  options: Pick<RenderPostListOptions, 'prioritizedTag' | 'maxVisibleTags'>
+): VisiblePostLabelItem[] {
+  const maxVisibleTags = Math.max(0, options.maxVisibleTags ?? 3);
+
+  if (maxVisibleTags === 0) {
+    return [];
+  }
+
+  const themeLabel = post.theme?.trim() ?? '';
+  const normalizedThemeKey = themeLabel ? normalizeThemeKey(themeLabel) : '';
+  const prioritizedTags = resolvePrioritizedTags(post.tags, options.prioritizedTag);
+  const dedupedTags = normalizedThemeKey
+    ? prioritizedTags.filter((tag) => normalizeThemeKey(tag) !== normalizedThemeKey)
+    : prioritizedTags;
+  const labelItems: VisiblePostLabelItem[] = [];
+
+  if (themeLabel) {
+    labelItems.push({
+      kind: 'theme',
+      label: themeLabel,
+      themeKey: normalizedThemeKey
+    });
+  }
+
+  for (const tag of dedupedTags) {
+    if (labelItems.length >= maxVisibleTags) {
+      break;
+    }
+
+    labelItems.push({
+      kind: 'tag',
+      label: tag
+    });
+  }
+
+  return labelItems;
 }
 
 export function renderPostList(posts: PostSummary[], options: RenderPostListOptions = {}): string {
@@ -63,7 +103,7 @@ export function renderPostList(posts: PostSummary[], options: RenderPostListOpti
         const coverUrl = `/images/covers/${post.slug}.webp`;
         const coverImage = renderCoverImage(coverUrl);
         const cardClassName = `post-card post-card--${variant}`;
-        const visibleTags = resolveVisibleTags(post.tags, options);
+        const visibleLabelItems = resolveVisibleLabelItems(post, options);
         const postThemeKey = post.theme ? normalizeThemeKey(post.theme) : '';
         const postThemeAttribute = postThemeKey ? ` data-post-theme-key="${escapeHtml(postThemeKey)}"` : '';
 
@@ -78,8 +118,12 @@ export function renderPostList(posts: PostSummary[], options: RenderPostListOpti
         </header>
         <p class="post-card-summary">${escapeHtml(post.summary)}</p>
         <ul class="tag-list tag-list--card">
-          ${visibleTags
-              .map((tag) => `<li><a href="/tags/${tag}" data-link>#${escapeHtml(tag)}</a></li>`)
+          ${visibleLabelItems
+              .map((item) =>
+                item.kind === 'theme'
+                  ? `<li><a class="tag-chip tag-chip--theme" href="/posts${item.themeKey ? `?theme=${encodeURIComponent(item.themeKey)}` : ''}" data-link${item.themeKey ? ` data-theme-key="${escapeHtml(item.themeKey)}"` : ''} aria-label="查看主题分类：${escapeHtml(item.label)}">${escapeHtml(item.label)}</a></li>`
+                  : `<li><a href="/tags/${item.label}" data-link>#${escapeHtml(item.label)}</a></li>`
+              )
               .join('')}
         </ul>
       </div>
@@ -106,8 +150,12 @@ export function renderPostList(posts: PostSummary[], options: RenderPostListOpti
       </header>
       <p class="post-card-summary">${escapeHtml(post.summary)}</p>
       <ul class="tag-list tag-list--card">
-        ${visibleTags
-            .map((tag) => `<li><a href="/tags/${tag}" data-link>#${escapeHtml(tag)}</a></li>`)
+        ${visibleLabelItems
+            .map((item) =>
+              item.kind === 'theme'
+                ? `<li><a class="tag-chip tag-chip--theme" href="/posts${item.themeKey ? `?theme=${encodeURIComponent(item.themeKey)}` : ''}" data-link${item.themeKey ? ` data-theme-key="${escapeHtml(item.themeKey)}"` : ''} aria-label="查看主题分类：${escapeHtml(item.label)}">${escapeHtml(item.label)}</a></li>`
+                : `<li><a href="/tags/${item.label}" data-link>#${escapeHtml(item.label)}</a></li>`
+            )
             .join('')}
       </ul>
       </div>

@@ -8,6 +8,7 @@ import { getPostsByTag, getThemeStats } from './data/posts';
 import { renderAboutPageBody } from './pages/about';
 import { PRIMARY_NAV_LINKS, resolveRoute, type PrimaryNavIcon } from './router';
 import { escapeHtml } from './utils/escape-html';
+import { normalizeThemeKey } from './utils/theme';
 
 const { title: SITE_TITLE, subtitle: SITE_SUBTITLE, footer: SITE_FOOTER } = SITE_CONFIG;
 
@@ -317,13 +318,14 @@ function renderFloatingScrollTopButton(): string {
 
 function navigateTo(path: string, options: { replace?: boolean } = {}): void {
   const url = new URL(path, window.location.origin);
-  const nextPathname = url.pathname;
+  const nextLocation = `${url.pathname}${url.search}${url.hash}`;
+  const currentLocation = `${window.location.pathname}${window.location.search}${window.location.hash}`;
 
   if (options.replace) {
-    window.history.replaceState(createHistoryStateWithIndex(currentHistoryIndex), '', nextPathname);
-  } else if (window.location.pathname !== nextPathname) {
+    window.history.replaceState(createHistoryStateWithIndex(currentHistoryIndex), '', nextLocation);
+  } else if (currentLocation !== nextLocation) {
     currentHistoryIndex += 1;
-    window.history.pushState(createHistoryStateWithIndex(currentHistoryIndex), '', nextPathname);
+    window.history.pushState(createHistoryStateWithIndex(currentHistoryIndex), '', nextLocation);
   }
 
   renderApp();
@@ -1923,7 +1925,36 @@ function setupPostThemeFilter(): (() => void) | null {
     return null;
   }
 
+  const availableThemeKeys = new Set(
+    themeButtons
+      .map((buttonElement) => normalizeThemeKey(buttonElement.dataset.themeKey ?? ''))
+      .filter(Boolean)
+  );
   let activeThemeKey = '';
+
+  const readRequestedThemeKey = (): string => {
+    const nextThemeKey = normalizeThemeKey(new URLSearchParams(window.location.search).get('theme') ?? '');
+    return availableThemeKeys.has(nextThemeKey) ? nextThemeKey : '';
+  };
+
+  const syncThemeSearchParam = (nextThemeKey: string): void => {
+    const nextUrl = new URL(window.location.href);
+
+    if (nextThemeKey) {
+      nextUrl.searchParams.set('theme', nextThemeKey);
+    } else {
+      nextUrl.searchParams.delete('theme');
+    }
+
+    const nextLocation = `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`;
+    const currentLocation = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+
+    if (nextLocation === currentLocation) {
+      return;
+    }
+
+    window.history.replaceState(createHistoryStateWithIndex(currentHistoryIndex), '', nextLocation);
+  };
 
   const syncThemeState = (nextThemeKey: string): void => {
     activeThemeKey = nextThemeKey;
@@ -1960,10 +1991,12 @@ function setupPostThemeFilter(): (() => void) | null {
 
     const nextThemeKey = targetElement.dataset.themeKey ?? '';
     syncThemeState(nextThemeKey);
+    syncThemeSearchParam(nextThemeKey);
   };
 
   const handleResetButtonClick = (): void => {
     syncThemeState('');
+    syncThemeSearchParam('');
   };
 
   for (const themeButtonElement of themeButtons) {
@@ -1972,7 +2005,9 @@ function setupPostThemeFilter(): (() => void) | null {
 
   resetButtonElement.addEventListener('click', handleResetButtonClick);
 
-  syncThemeState('');
+  const initialThemeKey = readRequestedThemeKey();
+  syncThemeState(initialThemeKey);
+  syncThemeSearchParam(initialThemeKey);
 
   return () => {
     for (const themeButtonElement of themeButtons) {
