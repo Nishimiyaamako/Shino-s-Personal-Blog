@@ -165,56 +165,50 @@ html[data-clarity-preview='flat_clean'] {
 }
 
 @media (prefers-color-scheme: dark) {
-  html[data-palette-preview='rose_atelier'] {
-    --p-brand-500: oklch(74% 0.145 357);
-    --p-brand-700: oklch(59% 0.14 355);
-    --p-accent-500: oklch(77% 0.085 314);
-  }
+  :root,
+  html[data-clarity-preview='flat_clean'] {
+    --bg: #111216;
+    --surface: #171a20;
+    --surface-elevated: #1d2128;
+    --surface-soft: #232832;
+    --text: #eceff4;
+    --text-subtle: #aab2bf;
+    --border: #2e3540;
+    --border-strong: #556170;
+    --card-surface-main: var(--surface-elevated);
 
-  :root {
-    --bg: color-mix(in oklch, oklch(16% 0.02 320) 70%, var(--rose-700));
-    --surface: color-mix(in oklch, var(--rose-700) var(--material-surface-dark-solid), transparent);
-    --surface-elevated: color-mix(in oklch, var(--rose-700) var(--material-surface-dark-elevated-solid), transparent);
-    --surface-soft: color-mix(in oklch, var(--rose-700) var(--material-surface-dark-soft-solid), var(--accent-secondary));
-    --text: color-mix(in oklch, var(--ivory-50) 92%, var(--accent-secondary));
-    --text-subtle: color-mix(in oklch, var(--ivory-50) 66%, var(--rose-500));
-    --brand-soft: color-mix(in oklch, var(--rose-500) 34%, transparent);
-    --accent-berry: color-mix(in oklch, var(--rose-500) 84%, var(--ivory-50));
-    --accent-secondary-soft: color-mix(in oklch, var(--accent-secondary) 30%, transparent);
-    --border: color-mix(in oklch, var(--rose-500) 34%, transparent);
-    --border-strong: color-mix(in oklch, var(--accent-secondary) 42%, var(--rose-500));
-    --accent-bubble-soft: color-mix(in oklch, var(--brand-soft) 66%, var(--surface-soft));
-    --accent-mauve-soft: color-mix(in oklch, var(--neutral-metal) 34%, var(--surface-soft));
-    --accent-berry-soft: color-mix(in oklch, var(--accent-berry) 24%, var(--surface-soft));
-    --shadow: 0 14px 30px color-mix(in oklch, var(--rose-700) var(--material-shadow-alpha-dark), transparent);
-    --shadow-strong: 0 16px 38px color-mix(in oklch, var(--rose-700) var(--material-shadow-strong-alpha-dark), transparent);
-    --card-surface-main: color-mix(in oklch, var(--surface-elevated) 90%, var(--surface-soft));
+    --brand-soft: color-mix(in oklch, var(--rose-500) 18%, var(--surface-soft));
+    --accent-berry: color-mix(in oklch, var(--rose-500) 74%, var(--ivory-50));
+    --accent-secondary-soft: color-mix(in oklch, var(--accent-secondary) 18%, var(--surface-soft));
+    --neutral-metal: color-mix(in oklch, var(--ivory-50) 24%, var(--surface-soft));
+    --accent-bubble-soft: color-mix(in oklch, var(--brand-soft) 64%, var(--surface-soft));
+    --accent-mauve-soft: color-mix(in oklch, var(--neutral-metal) 38%, var(--surface-soft));
+    --accent-berry-soft: color-mix(in oklch, var(--accent-berry) 18%, var(--surface-soft));
+
+    --shadow: 0 14px 30px rgba(0, 0, 0, 0.34);
+    --shadow-strong: 0 18px 40px rgba(0, 0, 0, 0.44);
     --card-shadow-cool:
-      0 0 0 1px color-mix(in oklch, var(--accent-secondary) 14%, transparent),
-      -2px 2px 0 color-mix(in oklch, var(--accent-secondary) 18%, transparent),
-      -9px 9px 18px color-mix(in oklch, var(--accent-secondary) 14%, transparent);
+      0 0 0 1px color-mix(in srgb, var(--border) 86%, transparent),
+      0 10px 24px color-mix(in srgb, black 34%, transparent);
     --card-shadow-cool-hover:
-      0 0 0 1px color-mix(in oklch, var(--accent-secondary) 18%, transparent),
-      -3px 3px 0 color-mix(in oklch, var(--accent-secondary) 22%, transparent),
-      -12px 12px 22px color-mix(in oklch, var(--accent-secondary) 18%, transparent);
+      0 0 0 1px color-mix(in srgb, var(--border-strong) 72%, transparent),
+      0 14px 30px color-mix(in srgb, black 42%, transparent);
     --card-shadow-warm:
-      0 0 0 1px color-mix(in oklch, var(--brand) 14%, transparent),
-      -2px 2px 0 color-mix(in oklch, var(--brand) 18%, transparent),
-      -9px 9px 18px color-mix(in oklch, var(--accent-berry) 14%, transparent);
+      0 0 0 1px color-mix(in srgb, var(--accent-berry) 18%, var(--border)),
+      0 10px 24px color-mix(in srgb, black 34%, transparent);
     --card-shadow-warm-hover:
-      0 0 0 1px color-mix(in oklch, var(--brand) 18%, transparent),
-      -3px 3px 0 color-mix(in oklch, var(--brand) 22%, transparent),
-      -12px 12px 22px color-mix(in oklch, var(--accent-berry) 18%, transparent);
+      0 0 0 1px color-mix(in srgb, var(--accent-berry) 24%, var(--border-strong)),
+      0 14px 30px color-mix(in srgb, black 42%, transparent);
 
-    --decor-line-opacity: calc(var(--material-decor-line-opacity) * 1.08);
-    --decor-shape-opacity: calc(var(--material-decor-shape-opacity) * 1.12);
-    --decor-dash-primary: color-mix(in oklch, var(--rose-500) 54%, transparent);
-    --decor-dash-secondary: color-mix(in oklch, var(--accent-secondary) 50%, transparent);
-    --decor-dot: color-mix(in oklch, var(--accent-secondary) 42%, transparent);
-    --decor-rose-halo: color-mix(in oklch, var(--rose-500) 20%, transparent);
-    --decor-rose-halo-soft: color-mix(in oklch, var(--rose-700) 14%, transparent);
-    --decor-cyan-halo: color-mix(in oklch, var(--accent-secondary) 18%, transparent);
-    --decor-cyan-halo-soft: color-mix(in oklch, var(--accent-secondary) 12%, transparent);
+    --decor-line-opacity: 0.04;
+    --decor-shape-opacity: 0.055;
+    --decor-dash-primary: color-mix(in oklch, var(--rose-500) 22%, transparent);
+    --decor-dash-secondary: color-mix(in oklch, var(--accent-secondary) 20%, transparent);
+    --decor-dot: color-mix(in oklch, var(--accent-secondary) 16%, transparent);
+    --decor-rose-halo: color-mix(in oklch, var(--rose-500) 12%, transparent);
+    --decor-rose-halo-soft: color-mix(in oklch, var(--rose-700) 10%, transparent);
+    --decor-cyan-halo: color-mix(in oklch, var(--accent-secondary) 10%, transparent);
+    --decor-cyan-halo-soft: color-mix(in oklch, var(--accent-secondary) 8%, transparent);
   }
 }
 
