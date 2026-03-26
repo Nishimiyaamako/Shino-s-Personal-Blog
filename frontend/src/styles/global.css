@@ -2225,12 +2225,12 @@ a:hover {
 
 .archive-timeline {
   position: relative;
-  background: var(--surface-elevated);
+  background: transparent;
   border: 0;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow);
-  backdrop-filter: var(--material-card-backdrop);
-  -webkit-backdrop-filter: var(--material-card-backdrop);
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   padding: var(--space-5) var(--space-4) calc(var(--space-5) + var(--space-2));
   overflow: hidden;
 }
