@@ -74,7 +74,7 @@
   --shadow-strong: 0 14px 32px color-mix(in oklch, var(--rose-700) var(--material-shadow-strong-alpha), transparent);
   --card-radius-main: 16px;
   --card-radius-compact: 12px;
-  --card-surface-main: color-mix(in oklch, var(--surface-elevated) 88%, var(--surface));
+  --card-surface-main: var(--bg);
   --card-shadow-cool:
     -1px 1px 0 color-mix(in oklch, var(--accent-secondary) 15%, transparent),
     -8px 8px 16px color-mix(in oklch, var(--accent-secondary) 11%, transparent);
