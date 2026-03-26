@@ -1764,7 +1764,6 @@ a:hover {
 .tag-list a,
 .tag-chip {
   transition:
-    transform var(--motion-duration-state) var(--motion-ease-out-quart),
     background-color var(--motion-duration-state) var(--motion-ease-out-quart),
     color var(--motion-duration-state) var(--motion-ease-out-quart);
 }
@@ -1778,14 +1777,14 @@ a:hover {
 
 .tag-list a:hover,
 .tag-chip:hover {
-  transform: translateY(calc(var(--motion-distance-hover) * -0.5));
-  background: var(--tag-hover-surface);
-  color: var(--tag-hover-text-color);
+  background: color-mix(in srgb, var(--tag-hover-surface) 68%, var(--accent-berry-soft));
+  color: color-mix(in srgb, var(--tag-hover-text-color) 84%, var(--accent-berry));
   text-decoration: none;
 }
 
 .tag-chip--theme:hover {
-  background: color-mix(in srgb, var(--tag-hover-surface) 78%, var(--accent-secondary-soft));
+  background: color-mix(in srgb, var(--accent-secondary-soft) 72%, var(--accent-secondary));
+  color: color-mix(in srgb, var(--accent-secondary) 82%, var(--surface));
 }
 
 .tag-list a:focus-visible,
