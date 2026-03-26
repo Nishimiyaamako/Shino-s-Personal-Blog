@@ -1708,7 +1708,8 @@ function setupTagCloudInteractions(): (() => void) | null {
 
     const nextHtml = renderPostList(getPostsByTag(tag), {
       emptyHint: TAG_POST_EMPTY_HINT,
-      variant: 'tag-panel'
+      variant: 'tag-panel',
+      prioritizedTag: tag
     });
 
     panelContentCache.set(tag, nextHtml);

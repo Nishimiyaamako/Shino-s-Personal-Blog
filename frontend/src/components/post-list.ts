@@ -8,6 +8,8 @@ type PostListVariant = 'default' | 'home' | 'posts' | 'tag-panel';
 interface RenderPostListOptions {
   emptyHint?: string;
   variant?: PostListVariant;
+  prioritizedTag?: string;
+  maxVisibleTags?: number;
 }
 
 const COVER_IMAGE_ONLOAD_HANDLER =
@@ -18,6 +20,31 @@ const COVER_IMAGE_ONERROR_HANDLER =
 function renderCoverImage(coverUrl: string): string {
   // 防回归：不要在初始态用 display:none 隐藏 lazy 图片，否则可能永远不触发加载。
   return `<img class="post-card-cover-image is-pending" src="${escapeHtml(coverUrl)}" alt="" loading="lazy" decoding="async" onload="${COVER_IMAGE_ONLOAD_HANDLER}" onerror="${COVER_IMAGE_ONERROR_HANDLER}" />`;
+}
+
+function resolveVisibleTags(tags: string[], options: Pick<RenderPostListOptions, 'prioritizedTag' | 'maxVisibleTags'>): string[] {
+  const maxVisibleTags = Math.max(0, options.maxVisibleTags ?? 3);
+
+  if (maxVisibleTags === 0 || tags.length === 0) {
+    return [];
+  }
+
+  const normalizedPrioritizedTag = options.prioritizedTag?.trim().toLowerCase() ?? '';
+
+  if (!normalizedPrioritizedTag) {
+    return tags.slice(0, maxVisibleTags);
+  }
+
+  const prioritizedTagIndex = tags.findIndex((tag) => tag.trim().toLowerCase() === normalizedPrioritizedTag);
+
+  if (prioritizedTagIndex === -1) {
+    return tags.slice(0, maxVisibleTags);
+  }
+
+  const prioritizedTag = tags[prioritizedTagIndex];
+  const remainingTags = tags.filter((_, index) => index !== prioritizedTagIndex);
+
+  return [prioritizedTag, ...remainingTags].slice(0, maxVisibleTags);
 }
 
 export function renderPostList(posts: PostSummary[], options: RenderPostListOptions = {}): string {
@@ -36,6 +63,7 @@ export function renderPostList(posts: PostSummary[], options: RenderPostListOpti
         const coverUrl = `/images/covers/${post.slug}.webp`;
         const coverImage = renderCoverImage(coverUrl);
         const cardClassName = `post-card post-card--${variant}`;
+        const visibleTags = resolveVisibleTags(post.tags, options);
         const postThemeKey = post.theme ? normalizeThemeKey(post.theme) : '';
         const postThemeAttribute = postThemeKey ? ` data-post-theme-key="${escapeHtml(postThemeKey)}"` : '';
 
@@ -50,7 +78,7 @@ export function renderPostList(posts: PostSummary[], options: RenderPostListOpti
         </header>
         <p class="post-card-summary">${escapeHtml(post.summary)}</p>
         <ul class="tag-list tag-list--card">
-          ${post.tags
+          ${visibleTags
               .map((tag) => `<li><a href="/tags/${tag}" data-link>#${escapeHtml(tag)}</a></li>`)
               .join('')}
         </ul>
@@ -78,7 +106,7 @@ export function renderPostList(posts: PostSummary[], options: RenderPostListOpti
       </header>
       <p class="post-card-summary">${escapeHtml(post.summary)}</p>
       <ul class="tag-list tag-list--card">
-        ${post.tags
+        ${visibleTags
             .map((tag) => `<li><a href="/tags/${tag}" data-link>#${escapeHtml(tag)}</a></li>`)
             .join('')}
       </ul>
