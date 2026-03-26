@@ -51,7 +51,7 @@ function resolveVisibleLabelItems(
   post: PostSummary,
   options: Pick<RenderPostListOptions, 'prioritizedTag' | 'maxVisibleTags'>
 ): VisiblePostLabelItem[] {
-  const maxVisibleTags = Math.max(0, options.maxVisibleTags ?? 3);
+  const maxVisibleTags = Math.max(0, options.maxVisibleTags ?? 4);
 
   if (maxVisibleTags === 0) {
     return [];
