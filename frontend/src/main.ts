@@ -2,7 +2,9 @@ import './styles/global.css';
 
 import { renderProfileCard } from './components/profile-card';
 import { SITE_CONFIG } from './config/site';
+import { fetchAboutViewModel } from './data/about';
 import { getThemeStats } from './data/posts';
+import { renderAboutPageBody } from './pages/about';
 import { PRIMARY_NAV_LINKS, resolveRoute, type PrimaryNavIcon } from './router';
 import { escapeHtml } from './utils/escape-html';
 
@@ -74,12 +76,13 @@ function renderApp(): void {
   const hasPostTocRail = route.path === '/posts/:slug';
   const hasPostThemeRail = route.path === '/posts';
   const isFriendsPage = route.path === '/friends';
+  const isAboutPage = route.path === '/about';
   const hasFloatingScrollTopButton = shouldRenderFloatingScrollTopButton(route.path);
   const headerClassName = 'site-header site-header--wide';
   const baseMainClassName = hasProfileCard
     ? `site-main site-main--with-profile${hasPostTocRail ? ' site-main--with-post-toc' : ''}${hasPostThemeRail ? ' site-main--with-post-theme' : ''}`
     : 'site-main';
-  const mainClassName = `${baseMainClassName}${isFriendsPage ? ' site-main--friends' : ''}`;
+  const mainClassName = `${baseMainClassName}${isFriendsPage ? ' site-main--friends' : ''}${isAboutPage ? ' site-main--about' : ''}`;
   const pageContent = route.render(context);
   const mainLayout = hasProfileCard
     ? `<div class="site-main-layout${hasPostTocRail ? ' site-main-layout--with-toc' : ''}${hasPostThemeRail ? ' site-main-layout--with-theme' : ''}">
@@ -397,6 +400,13 @@ function setupPageEnhancements(pathname: string): (() => void) | null {
     }
   }
 
+  if (pathname === '/about') {
+    const cleanupAboutPageHydration = setupAboutPageHydration();
+    if (cleanupAboutPageHydration) {
+      cleanups.push(cleanupAboutPageHydration);
+    }
+  }
+
   if (!cleanups.length) {
     return null;
   }
@@ -413,6 +423,11 @@ const PAGE_STAGGER_SELECTORS = [
   ':scope > .post-detail-back-row',
   ':scope > .section-head',
   ':scope > .page-section:not(.home-intro-panel)',
+  ':scope > .about-hero',
+  ':scope > .about-intro',
+  ':scope > .about-dialogue',
+  ':scope > .about-timeline',
+  ':scope > .about-journey',
   ':scope > .hero-card',
   ':scope > .page-not-found',
   ':scope > .tag-filter-shell',
@@ -1068,6 +1083,58 @@ function setupGlobalMotionChoreography(): (() => void) | null {
 
     observer?.disconnect();
     reducedMotionMediaQuery.removeEventListener('change', handleReducedMotionChange);
+  };
+}
+
+function isAbortError(error: unknown): boolean {
+  if (error instanceof DOMException) {
+    return error.name === 'AbortError';
+  }
+
+  if (!error || typeof error !== 'object') {
+    return false;
+  }
+
+  return 'name' in error && (error as { name?: string }).name === 'AbortError';
+}
+
+function setupAboutPageHydration(): (() => void) | null {
+  const aboutPageElement = document.querySelector<HTMLElement>('.page-about[data-role="about-page"]');
+
+  if (!aboutPageElement) {
+    return null;
+  }
+
+  const abortController = new AbortController();
+  const fallbackFingerprint = aboutPageElement.dataset.aboutFingerprint ?? '';
+  let disposed = false;
+
+  void (async () => {
+    try {
+      const remoteViewModel = await fetchAboutViewModel({ signal: abortController.signal });
+
+      if (disposed || abortController.signal.aborted) {
+        return;
+      }
+
+      if (remoteViewModel.fingerprint === fallbackFingerprint) {
+        return;
+      }
+
+      aboutPageElement.innerHTML = renderAboutPageBody(remoteViewModel);
+      aboutPageElement.dataset.aboutFingerprint = remoteViewModel.fingerprint;
+    } catch (error) {
+      if (isAbortError(error)) {
+        return;
+      }
+
+      console.warn('[about] Failed to hydrate from /api/about, keep local fallback.', error);
+    }
+  })();
+
+  return () => {
+    disposed = true;
+    abortController.abort();
   };
 }
 

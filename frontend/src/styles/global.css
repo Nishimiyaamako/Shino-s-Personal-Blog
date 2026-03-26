@@ -409,6 +409,10 @@ a:hover {
   display: flex;
 }
 
+.site-main--about {
+  width: min(920px, calc(100% - 2rem));
+}
+
 .site-main--friends>.site-page-content {
   flex: 1;
   display: flex;
@@ -448,6 +452,243 @@ a:hover {
 
 .page>* {
   min-width: 0;
+}
+
+.page-about {
+  --about-line: color-mix(in oklch, var(--accent-secondary) 28%, var(--border));
+  --about-line-strong: color-mix(in oklch, var(--accent-berry) 42%, var(--border-strong));
+  --about-label-bg: color-mix(in oklch, var(--brand-soft) 72%, transparent);
+  --about-label-border: color-mix(in oklch, var(--accent-secondary-soft) 62%, var(--border));
+  --about-label-text: color-mix(in oklch, var(--accent-berry) 78%, var(--text));
+  --about-point: color-mix(in oklch, var(--accent-secondary) 58%, var(--accent-berry));
+  gap: clamp(1.15rem, 2.4vw, 2rem);
+}
+
+.page-about>* {
+  min-width: 0;
+  background: transparent;
+  box-shadow: none;
+  border: 0;
+  border-radius: 0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  padding: 0;
+}
+
+.about-hero {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.about-eyebrow {
+  margin: 0;
+  font-size: 0.74rem;
+  color: color-mix(in oklch, var(--accent-secondary) 56%, var(--text-subtle));
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.about-hero h1 {
+  margin: 0;
+  line-height: 1.25;
+  color: color-mix(in oklch, var(--accent-berry) 80%, var(--text));
+  font-size: clamp(1.5rem, 2.4vw, 2.05rem);
+}
+
+.about-subtitle {
+  margin: 0;
+  font-size: 0.96rem;
+  color: color-mix(in oklch, var(--accent-secondary) 44%, var(--text-subtle));
+  letter-spacing: 0.02em;
+}
+
+.about-intro {
+  display: grid;
+  gap: 0.64rem;
+}
+
+.about-intro p {
+  margin: 0;
+  line-height: 1.78;
+  color: var(--text-subtle);
+}
+
+.about-divider {
+  height: 0;
+  border-top: 1px dashed var(--about-line);
+  opacity: 0.92;
+}
+
+.about-dialogue {
+  position: relative;
+}
+
+.about-dialogue-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.98rem, 2vw, 1.45rem) clamp(1rem, 2.5vw, 2.2rem);
+}
+
+.about-dialogue-grid::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0.3rem;
+  bottom: 0.3rem;
+  border-left: 1px dashed var(--about-line-strong);
+  transform: translateX(-50%);
+  opacity: 0.78;
+}
+
+.about-story-block {
+  display: grid;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.about-story-block.is-left {
+  grid-column: 1;
+  padding-right: clamp(0.25rem, 1.2vw, 1rem);
+}
+
+.about-story-block.is-right {
+  grid-column: 2;
+  padding-left: clamp(0.25rem, 1.2vw, 1rem);
+}
+
+.about-section-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.about-section-head h2 {
+  margin: 0;
+  font-size: clamp(1rem, 1.5vw, 1.14rem);
+  color: color-mix(in oklch, var(--accent-berry) 84%, var(--text));
+}
+
+.about-section-label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.45rem;
+  padding: 0 0.58rem;
+  border-radius: 999px;
+  border: 1px solid var(--about-label-border);
+  background: var(--about-label-bg);
+  color: var(--about-label-text);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.about-story-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.58rem;
+}
+
+.about-story-list li {
+  margin: 0;
+  position: relative;
+  padding-left: 1rem;
+  line-height: 1.74;
+}
+
+.about-story-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.74em;
+  width: 0.38rem;
+  height: 0.38rem;
+  border-radius: 999px;
+  background: var(--about-point);
+}
+
+.about-story-block.is-right .about-story-list li {
+  text-align: right;
+  padding-left: 0;
+  padding-right: 1rem;
+}
+
+.about-story-block.is-right .about-story-list li::before {
+  left: auto;
+  right: 0;
+}
+
+.about-timeline,
+.about-journey {
+  display: grid;
+  gap: 0.86rem;
+}
+
+.about-timeline-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 1rem;
+  position: relative;
+}
+
+.about-timeline-list::before {
+  content: '';
+  position: absolute;
+  left: 0.58rem;
+  top: 0.35rem;
+  bottom: 0.35rem;
+  border-left: 1px dashed var(--about-line-strong);
+  opacity: 0.78;
+}
+
+.about-timeline-item {
+  margin: 0;
+  position: relative;
+  display: grid;
+  gap: 0.36rem;
+  padding-left: 1.82rem;
+}
+
+.about-timeline-item::before {
+  content: '';
+  position: absolute;
+  left: 0.34rem;
+  top: 0.45rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--about-point);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--brand-soft) 56%, transparent);
+}
+
+.about-timeline-item time {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: color-mix(in oklch, var(--accent-secondary) 52%, var(--text-subtle));
+}
+
+.about-timeline-item p {
+  margin: 0;
+  line-height: 1.76;
+}
+
+.about-journey-copy {
+  display: grid;
+  gap: 0.78rem;
+}
+
+.about-journey-copy p {
+  margin: 0;
+  line-height: 1.8;
 }
 
 .profile-card {
@@ -3000,6 +3241,32 @@ a:hover {
 }
 
 @media (max-width: 900px) {
+  .about-dialogue-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  .about-dialogue-grid::before {
+    display: none;
+  }
+
+  .about-story-block.is-left,
+  .about-story-block.is-right {
+    grid-column: 1;
+    padding: 0;
+  }
+
+  .about-story-block.is-right .about-story-list li {
+    text-align: left;
+    padding-left: 1rem;
+    padding-right: 0;
+  }
+
+  .about-story-block.is-right .about-story-list li::before {
+    left: 0;
+    right: auto;
+  }
+
   .friend-link-list {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -3297,6 +3564,39 @@ a:hover {
 }
 
 @media (max-width: 640px) {
+  .site-main--about {
+    width: min(920px, calc(100% - 1.4rem));
+  }
+
+  .about-hero h1 {
+    font-size: clamp(1.34rem, 6.8vw, 1.75rem);
+  }
+
+  .about-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .about-section-head {
+    gap: 0.36rem;
+  }
+
+  .about-section-label {
+    min-height: 1.34rem;
+    font-size: 0.62rem;
+  }
+
+  .about-timeline-list::before {
+    left: 0.5rem;
+  }
+
+  .about-timeline-item {
+    padding-left: 1.56rem;
+  }
+
+  .about-timeline-item::before {
+    left: 0.28rem;
+  }
+
   .site-header-inner {
     display: flex;
     flex-direction: column;

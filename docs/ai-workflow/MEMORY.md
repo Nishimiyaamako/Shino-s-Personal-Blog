@@ -65,6 +65,9 @@
 - 决策：workflow 升级为“每次修改后自动 memory sync + 收尾兜底 sync”。
 - 决策：新增前端任务自动技能路由，默认链固定为 `frontend-design -> harden -> polish`。
 - 决策：`/posts` 新增右侧“主题分类卡片”，主题数据源为 frontmatter `theme`，与 `tags` 完全独立。
+- 决策：`/about` 内容源改为 `frontend/src/content/about.md`，并通过 `frontend/src/data/about.ts` 统一做解析与视图模型转换。
+- 决策：`/about` 采用“平铺无卡片 + 静态虚线（横向分节 + 中轴竖线）+ 920px 内容宽度”设计，不引入 TOC 与更新时间展示。
+- 决策：前端预留 `GET /api/about -> { markdown: string }` 契约；进入 `/about` 时尝试拉取 API，失败自动回退本地 markdown，并在路由切换时中止请求。
 
 ## 4) 已踩坑与回归风险（预算 ≤ 40 行）
 
@@ -88,13 +91,15 @@
   - 防护：显式约束“用户点名 skill 优先”，并在任务计划中可按目标裁剪技能范围。
 - 风险：`theme` 为人工维护字段，未填写文章不会进入主题统计，可能导致主题卡片计数认知偏差。
   - 防护：在卡片文案说明 `theme` 需手工配置；筛选后可用“返回全部文章”恢复全量视图。
+- 风险：`/api/about` 暂未落地时，前端若强依赖接口会导致关于页空白。
+  - 防护：页面首屏始终使用本地 markdown，同步请求 API 仅做覆盖更新；失败时保留本地渲染结果。
 
 ## 5) 当前任务与下一步（预算 ≤ 35 行）
 
-- 当前任务：完成 `/posts` 右侧主题分类卡片与点击筛选能力，接入 frontmatter `theme`。
-- 下一步 1：继续为历史文章补充 `theme`，提升主题卡片可用性。
-- 下一步 2：评估是否为主题筛选增加 URL 持久化（query/hash）以支持分享筛选态。
-- 下一步 3：如需扩展再评估独立主题路由（`/themes/:theme`）与排序策略。
+- 当前任务：完成 `/about` 平铺重设计与 `/api/about` 前端契约预留（本地 fallback + 路由级 hydration）。
+- 下一步 1：在 backend 落地 `GET /api/about` 占位路由，返回 `{ markdown: string }`。
+- 下一步 2：评估是否将关于页 markdown 与文章内容统一为同一套后端内容源管理。
+- 下一步 3：如后续需要编辑能力，再补 about 内容发布流程（草稿/发布）与版本记录。
 
 ## 6) 最近更新记录（预算 ≤ 10 行）
 
@@ -111,6 +116,8 @@
 - 2026-03-22：实现 `/posts` 右侧主题分类卡片（frontmatter `theme`），支持点击筛选；安装类三篇已回填 `theme: 安装配置`。
 - 2026-03-22：主题卡片移除“全部主题”，改为筛选后显示“返回全部文章”按钮恢复全量列表。
 - 2026-03-22：theme 栏排序改为“手动权重优先（THEME_ORDER）+ 最近文章日期降序兜底 + label 稳定排序”。
+- 2026-03-26：重做 `/about`（平铺无卡片、双色叙事、横向+中轴虚线、920px 版心），并将内容迁移到 `frontend/src/content/about.md`。
+- 2026-03-26：新增 `frontend/src/data/about.ts` 与 `frontend/src/types/about.ts`，预留 `GET /api/about` 契约，页面进入时拉取并失败回退本地内容。
 
 ---
 
