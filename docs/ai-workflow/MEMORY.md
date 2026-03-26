@@ -68,6 +68,8 @@
 - 决策：`/about` 内容源改为 `frontend/src/content/about.md`，并通过 `frontend/src/data/about.ts` 统一做解析与视图模型转换。
 - 决策：`/about` 采用“平铺无卡片 + 静态虚线（横向分节 + 中轴竖线）+ 920px 内容宽度”设计，不引入 TOC 与更新时间展示。
 - 决策：前端预留 `GET /api/about -> { markdown: string }` 契约；进入 `/about` 时尝试拉取 API，失败自动回退本地 markdown，并在路由切换时中止请求。
+- 决策：2026-03-26 审计优先级锁定为“视觉一致性优先”，首焦点为标签体系（`tag-list` / `tag-bubble` / `tag-detail-badge`）边框语言统一。
+- 决策：前端样式整改执行顺序锁定为 `normalize -> harden -> optimize`。
 
 ## 4) 已踩坑与回归风险（预算 ≤ 40 行）
 
@@ -93,20 +95,24 @@
   - 防护：在卡片文案说明 `theme` 需手工配置；筛选后可用“返回全部文章”恢复全量视图。
 - 风险：`/api/about` 暂未落地时，前端若强依赖接口会导致关于页空白。
   - 防护：页面首屏始终使用本地 markdown，同步请求 API 仅做覆盖更新；失败时保留本地渲染结果。
+- 风险：标签组件边框/圆角/状态样式分叉，可能导致标签体系视觉不一致并持续回归。
+  - 防护：在进入修复前统一标签 token 与组件规范，并优先覆盖 `tag-list` / `tag-bubble` / `tag-detail-badge`。
+- 风险：多处交互目标 < 44px，移动端触达体验存在可用性回归风险。
+  - 防护：修复阶段按页面统一最小触达尺寸基线，并把标签区和导航区列为首批验收点。
+- 风险：标签云筛选状态 ARIA 不完整，存在辅助技术状态传达不足风险。
+  - 防护：修复阶段补齐 `aria-pressed/aria-expanded/aria-controls` 与焦点回退策略并做键盘流检查。
+- 风险：Markdown eager 全量解析在内容增长后会放大首屏性能压力。
+  - 防护：规划 summary/detail 分层与按需解析策略，避免列表页承担正文解析成本。
 
 ## 5) 当前任务与下一步（预算 ≤ 35 行）
 
-- 当前任务：完成 `/about` 平铺重设计与 `/api/about` 前端契约预留（本地 fallback + 路由级 hydration）。
-- 下一步 1：在 backend 落地 `GET /api/about` 占位路由，返回 `{ markdown: string }`。
-- 下一步 2：评估是否将关于页 markdown 与文章内容统一为同一套后端内容源管理。
-- 下一步 3：如后续需要编辑能力，再补 about 内容发布流程（草稿/发布）与版本记录。
+- 当前任务：完成前端综合审计（重点：标签边框/标签云协调性），当前处于“未进入修复”状态。
+- 下一步 1：统一标签体系 token 与边框语言（`tag-list` / `tag-bubble` / `tag-detail-badge`）。
+- 下一步 2：补齐 A11y 基线（target size / aria state / 标题语义 / 焦点回退）。
+- 下一步 3：规划内容解析按需化优化，降低 Markdown eager 全量解析成本。
 
 ## 6) 最近更新记录（预算 ≤ 10 行）
 
-- 2026-03-18：定稿 `docs/content-spec.md` 并实现 frontmatter 强校验。
-- 2026-03-18：完成单栏主体页、Markdown 渲染、标签/归档统计。
-- 2026-03-19：去除 `/tags` 展开面板（`.tag-posts-panel.is-open`）背景卡片视觉。
-- 2026-03-19：完成 `/tags` 标签云 + 本页展开面板 + `/tags/:tag` 统一风格改造。
 - 2026-03-20：新增 1Panel 静态部署脚本/文档/Nginx 片段，并将备案信息改为 `site.ts` 可配置。
 - 2026-03-20：备案展示改为“ICP 必显 + 公安可选”，并新增 `frontend-dist-latest.tar.gz` 上传别名。
 - 2026-03-20：更新备案信息为“蜀ICP备2026012160号 + 川公网安备51150302000177号”，并重新打包部署产物。
@@ -115,9 +121,8 @@
 - 2026-03-22：新增前端任务自动技能路由基线（`frontend-design -> harden -> polish`），并约定“用户显式 skill 优先”。
 - 2026-03-22：实现 `/posts` 右侧主题分类卡片（frontmatter `theme`），支持点击筛选；安装类三篇已回填 `theme: 安装配置`。
 - 2026-03-22：主题卡片移除“全部主题”，改为筛选后显示“返回全部文章”按钮恢复全量列表。
-- 2026-03-22：theme 栏排序改为“手动权重优先（THEME_ORDER）+ 最近文章日期降序兜底 + label 稳定排序”。
-- 2026-03-26：重做 `/about`（平铺无卡片、双色叙事、横向+中轴虚线、920px 版心），并将内容迁移到 `frontend/src/content/about.md`。
-- 2026-03-26：新增 `frontend/src/data/about.ts` 与 `frontend/src/types/about.ts`，预留 `GET /api/about` 契约，页面进入时拉取并失败回退本地内容。
+- 2026-03-26：重做 `/about`（平铺无卡片、双色叙事、横向+中轴虚线、920px 版心），并完成内容迁移与 API 契约预留（本地 fallback）。
+- 2026-03-26：完成前端样式综合审计（优先视觉一致性），结论 `High 5 / Medium 5 / Low 2`，并锁定标签体系为最高优先级。
 
 ---
 

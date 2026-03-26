@@ -1668,6 +1668,42 @@ a:hover {
   gap: var(--space-2);
 }
 
+.tag-list.tag-list--card {
+  width: 100%;
+  margin-top: auto;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+.tag-list.tag-list--card li {
+  min-width: 0;
+  flex: 0 1 auto;
+}
+
+.tag-list.tag-list--card a {
+  min-width: 0;
+  max-width: 100%;
+  font-size: 0.82rem;
+  padding-inline: var(--space-3);
+  min-height: 30px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@supports (width: 1cqi) {
+  .tag-list.tag-list--card {
+    container-type: inline-size;
+  }
+
+  .tag-list.tag-list--card a {
+    font-size: clamp(0.72rem, calc(0.72rem + 0.02cqi), 0.82rem);
+    padding-inline: clamp(0.48rem, calc(0.36rem + 0.08cqi), var(--space-3));
+    min-height: clamp(26px, calc(22px + 2cqi), 30px);
+  }
+}
+
 .tag-list a {
   display: inline-flex;
   align-items: center;

@@ -49,7 +49,7 @@ export function renderPostList(posts: PostSummary[], options: RenderPostListOpti
           <time class="post-card-date" datetime="${post.date}">${formatDateLabel(post.date)}</time>
         </header>
         <p class="post-card-summary">${escapeHtml(post.summary)}</p>
-        <ul class="tag-list">
+        <ul class="tag-list tag-list--card">
           ${post.tags
               .map((tag) => `<li><a href="/tags/${tag}" data-link>#${escapeHtml(tag)}</a></li>`)
               .join('')}
@@ -77,7 +77,7 @@ export function renderPostList(posts: PostSummary[], options: RenderPostListOpti
         <time class="post-card-date" datetime="${post.date}">${formatDateLabel(post.date)}</time>
       </header>
       <p class="post-card-summary">${escapeHtml(post.summary)}</p>
-      <ul class="tag-list">
+      <ul class="tag-list tag-list--card">
         ${post.tags
             .map((tag) => `<li><a href="/tags/${tag}" data-link>#${escapeHtml(tag)}</a></li>`)
             .join('')}
