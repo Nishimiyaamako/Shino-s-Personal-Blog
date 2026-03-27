@@ -78,17 +78,17 @@
   --card-radius-compact: 12px;
   --card-surface-main: var(--bg);
   --card-shadow-cool:
-    -1px 1px 0 color-mix(in oklch, var(--accent-secondary) 15%, transparent),
-    -2px 2px 2px color-mix(in oklch, var(--accent-secondary) 11%, transparent);
+    0 0 0 1px color-mix(in oklch, var(--accent-secondary) 15%, transparent),
+    0 0 3px color-mix(in oklch, var(--accent-secondary) 11%, transparent);
   --card-shadow-cool-hover:
-    -2px 2px 0 color-mix(in oklch, var(--accent-secondary) 18%, transparent),
-    -3px 3px 3px color-mix(in oklch, var(--accent-secondary) 15%, transparent);
+    0 0 0 1px color-mix(in oklch, var(--accent-secondary) 18%, transparent),
+    0 0 4px color-mix(in oklch, var(--accent-secondary) 15%, transparent);
   --card-shadow-warm:
-    -1px 1px 0 color-mix(in oklch, var(--brand) 15%, transparent),
-    -2px 2px 2px color-mix(in oklch, var(--accent-berry) 11%, transparent);
+    0 0 0 1px color-mix(in oklch, var(--brand) 15%, transparent),
+    0 0 3px color-mix(in oklch, var(--accent-berry) 11%, transparent);
   --card-shadow-warm-hover:
-    -2px 2px 0 color-mix(in oklch, var(--brand) 18%, transparent),
-    -3px 3px 3px color-mix(in oklch, var(--accent-berry) 15%, transparent);
+    0 0 0 1px color-mix(in oklch, var(--brand) 18%, transparent),
+    0 0 4px color-mix(in oklch, var(--accent-berry) 15%, transparent);
 
   --decor-edge-offset: clamp(10px, 2vw, 24px);
   --decor-line-thickness: 2px;
@@ -165,7 +165,6 @@ html[data-clarity-preview='flat_clean'] {
 }
 
 @media (prefers-color-scheme: dark) {
-
   :root,
   html[data-clarity-preview='flat_clean'] {
     --bg: #111216;
@@ -190,16 +189,16 @@ html[data-clarity-preview='flat_clean'] {
     --shadow-strong: 0 18px 40px rgba(0, 0, 0, 0.44);
     --card-shadow-cool:
       0 0 0 1px color-mix(in srgb, var(--border) 86%, transparent),
-      0 2px 2px color-mix(in srgb, black 34%, transparent);
+      0 0 3px color-mix(in srgb, black 34%, transparent);
     --card-shadow-cool-hover:
       0 0 0 1px color-mix(in srgb, var(--border-strong) 72%, transparent),
-      0 3px 3px color-mix(in srgb, black 42%, transparent);
+      0 0 4px color-mix(in srgb, black 42%, transparent);
     --card-shadow-warm:
       0 0 0 1px color-mix(in srgb, var(--accent-berry) 18%, var(--border)),
-      0 2px 2px color-mix(in srgb, black 34%, transparent);
+      0 0 3px color-mix(in srgb, black 34%, transparent);
     --card-shadow-warm-hover:
       0 0 0 1px color-mix(in srgb, var(--accent-berry) 24%, var(--border-strong)),
-      0 3px 3px color-mix(in srgb, black 42%, transparent);
+      0 0 4px color-mix(in srgb, black 42%, transparent);
 
     --decor-line-opacity: 0.04;
     --decor-shape-opacity: 0.055;

@@ -73,7 +73,7 @@
 - 决策：`/tags` 展开面板移除预渲染 template，改为运行时按需渲染 `renderPostList(getPostsByTag(tag))` 并做缓存复用。
 - 决策：`frontend/src/styles/global.css` 改为样式 manifest，按 `tokens -> base -> layout -> content -> posts -> motion` 顺序聚合子文件。
 - 决策：运行时 CSS 自定义属性读写统一走 `frontend/src/utils/dom-style.ts`，只抽样式 plumbing，不抽象动效算法本身。
-- 决策：全局 `card-shadow` 进一步收紧为“blur 与位移重叠”的贴边窄阴影；light 固定为 `-2px 2px 2px / -3px 3px 3px`，dark 固定为 `0 2px 2px / 0 3px 3px`。
+- 决策：全局 `card-shadow` 取消方向感并采用全包围 halo；当前微调为 `0 0 3px / 0 0 4px`，保留 1px keyline。
 
 ## 4) 已踩坑与回归风险（预算 ≤ 40 行）
 
@@ -109,15 +109,15 @@
   - 防护：规划 summary/detail 分层与按需解析策略，避免列表页承担正文解析成本。
 - 风险：样式拆分后若导入顺序或归属判断错误，容易出现跨文件 cascade 回归。
   - 防护：固定 `global.css` manifest 顺序，并在 `frontend/src/styles/README.md` 记录文件职责与 token/recipe 使用边界。
-- 风险：把 blur 压到与位移同级后，卡片边缘会更利落，但 hover 层级可能比上一版更克制。
-  - 防护：优先回归 `/posts`、`/tags`、`/friends` 与侧栏卡片；若层级不够，再只上调 hover blur，不改 base 几何。
+- 风险：全包围 halo 略微放大后，密集卡片之间的边缘叠影可能会重新变得可见。
+  - 防护：优先回归 `/posts`、`/tags`、`/friends` 与侧栏卡片；若叠影回升，下一轮优先只回退 base halo，不动 hover。
 
 ## 5) 当前任务与下一步（预算 ≤ 35 行）
 
-- 当前任务：已完成全局 `card-shadow` 二次收紧——让 blur 与位移同级，进一步压缩阴影外扩范围。
-- 下一步 1：人工回归 `/posts`、`/tags`、标签展开面板与 `/friends`，重点看阴影是否更贴边、叠影是否继续下降。
+- 当前任务：已完成全局 `card-shadow` halo 小幅放大——仍为全包围包边，但存在感比上一版稍强。
+- 下一步 1：人工回归 `/posts`、`/tags`、标签展开面板与 `/friends`，重点看 halo 是否更顺眼、同时没有重新造成明显叠影。
 - 下一步 2：检查 `profile-card`、`page-header`、`markdown-content`、`post-theme-card`、`post-toc-card` 在 light/dark 下 hover 层级是否仍够明显。
-- 下一步 3：若 hover 层级不够，下一轮优先只把 hover blur 从 `3` 提回 `4`，base 不动。
+- 下一步 3：若还是想更强，下一轮优先只继续提 hover halo；若觉得开始变厚，下一轮先把 base 从 `3px` 收回 `2px`。
 
 ## 6) 最近更新记录（预算 ≤ 10 行）
 
@@ -134,7 +134,7 @@
 - 2026-03-26：完成标签体系整改：统一 tag token/状态语义、补齐 `/tags` ARIA + Esc/焦点回退，并将标签面板改为按需渲染 + 缓存。
 - 2026-03-26：将 `global.css` 重构为 manifest，并拆分 `tokens/base/layout/content/posts/motion` 六层；新增 `utils/dom-style.ts` 统一运行时 CSS 变量读写。
 - 2026-03-26：首页最新文章卡片日期改为有封面时位于卡片内部、封面左侧， 无封面时回退到内容区右侧；有封面且标签数 > 1 时固定隐藏最后一个候选标签。
-- 2026-03-27：全局 `card-shadow` 继续收紧为“blur 与位移重叠”的贴边窄阴影：light 改为 `-2px 2px 2px / -3px 3px 3px`，dark 改为 `0 2px 2px / 0 3px 3px`。
+- 2026-03-27：全局 `card-shadow` 全包围 halo 再小幅放大：light/dark 都微调为 `0 0 3px / 0 0 4px`，保留 1px keyline。
 
 ---
 
