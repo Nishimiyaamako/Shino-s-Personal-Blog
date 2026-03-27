@@ -688,11 +688,10 @@
   --tag-layer-count-surface: color-mix(in srgb, var(--tag-count-surface) 72%, var(--accent-mauve-soft));
 }
 
-.tag-bubble:hover {
+.tag-bubble:hover,
+.tag-bubble:focus-visible {
   transform: translateY(calc(var(--motion-distance-hover) * -1));
-  background: color-mix(in srgb, var(--tag-hover-surface) 72%, var(--tag-layer-surface));
-  color: var(--tag-hover-text-color);
-  box-shadow: 0 10px 18px color-mix(in srgb, var(--accent-berry) 14%, transparent);
+  box-shadow: var(--card-shadow-cool-hover);
 }
 
 .tag-bubble:focus-visible {

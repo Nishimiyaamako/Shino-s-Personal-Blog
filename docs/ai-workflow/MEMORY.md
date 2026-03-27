@@ -73,6 +73,7 @@
 - 决策：`/tags` 展开面板移除预渲染 template，改为运行时按需渲染 `renderPostList(getPostsByTag(tag))` 并做缓存复用。
 - 决策：`frontend/src/styles/global.css` 改为样式 manifest，按 `tokens -> base -> layout -> content -> posts -> motion` 顺序聚合子文件。
 - 决策：运行时 CSS 自定义属性读写统一走 `frontend/src/utils/dom-style.ts`，只抽样式 plumbing，不抽象动效算法本身。
+- 决策：全局 `card-shadow` 进一步收紧为“blur 与位移重叠”的贴边窄阴影；light 固定为 `-2px 2px 2px / -3px 3px 3px`，dark 固定为 `0 2px 2px / 0 3px 3px`。
 
 ## 4) 已踩坑与回归风险（预算 ≤ 40 行）
 
@@ -108,13 +109,15 @@
   - 防护：规划 summary/detail 分层与按需解析策略，避免列表页承担正文解析成本。
 - 风险：样式拆分后若导入顺序或归属判断错误，容易出现跨文件 cascade 回归。
   - 防护：固定 `global.css` manifest 顺序，并在 `frontend/src/styles/README.md` 记录文件职责与 token/recipe 使用边界。
+- 风险：把 blur 压到与位移同级后，卡片边缘会更利落，但 hover 层级可能比上一版更克制。
+  - 防护：优先回归 `/posts`、`/tags`、`/friends` 与侧栏卡片；若层级不够，再只上调 hover blur，不改 base 几何。
 
 ## 5) 当前任务与下一步（预算 ≤ 35 行）
 
-- 当前任务：已完成首页文章卡片日期改造——有封面时位于卡片内部、封面左侧的窄槽，无封面时回退到内容区右侧；首页有封面卡片固定隐藏最后一个候选标签。
-- 下一步 1：人工回归首页 5 张最新文章卡片，重点看有图/无图、标签数不同、封面加载成功/失败切换时的日期位置与标签隐藏。
-- 下一步 2：继续验收 `/`、`/about`、`/posts`、`/posts/:slug`、`/tags`、`/tags/:tag`、`/archive`、`/friends` 的 light/dark 与断点表现。
-- 下一步 3：后续若继续做样式抽取，优先从 card shell / control shell recipe 继续收敛，而不是新增更多全局 token。
+- 当前任务：已完成全局 `card-shadow` 二次收紧——让 blur 与位移同级，进一步压缩阴影外扩范围。
+- 下一步 1：人工回归 `/posts`、`/tags`、标签展开面板与 `/friends`，重点看阴影是否更贴边、叠影是否继续下降。
+- 下一步 2：检查 `profile-card`、`page-header`、`markdown-content`、`post-theme-card`、`post-toc-card` 在 light/dark 下 hover 层级是否仍够明显。
+- 下一步 3：若 hover 层级不够，下一轮优先只把 hover blur 从 `3` 提回 `4`，base 不动。
 
 ## 6) 最近更新记录（预算 ≤ 10 行）
 
@@ -131,6 +134,7 @@
 - 2026-03-26：完成标签体系整改：统一 tag token/状态语义、补齐 `/tags` ARIA + Esc/焦点回退，并将标签面板改为按需渲染 + 缓存。
 - 2026-03-26：将 `global.css` 重构为 manifest，并拆分 `tokens/base/layout/content/posts/motion` 六层；新增 `utils/dom-style.ts` 统一运行时 CSS 变量读写。
 - 2026-03-26：首页最新文章卡片日期改为有封面时位于卡片内部、封面左侧， 无封面时回退到内容区右侧；有封面且标签数 > 1 时固定隐藏最后一个候选标签。
+- 2026-03-27：全局 `card-shadow` 继续收紧为“blur 与位移重叠”的贴边窄阴影：light 改为 `-2px 2px 2px / -3px 3px 3px`，dark 改为 `0 2px 2px / 0 3px 3px`。
 
 ---
 
