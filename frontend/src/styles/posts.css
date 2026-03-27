@@ -880,6 +880,7 @@
   outline-offset: 2px;
   border-radius: var(--tag-radius);
 }
+
 .post-detail-back-button {
   width: fit-content;
   border: 1px solid color-mix(in srgb, var(--accent-berry) 24%, var(--border));
@@ -1025,13 +1026,11 @@
 .post-theme-filter-btn:hover {
   color: var(--accent-berry);
   transform: translateY(calc(var(--motion-distance-hover) * -0.5));
-  box-shadow: var(--control-shadow-hover);
 }
 
 .post-theme-filter-btn.is-active {
   background: color-mix(in srgb, var(--surface-soft) 78%, var(--brand-soft));
   color: var(--accent-berry);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand) 16%, transparent);
 }
 
 .post-theme-filter-btn:focus-visible {
@@ -1175,7 +1174,6 @@
 .post-theme-reset-btn:hover {
   color: var(--accent-berry);
   transform: translateY(calc(var(--motion-distance-hover) * -0.5));
-  box-shadow: var(--control-shadow-hover);
 }
 
 .post-theme-reset-btn:focus-visible {
@@ -1404,7 +1402,9 @@
   background: color-mix(in srgb, var(--accent-berry-soft) 86%, transparent);
   transform: translateX(1px);
 }
+
 @media (max-width: 1024px) {
+
   .site-main--with-profile.site-main--with-post-theme .profile-card,
   .site-main--with-profile.site-main--with-post-toc .profile-card {
     display: none;
@@ -1527,6 +1527,7 @@
     padding: 0 var(--space-3);
   }
 }
+
 @media (max-width: 640px) {
   .post-card-header {
     flex-direction: column;

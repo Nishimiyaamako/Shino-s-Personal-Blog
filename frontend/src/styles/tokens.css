@@ -81,14 +81,14 @@
     0 0 0 1px color-mix(in oklch, var(--accent-secondary) 15%, transparent),
     0 0 3px color-mix(in oklch, var(--accent-secondary) 11%, transparent);
   --card-shadow-cool-hover:
-    0 0 0 1px color-mix(in oklch, var(--accent-secondary) 18%, transparent),
-    0 0 4px color-mix(in oklch, var(--accent-secondary) 15%, transparent);
+    0 0 0 1px color-mix(in oklch, var(--accent-secondary) 24%, transparent),
+    0 0 4px color-mix(in oklch, var(--accent-secondary) 22%, transparent);
   --card-shadow-warm:
     0 0 0 1px color-mix(in oklch, var(--brand) 15%, transparent),
     0 0 3px color-mix(in oklch, var(--accent-berry) 11%, transparent);
   --card-shadow-warm-hover:
-    0 0 0 1px color-mix(in oklch, var(--brand) 18%, transparent),
-    0 0 4px color-mix(in oklch, var(--accent-berry) 15%, transparent);
+    0 0 0 1px color-mix(in oklch, var(--brand) 24%, transparent),
+    0 0 4px color-mix(in oklch, var(--accent-berry) 22%, transparent);
 
   --decor-edge-offset: clamp(10px, 2vw, 24px);
   --decor-line-thickness: 2px;
@@ -191,14 +191,14 @@ html[data-clarity-preview='flat_clean'] {
       0 0 0 1px color-mix(in srgb, var(--border) 86%, transparent),
       0 0 3px color-mix(in srgb, black 34%, transparent);
     --card-shadow-cool-hover:
-      0 0 0 1px color-mix(in srgb, var(--border-strong) 72%, transparent),
-      0 0 4px color-mix(in srgb, black 42%, transparent);
+      0 0 0 1px color-mix(in srgb, var(--border-strong) 82%, transparent),
+      0 0 4px color-mix(in srgb, black 52%, transparent);
     --card-shadow-warm:
       0 0 0 1px color-mix(in srgb, var(--accent-berry) 18%, var(--border)),
       0 0 3px color-mix(in srgb, black 34%, transparent);
     --card-shadow-warm-hover:
-      0 0 0 1px color-mix(in srgb, var(--accent-berry) 24%, var(--border-strong)),
-      0 0 4px color-mix(in srgb, black 42%, transparent);
+      0 0 0 1px color-mix(in srgb, var(--accent-berry) 32%, var(--border-strong)),
+      0 0 4px color-mix(in srgb, black 52%, transparent);
 
     --decor-line-opacity: 0.04;
     --decor-shape-opacity: 0.055;
