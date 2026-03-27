@@ -346,9 +346,9 @@ function setupPageEnhancements(pathname: string): (() => void) | null {
     cleanups.push(cleanupRouteEnterTransition);
   }
 
-  const cleanupSidePanelLeftPopMotion = setupSidePanelLeftPopMotion();
-  if (cleanupSidePanelLeftPopMotion) {
-    cleanups.push(cleanupSidePanelLeftPopMotion);
+  const cleanupSidePanelPopMotion = setupSidePanelPopMotion();
+  if (cleanupSidePanelPopMotion) {
+    cleanups.push(cleanupSidePanelPopMotion);
   }
 
   const cleanupPostCardRiseMotion = setupPostCardRiseMotion();
@@ -464,6 +464,10 @@ const POST_CARD_MOTION_SELECTORS = [
 const SIDE_PANEL_LEFT_POP_SELECTORS = [
   '.profile-card',
   '.page-home > .home-intro-panel'
+] as const;
+const SIDE_PANEL_RIGHT_POP_SELECTORS = [
+  '.post-theme-rail .post-theme-card',
+  '.post-toc-rail .post-toc-card'
 ] as const;
 const POST_LIST_SELECTOR = '.post-list';
 const HOME_POST_LIST_CLASS = 'post-list--home';
@@ -650,70 +654,92 @@ function setupRouteEnterTransition(): (() => void) | null {
   };
 }
 
-function setupSidePanelLeftPopMotion(): (() => void) | null {
+function setupSidePanelPopMotion(): (() => void) | null {
   const reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const targetElements = Array.from(
-    document.querySelectorAll<HTMLElement>(SIDE_PANEL_LEFT_POP_SELECTORS.join(','))
-  );
+  const collectOrderedTargets = (
+    selectors: readonly string[],
+    shouldIncludeTarget?: (targetElement: HTMLElement) => boolean
+  ): HTMLElement[] =>
+    Array.from(document.querySelectorAll<HTMLElement>(selectors.join(',')))
+      .filter((targetElement) => shouldIncludeTarget?.(targetElement) ?? true)
+      .map((targetElement, domIndex) => {
+        const rect = targetElement.getBoundingClientRect();
 
-  if (!targetElements.length) {
+        return {
+          targetElement,
+          top: rect.top,
+          left: rect.left,
+          domIndex
+        };
+      })
+      .sort((leftEntry, rightEntry) => {
+        if (leftEntry.top !== rightEntry.top) {
+          return leftEntry.top - rightEntry.top;
+        }
+
+        if (leftEntry.left !== rightEntry.left) {
+          return leftEntry.left - rightEntry.left;
+        }
+
+        return leftEntry.domIndex - rightEntry.domIndex;
+      })
+      .map((entry) => entry.targetElement);
+
+  const motionGroups = [
+    {
+      targets: collectOrderedTargets(SIDE_PANEL_LEFT_POP_SELECTORS),
+      directionClassName: 'motion-side-pop-item--from-left'
+    },
+    {
+      targets: collectOrderedTargets(
+        SIDE_PANEL_RIGHT_POP_SELECTORS,
+        (targetElement) =>
+          !targetElement.closest<HTMLElement>('.post-theme-rail.is-inline-mobile, .post-toc-rail.is-inline-mobile')
+      ),
+      directionClassName: 'motion-side-pop-item--from-right'
+    }
+  ].filter((group) => group.targets.length);
+
+  if (!motionGroups.length) {
     return null;
   }
 
-  const orderedTargets = targetElements
-    .map((targetElement, domIndex) => {
-      const rect = targetElement.getBoundingClientRect();
-
-      return {
-        targetElement,
-        top: rect.top,
-        left: rect.left,
-        domIndex
-      };
-    })
-    .sort((leftEntry, rightEntry) => {
-      if (leftEntry.top !== rightEntry.top) {
-        return leftEntry.top - rightEntry.top;
-      }
-
-      if (leftEntry.left !== rightEntry.left) {
-        return leftEntry.left - rightEntry.left;
-      }
-
-      return leftEntry.domIndex - rightEntry.domIndex;
-    })
-    .map((entry) => entry.targetElement);
-
-  for (const [index, targetElement] of orderedTargets.entries()) {
-    targetElement.classList.add('motion-left-pop-item');
-    setCssVar(targetElement, '--motion-index', String(index));
+  for (const group of motionGroups) {
+    for (const [index, targetElement] of group.targets.entries()) {
+      targetElement.classList.add('motion-side-pop-item', group.directionClassName);
+      setCssVar(targetElement, '--motion-index', String(index));
+    }
   }
 
-  let revealFrameId = window.requestAnimationFrame(() => {
-    for (const targetElement of orderedTargets) {
-      targetElement.classList.add('is-visible');
-    }
-  });
+  const revealFrameIds = motionGroups.map((group) =>
+    window.requestAnimationFrame(() => {
+      for (const targetElement of group.targets) {
+        targetElement.classList.add('is-visible');
+      }
+    })
+  );
 
   const handleReducedMotionChange = (event: MediaQueryListEvent): void => {
     if (!event.matches) {
       return;
     }
 
-    window.cancelAnimationFrame(revealFrameId);
-    revealFrameId = 0;
+    for (const revealFrameId of revealFrameIds) {
+      window.cancelAnimationFrame(revealFrameId);
+    }
 
-    for (const targetElement of orderedTargets) {
-      targetElement.classList.add('is-visible');
+    for (const group of motionGroups) {
+      for (const targetElement of group.targets) {
+        targetElement.classList.add('is-visible');
+      }
     }
   };
 
   reducedMotionMediaQuery.addEventListener('change', handleReducedMotionChange);
 
   return () => {
-    if (revealFrameId) {
+    for (const revealFrameId of revealFrameIds) {
       window.cancelAnimationFrame(revealFrameId);
-      revealFrameId = 0;
     }
 
     reducedMotionMediaQuery.removeEventListener('change', handleReducedMotionChange);

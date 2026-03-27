@@ -25,10 +25,10 @@
   }
 }
 
-@keyframes home-card-left-enter {
+@keyframes side-panel-pop-enter {
   from {
     opacity: 0;
-    transform: translate3d(calc(var(--motion-home-left-distance) * -1), calc(var(--motion-distance-enter) * 0.45), 0);
+    transform: translate3d(var(--motion-side-pop-translate-x), calc(var(--motion-distance-enter) * 0.45), 0);
   }
 
   to {
@@ -122,14 +122,23 @@
   transition-delay: var(--route-enter-delay, 0ms);
 }
 
-.motion-left-pop-item {
+.motion-side-pop-item {
+  --motion-side-pop-translate-x: calc(var(--motion-home-left-distance) * -1);
   opacity: 0;
-  transform: translate3d(calc(var(--motion-home-left-distance) * -1), calc(var(--motion-distance-enter) * 0.45), 0);
+  transform: translate3d(var(--motion-side-pop-translate-x), calc(var(--motion-distance-enter) * 0.45), 0);
   will-change: transform, opacity;
 }
 
-.motion-left-pop-item.is-visible {
-  animation: home-card-left-enter var(--motion-duration-enter-home) var(--motion-ease-out-quint) forwards;
+.motion-side-pop-item--from-left {
+  --motion-side-pop-translate-x: calc(var(--motion-home-left-distance) * -1);
+}
+
+.motion-side-pop-item--from-right {
+  --motion-side-pop-translate-x: var(--motion-home-left-distance);
+}
+
+.motion-side-pop-item.is-visible {
+  animation: side-panel-pop-enter var(--motion-duration-enter-home) var(--motion-ease-out-quint) forwards;
   animation-delay: calc(var(--motion-index, 0) * var(--motion-stagger-step-home) + 72ms);
 }
 
@@ -188,7 +197,7 @@
   }
 
   .route-enter-target,
-  .motion-left-pop-item,
+  .motion-side-pop-item,
   .motion-profile-edge-enter,
   .motion-card-rise,
   .motion-stagger-item,
@@ -202,7 +211,7 @@
   }
 
   .tag-bubble,
-  .motion-left-pop-item,
+  .motion-side-pop-item,
   .motion-profile-edge-enter,
   .motion-card-rise,
   .tag-posts-panel,

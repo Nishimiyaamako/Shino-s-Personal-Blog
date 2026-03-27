@@ -114,10 +114,10 @@
 
 ## 5) 当前任务与下一步（预算 ≤ 35 行）
 
-- 当前任务：已完成 hover/focus 阴影高亮增强——保持 halo 大小不变，只提高 hover token 的亮度感。
-- 下一步 1：人工回归 `/posts`、`/archive`、`/friends`、`/tags`，重点看 hover/focus 是否更明显，但没有明显变厚。
-- 下一步 2：检查 `profile-card`、`page-header`、`markdown-content`、`post-theme-card`、`post-toc-card` 在 light/dark 下 hover 层级是否仍够明显。
-- 下一步 3：若还想更明显，下一轮优先继续微调 hover token 的颜色权重；若觉得过亮，先回退 hover 权重，不动几何。
+- 当前任务：已完成右侧 side panel 路由动效补齐——`/posts` 主题卡与 `/posts/:slug` 目录卡改为桌面端从右侧镜像入场，移动端保持普通页面进场。
+- 下一步 1：人工回归 `/posts` 与文章详情页，确认右侧卡片和左侧名片卡节奏一致，但不会和正文 route/stagger 动效打架。
+- 下一步 2：检查 `max-width: 1024px` 下 `.is-inline-mobile` 场景，确认右侧卡片不会继续横向滑入。
+- 下一步 3：若还想更精细，下一轮优先评估右侧卡片是否需要独立延迟微调；当前先保持与左卡完全镜像。
 
 ## 6) 最近更新记录（预算 ≤ 10 行）
 
@@ -135,6 +135,9 @@
 - 2026-03-26：将 `global.css` 重构为 manifest，并拆分 `tokens/base/layout/content/posts/motion` 六层；新增 `utils/dom-style.ts` 统一运行时 CSS 变量读写。
 - 2026-03-26：首页最新文章卡片日期改为有封面时位于卡片内部、封面左侧， 无封面时回退到内容区右侧；有封面且标签数 > 1 时固定隐藏最后一个候选标签。
 - 2026-03-27：保持全包围 halo 为 `0 0 3px / 0 0 4px`，并仅增强 hover/focus shadow token 的颜色强度，让激活高亮更明显。
+- 2026-03-27：标签云 `tag-bubble` 基态/激活态阴影切换到文章卡片同款 `card-shadow-cool / card-shadow-cool-hover`，hover 响应语言统一。
+- 2026-03-27：标签云 hover/focus 位移从 `1.75x` 全局 hover 距离改为固定 `-6px`，解决实际观感提升不明显的问题。
+- 2026-03-27：右侧 `post-theme-card` / `post-toc-card` 补齐桌面端镜像 route-enter 动效，复用左侧名片卡同款时长与 easing，移动端 inline rail 不参与横向滑入。
 
 ---
 

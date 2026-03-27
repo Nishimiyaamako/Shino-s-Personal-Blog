@@ -591,6 +591,7 @@
   --tag-layer-border: color-mix(in srgb, var(--tag-border-color) 88%, transparent);
   --tag-layer-text: color-mix(in srgb, var(--tag-text-color) 92%, var(--text));
   --tag-layer-count-surface: color-mix(in srgb, var(--tag-count-surface) 70%, var(--tag-layer-surface));
+  --tag-bubble-hover-lift: -6px;
 
   max-width: min(100%, 18rem);
   min-height: var(--tag-hit-size);
@@ -601,6 +602,9 @@
   border: 0;
   background: var(--tag-layer-surface);
   color: var(--tag-layer-text);
+  box-shadow: var(--card-shadow-cool);
+  backdrop-filter: var(--material-card-backdrop);
+  -webkit-backdrop-filter: var(--material-card-backdrop);
   cursor: pointer;
   font: inherit;
   line-height: 1.15;
@@ -690,7 +694,7 @@
 
 .tag-bubble:hover,
 .tag-bubble:focus-visible {
-  transform: translateY(calc(var(--motion-distance-hover) * -1));
+  transform: translateY(var(--tag-bubble-hover-lift));
   box-shadow: var(--card-shadow-cool-hover);
 }
 
@@ -702,7 +706,7 @@
 .tag-bubble.is-active {
   color: var(--tag-active-text-color);
   background: color-mix(in srgb, var(--tag-active-surface) 82%, var(--tag-layer-surface));
-  box-shadow: var(--shadow-strong);
+  box-shadow: var(--card-shadow-cool-hover);
 }
 
 .tag-bubble.is-active .tag-count {
