@@ -26,6 +26,7 @@ interface RefreshPostCardMotionOptions {
   replay?: boolean;
 }
 let refreshPostCardMotion: ((scope?: MotionScopeNode, options?: RefreshPostCardMotionOptions) => void) | null = null;
+let lastRenderedRoutePath: string | null = null;
 const HISTORY_STATE_NAV_INDEX_KEY = '__appNavIndex' as const;
 const FIXED_PREVIEW_PALETTE_ID = 'rose_atelier' as const;
 const FIXED_CLARITY_PREVIEW_ID = 'flat_clean' as const;
@@ -86,6 +87,7 @@ function renderApp(): void {
   const { route, context, isFallback } = resolveRoute(window.location.pathname);
   const pageTitle = isFallback ? `404 (${context.pathname})` : route.title;
   const hasProfileCard = shouldRenderProfileCard(route.path);
+  const shouldEnableProfileCardRouteMotion = shouldEnableProfileCardRouteMotionForRoute(route.path);
   const hasPostTocRail = route.path === '/posts/:slug';
   const hasPostThemeRail = route.path === '/posts';
   const isFriendsPage = route.path === '/friends';
@@ -137,11 +139,26 @@ function renderApp(): void {
 </div>
 `;
 
-  cleanupPageEnhancements = setupPageEnhancements(context.pathname);
+  lastRenderedRoutePath = route.path;
+  cleanupPageEnhancements = setupPageEnhancements(context.pathname, {
+    enableProfileCardRouteMotion: shouldEnableProfileCardRouteMotion
+  });
 }
 
 function shouldRenderProfileCard(routePath: string): boolean {
   return routePath === '/' || routePath === '/posts' || routePath === '/posts/:slug';
+}
+
+function shouldEnableProfileCardRouteMotionForRoute(nextRoutePath: string): boolean {
+  if (window.matchMedia(MOBILE_SIDE_PANEL_MEDIA_QUERY).matches) {
+    return true;
+  }
+
+  if (lastRenderedRoutePath === null) {
+    return true;
+  }
+
+  return !shouldRenderProfileCard(lastRenderedRoutePath) && shouldRenderProfileCard(nextRoutePath);
 }
 
 function shouldRenderFloatingScrollTopButton(routePath: string): boolean {
@@ -340,7 +357,7 @@ function navigateTo(path: string, options: { replace?: boolean } = {}): void {
   window.scrollTo(0, 0);
 }
 
-function setupPageEnhancements(pathname: string): (() => void) | null {
+function setupPageEnhancements(pathname: string, options: { enableProfileCardRouteMotion: boolean }): (() => void) | null {
   const cleanups: Array<() => void> = [];
 
   const cleanupMobileSidePanelPlacement = setupMobileSidePanelPlacement(pathname);
@@ -353,7 +370,9 @@ function setupPageEnhancements(pathname: string): (() => void) | null {
     cleanups.push(cleanupRouteEnterTransition);
   }
 
-  const cleanupSidePanelPopMotion = setupSidePanelPopMotion();
+  const cleanupSidePanelPopMotion = setupSidePanelPopMotion({
+    enableProfileCardGroup: options.enableProfileCardRouteMotion
+  });
   if (cleanupSidePanelPopMotion) {
     cleanups.push(cleanupSidePanelPopMotion);
   }
@@ -468,8 +487,10 @@ const POST_CARD_MOTION_SELECTORS = [
   '.post-list--posts > .post-card[data-motion-card]',
   '.post-list--tag-panel > .post-card[data-motion-card]'
 ] as const;
-const SIDE_PANEL_LEFT_POP_SELECTORS = [
-  '.profile-card',
+const PROFILE_CARD_POP_SELECTORS = [
+  '.profile-card'
+] as const;
+const SIDE_PANEL_ALWAYS_POP_SELECTORS = [
   '.page-home > .home-intro-panel'
 ] as const;
 const SIDE_PANEL_RIGHT_POP_SELECTORS = [
@@ -661,7 +682,7 @@ function setupRouteEnterTransition(): (() => void) | null {
   };
 }
 
-function setupSidePanelPopMotion(): (() => void) | null {
+function setupSidePanelPopMotion(options: { enableProfileCardGroup: boolean }): (() => void) | null {
   const reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   const collectOrderedTargets = (
     selectors: readonly string[],
@@ -693,8 +714,14 @@ function setupSidePanelPopMotion(): (() => void) | null {
       .map((entry) => entry.targetElement);
 
   const motionGroups = [
+    options.enableProfileCardGroup
+      ? {
+          targets: collectOrderedTargets(PROFILE_CARD_POP_SELECTORS),
+          directionClassName: 'motion-side-pop-item--from-left'
+        }
+      : null,
     {
-      targets: collectOrderedTargets(SIDE_PANEL_LEFT_POP_SELECTORS),
+      targets: collectOrderedTargets(SIDE_PANEL_ALWAYS_POP_SELECTORS),
       directionClassName: 'motion-side-pop-item--from-left'
     },
     {
@@ -705,7 +732,7 @@ function setupSidePanelPopMotion(): (() => void) | null {
       ),
       directionClassName: 'motion-side-pop-item--from-right'
     }
-  ].filter((group) => group.targets.length);
+  ].filter((group): group is { targets: HTMLElement[]; directionClassName: string } => Boolean(group?.targets.length));
 
   if (!motionGroups.length) {
     return null;
