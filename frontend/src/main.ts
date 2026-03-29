@@ -22,7 +22,10 @@ if (!appRoot) {
 const appElement = appRoot;
 let cleanupPageEnhancements: (() => void) | null = null;
 type MotionScopeNode = Document | Element;
-let refreshPostCardMotion: ((scope?: MotionScopeNode) => void) | null = null;
+interface RefreshPostCardMotionOptions {
+  replay?: boolean;
+}
+let refreshPostCardMotion: ((scope?: MotionScopeNode, options?: RefreshPostCardMotionOptions) => void) | null = null;
 const HISTORY_STATE_NAV_INDEX_KEY = '__appNavIndex' as const;
 const FIXED_PREVIEW_PALETTE_ID = 'rose_atelier' as const;
 const FIXED_CLARITY_PREVIEW_ID = 'flat_clean' as const;
@@ -877,10 +880,36 @@ function setupPostCardRiseMotion(): (() => void) | null {
     return observer;
   };
 
-  const runPostCardMotion = (scope: MotionScopeNode = document): void => {
-    const cardElements = Array.from(
+  const resetCardMotionState = (cardElements: readonly HTMLElement[]): void => {
+    for (const cardElement of cardElements) {
+      cardElement.classList.remove('motion-card-rise', 'motion-card-rise--home', 'is-visible');
+      clearCssVar(cardElement, '--motion-index');
+
+      if (observedCardSet.has(cardElement)) {
+        observer?.unobserve(cardElement);
+        observedCardSet.delete(cardElement);
+      }
+    }
+  };
+
+  const runPostCardMotion = (
+    scope: MotionScopeNode = document,
+    options: RefreshPostCardMotionOptions = {}
+  ): void => {
+    const scopedCardElements = Array.from(
       scope.querySelectorAll<HTMLElement>(POST_CARD_MOTION_SELECTORS.join(','))
     );
+
+    if (options.replay) {
+      if (revealFrameId) {
+        window.cancelAnimationFrame(revealFrameId);
+        revealFrameId = 0;
+      }
+
+      resetCardMotionState(scopedCardElements);
+    }
+
+    const cardElements = scopedCardElements.filter((cardElement) => !cardElement.hidden);
 
     if (!cardElements.length) {
       return;
@@ -1931,12 +1960,20 @@ function setupPostThemeFilter(): (() => void) | null {
   );
   const resetButtonWrapElement = document.querySelector<HTMLElement>('[data-role="post-theme-reset-wrap"]');
   const resetButtonElement = document.querySelector<HTMLButtonElement>('[data-role="post-theme-reset-btn"]');
+  const postListElement = postsPageElement.querySelector<HTMLElement>('.post-list--posts');
   const postItems = Array.from(
     postsPageElement.querySelectorAll<HTMLElement>('.post-list--posts > .post-card')
   );
   const emptyHintElement = postsPageElement.querySelector<HTMLElement>('[data-role="post-theme-empty-hint"]');
 
-  if (!themeButtons.length || !postItems.length || !emptyHintElement || !resetButtonElement || !resetButtonWrapElement) {
+  if (
+    !themeButtons.length ||
+    !postItems.length ||
+    !emptyHintElement ||
+    !resetButtonElement ||
+    !resetButtonWrapElement ||
+    !postListElement
+  ) {
     return null;
   }
 
@@ -1948,6 +1985,7 @@ function setupPostThemeFilter(): (() => void) | null {
   const reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   let activeThemeKey = '';
   let resetButtonRevealFrameId = 0;
+  let postCardReplayFrameId = 0;
 
   const readRequestedThemeKey = (): string => {
     const nextThemeKey = normalizeThemeKey(new URLSearchParams(window.location.search).get('theme') ?? '');
@@ -1980,6 +2018,24 @@ function setupPostThemeFilter(): (() => void) | null {
 
     window.cancelAnimationFrame(resetButtonRevealFrameId);
     resetButtonRevealFrameId = 0;
+  };
+
+  const cancelPostCardReplay = (): void => {
+    if (!postCardReplayFrameId) {
+      return;
+    }
+
+    window.cancelAnimationFrame(postCardReplayFrameId);
+    postCardReplayFrameId = 0;
+  };
+
+  const schedulePostCardReplay = (): void => {
+    cancelPostCardReplay();
+
+    postCardReplayFrameId = window.requestAnimationFrame(() => {
+      postCardReplayFrameId = 0;
+      refreshPostCardMotion?.(postListElement, { replay: !reducedMotionMediaQuery.matches });
+    });
   };
 
   const syncResetButtonState = (isVisible: boolean, options: { animateOnShow?: boolean } = {}): void => {
@@ -2056,8 +2112,14 @@ function setupPostThemeFilter(): (() => void) | null {
     }
 
     const nextThemeKey = targetElement.dataset.themeKey ?? '';
+
+    if (!nextThemeKey || nextThemeKey === activeThemeKey) {
+      return;
+    }
+
     syncThemeState(nextThemeKey);
     syncThemeSearchParam(nextThemeKey);
+    schedulePostCardReplay();
   };
 
   const handleResetButtonClick = (): void => {
@@ -2075,8 +2137,13 @@ function setupPostThemeFilter(): (() => void) | null {
   syncThemeState(initialThemeKey, { animateResetButtonOnShow: Boolean(initialThemeKey) });
   syncThemeSearchParam(initialThemeKey);
 
+  if (initialThemeKey) {
+    schedulePostCardReplay();
+  }
+
   return () => {
     cancelResetButtonReveal();
+    cancelPostCardReplay();
 
     for (const themeButtonElement of themeButtons) {
       themeButtonElement.removeEventListener('click', handleThemeButtonClick);

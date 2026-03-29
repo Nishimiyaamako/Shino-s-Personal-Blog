@@ -115,10 +115,10 @@
 
 ## 5) 当前任务与下一步（预算 ≤ 35 行）
 
-- 当前任务：已为 `/posts?theme=...` 首次进入时的“返回全部文章”按钮补齐 reveal 动效；当前主线转为验证主题侧栏与文章详情侧栏的动效语言是否完全一致。
-- 下一步 1：人工回归 `/posts?theme=<existing-key>`，确认 reset 按钮只在首屏主题筛选态播放 reveal，页内切换主题不重复播放。
-- 下一步 2：检查 `max-width: 1024px` 下 `.is-inline-mobile` 场景，确认主题侧栏 inline 后 reset 按钮 reveal 不错位、不残留点击区域。
-- 下一步 3：联动回归 `/posts/:slug` 目录卡“回到顶部”按钮，确认两者显隐节奏一致，且 `prefers-reduced-motion` 下都能直接显示/隐藏。
+- 当前任务：已补齐主题卡片按钮点击后的文章卡片 replay；现在 `/posts?theme=...` 首屏进入与页内点击主题分类都会按最终可见卡片重播文章页同款入场动效。
+- 下一步 1：人工回归 `/posts?theme=<existing-key>` 与页内点击主题按钮，确认两条路径都会触发同款 card-rise/stagger，且顺序不受隐藏卡片干扰。
+- 下一步 2：点击“返回全部文章”确认列表即时恢复、reset 按钮收起，并保持当前“不额外重播全量列表动画”的策略。
+- 下一步 3：检查 `max-width: 1024px` 与 `prefers-reduced-motion`，确认 inline rail 和低动效模式下都无闪烁、错位或残留 observer / frame 状态。
 
 ## 6) 最近更新记录（预算 ≤ 10 行）
 
@@ -141,6 +141,8 @@
 - 2026-03-27：右侧 `post-theme-card` / `post-toc-card` 补齐桌面端镜像 route-enter 动效，复用左侧名片卡同款时长与 easing，移动端 inline rail 不参与横向滑入。
 - 2026-03-29：同步 `PROJECT_STRUCTURE.zh-CN.md` 与 ai-workflow 文档，补齐 `/friends` 路由、`GET /api/about` 契约，并确认项目正式名称为 `Shino's Bolg`。
 - 2026-03-29：为 `/posts?theme=...` 首屏筛选态的“返回全部文章”按钮补齐与 `post-detail-scroll-top.is-visible` 同语言的 reveal 动效；页内切换主题不重复播放。
+- 2026-03-29：将 `/posts?theme=...` 路由首屏卡片动效改为基于最终可见卡片重播；新增 replay 模式，避免隐藏卡片干扰文章页同款入场节奏。
+- 2026-03-29：主题卡片按钮页内点击也接入文章卡片 replay；同主题重复点击不重复调度，返回全部文章仍保持不重播全量列表动画。
 
 ---
 
