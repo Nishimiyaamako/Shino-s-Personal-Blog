@@ -67,7 +67,7 @@
 
 .page-about [data-about-motion] {
   --about-motion-offset-x: 0px;
-  --about-motion-offset-y: calc(var(--motion-distance-enter) * 0.7);
+  --about-motion-offset-y: calc(var(--motion-distance-reveal-primary) * 0.7);
   opacity: 0;
   transform: translate3d(var(--about-motion-offset-x), var(--about-motion-offset-y), 0);
   will-change: transform, opacity;
@@ -77,8 +77,8 @@
   opacity: 1;
   transform: translate3d(0, 0, 0);
   transition:
-    opacity var(--motion-duration-enter) var(--motion-ease-out-quint),
-    transform var(--motion-duration-enter) var(--motion-ease-out-quint);
+    opacity var(--motion-duration-reveal-primary) var(--motion-ease-enter-primary),
+    transform var(--motion-duration-reveal-primary) var(--motion-ease-enter-primary);
   transition-delay: var(--about-motion-delay, 0ms);
 }
 
@@ -1228,9 +1228,9 @@
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  border: 1px solid color-mix(in srgb, var(--border) 90%, var(--brand-soft));
-  background: color-mix(in srgb, var(--surface) 86%, transparent);
-  color: var(--text-subtle);
+  border: 1px solid color-mix(in srgb, var(--accent-interactive) 24%, var(--border));
+  background: var(--control-surface-interactive);
+  color: var(--accent-info-text);
   border-radius: 999px;
   font-size: 0.58rem;
   line-height: 1;
@@ -1239,12 +1239,16 @@
   transition:
     color var(--motion-transition-feedback),
     border-color var(--motion-transition-feedback),
-    background-color var(--motion-transition-feedback);
+    background-color var(--motion-transition-feedback),
+    box-shadow var(--motion-transition-feedback),
+    transform var(--motion-transition-feedback);
 }
 
 .friend-link-copy-button:hover {
-  color: color-mix(in srgb, var(--accent-berry) 78%, var(--text));
-  border-color: color-mix(in srgb, var(--accent-berry) 35%, var(--border));
+  color: var(--accent-interactive-text);
+  border-color: color-mix(in srgb, var(--accent-interactive) 40%, var(--border));
+  box-shadow: var(--control-halo-interactive);
+  transform: translateY(calc(var(--motion-distance-hover) * -0.45));
 }
 
 .friend-link-copy-button:focus-visible {
@@ -1253,13 +1257,14 @@
 }
 
 .friend-link-copy-button.is-copied {
-  color: color-mix(in srgb, var(--accent-berry) 85%, var(--text));
-  border-color: color-mix(in srgb, var(--accent-berry) 42%, var(--border));
-  background: color-mix(in srgb, var(--accent-berry-soft) 78%, transparent);
+  color: var(--accent-highlight-text);
+  border-color: color-mix(in srgb, var(--accent-highlight) 44%, var(--border));
+  background: var(--control-surface-highlight);
+  box-shadow: var(--control-halo-highlight);
 }
 
 .friend-link-copy-button.is-error {
-  color: color-mix(in srgb, var(--rose-500) 86%, var(--accent-berry));
+  color: color-mix(in srgb, var(--rose-500) 82%, var(--accent-highlight-text));
   border-color: color-mix(in srgb, var(--rose-500) 52%, var(--border));
 }
 
@@ -1338,7 +1343,7 @@
   .page-about .about-story-block.is-left[data-about-motion],
   .page-about .about-story-block.is-right[data-about-motion] {
     --about-motion-offset-x: 0px;
-    --about-motion-offset-y: calc(var(--motion-distance-enter) * 0.7);
+    --about-motion-offset-y: calc(var(--motion-distance-reveal-primary) * 0.7);
   }
 
   .about-dialogue-grid {

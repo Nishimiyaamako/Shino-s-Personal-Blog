@@ -75,6 +75,9 @@
 - 决策：`frontend/src/styles/global.css` 改为样式 manifest，按 `tokens -> base -> layout -> content -> posts -> motion` 顺序聚合子文件。
 - 决策：运行时 CSS 自定义属性读写统一走 `frontend/src/utils/dom-style.ts`，只抽样式 plumbing，不抽象动效算法本身。
 - 决策：全局 `card-shadow` 保持全包围 halo 尺寸不变（`0 0 3px / 0 0 4px`），并仅增强 hover/focus 阶段的颜色强度，不放大几何。
+- 决策：全站动效新增“语义 token 层”（route/panel/reveal/feedback），并把 route-enter 与 about delay 常量在 `main.ts` 集中管理，避免多入口节奏漂移。
+- 决策：小面积控件点缀色按语义映射落地（`info=淡蓝` / `interactive=淡青` / `highlight=淡金`），仅覆盖边框、浅底、阴影与强调文字，不改正文主色。
+- 决策：将小面积点缀进一步收敛为“仅保留蓝色语义”，并移除按钮内部渐变底（`control-surface-*` 改为纯色混合底）。
 
 ## 4) 已踩坑与回归风险（预算 ≤ 40 行）
 
@@ -112,13 +115,15 @@
   - 防护：固定 `global.css` manifest 顺序，并在 `frontend/src/styles/README.md` 记录文件职责与 token/recipe 使用边界。
 - 风险：只增强 hover/focus 颜色强度后，若权重过高，激活态可能显得过亮，和 base 的层级对比过大。
   - 防护：优先回归 `/posts`、`/archive`、`/friends`、`/tags`；若 hover 过跳，只回退 hover token 的 `color-mix` 权重，不改 halo 尺寸。
+- 风险：新增淡蓝/淡青/淡金后，dark mode 下部分微控件可能出现“亮度感知过高”导致抢眼。
+  - 防护：统一走语义 token（`accent-*-soft/text/halo`）并先回归导航、TOC、排序/回顶/复制按钮；必要时只回退 dark token 权重。
 
 ## 5) 当前任务与下一步（预算 ≤ 35 行）
 
-- 当前任务：已将“只有 `.profile-card` 使用特殊路由判定”进一步限制为**仅桌面端生效**；移动端下 `.profile-card` 也恢复原有路由动效行为。
-- 下一步 1：桌面端回归 `有名片卡 -> 有名片卡`（如 `/ -> /posts`、`/posts -> /posts/:slug`），确认只有左侧名片卡停用特殊路由动效，其它元素都正常入场。
-- 下一步 2：桌面端回归 `无名片卡 -> 有名片卡`（如 `/tags -> /posts`、`/about -> /`），确认名片卡仍会播放特殊路由动效，且正文 / 侧栏 / 页面级元素照常播放原有路由动效。
-- 下一步 3：移动端回归同样路径，确认 `.profile-card` 不再受特殊判定限制，整体恢复原有路由动效行为。
+- 当前任务：已完成“全站核心动效语言统一 + 小面积淡蓝/淡青/淡金点缀”落地（tokens/motion/posts/layout/content/main）。
+- 下一步 1：回归 `route-enter / side-panel / card / about` 编排一致性，确认桌面端与移动端节奏统一且不重播异常。
+- 下一步 2：重点核验导航下划线、TOC 进度、主题筛选计数、排序/回顶/复制按钮在 light/dark 下的对比度和层级感。
+- 下一步 3：若局部过亮，仅回调语义 token 权重（不改动结构与动效算法）。
 
 ## 6) 最近更新记录（预算 ≤ 10 行）
 
@@ -150,6 +155,9 @@
 - 2026-03-29：将右侧 `post-theme-card` / `post-toc-card` 从上述路由动效限制中豁免；两者继续保留原有 side-panel pop 路由动效。
 - 2026-03-29：再次收窄规则——只有 `.profile-card` 继续使用“无名片卡 -> 有名片卡”特殊路由判定；其它路由动效元素全部恢复原有行为。
 - 2026-03-29：将 `.profile-card` 的特殊路由判定再限制为仅桌面端生效；移动端恢复原有路由动效行为。
+- 2026-03-29：按 `$bolder + $frontend-design` 完成全站核心动效语义 token 化，并在导航/TOC/排序/回顶/复制等小控件落地淡蓝淡青淡金点缀与统一微光 halo 反馈。
+- 2026-03-29：按最新视觉反馈移除淡青/淡金应用，统一收敛为蓝色点缀，并去掉按钮内部渐变效果。
+- 2026-03-29：蓝色点缀进一步收敛为“仅头栏保留”，通过在 `site-main/site-footer/浮动控件` 范围覆盖语义 token 回退正文区配色。
 
 ---
 

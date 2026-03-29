@@ -18,6 +18,29 @@
   margin-inline: auto;
 }
 
+/* 蓝色点缀仅保留头栏：正文区/浮动控件回退到原有主色语义 */
+.site-main,
+.site-footer,
+.floating-scroll-top-wrap {
+  --accent-info: var(--accent-berry);
+  --accent-interactive: var(--accent-berry);
+  --accent-highlight: var(--accent-berry);
+  --accent-info-soft: color-mix(in oklch, var(--brand-soft) 62%, var(--surface-soft));
+  --accent-interactive-soft: color-mix(in oklch, var(--brand-soft) 68%, var(--surface-soft));
+  --accent-highlight-soft: color-mix(in oklch, var(--brand-soft) 74%, var(--surface-soft));
+  --accent-info-text: color-mix(in oklch, var(--accent-berry) 66%, var(--text));
+  --accent-interactive-text: color-mix(in oklch, var(--accent-berry) 74%, var(--text));
+  --accent-highlight-text: color-mix(in oklch, var(--accent-berry) 82%, var(--text));
+  --control-surface-interactive: var(--control-surface-soft);
+  --control-surface-highlight: color-mix(in srgb, var(--surface-soft) 78%, var(--brand-soft));
+  --control-halo-interactive:
+    0 0 0 1px color-mix(in srgb, var(--accent-berry) 24%, transparent),
+    0 8px 16px color-mix(in srgb, var(--accent-berry) 14%, transparent);
+  --control-halo-highlight:
+    0 0 0 1px color-mix(in srgb, var(--accent-berry) 30%, transparent),
+    0 8px 16px color-mix(in srgb, var(--accent-berry) 18%, transparent);
+}
+
 .site-header-inner {
   width: var(--layout-wide);
   margin-inline: auto;
@@ -88,7 +111,9 @@
   white-space: nowrap;
   transition:
     color var(--motion-transition-state),
-    transform var(--motion-transition-state);
+    transform var(--motion-transition-state),
+    box-shadow var(--motion-transition-state),
+    background-color var(--motion-transition-state);
 }
 
 .site-nav a::after {
@@ -99,7 +124,7 @@
   width: 0;
   height: 2px;
   border-radius: 999px;
-  background: currentColor;
+  background: color-mix(in srgb, var(--accent-interactive) 78%, var(--accent-info));
   opacity: 0.84;
   transition:
     width var(--motion-transition-state),
@@ -107,9 +132,11 @@
 }
 
 .site-nav a:hover {
-  color: color-mix(in srgb, var(--accent-berry) 66%, var(--brand));
+  color: var(--accent-interactive-text);
+  background: color-mix(in srgb, var(--accent-interactive-soft) 58%, transparent);
   text-decoration: none;
   transform: translateY(calc(var(--motion-distance-hover) * -0.35));
+  box-shadow: var(--control-halo-interactive);
 }
 
 .site-nav a:hover::after {
@@ -117,12 +144,15 @@
 }
 
 .site-nav a.is-active {
-  color: color-mix(in srgb, var(--accent-berry) 82%, var(--text));
+  color: var(--accent-highlight-text);
   font-weight: 600;
+  background: color-mix(in srgb, var(--accent-highlight-soft) 62%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-highlight) 28%, transparent);
 }
 
 .site-nav a.is-active::after {
   width: 68%;
+  background: color-mix(in srgb, var(--accent-highlight) 76%, var(--accent-interactive));
 }
 
 .site-nav a:focus-visible {

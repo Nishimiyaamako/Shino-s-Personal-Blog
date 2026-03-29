@@ -7,6 +7,9 @@
   --p-brand-500: oklch(66% 0.19 358);
   --p-brand-700: oklch(49% 0.19 357);
   --p-accent-500: oklch(68% 0.11 317);
+  --p-info-500: oklch(78% 0.065 248);
+  --p-interactive-500: var(--p-info-500);
+  --p-highlight-500: var(--p-info-500);
   --p-neutral-50: oklch(97% 0.012 335);
 
   /* 兼容现有语义命名，避免大面积重构 */
@@ -20,6 +23,15 @@
   --accent-berry: var(--rose-700);
   --accent-secondary: var(--cyan-500);
   --accent-secondary-soft: color-mix(in oklch, var(--accent-secondary) 24%, var(--ivory-50));
+  --accent-info: var(--p-info-500);
+  --accent-interactive: var(--accent-info);
+  --accent-highlight: var(--accent-info);
+  --accent-info-soft: color-mix(in oklch, var(--accent-info) 26%, var(--surface));
+  --accent-interactive-soft: color-mix(in oklch, var(--accent-interactive) 24%, var(--surface));
+  --accent-highlight-soft: color-mix(in oklch, var(--accent-highlight) 26%, var(--surface));
+  --accent-info-text: color-mix(in oklch, var(--accent-info) 54%, var(--text));
+  --accent-interactive-text: color-mix(in oklch, var(--accent-interactive) 58%, var(--text));
+  --accent-highlight-text: color-mix(in oklch, var(--accent-highlight) 62%, var(--text));
   --ink-dark: color-mix(in oklch, var(--rose-700) 80%, var(--accent-secondary));
   --neutral-metal: color-mix(in oklch, var(--rose-700) 24%, var(--ivory-50));
 
@@ -135,21 +147,43 @@
   --motion-stagger-step: 56ms;
   --motion-stagger-step-home: 72ms;
   --motion-stagger-step-card: 104ms;
+  --motion-stagger-step-route: 24ms;
+  --motion-delay-card-reveal-base: 80ms;
+  --motion-delay-side-panel-base: 72ms;
+  --motion-delay-profile-edge-base: 84ms;
 
   --motion-ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
   --motion-ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
   --motion-ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-ease-enter-primary: var(--motion-ease-out-quint);
+  --motion-ease-enter-soft: var(--motion-ease-out-quart);
+  --motion-ease-feedback: var(--motion-ease-out-quart);
 
   --motion-distance-enter: 14px;
   --motion-home-left-distance: 28px;
   --motion-profile-edge-distance: 108vw;
   --motion-distance-route: 8px;
   --motion-distance-hover: 2px;
+  --motion-distance-reveal-primary: var(--motion-distance-enter);
+  --motion-distance-reveal-soft: var(--motion-distance-route);
+  --motion-distance-panel-y: calc(var(--motion-distance-enter) * 0.45);
+  --motion-distance-profile-y: calc(var(--motion-distance-enter) * 0.35);
+  --motion-duration-reveal-primary: var(--motion-duration-enter);
+  --motion-duration-reveal-panel: var(--motion-duration-enter-home);
+  --motion-duration-reveal-route: var(--motion-duration-route-enter);
   --motion-transition-feedback: var(--motion-duration-feedback) var(--motion-ease-out-quart);
   --motion-transition-state: var(--motion-duration-state) var(--motion-ease-out-quart);
   --focus-ring-outline-soft: 2px solid color-mix(in srgb, var(--brand-soft) 68%, var(--brand));
   --focus-ring-outline-strong: 2px solid var(--brand);
   --control-surface-soft: color-mix(in srgb, var(--surface-soft) 82%, var(--brand-soft));
+  --control-surface-interactive: color-mix(in srgb, var(--accent-info-soft) 72%, var(--control-surface-soft));
+  --control-surface-highlight: color-mix(in srgb, var(--accent-info-soft) 84%, var(--control-surface-soft));
+  --control-halo-interactive:
+    0 0 0 1px color-mix(in srgb, var(--accent-interactive) 24%, transparent),
+    0 8px 16px color-mix(in srgb, var(--accent-interactive) 14%, transparent);
+  --control-halo-highlight:
+    0 0 0 1px color-mix(in srgb, var(--accent-highlight) 28%, transparent),
+    0 8px 16px color-mix(in srgb, var(--accent-highlight) 16%, transparent);
   --control-shadow-hover: 0 6px 14px color-mix(in srgb, var(--accent-berry) 18%, transparent);
 }
 
@@ -180,10 +214,22 @@ html[data-clarity-preview='flat_clean'] {
     --brand-soft: color-mix(in oklch, var(--rose-500) 18%, var(--surface-soft));
     --accent-berry: color-mix(in oklch, var(--rose-500) 74%, var(--ivory-50));
     --accent-secondary-soft: color-mix(in oklch, var(--accent-secondary) 18%, var(--surface-soft));
+    --accent-info-soft: color-mix(in oklch, var(--accent-info) 18%, var(--surface-soft));
+    --accent-interactive-soft: color-mix(in oklch, var(--accent-interactive) 18%, var(--surface-soft));
+    --accent-highlight-soft: color-mix(in oklch, var(--accent-highlight) 20%, var(--surface-soft));
+    --accent-info-text: color-mix(in oklch, var(--accent-info) 64%, var(--text));
+    --accent-interactive-text: color-mix(in oklch, var(--accent-interactive) 64%, var(--text));
+    --accent-highlight-text: color-mix(in oklch, var(--accent-highlight) 54%, var(--text));
     --neutral-metal: color-mix(in oklch, var(--ivory-50) 24%, var(--surface-soft));
     --accent-bubble-soft: color-mix(in oklch, var(--brand-soft) 64%, var(--surface-soft));
     --accent-mauve-soft: color-mix(in oklch, var(--neutral-metal) 38%, var(--surface-soft));
     --accent-berry-soft: color-mix(in oklch, var(--accent-berry) 18%, var(--surface-soft));
+    --control-halo-interactive:
+      0 0 0 1px color-mix(in srgb, var(--accent-interactive) 34%, transparent),
+      0 8px 16px color-mix(in srgb, black 36%, transparent);
+    --control-halo-highlight:
+      0 0 0 1px color-mix(in srgb, var(--accent-highlight) 34%, transparent),
+      0 8px 16px color-mix(in srgb, black 36%, transparent);
 
     --shadow: 0 14px 30px rgba(0, 0, 0, 0.34);
     --shadow-strong: 0 18px 40px rgba(0, 0, 0, 0.44);

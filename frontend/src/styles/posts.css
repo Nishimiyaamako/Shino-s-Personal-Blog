@@ -610,9 +610,9 @@
   line-height: 1.15;
   text-align: left;
   opacity: 0;
-  transform: translateY(var(--motion-distance-enter));
-  animation: tag-bubble-rise var(--motion-duration-enter) var(--motion-ease-out-quint) forwards;
-  animation-delay: calc(var(--tag-col-index, var(--i, 0)) * var(--motion-stagger-step) + 80ms);
+  transform: translateY(var(--motion-distance-reveal-primary));
+  animation: tag-bubble-rise var(--motion-duration-reveal-primary) var(--motion-ease-enter-primary) forwards;
+  animation-delay: calc(var(--tag-col-index, var(--i, 0)) * var(--motion-stagger-step) + var(--motion-delay-card-reveal-base));
   transition:
     transform var(--motion-transition-state),
     box-shadow var(--motion-transition-state),
@@ -640,8 +640,8 @@
   padding: 0 0.4rem;
   border-radius: 999px;
   font-size: 0.72em;
-  background: var(--tag-layer-count-surface);
-  color: color-mix(in oklch, var(--accent-secondary) 38%, var(--tag-layer-text));
+  background: color-mix(in srgb, var(--accent-info-soft) 82%, var(--tag-layer-count-surface));
+  color: color-mix(in oklch, var(--accent-info-text) 88%, var(--tag-layer-text));
   transition:
     background-color var(--motion-transition-state),
     color var(--motion-transition-state);
@@ -695,7 +695,7 @@
 .tag-bubble:hover,
 .tag-bubble:focus-visible {
   transform: translateY(var(--tag-bubble-hover-lift));
-  box-shadow: var(--card-shadow-cool-hover);
+  box-shadow: var(--card-shadow-cool-hover), var(--control-halo-interactive);
 }
 
 .tag-bubble:focus-visible {
@@ -704,14 +704,14 @@
 }
 
 .tag-bubble.is-active {
-  color: var(--tag-active-text-color);
-  background: color-mix(in srgb, var(--tag-active-surface) 82%, var(--tag-layer-surface));
-  box-shadow: var(--card-shadow-cool-hover);
+  color: color-mix(in srgb, var(--tag-active-text-color) 90%, var(--accent-highlight-text));
+  background: color-mix(in srgb, var(--tag-active-surface) 72%, var(--accent-highlight-soft));
+  box-shadow: var(--card-shadow-cool-hover), var(--control-halo-highlight);
 }
 
 .tag-bubble.is-active .tag-count {
-  background: color-mix(in srgb, var(--ivory-50) 24%, transparent);
-  color: var(--surface);
+  background: color-mix(in srgb, var(--accent-highlight) 34%, transparent);
+  color: color-mix(in srgb, var(--surface) 92%, var(--accent-highlight-text));
 }
 
 .tag-posts-panel {
@@ -725,7 +725,7 @@
 
 .tag-posts-panel.is-open {
   display: block;
-  animation: tag-panel-enter calc(var(--motion-duration-state) + 80ms) var(--motion-ease-out-quint) both;
+  animation: tag-panel-enter calc(var(--motion-duration-state) + 80ms) var(--motion-ease-enter-primary) both;
 }
 
 .tag-posts-panel-header {
@@ -764,10 +764,10 @@
   flex: none;
   min-width: var(--tag-hit-size);
   min-height: var(--tag-hit-size);
-  border: var(--tag-border-width) solid var(--tag-border-color);
+  border: var(--tag-border-width) solid color-mix(in srgb, var(--accent-interactive) 30%, var(--tag-border-color));
   border-radius: var(--tag-radius);
-  background: var(--tag-surface-quiet);
-  color: var(--tag-text-color);
+  background: var(--control-surface-interactive);
+  color: var(--accent-interactive-text);
   cursor: pointer;
   font-size: 1.18rem;
   line-height: 1;
@@ -775,14 +775,16 @@
     background-color var(--motion-transition-state),
     border-color var(--motion-transition-state),
     color var(--motion-transition-state),
-    transform var(--motion-transition-state);
+    transform var(--motion-transition-state),
+    box-shadow var(--motion-transition-state);
 }
 
 .tag-posts-panel-close:hover {
-  background: var(--tag-hover-surface);
-  border-color: var(--tag-hover-border-color);
-  color: var(--tag-hover-text-color);
+  background: color-mix(in srgb, var(--accent-interactive-soft) 82%, var(--tag-hover-surface));
+  border-color: color-mix(in srgb, var(--accent-interactive) 44%, var(--tag-hover-border-color));
+  color: var(--accent-interactive-text);
   transform: translateY(calc(var(--motion-distance-hover) * -0.5));
+  box-shadow: var(--control-halo-interactive);
 }
 
 .tag-posts-panel-close:focus-visible {
@@ -854,8 +856,8 @@
   min-height: 1.65rem;
   padding: 0 0.7rem;
   border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--neutral-metal) 24%, var(--surface-soft));
-  color: color-mix(in srgb, var(--text) 82%, var(--accent-berry));
+  background: color-mix(in srgb, var(--accent-info-soft) 68%, var(--surface-soft));
+  color: color-mix(in srgb, var(--accent-info-text) 82%, var(--text));
   font-size: 0.82rem;
   font-weight: 600;
 }
@@ -887,10 +889,10 @@
 
 .post-detail-back-button {
   width: fit-content;
-  border: 1px solid color-mix(in srgb, var(--accent-berry) 24%, var(--border));
+  border: 1px solid color-mix(in srgb, var(--accent-interactive) 24%, var(--border));
   border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--brand-soft) 60%, var(--surface));
-  color: color-mix(in srgb, var(--accent-berry) 82%, var(--text));
+  background: var(--control-surface-interactive);
+  color: var(--accent-interactive-text);
   font: inherit;
   font-size: 0.88rem;
   font-weight: 600;
@@ -907,8 +909,9 @@
 
 .post-detail-back-button:hover {
   transform: translateX(calc(var(--motion-distance-hover) * -0.45));
-  border-color: color-mix(in srgb, var(--accent-berry) 38%, var(--border));
-  background: color-mix(in srgb, var(--brand-soft) 70%, var(--surface));
+  border-color: color-mix(in srgb, var(--accent-interactive) 38%, var(--border));
+  background: color-mix(in srgb, var(--accent-interactive-soft) 84%, var(--control-surface-soft));
+  box-shadow: var(--control-halo-interactive);
 }
 
 .post-detail-back-button:active {
@@ -964,10 +967,10 @@
   justify-content: center;
   min-height: 1.9rem;
   padding: 0.28rem 0.62rem;
-  border: 1px solid color-mix(in srgb, var(--accent-berry) 24%, var(--border));
+  border: 1px solid color-mix(in srgb, var(--accent-interactive) 24%, var(--border));
   border-radius: 999px;
-  background: color-mix(in srgb, var(--surface) 90%, var(--brand-soft));
-  color: color-mix(in srgb, var(--accent-berry) 82%, var(--text));
+  background: var(--control-surface-interactive);
+  color: var(--accent-interactive-text);
   font: inherit;
   font-size: 0.78rem;
   font-weight: 600;
@@ -977,13 +980,16 @@
     border-color var(--motion-transition-state),
     background-color var(--motion-transition-state),
     color var(--motion-transition-state),
-    transform var(--motion-transition-state);
+    transform var(--motion-transition-state),
+    box-shadow var(--motion-transition-state);
 }
 
 .post-theme-mobile-toggle:hover {
-  border-color: color-mix(in srgb, var(--accent-berry) 36%, var(--border));
-  background: color-mix(in srgb, var(--surface) 84%, var(--brand-soft));
+  border-color: color-mix(in srgb, var(--accent-interactive) 40%, var(--border));
+  background: color-mix(in srgb, var(--accent-interactive-soft) 78%, var(--control-surface-soft));
+  color: var(--accent-interactive-text);
   transform: translateY(calc(var(--motion-distance-hover) * -0.25));
+  box-shadow: var(--control-halo-interactive);
 }
 
 .post-theme-mobile-toggle:focus-visible {
@@ -1016,7 +1022,7 @@
   padding: 0 var(--space-3);
   border: 0;
   border-radius: var(--radius-sm);
-  background: var(--control-surface-soft);
+  background: var(--control-surface-interactive);
   color: inherit;
   font: inherit;
   line-height: 1.4;
@@ -1028,13 +1034,15 @@
 }
 
 .post-theme-filter-btn:hover {
-  color: var(--accent-berry);
+  color: var(--accent-interactive-text);
   transform: translateY(calc(var(--motion-distance-hover) * -0.5));
+  box-shadow: var(--control-halo-interactive);
 }
 
 .post-theme-filter-btn.is-active {
-  background: color-mix(in srgb, var(--surface-soft) 78%, var(--brand-soft));
-  color: var(--accent-berry);
+  background: var(--control-surface-highlight);
+  color: var(--accent-highlight-text);
+  box-shadow: var(--control-halo-highlight);
 }
 
 .post-theme-filter-btn:focus-visible {
@@ -1054,7 +1062,7 @@
 .post-theme-filter-count {
   font-size: 0.74rem;
   font-weight: 700;
-  color: color-mix(in oklch, var(--accent-secondary) 46%, var(--text-subtle));
+  color: color-mix(in oklch, var(--accent-info-text) 80%, var(--text-subtle));
 }
 
 .post-theme-filter-btn.is-active .post-theme-filter-count {
@@ -1080,10 +1088,10 @@
   gap: 0.34rem;
   min-height: 1.9rem;
   padding: 0.25rem 0.5rem;
-  border: 1px solid color-mix(in srgb, var(--text-subtle) 18%, var(--border));
+  border: 1px solid color-mix(in srgb, var(--accent-info) 22%, var(--border));
   border-radius: 999px;
-  background: color-mix(in srgb, var(--surface) 94%, var(--surface-soft));
-  color: var(--text-subtle);
+  background: var(--control-surface-interactive);
+  color: var(--accent-info-text);
   font: inherit;
   font-size: 0.78rem;
   line-height: 1.35;
@@ -1092,7 +1100,8 @@
     border-color var(--motion-transition-state),
     background-color var(--motion-transition-state),
     color var(--motion-transition-state),
-    transform var(--motion-transition-state);
+    transform var(--motion-transition-state),
+    box-shadow var(--motion-transition-state);
 }
 
 .post-date-sort-caption {
@@ -1101,7 +1110,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: color-mix(in srgb, var(--text) 70%, var(--text-subtle));
+  color: color-mix(in srgb, var(--accent-info-text) 84%, var(--text-subtle));
 }
 
 .post-date-sort-arrow {
@@ -1110,7 +1119,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: color-mix(in srgb, var(--text) 70%, var(--text-subtle));
+  color: color-mix(in srgb, var(--accent-info-text) 84%, var(--text-subtle));
   transition: transform var(--motion-transition-state);
 }
 
@@ -1130,10 +1139,11 @@
 }
 
 .post-date-sort-toggle:hover {
-  border-color: color-mix(in srgb, var(--accent-berry) 24%, var(--border));
-  background: color-mix(in srgb, var(--surface) 90%, var(--brand-soft));
-  color: color-mix(in srgb, var(--text) 78%, var(--text-subtle));
+  border-color: color-mix(in srgb, var(--accent-interactive) 34%, var(--border));
+  background: color-mix(in srgb, var(--accent-interactive-soft) 78%, var(--control-surface-soft));
+  color: var(--accent-interactive-text);
   transform: translateY(calc(var(--motion-distance-hover) * -0.2));
+  box-shadow: var(--control-halo-interactive);
 }
 
 .post-date-sort-toggle:focus-visible {
@@ -1142,13 +1152,15 @@
 }
 
 .post-date-sort-toggle[aria-pressed='true'] {
-  border-color: color-mix(in srgb, var(--accent-berry) 30%, var(--border));
-  background: color-mix(in srgb, var(--surface) 88%, var(--brand-soft));
+  border-color: color-mix(in srgb, var(--accent-highlight) 38%, var(--border));
+  background: var(--control-surface-highlight);
+  color: var(--accent-highlight-text);
+  box-shadow: var(--control-halo-highlight);
 }
 
 .post-date-sort-toggle:hover .post-date-sort-caption,
 .post-date-sort-toggle:hover .post-date-sort-arrow {
-  color: color-mix(in srgb, var(--text) 82%, var(--accent-berry));
+  color: var(--accent-interactive-text);
 }
 
 .post-theme-empty-hint {
@@ -1186,7 +1198,7 @@
   padding: 0 var(--space-3);
   border: 0;
   border-radius: var(--radius-sm);
-  background: var(--control-surface-soft);
+  background: var(--control-surface-interactive);
   color: inherit;
   font: inherit;
   font-size: 0.82rem;
@@ -1210,8 +1222,9 @@
 }
 
 .post-theme-reset-btn.is-visible:hover {
-  color: var(--accent-berry);
+  color: var(--accent-interactive-text);
   transform: translateY(calc(var(--motion-distance-hover) * -0.5));
+  box-shadow: var(--control-halo-interactive);
 }
 
 .post-theme-reset-btn:focus-visible {
@@ -1280,7 +1293,7 @@
   padding: 0 var(--space-3);
   border: 0;
   border-radius: var(--radius-sm);
-  background: var(--control-surface-soft);
+  background: var(--control-surface-interactive);
   color: inherit;
   box-shadow: none;
   font: inherit;
@@ -1291,7 +1304,10 @@
   pointer-events: none;
   transition:
     opacity var(--motion-transition-state),
-    transform var(--motion-transition-state);
+    transform var(--motion-transition-state),
+    box-shadow var(--motion-transition-state),
+    color var(--motion-transition-state),
+    background-color var(--motion-transition-state);
 }
 
 .post-detail-scroll-top.is-visible {
@@ -1301,9 +1317,9 @@
 }
 
 .post-detail-scroll-top.is-visible:hover {
-  color: inherit;
-  transform: translateY(0);
-  box-shadow: none;
+  color: var(--accent-interactive-text);
+  transform: translateY(calc(var(--motion-distance-hover) * -0.15));
+  box-shadow: var(--control-halo-interactive);
 }
 
 .post-detail-scroll-top:active {
@@ -1343,11 +1359,11 @@
   min-width: 4.2rem;
   border-radius: var(--radius-sm);
   box-shadow: none;
-  background: var(--control-surface-soft);
+  background: var(--control-surface-interactive);
 }
 
 .post-detail-scroll-top--floating:hover {
-  background: var(--control-surface-soft);
+  background: color-mix(in srgb, var(--accent-interactive-soft) 78%, var(--control-surface-soft));
 }
 
 .btt-icon {
@@ -1360,6 +1376,7 @@
   font-size: 0.73rem;
   font-weight: 700;
   letter-spacing: 0.02em;
+  color: var(--accent-info-text);
 }
 
 .post-toc-title {
@@ -1400,12 +1417,12 @@
 
 .post-toc-list::before {
   height: 100%;
-  background: color-mix(in srgb, var(--accent-berry) 18%, var(--border));
+  background: color-mix(in srgb, var(--accent-info) 28%, var(--border));
 }
 
 .post-toc-list::after {
   height: var(--post-toc-progress-height);
-  background: color-mix(in srgb, var(--accent-berry) 70%, var(--brand));
+  background: color-mix(in srgb, var(--accent-interactive) 58%, var(--accent-highlight));
   transition: height var(--motion-transition-state);
 }
 
@@ -1429,15 +1446,15 @@
 }
 
 .post-toc-link:hover {
-  color: color-mix(in srgb, var(--accent-berry) 78%, var(--text));
+  color: var(--accent-interactive-text);
   text-decoration: none;
-  background: color-mix(in srgb, var(--accent-berry-soft) 72%, transparent);
+  background: color-mix(in srgb, var(--accent-interactive-soft) 72%, transparent);
 }
 
 .post-toc-item.is-active .post-toc-link {
-  color: color-mix(in srgb, var(--accent-berry) 84%, var(--text));
+  color: var(--accent-highlight-text);
   font-weight: 600;
-  background: color-mix(in srgb, var(--accent-berry-soft) 86%, transparent);
+  background: color-mix(in srgb, var(--accent-highlight-soft) 80%, transparent);
   transform: translateX(1px);
 }
 

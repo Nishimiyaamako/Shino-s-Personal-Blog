@@ -16,7 +16,7 @@
 @keyframes tag-bubble-rise {
   from {
     opacity: 0;
-    transform: translateY(var(--motion-distance-enter));
+    transform: translateY(var(--motion-distance-reveal-primary));
   }
 
   to {
@@ -28,7 +28,7 @@
 @keyframes side-panel-pop-enter {
   from {
     opacity: 0;
-    transform: translate3d(var(--motion-side-pop-translate-x), calc(var(--motion-distance-enter) * 0.45), 0);
+    transform: translate3d(var(--motion-side-pop-translate-x), var(--motion-distance-panel-y), 0);
   }
 
   to {
@@ -40,7 +40,7 @@
 @keyframes profile-card-edge-enter {
   from {
     opacity: 0;
-    transform: translate3d(var(--motion-profile-edge-translate-x), calc(var(--motion-distance-enter) * 0.35), 0);
+    transform: translate3d(var(--motion-profile-edge-translate-x), var(--motion-distance-profile-y), 0);
   }
 
   to {
@@ -52,7 +52,7 @@
 @keyframes tag-panel-enter {
   from {
     opacity: 0;
-    transform: translateY(calc(var(--motion-distance-enter) * 0.6));
+    transform: translateY(calc(var(--motion-distance-reveal-primary) * 0.6));
   }
 
   to {
@@ -109,7 +109,7 @@
 
 .route-enter-target {
   opacity: 0;
-  transform: translateY(var(--motion-distance-route));
+  transform: translateY(var(--motion-distance-reveal-soft));
   will-change: transform, opacity;
 }
 
@@ -117,15 +117,15 @@
   opacity: 1;
   transform: translateY(0);
   transition:
-    opacity var(--motion-duration-route-enter) var(--motion-ease-out-quart),
-    transform var(--motion-duration-route-enter) var(--motion-ease-out-quart);
+    opacity var(--motion-duration-reveal-route) var(--motion-ease-enter-soft),
+    transform var(--motion-duration-reveal-route) var(--motion-ease-enter-soft);
   transition-delay: var(--route-enter-delay, 0ms);
 }
 
 .motion-side-pop-item {
   --motion-side-pop-translate-x: calc(var(--motion-home-left-distance) * -1);
   opacity: 0;
-  transform: translate3d(var(--motion-side-pop-translate-x), calc(var(--motion-distance-enter) * 0.45), 0);
+  transform: translate3d(var(--motion-side-pop-translate-x), var(--motion-distance-panel-y), 0);
   will-change: transform, opacity;
 }
 
@@ -138,14 +138,14 @@
 }
 
 .motion-side-pop-item.is-visible {
-  animation: side-panel-pop-enter var(--motion-duration-enter-home) var(--motion-ease-out-quint) forwards;
-  animation-delay: calc(var(--motion-index, 0) * var(--motion-stagger-step-home) + 72ms);
+  animation: side-panel-pop-enter var(--motion-duration-reveal-panel) var(--motion-ease-enter-primary) forwards;
+  animation-delay: calc(var(--motion-index, 0) * var(--motion-stagger-step-home) + var(--motion-delay-side-panel-base));
 }
 
 .motion-profile-edge-enter {
   opacity: 0;
   transform: translate3d(var(--motion-profile-edge-translate-x, calc(var(--motion-profile-edge-distance) * -1)),
-      calc(var(--motion-distance-enter) * 0.35),
+      var(--motion-distance-profile-y),
       0);
   will-change: transform, opacity;
 }
@@ -159,25 +159,25 @@
 }
 
 .motion-profile-edge-enter.is-visible {
-  animation: profile-card-edge-enter var(--motion-duration-profile-edge-enter) var(--motion-ease-out-quint) forwards;
-  animation-delay: 84ms;
+  animation: profile-card-edge-enter var(--motion-duration-profile-edge-enter) var(--motion-ease-enter-primary) forwards;
+  animation-delay: var(--motion-delay-profile-edge-base);
 }
 
 .motion-card-rise {
   opacity: 0;
-  transform: translateY(var(--motion-distance-enter));
+  transform: translateY(var(--motion-distance-reveal-primary));
   will-change: transform, opacity;
 }
 
 .motion-card-rise.is-visible {
-  animation: tag-bubble-rise var(--motion-duration-enter) var(--motion-ease-out-quint) forwards;
-  animation-delay: calc(var(--motion-index, 0) * var(--motion-stagger-step-card) + 80ms);
+  animation: tag-bubble-rise var(--motion-duration-reveal-primary) var(--motion-ease-enter-primary) forwards;
+  animation-delay: calc(var(--motion-index, 0) * var(--motion-stagger-step-card) + var(--motion-delay-card-reveal-base));
 }
 
 .motion-stagger-item,
 .motion-observe-item {
   opacity: 0;
-  transform: translateY(var(--motion-distance-enter));
+  transform: translateY(var(--motion-distance-reveal-primary));
   will-change: transform, opacity;
 }
 
@@ -186,8 +186,8 @@
   opacity: 1;
   transform: translateY(0);
   transition:
-    opacity var(--motion-duration-enter) var(--motion-ease-out-quint),
-    transform var(--motion-duration-enter) var(--motion-ease-out-quint);
+    opacity var(--motion-duration-reveal-primary) var(--motion-ease-enter-primary),
+    transform var(--motion-duration-reveal-primary) var(--motion-ease-enter-primary);
   transition-delay: calc(var(--motion-index, 0) * var(--motion-stagger-step));
 }
 

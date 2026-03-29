@@ -523,6 +523,35 @@ const HOME_POST_LIST_CLASS = 'post-list--home';
 const POST_CARD_ROW_TOLERANCE_PX = 10;
 const POST_CARD_STAGGER_CAP = 10;
 const MOBILE_SIDE_PANEL_MEDIA_QUERY = '(max-width: 1024px)';
+const MOTION_DELAY_MS = {
+  routeEnterStep: 24,
+  about: {
+    intro: {
+      initialBase: 208,
+      initialStep: 82,
+      scrollStep: 62
+    },
+    dialogue: {
+      initialBase: 392,
+      initialStep: 96,
+      scrollStep: 74
+    },
+    timeline: {
+      initialBase: 548,
+      initialStep: 88,
+      scrollStep: 72
+    },
+    journey: {
+      initialBase: 688,
+      initialStep: 80,
+      scrollStep: 66
+    },
+    desktopDialogueOffset: {
+      initial: 28,
+      scroll: 24
+    }
+  }
+} as const;
 const ABOUT_INTRO_ITEM_SELECTOR = '[data-about-motion="intro-item"]';
 const ABOUT_DIALOGUE_ITEM_SELECTOR = '[data-about-motion="dialogue-item"]';
 const ABOUT_TIMELINE_ITEM_SELECTOR = '[data-about-motion="timeline-item"]';
@@ -679,7 +708,7 @@ function setupRouteEnterTransition(): (() => void) | null {
 
   for (const [index, targetElement] of routeEnterTargets.entries()) {
     targetElement.classList.add('route-enter-target');
-    setCssVar(targetElement, '--route-enter-delay', `${index * 24}ms`);
+    setCssVar(targetElement, '--route-enter-delay', `${index * MOTION_DELAY_MS.routeEnterStep}ms`);
   }
 
   const frameId = window.requestAnimationFrame(() => {
@@ -1271,23 +1300,27 @@ function setupAboutContentMotion(options: AboutContentMotionOptions = {}): (() =
     Array.from(aboutPageElement.querySelectorAll<HTMLElement>(ABOUT_INTRO_ITEM_SELECTOR)),
     {
       orderTargets: orderPostCardsTopToBottom,
-      initialBaseDelayMs: 208,
-      initialStepMs: 82,
-      scrollStepMs: 62
+      initialBaseDelayMs: MOTION_DELAY_MS.about.intro.initialBase,
+      initialStepMs: MOTION_DELAY_MS.about.intro.initialStep,
+      scrollStepMs: MOTION_DELAY_MS.about.intro.scrollStep
     }
   );
   registerTargetGroup(
     Array.from(aboutPageElement.querySelectorAll<HTMLElement>(ABOUT_DIALOGUE_ITEM_SELECTOR)),
     {
       orderTargets: orderPostCardsByVisualFlow,
-      initialBaseDelayMs: 392,
-      initialStepMs: 96,
-      scrollStepMs: 74,
+      initialBaseDelayMs: MOTION_DELAY_MS.about.dialogue.initialBase,
+      initialStepMs: MOTION_DELAY_MS.about.dialogue.initialStep,
+      scrollStepMs: MOTION_DELAY_MS.about.dialogue.scrollStep,
       getInitialDelayOffsetMs: (targetElement) => {
-        return isAboutDialogueDesktopFlow && targetElement.dataset.aboutSide === 'right' ? 28 : 0;
+        return isAboutDialogueDesktopFlow && targetElement.dataset.aboutSide === 'right'
+          ? MOTION_DELAY_MS.about.desktopDialogueOffset.initial
+          : 0;
       },
       getScrollDelayOffsetMs: (targetElement) => {
-        return isAboutDialogueDesktopFlow && targetElement.dataset.aboutSide === 'right' ? 24 : 0;
+        return isAboutDialogueDesktopFlow && targetElement.dataset.aboutSide === 'right'
+          ? MOTION_DELAY_MS.about.desktopDialogueOffset.scroll
+          : 0;
       }
     }
   );
@@ -1295,18 +1328,18 @@ function setupAboutContentMotion(options: AboutContentMotionOptions = {}): (() =
     Array.from(aboutPageElement.querySelectorAll<HTMLElement>(ABOUT_TIMELINE_ITEM_SELECTOR)),
     {
       orderTargets: orderPostCardsTopToBottom,
-      initialBaseDelayMs: 548,
-      initialStepMs: 88,
-      scrollStepMs: 72
+      initialBaseDelayMs: MOTION_DELAY_MS.about.timeline.initialBase,
+      initialStepMs: MOTION_DELAY_MS.about.timeline.initialStep,
+      scrollStepMs: MOTION_DELAY_MS.about.timeline.scrollStep
     }
   );
   registerTargetGroup(
     Array.from(aboutPageElement.querySelectorAll<HTMLElement>(ABOUT_JOURNEY_ITEM_SELECTOR)),
     {
       orderTargets: orderPostCardsTopToBottom,
-      initialBaseDelayMs: 688,
-      initialStepMs: 80,
-      scrollStepMs: 66
+      initialBaseDelayMs: MOTION_DELAY_MS.about.journey.initialBase,
+      initialStepMs: MOTION_DELAY_MS.about.journey.initialStep,
+      scrollStepMs: MOTION_DELAY_MS.about.journey.scrollStep
     }
   );
 
