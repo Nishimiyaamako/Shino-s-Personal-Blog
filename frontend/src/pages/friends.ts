@@ -15,7 +15,7 @@ url: 'https://nagashino.top/'`;
           ${FRIEND_LINKS
         .map(
           (link) => `
-            <li class="friend-link-card">
+            <li class="friend-link-card" data-motion-card>
               <a href="${escapeHtml(link.url)}" class="friend-link-anchor" target="_blank" rel="noopener noreferrer">
                 <img
                   class="friend-link-avatar"

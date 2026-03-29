@@ -25,6 +25,10 @@ type MotionScopeNode = Document | Element;
 interface RefreshPostCardMotionOptions {
   replay?: boolean;
 }
+interface AboutContentMotionOptions {
+  root?: ParentNode;
+  animateInitialVisibleItems?: boolean;
+}
 let refreshPostCardMotion: ((scope?: MotionScopeNode, options?: RefreshPostCardMotionOptions) => void) | null = null;
 let lastRenderedRoutePath: string | null = null;
 const HISTORY_STATE_NAV_INDEX_KEY = '__appNavIndex' as const;
@@ -438,7 +442,23 @@ function setupPageEnhancements(pathname: string, options: { enableProfileCardRou
   }
 
   if (pathname === '/about') {
-    const cleanupAboutPageHydration = setupAboutPageHydration();
+    let cleanupAboutContentMotion = setupAboutContentMotion();
+    if (cleanupAboutContentMotion) {
+      cleanups.push(() => {
+        cleanupAboutContentMotion?.();
+        cleanupAboutContentMotion = null;
+      });
+    }
+
+    const cleanupAboutPageHydration = setupAboutPageHydration({
+      onHydrated: (aboutPageElement) => {
+        cleanupAboutContentMotion?.();
+        cleanupAboutContentMotion = setupAboutContentMotion({
+          root: aboutPageElement,
+          animateInitialVisibleItems: false
+        });
+      }
+    });
     if (cleanupAboutPageHydration) {
       cleanups.push(cleanupAboutPageHydration);
     }
@@ -462,6 +482,7 @@ const PAGE_STAGGER_SELECTORS = [
   ':scope > .page-section:not(.home-intro-panel)',
   ':scope > .about-hero',
   ':scope > .about-intro',
+  ':scope > .about-divider',
   ':scope > .about-dialogue',
   ':scope > .about-timeline',
   ':scope > .about-journey',
@@ -478,14 +499,14 @@ const PAGE_STAGGER_SELECTORS = [
 ] as const;
 
 const PAGE_SCROLL_REVEAL_SELECTORS = [
-  '.friend-link-list > .friend-link-card',
   '.stats-list > li'
 ] as const;
 
 const POST_CARD_MOTION_SELECTORS = [
   '.post-list--home > .post-card[data-motion-card]',
   '.post-list--posts > .post-card[data-motion-card]',
-  '.post-list--tag-panel > .post-card[data-motion-card]'
+  '.post-list--tag-panel > .post-card[data-motion-card]',
+  '.friend-link-list > .friend-link-card[data-motion-card]'
 ] as const;
 const PROFILE_CARD_POP_SELECTORS = [
   '.profile-card'
@@ -497,11 +518,15 @@ const SIDE_PANEL_RIGHT_POP_SELECTORS = [
   '.post-theme-rail .post-theme-card',
   '.post-toc-rail .post-toc-card'
 ] as const;
-const POST_LIST_SELECTOR = '.post-list';
+const POST_LIST_SELECTOR = '.post-list, .friend-link-list';
 const HOME_POST_LIST_CLASS = 'post-list--home';
 const POST_CARD_ROW_TOLERANCE_PX = 10;
 const POST_CARD_STAGGER_CAP = 10;
 const MOBILE_SIDE_PANEL_MEDIA_QUERY = '(max-width: 1024px)';
+const ABOUT_INTRO_ITEM_SELECTOR = '[data-about-motion="intro-item"]';
+const ABOUT_DIALOGUE_ITEM_SELECTOR = '[data-about-motion="dialogue-item"]';
+const ABOUT_TIMELINE_ITEM_SELECTOR = '[data-about-motion="timeline-item"]';
+const ABOUT_JOURNEY_ITEM_SELECTOR = '[data-about-motion="journey-item"]';
 
 function restoreNodePlacement(node: HTMLElement, parent: Node, nextSibling: ChildNode | null): void {
   if (nextSibling && nextSibling.parentNode === parent) {
@@ -1183,6 +1208,223 @@ function setupGlobalMotionChoreography(): (() => void) | null {
   };
 }
 
+function resolveAboutPageElement(root: ParentNode = document): HTMLElement | null {
+  if (root instanceof Element && root.matches('.page-about[data-role="about-page"]')) {
+    return root as HTMLElement;
+  }
+
+  return root.querySelector<HTMLElement>('.page-about[data-role="about-page"]');
+}
+
+function setupAboutContentMotion(options: AboutContentMotionOptions = {}): (() => void) | null {
+  const reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const aboutPageElement = resolveAboutPageElement(options.root);
+
+  if (!aboutPageElement || reducedMotionMediaQuery.matches) {
+    return null;
+  }
+
+  interface AboutMotionTargetMeta {
+    initialDelayMs: number;
+    scrollDelayMs: number;
+    revealOrder: number;
+  }
+
+  const targetMetaMap = new WeakMap<HTMLElement, AboutMotionTargetMeta>();
+  const observedTargetSet = new Set<HTMLElement>();
+  const motionTargets: HTMLElement[] = [];
+  const isAboutDialogueDesktopFlow = !window.matchMedia('(max-width: 900px)').matches;
+  let observer: IntersectionObserver | null = null;
+  let revealFrameId = 0;
+  let revealOrder = 0;
+
+  const registerTargetGroup = (
+    targets: readonly HTMLElement[],
+    options: {
+      orderTargets?: (targets: readonly HTMLElement[]) => HTMLElement[];
+      initialBaseDelayMs: number;
+      initialStepMs?: number;
+      scrollStepMs?: number;
+      getInitialDelayOffsetMs?: (targetElement: HTMLElement, index: number) => number;
+      getScrollDelayOffsetMs?: (targetElement: HTMLElement, index: number) => number;
+    }
+  ): void => {
+    const orderedTargets = options.orderTargets ? options.orderTargets(targets) : [...targets];
+    const initialStepMs = options.initialStepMs ?? 64;
+    const scrollStepMs = options.scrollStepMs ?? 52;
+
+    for (const [index, targetElement] of orderedTargets.entries()) {
+      const initialDelayOffsetMs = options.getInitialDelayOffsetMs?.(targetElement, index) ?? 0;
+      const scrollDelayOffsetMs = options.getScrollDelayOffsetMs?.(targetElement, index) ?? 0;
+
+      targetMetaMap.set(targetElement, {
+        initialDelayMs: options.initialBaseDelayMs + index * initialStepMs + initialDelayOffsetMs,
+        scrollDelayMs: index * scrollStepMs + scrollDelayOffsetMs,
+        revealOrder: revealOrder
+      });
+      revealOrder += 1;
+      motionTargets.push(targetElement);
+    }
+  };
+
+  registerTargetGroup(
+    Array.from(aboutPageElement.querySelectorAll<HTMLElement>(ABOUT_INTRO_ITEM_SELECTOR)),
+    {
+      orderTargets: orderPostCardsTopToBottom,
+      initialBaseDelayMs: 208,
+      initialStepMs: 82,
+      scrollStepMs: 62
+    }
+  );
+  registerTargetGroup(
+    Array.from(aboutPageElement.querySelectorAll<HTMLElement>(ABOUT_DIALOGUE_ITEM_SELECTOR)),
+    {
+      orderTargets: orderPostCardsByVisualFlow,
+      initialBaseDelayMs: 392,
+      initialStepMs: 96,
+      scrollStepMs: 74,
+      getInitialDelayOffsetMs: (targetElement) => {
+        return isAboutDialogueDesktopFlow && targetElement.dataset.aboutSide === 'right' ? 28 : 0;
+      },
+      getScrollDelayOffsetMs: (targetElement) => {
+        return isAboutDialogueDesktopFlow && targetElement.dataset.aboutSide === 'right' ? 24 : 0;
+      }
+    }
+  );
+  registerTargetGroup(
+    Array.from(aboutPageElement.querySelectorAll<HTMLElement>(ABOUT_TIMELINE_ITEM_SELECTOR)),
+    {
+      orderTargets: orderPostCardsTopToBottom,
+      initialBaseDelayMs: 548,
+      initialStepMs: 88,
+      scrollStepMs: 72
+    }
+  );
+  registerTargetGroup(
+    Array.from(aboutPageElement.querySelectorAll<HTMLElement>(ABOUT_JOURNEY_ITEM_SELECTOR)),
+    {
+      orderTargets: orderPostCardsTopToBottom,
+      initialBaseDelayMs: 688,
+      initialStepMs: 80,
+      scrollStepMs: 66
+    }
+  );
+
+  if (!motionTargets.length) {
+    return null;
+  }
+
+  const markTargetsVisible = (
+    targets: readonly HTMLElement[],
+    options: { instant?: boolean; useInitialDelay?: boolean } = {}
+  ): void => {
+    for (const targetElement of targets) {
+      const meta = targetMetaMap.get(targetElement);
+
+      if (!meta) {
+        continue;
+      }
+
+      if (options.instant) {
+        targetElement.classList.add('about-motion-item--instant');
+        setCssVar(targetElement, '--about-motion-delay', '0ms');
+      } else {
+        const delayMs = options.useInitialDelay ? meta.initialDelayMs : meta.scrollDelayMs;
+        setCssVar(targetElement, '--about-motion-delay', `${delayMs}ms`);
+      }
+
+      targetElement.classList.add('is-visible');
+
+      if (observedTargetSet.has(targetElement)) {
+        observer?.unobserve(targetElement);
+        observedTargetSet.delete(targetElement);
+      }
+    }
+  };
+
+  const initialVisibleTargets: HTMLElement[] = [];
+  const deferredTargets: HTMLElement[] = [];
+
+  for (const targetElement of motionTargets) {
+    const rect = targetElement.getBoundingClientRect();
+    const isWithinInitialViewport = rect.bottom >= 0 && rect.top <= window.innerHeight * 0.94;
+
+    if (isWithinInitialViewport) {
+      initialVisibleTargets.push(targetElement);
+    } else {
+      deferredTargets.push(targetElement);
+    }
+  }
+
+  if (options.animateInitialVisibleItems === false) {
+    markTargetsVisible(initialVisibleTargets, { instant: true });
+  } else {
+    revealFrameId = window.requestAnimationFrame(() => {
+      markTargetsVisible(initialVisibleTargets, { useInitialDelay: true });
+    });
+  }
+
+  if (!deferredTargets.length) {
+    // noop
+  } else if (typeof IntersectionObserver === 'undefined') {
+    markTargetsVisible(deferredTargets, {
+      instant: options.animateInitialVisibleItems === false,
+      useInitialDelay: false
+    });
+  } else {
+    observer = new IntersectionObserver(
+      (entries) => {
+        const intersectingTargets = entries
+          .filter((entry): entry is IntersectionObserverEntry & { target: HTMLElement } => {
+            return entry.isIntersecting && entry.target instanceof HTMLElement;
+          })
+          .map((entry) => entry.target)
+          .sort((leftTarget, rightTarget) => {
+            return (targetMetaMap.get(leftTarget)?.revealOrder ?? 0) - (targetMetaMap.get(rightTarget)?.revealOrder ?? 0);
+          });
+
+        markTargetsVisible(intersectingTargets, { useInitialDelay: false });
+      },
+      {
+        threshold: 0.2,
+        rootMargin: '0px 0px -10% 0px'
+      }
+    );
+
+    for (const targetElement of deferredTargets) {
+      observer.observe(targetElement);
+      observedTargetSet.add(targetElement);
+    }
+  }
+
+  const handleReducedMotionChange = (event: MediaQueryListEvent): void => {
+    if (!event.matches) {
+      return;
+    }
+
+    if (revealFrameId) {
+      window.cancelAnimationFrame(revealFrameId);
+      revealFrameId = 0;
+    }
+
+    observer?.disconnect();
+    observedTargetSet.clear();
+    markTargetsVisible(motionTargets, { instant: true });
+  };
+
+  reducedMotionMediaQuery.addEventListener('change', handleReducedMotionChange);
+
+  return () => {
+    if (revealFrameId) {
+      window.cancelAnimationFrame(revealFrameId);
+    }
+
+    observer?.disconnect();
+    observedTargetSet.clear();
+    reducedMotionMediaQuery.removeEventListener('change', handleReducedMotionChange);
+  };
+}
+
 function isAbortError(error: unknown): boolean {
   if (error instanceof DOMException) {
     return error.name === 'AbortError';
@@ -1195,7 +1437,7 @@ function isAbortError(error: unknown): boolean {
   return 'name' in error && (error as { name?: string }).name === 'AbortError';
 }
 
-function setupAboutPageHydration(): (() => void) | null {
+function setupAboutPageHydration(options: { onHydrated?: (aboutPageElement: HTMLElement) => void } = {}): (() => void) | null {
   const aboutPageElement = document.querySelector<HTMLElement>('.page-about[data-role="about-page"]');
 
   if (!aboutPageElement) {
@@ -1220,6 +1462,7 @@ function setupAboutPageHydration(): (() => void) | null {
 
       aboutPageElement.innerHTML = renderAboutPageBody(remoteViewModel);
       aboutPageElement.dataset.aboutFingerprint = remoteViewModel.fingerprint;
+      options.onHydrated?.(aboutPageElement);
     } catch (error) {
       if (isAbortError(error)) {
         return;

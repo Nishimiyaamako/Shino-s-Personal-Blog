@@ -190,6 +190,11 @@
     transform var(--motion-duration-enter) var(--motion-ease-out-quint);
   transition-delay: calc(var(--motion-index, 0) * var(--motion-stagger-step));
 }
+
+.page-about [data-about-motion] {
+  backface-visibility: hidden;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .app-shell::before,
   .app-shell::after {
@@ -202,6 +207,7 @@
   .motion-card-rise,
   .motion-stagger-item,
   .motion-observe-item,
+  .page-about [data-about-motion],
   .archive-year-group,
   .archive-post-item,
   .archive-timeline-end {

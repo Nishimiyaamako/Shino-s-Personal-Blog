@@ -13,13 +13,19 @@ export const renderAboutPage: PageRenderer = () => {
 
 export function renderAboutPageBody(viewModel: AboutViewModel): string {
   const introParagraphs = viewModel.introParagraphs
-    .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+    .map(
+      (paragraph) =>
+        `<p class="about-intro-paragraph" data-about-motion="intro-item">${escapeHtml(paragraph)}</p>`
+    )
     .join('');
 
   const narrativeBlocks = viewModel.narrativeSections.map((section) => renderNarrativeSection(section)).join('');
   const timelineItems = viewModel.timelineEvents.map((event) => renderTimelineEvent(event)).join('');
   const journeyParagraphs = viewModel.journeyParagraphs
-    .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+    .map(
+      (paragraph) =>
+        `<p class="about-journey-paragraph" data-about-motion="journey-item">${escapeHtml(paragraph)}</p>`
+    )
     .join('');
 
   return `
@@ -71,7 +77,12 @@ function renderNarrativeSection(section: AboutNarrativeSection): string {
   const itemList = section.items.map((item) => `<li>${escapeHtml(item)}</li>`).join('');
 
   return `
-<article class="about-story-block is-${section.side}" aria-labelledby="about-story-${escapeHtml(section.id)}">
+<article
+  class="about-story-block is-${section.side}"
+  data-about-motion="dialogue-item"
+  data-about-side="${section.side}"
+  aria-labelledby="about-story-${escapeHtml(section.id)}"
+>
   <header class="about-section-head about-section-head--story">
     <span class="about-section-label">${escapeHtml(section.label)}</span>
     <h2 id="about-story-${escapeHtml(section.id)}">${escapeHtml(section.title)}</h2>
@@ -85,7 +96,7 @@ function renderNarrativeSection(section: AboutNarrativeSection): string {
 
 function renderTimelineEvent(event: AboutTimelineEvent): string {
   return `
-<li class="about-timeline-item">
+<li class="about-timeline-item" data-about-motion="timeline-item">
   <time datetime="${escapeHtml(event.date)}">${escapeHtml(event.date)}</time>
   <p>${escapeHtml(event.detail)}</p>
 </li>

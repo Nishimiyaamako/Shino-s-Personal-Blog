@@ -140,6 +140,9 @@
 - 2026-03-27：标签云 hover/focus 位移从 `1.75x` 全局 hover 距离改为固定 `-6px`，解决实际观感提升不明显的问题。
 - 2026-03-27：右侧 `post-theme-card` / `post-toc-card` 补齐桌面端镜像 route-enter 动效，复用左侧名片卡同款时长与 easing，移动端 inline rail 不参与横向滑入。
 - 2026-03-29：同步 `PROJECT_STRUCTURE.zh-CN.md` 与 ai-workflow 文档，补齐 `/friends` 路由、`GET /api/about` 契约，并确认项目正式名称为 `Shino's Bolg`。
+- 2026-03-29：为 `/about` 增加分层 reveal 动效：分节继续按上到下入场，内部段落 / 左右叙事 / 时间线按阅读顺序递进；hydration 后仅重绑内部 reveal，不重播整页首屏动画。
+- 2026-03-29：微调 `/about` 内部动效节奏：拉开左右分栏与 timeline 的 delay，并让桌面端右栏比左栏轻微错后，整体更有呼吸感。
+- 2026-03-29：将 `/friends` 友链卡片接入文章卡片同款 reveal 编排，移出普通 scroll reveal，并对齐 hover / focus-within 阴影与位移反馈。
 - 2026-03-29：为 `/posts?theme=...` 首屏筛选态的“返回全部文章”按钮补齐与 `post-detail-scroll-top.is-visible` 同语言的 reveal 动效；页内切换主题不重复播放。
 - 2026-03-29：将 `/posts?theme=...` 路由首屏卡片动效改为基于最终可见卡片重播；新增 replay 模式，避免隐藏卡片干扰文章页同款入场节奏。
 - 2026-03-29：主题卡片按钮页内点击也接入文章卡片 replay；同主题重复点击不重复调度，返回全部文章仍保持不重播全量列表动画。
