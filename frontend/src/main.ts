@@ -290,7 +290,11 @@ function renderPostThemeRail(): string {
     <p class="post-theme-title">主题分类</p>
     ${themeStats.length
       ? `<ul class="post-theme-list">${themeButtons}</ul>
-        <button type="button" class="post-theme-reset-btn" data-role="post-theme-reset-btn" hidden>返回全部文章</button>`
+        <div class="post-theme-reset-wrap" data-role="post-theme-reset-wrap" aria-hidden="true" hidden>
+          <div class="post-theme-reset-inner">
+            <button type="button" class="post-theme-reset-btn" data-role="post-theme-reset-btn">返回全部文章</button>
+          </div>
+        </div>`
       : emptyState}
   </section>
 </aside>
@@ -1925,13 +1929,14 @@ function setupPostThemeFilter(): (() => void) | null {
   const themeButtons = Array.from(
     document.querySelectorAll<HTMLButtonElement>('[data-role="post-theme-filter-btn"]')
   );
+  const resetButtonWrapElement = document.querySelector<HTMLElement>('[data-role="post-theme-reset-wrap"]');
   const resetButtonElement = document.querySelector<HTMLButtonElement>('[data-role="post-theme-reset-btn"]');
   const postItems = Array.from(
     postsPageElement.querySelectorAll<HTMLElement>('.post-list--posts > .post-card')
   );
   const emptyHintElement = postsPageElement.querySelector<HTMLElement>('[data-role="post-theme-empty-hint"]');
 
-  if (!themeButtons.length || !postItems.length || !emptyHintElement || !resetButtonElement) {
+  if (!themeButtons.length || !postItems.length || !emptyHintElement || !resetButtonElement || !resetButtonWrapElement) {
     return null;
   }
 
@@ -1940,7 +1945,9 @@ function setupPostThemeFilter(): (() => void) | null {
       .map((buttonElement) => normalizeThemeKey(buttonElement.dataset.themeKey ?? ''))
       .filter(Boolean)
   );
+  const reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   let activeThemeKey = '';
+  let resetButtonRevealFrameId = 0;
 
   const readRequestedThemeKey = (): string => {
     const nextThemeKey = normalizeThemeKey(new URLSearchParams(window.location.search).get('theme') ?? '');
@@ -1966,7 +1973,48 @@ function setupPostThemeFilter(): (() => void) | null {
     window.history.replaceState(createHistoryStateWithIndex(currentHistoryIndex), '', nextLocation);
   };
 
-  const syncThemeState = (nextThemeKey: string): void => {
+  const cancelResetButtonReveal = (): void => {
+    if (!resetButtonRevealFrameId) {
+      return;
+    }
+
+    window.cancelAnimationFrame(resetButtonRevealFrameId);
+    resetButtonRevealFrameId = 0;
+  };
+
+  const syncResetButtonState = (isVisible: boolean, options: { animateOnShow?: boolean } = {}): void => {
+    cancelResetButtonReveal();
+
+    if (!isVisible) {
+      resetButtonWrapElement.classList.remove('is-visible');
+      resetButtonElement.classList.remove('is-visible');
+      resetButtonWrapElement.hidden = true;
+      resetButtonWrapElement.setAttribute('aria-hidden', 'true');
+      return;
+    }
+
+    resetButtonWrapElement.hidden = false;
+    resetButtonWrapElement.setAttribute('aria-hidden', 'false');
+
+    const shouldAnimateOnShow = options.animateOnShow === true && !reducedMotionMediaQuery.matches;
+
+    if (!shouldAnimateOnShow) {
+      resetButtonWrapElement.classList.add('is-visible');
+      resetButtonElement.classList.add('is-visible');
+      return;
+    }
+
+    resetButtonWrapElement.classList.remove('is-visible');
+    resetButtonElement.classList.remove('is-visible');
+
+    resetButtonRevealFrameId = window.requestAnimationFrame(() => {
+      resetButtonRevealFrameId = 0;
+      resetButtonWrapElement.classList.add('is-visible');
+      resetButtonElement.classList.add('is-visible');
+    });
+  };
+
+  const syncThemeState = (nextThemeKey: string, options: { animateResetButtonOnShow?: boolean } = {}): void => {
     activeThemeKey = nextThemeKey;
 
     for (const buttonElement of themeButtons) {
@@ -1994,7 +2042,9 @@ function setupPostThemeFilter(): (() => void) | null {
       }
     }
 
-    resetButtonElement.hidden = !activeThemeKey;
+    syncResetButtonState(Boolean(activeThemeKey), {
+      animateOnShow: Boolean(activeThemeKey) && options.animateResetButtonOnShow === true
+    });
     emptyHintElement.hidden = visiblePostCount > 0;
   };
 
@@ -2022,10 +2072,12 @@ function setupPostThemeFilter(): (() => void) | null {
   resetButtonElement.addEventListener('click', handleResetButtonClick);
 
   const initialThemeKey = readRequestedThemeKey();
-  syncThemeState(initialThemeKey);
+  syncThemeState(initialThemeKey, { animateResetButtonOnShow: Boolean(initialThemeKey) });
   syncThemeSearchParam(initialThemeKey);
 
   return () => {
+    cancelResetButtonReveal();
+
     for (const themeButtonElement of themeButtons) {
       themeButtonElement.removeEventListener('click', handleThemeButtonClick);
     }
@@ -2039,7 +2091,10 @@ function setupPostThemeFilter(): (() => void) | null {
       }
     }
 
-    resetButtonElement.hidden = true;
+    resetButtonWrapElement.classList.remove('is-visible');
+    resetButtonElement.classList.remove('is-visible');
+    resetButtonWrapElement.hidden = true;
+    resetButtonWrapElement.setAttribute('aria-hidden', 'true');
     emptyHintElement.hidden = true;
   };
 }

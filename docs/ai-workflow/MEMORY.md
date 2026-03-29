@@ -115,10 +115,10 @@
 
 ## 5) 当前任务与下一步（预算 ≤ 35 行）
 
-- 当前任务：已完成项目结构文档与 AI workflow 文档对齐；当前主线回到 `/posts` 与文章详情页右侧 side panel 动效的人工回归。
-- 下一步 1：人工回归 `/posts` 与文章详情页，确认右侧卡片和左侧名片卡节奏一致，但不会和正文 route/stagger 动效打架。
-- 下一步 2：检查 `max-width: 1024px` 下 `.is-inline-mobile` 场景，确认右侧卡片不会继续横向滑入。
-- 下一步 3：若还想更精细，下一轮优先评估右侧卡片是否需要独立延迟微调；当前先保持与左卡完全镜像。
+- 当前任务：已为 `/posts?theme=...` 首次进入时的“返回全部文章”按钮补齐 reveal 动效；当前主线转为验证主题侧栏与文章详情侧栏的动效语言是否完全一致。
+- 下一步 1：人工回归 `/posts?theme=<existing-key>`，确认 reset 按钮只在首屏主题筛选态播放 reveal，页内切换主题不重复播放。
+- 下一步 2：检查 `max-width: 1024px` 下 `.is-inline-mobile` 场景，确认主题侧栏 inline 后 reset 按钮 reveal 不错位、不残留点击区域。
+- 下一步 3：联动回归 `/posts/:slug` 目录卡“回到顶部”按钮，确认两者显隐节奏一致，且 `prefers-reduced-motion` 下都能直接显示/隐藏。
 
 ## 6) 最近更新记录（预算 ≤ 10 行）
 
@@ -140,6 +140,7 @@
 - 2026-03-27：标签云 hover/focus 位移从 `1.75x` 全局 hover 距离改为固定 `-6px`，解决实际观感提升不明显的问题。
 - 2026-03-27：右侧 `post-theme-card` / `post-toc-card` 补齐桌面端镜像 route-enter 动效，复用左侧名片卡同款时长与 easing，移动端 inline rail 不参与横向滑入。
 - 2026-03-29：同步 `PROJECT_STRUCTURE.zh-CN.md` 与 ai-workflow 文档，补齐 `/friends` 路由、`GET /api/about` 契约，并确认项目正式名称为 `Shino's Bolg`。
+- 2026-03-29：为 `/posts?theme=...` 首屏筛选态的“返回全部文章”按钮补齐与 `post-detail-scroll-top.is-visible` 同语言的 reveal 动效；页内切换主题不重复播放。
 
 ---
 
