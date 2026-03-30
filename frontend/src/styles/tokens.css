@@ -8,7 +8,6 @@
   --p-brand-700: oklch(52% 0.20 357); /* 深樱色 */
   --p-sakura-light: oklch(82% 0.15 355); /* 淡樱 */
   --p-ume-accent: oklch(64% 0.18 340); /* 梅花紫粉 */
-  --p-momiji: oklch(62% 0.22 15); /* 枫叶红粉 */
   --p-accent-500: oklch(68% 0.11 317);
   --p-wisteria: oklch(70% 0.14 295); /* 藤紫 */
   --p-info-500: oklch(78% 0.065 248);
@@ -97,7 +96,6 @@
   --shadow-strong: 0 16px 36px color-mix(in oklch, var(--rose-700) var(--material-shadow-strong-alpha), transparent),
     0 6px 16px color-mix(in oklch, var(--p-ume-accent) 8%, transparent);
   --card-radius-main: 16px;
-  --card-radius-compact: 12px;
   --card-surface-main: var(--bg);
   --card-shadow-cool:
     0 1px 3px color-mix(in oklch, var(--accent-secondary) 15%, transparent);
@@ -176,8 +174,6 @@
   --motion-distance-hover: 2px;
   --motion-distance-reveal-primary: var(--motion-distance-enter);
   --motion-distance-reveal-soft: var(--motion-distance-route);
-  --motion-distance-panel-y: calc(var(--motion-distance-enter) * 0.45);
-  --motion-distance-profile-y: calc(var(--motion-distance-enter) * 0.35);
   --motion-duration-reveal-primary: var(--motion-duration-enter);
   --motion-duration-reveal-panel: var(--motion-duration-enter-home);
   --motion-duration-reveal-route: var(--motion-duration-route-enter);
@@ -195,6 +191,21 @@
     0 0 0 1px color-mix(in srgb, var(--accent-highlight) 28%, transparent),
     0 8px 16px color-mix(in srgb, var(--accent-highlight) 16%, transparent);
   --control-shadow-hover: 0 6px 14px color-mix(in srgb, var(--accent-berry) 18%, transparent);
+
+  /* 语义化文本颜色 */
+  --text-secondary: color-mix(in oklch, var(--accent-secondary) 38%, var(--text-subtle));
+  --text-tertiary: color-mix(in oklch, var(--accent-secondary) 44%, var(--text-subtle));
+  --text-info: color-mix(in oklch, var(--accent-info-text) 80%, var(--text-subtle));
+
+  /* 文章封面阴影 */
+  --post-cover-shadow: 0 2px 8px color-mix(in oklch, var(--accent-secondary) 12%, transparent);
+  --post-cover-shadow-strong: 0 4px 12px color-mix(in oklch, var(--accent-secondary) 18%, transparent);
+
+  /* 按钮基础样式 */
+  --button-border: 1px solid color-mix(in srgb, var(--accent-interactive) 24%, var(--border));
+  --button-radius: var(--radius-sm);
+  --button-bg: var(--control-surface-interactive);
+  --button-bg-hover: var(--control-surface-highlight);
 }
 
 html[data-palette-preview='rose_atelier'] {

@@ -1229,7 +1229,7 @@
 
 .post-theme-reset-inner {
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .post-theme-reset-btn {
@@ -1317,7 +1317,7 @@
 
 .post-toc-btt-inner {
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .post-detail-scroll-top {
