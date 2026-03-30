@@ -1076,13 +1076,13 @@
 .post-theme-filter-btn:hover {
   color: var(--accent-interactive-text);
   transform: translateY(calc(var(--motion-distance-hover) * -1));
-  box-shadow: var(--control-halo-interactive);
+  box-shadow: var(--card-shadow-cool-hover);
 }
 
 .post-theme-filter-btn.is-active {
   background: var(--control-surface-highlight);
   color: var(--accent-highlight-text);
-  box-shadow: var(--control-halo-highlight);
+  box-shadow: var(--card-shadow-cool-hover);
 }
 
 .post-theme-filter-btn:focus-visible {
@@ -1182,8 +1182,8 @@
   border-color: color-mix(in srgb, var(--accent-interactive) 34%, var(--border));
   background: color-mix(in srgb, var(--accent-interactive-soft) 78%, var(--control-surface-soft));
   color: var(--accent-interactive-text);
-  transform: translateY(calc(var(--motion-distance-hover) * -0.2));
-  box-shadow: var(--control-halo-interactive);
+  transform: translateY(calc(var(--motion-distance-hover) * -1));
+  box-shadow: var(--card-shadow-cool-hover);
 }
 
 .post-date-sort-toggle:focus-visible {
@@ -1263,8 +1263,8 @@
 
 .post-theme-reset-btn.is-visible:hover {
   color: var(--accent-interactive-text);
-  transform: translateY(calc(var(--motion-distance-hover) * -0.5));
-  box-shadow: var(--control-halo-interactive);
+  transform: translateY(calc(var(--motion-distance-hover) * -1));
+  box-shadow: var(--card-shadow-cool-hover);
 }
 
 .post-theme-reset-btn:focus-visible {
@@ -1359,7 +1359,7 @@
 .post-detail-scroll-top.is-visible:hover {
   color: var(--accent-interactive-text);
   transform: translateY(calc(var(--motion-distance-hover) * -1));
-  box-shadow: var(--control-halo-interactive);
+  box-shadow: var(--card-shadow-cool-hover);
 }
 
 .post-detail-scroll-top:active {
@@ -1400,10 +1400,16 @@
   border-radius: var(--radius-sm);
   box-shadow: none;
   background: var(--control-surface-interactive);
+  transition:
+    transform var(--motion-transition-state),
+    background-color var(--motion-transition-state),
+    box-shadow var(--motion-transition-state);
 }
 
 .post-detail-scroll-top--floating:hover {
   background: color-mix(in srgb, var(--accent-interactive-soft) 78%, var(--control-surface-soft));
+  transform: translateY(calc(var(--motion-distance-hover) * -1));
+  box-shadow: var(--card-shadow-cool-hover);
 }
 
 .btt-icon {
