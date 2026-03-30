@@ -483,6 +483,7 @@
 .home-intro-panel {
   padding: 0;
   overflow: hidden;
+  box-shadow: var(--card-shadow-cool);
 }
 
 .home-intro-panel-grid {

@@ -7,9 +7,6 @@
   -webkit-backdrop-filter: var(--material-header-backdrop);
   background: color-mix(in oklch, var(--surface) 90%, transparent);
   border-bottom: 1px solid color-mix(in oklch, var(--border) 72%, transparent);
-  box-shadow:
-    0 1px 0 color-mix(in oklch, var(--brand-soft) 22%, transparent),
-    0 8px 20px color-mix(in oklch, var(--accent-berry) 6%, transparent);
 }
 
 .site-main,
@@ -236,6 +233,7 @@
 .page>* {
   min-width: 0;
 }
+
 .site-footer {
   padding: var(--space-5) 0 var(--space-6);
   color: var(--text-subtle);
@@ -271,7 +269,9 @@
 .site-footer-divider {
   color: color-mix(in srgb, var(--text-subtle) 65%, var(--surface));
 }
+
 @media (max-width: 1200px) {
+
   /* 首页兜底：<=1200 统一单列，资料卡始终在顶部 */
   .site-main--with-profile:not(.site-main--with-post-theme):not(.site-main--with-post-toc) .site-main-layout {
     grid-template-columns: 1fr;
@@ -293,6 +293,7 @@
     order: 2;
   }
 }
+
 @media (max-width: 1024px) {
   .site-header-inner {
     width: var(--layout-narrow);
@@ -340,6 +341,7 @@
     max-width: none;
   }
 }
+
 @media (max-width: 640px) {
   .site-header-inner {
     display: flex;
