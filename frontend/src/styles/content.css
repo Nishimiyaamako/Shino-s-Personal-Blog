@@ -1134,7 +1134,7 @@
 
 .friend-link-card:hover,
 .friend-link-card:focus-within {
-  transform: translateY(calc(var(--motion-distance-hover) * -1)) scale(1.01);
+  transform: translateY(calc(var(--motion-distance-hover) * -1));
   box-shadow: var(--card-shadow-cool-hover);
 }
 
