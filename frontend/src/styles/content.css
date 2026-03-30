@@ -281,6 +281,12 @@
   top: var(--profile-sticky-top);
   max-height: calc(100vh - var(--profile-sticky-top) - var(--space-5));
   overflow: auto;
+  transition: transform var(--motion-transition-state), box-shadow var(--motion-transition-state);
+}
+
+.profile-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--card-shadow-warm-hover);
 }
 
 .site-main--with-profile .profile-card {
@@ -641,8 +647,8 @@
 }
 
 .home-intro-tech-badge:hover {
-  transform: translateY(calc(var(--motion-distance-hover) * -0.75));
-  box-shadow: 0 10px 16px color-mix(in srgb, var(--tech-fg) 20%, transparent);
+  transform: translateY(calc(var(--motion-distance-hover) * -0.75)) rotate(2deg);
+  box-shadow: 0 12px 20px color-mix(in srgb, var(--tech-fg) 24%, transparent);
 }
 
 .home-intro-tech-badge[data-tech='typescript'] {
@@ -1128,7 +1134,7 @@
 
 .friend-link-card:hover,
 .friend-link-card:focus-within {
-  transform: translateY(calc(var(--motion-distance-hover) * -1));
+  transform: translateY(calc(var(--motion-distance-hover) * -1)) scale(1.01);
   box-shadow: var(--card-shadow-cool-hover);
 }
 

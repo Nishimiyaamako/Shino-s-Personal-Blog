@@ -52,7 +52,7 @@
 
 .post-card-article:hover,
 .post-card-article:focus-within {
-  transform: translateY(calc(var(--motion-distance-hover) * -1));
+  transform: translateY(calc(var(--motion-distance-hover) * -1)) scale(1.01);
   box-shadow: var(--card-shadow-cool-hover);
 }
 
@@ -88,7 +88,9 @@
 .post-list--tag-panel .post-card-cover::before {
   inset: 0;
   z-index: 1;
-  background: color-mix(in oklch, var(--surface) 42%, transparent);
+  background: linear-gradient(135deg,
+    color-mix(in oklch, var(--p-sakura-light) 28%, var(--surface)) 0%,
+    color-mix(in oklch, var(--surface) 42%, transparent) 100%);
   opacity: var(--material-post-cover-overlay-opacity);
   transition: opacity var(--motion-transition-state);
 }
@@ -100,7 +102,9 @@
   bottom: 0;
   height: 32%;
   z-index: 1;
-  background: color-mix(in oklch, var(--accent-secondary-soft) 64%, transparent);
+  background: linear-gradient(to top,
+    color-mix(in oklch, var(--p-ume-accent) 48%, var(--accent-secondary-soft)) 0%,
+    transparent 100%);
   opacity: var(--material-post-cover-bottom-opacity);
   transition: opacity var(--motion-transition-state);
 }
@@ -492,7 +496,7 @@
 }
 
 .tag-chip--theme {
-  background: color-mix(in srgb, var(--accent-secondary-soft) 58%, var(--tag-surface));
+  background: color-mix(in srgb, var(--accent-secondary-soft) 40%, var(--tag-surface));
   color: color-mix(in srgb, var(--accent-secondary) 72%, var(--tag-text-color));
   font-weight: 700;
   text-decoration: none;
@@ -500,13 +504,13 @@
 
 .tag-list a:hover,
 .tag-chip:hover {
-  background: color-mix(in srgb, var(--tag-hover-surface) 68%, var(--accent-berry-soft));
+  background: color-mix(in srgb, var(--tag-hover-surface) 52%, var(--accent-berry-soft));
   color: color-mix(in srgb, var(--tag-hover-text-color) 84%, var(--accent-berry));
   text-decoration: none;
 }
 
 .tag-chip--theme:hover {
-  background: color-mix(in srgb, var(--accent-secondary-soft) 72%, var(--accent-secondary));
+  background: color-mix(in srgb, var(--accent-secondary-soft) 52%, var(--accent-secondary));
   color: color-mix(in srgb, var(--accent-secondary) 82%, var(--surface));
 }
 
@@ -587,10 +591,10 @@
 }
 
 .tag-bubble {
-  --tag-layer-surface: color-mix(in srgb, var(--tag-surface) 88%, var(--accent-mauve-soft));
+  --tag-layer-surface: color-mix(in srgb, var(--tag-surface) 70%, var(--accent-mauve-soft));
   --tag-layer-border: color-mix(in srgb, var(--tag-border-color) 88%, transparent);
   --tag-layer-text: color-mix(in srgb, var(--tag-text-color) 92%, var(--text));
-  --tag-layer-count-surface: color-mix(in srgb, var(--tag-count-surface) 70%, var(--tag-layer-surface));
+  --tag-layer-count-surface: color-mix(in srgb, var(--tag-count-surface) 58%, var(--tag-layer-surface));
   --tag-bubble-hover-lift: -6px;
 
   max-width: min(100%, 18rem);
@@ -599,7 +603,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.48rem;
-  border: 0;
+  border: 1px solid var(--tag-layer-border);
   background: var(--tag-layer-surface);
   color: var(--tag-layer-text);
   box-shadow: var(--card-shadow-cool);
@@ -640,7 +644,7 @@
   padding: 0 0.4rem;
   border-radius: 999px;
   font-size: 0.72em;
-  background: color-mix(in srgb, var(--accent-info-soft) 82%, var(--tag-layer-count-surface));
+  background: color-mix(in srgb, var(--accent-info-soft) 56%, var(--tag-layer-count-surface));
   color: color-mix(in oklch, var(--accent-info-text) 88%, var(--tag-layer-text));
   transition:
     background-color var(--motion-transition-state),
@@ -672,29 +676,29 @@
 }
 
 .tag-bubble[data-color='strawberry'] {
-  --tag-layer-surface: color-mix(in srgb, var(--tag-surface) 80%, var(--brand-soft));
-  --tag-layer-border: color-mix(in srgb, var(--tag-border-color) 78%, var(--brand));
-  --tag-layer-text: color-mix(in srgb, var(--tag-text-color) 86%, var(--accent-berry));
-  --tag-layer-count-surface: color-mix(in srgb, var(--tag-count-surface) 72%, var(--brand-soft));
+  --tag-layer-surface: #fef1f7;
+  --tag-layer-border: color-mix(in srgb, #ec4899 12%, transparent);
+  --tag-layer-text: color-mix(in srgb, #db2777 50%, transparent);
+  --tag-layer-count-surface: color-mix(in srgb, #ec4899 10%, #fef1f7);
 }
 
 .tag-bubble[data-color='bubble'] {
-  --tag-layer-surface: color-mix(in srgb, var(--tag-surface) 78%, var(--accent-bubble-soft));
-  --tag-layer-border: color-mix(in srgb, var(--tag-border-color) 82%, var(--accent-secondary));
-  --tag-layer-text: color-mix(in srgb, var(--tag-text-color) 84%, var(--accent-secondary));
-  --tag-layer-count-surface: color-mix(in srgb, var(--tag-count-surface) 76%, var(--accent-bubble-soft));
+  --tag-layer-surface: #f0f9ff;
+  --tag-layer-border: color-mix(in srgb, #0ea5e9 12%, transparent);
+  --tag-layer-text: color-mix(in srgb, #0284c7 50%, transparent);
+  --tag-layer-count-surface: color-mix(in srgb, #0ea5e9 10%, #f0f9ff);
 }
 
 .tag-bubble[data-color='mauve'] {
-  --tag-layer-surface: color-mix(in srgb, var(--tag-surface) 82%, var(--accent-mauve-soft));
-  --tag-layer-border: color-mix(in srgb, var(--tag-border-color) 86%, var(--neutral-metal));
-  --tag-layer-text: color-mix(in srgb, var(--tag-text-color) 90%, var(--text));
-  --tag-layer-count-surface: color-mix(in srgb, var(--tag-count-surface) 72%, var(--accent-mauve-soft));
+  --tag-layer-surface: #fafafa;
+  --tag-layer-border: color-mix(in srgb, #737373 12%, transparent);
+  --tag-layer-text: color-mix(in srgb, #737373 50%, transparent);
+  --tag-layer-count-surface: color-mix(in srgb, #737373 10%, #fafafa);
 }
 
 .tag-bubble:hover,
 .tag-bubble:focus-visible {
-  transform: translateY(var(--tag-bubble-hover-lift));
+  transform: translateY(var(--tag-bubble-hover-lift)) scale(1.02);
   box-shadow: var(--card-shadow-cool-hover), var(--control-halo-interactive);
 }
 
@@ -840,8 +844,8 @@
   max-width: 100%;
   min-height: var(--tag-hit-size);
   padding: 0 0.66rem;
-  border: 0;
-  background: var(--tag-surface);
+  border: 1px solid color-mix(in srgb, var(--tag-border-color) 72%, transparent);
+  background: color-mix(in srgb, var(--tag-surface) 78%, transparent);
   color: var(--tag-text-color);
   font-weight: 700;
   font-size: 0.96rem;
@@ -856,7 +860,7 @@
   min-height: 1.65rem;
   padding: 0 0.7rem;
   border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--accent-info-soft) 68%, var(--surface-soft));
+  background: color-mix(in srgb, var(--accent-info-soft) 48%, transparent);
   color: color-mix(in srgb, var(--accent-info-text) 82%, var(--text));
   font-size: 0.82rem;
   font-weight: 600;

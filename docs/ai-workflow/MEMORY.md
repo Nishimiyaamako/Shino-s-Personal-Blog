@@ -78,6 +78,7 @@
 - 决策：全站动效新增“语义 token 层”（route/panel/reveal/feedback），并把 route-enter 与 about delay 常量在 `main.ts` 集中管理，避免多入口节奏漂移。
 - 决策：小面积控件点缀色按语义映射落地（`info=淡蓝` / `interactive=淡青` / `highlight=淡金`），仅覆盖边框、浅底、阴影与强调文字，不改正文主色。
 - 决策：将小面积点缀进一步收敛为“仅保留蓝色语义”，并移除按钮内部渐变底（`control-surface-*` 改为纯色混合底）。
+- 决策：标签体系底色透明化统一走 `tag-fill-*` token（normal/quiet/hover/count），覆盖 `tag-list/tag-chip`、`tag-bubble`、`tag-detail-badge`，激活态保持高辨识度。
 
 ## 4) 已踩坑与回归风险（预算 ≤ 40 行）
 
@@ -117,13 +118,15 @@
   - 防护：优先回归 `/posts`、`/archive`、`/friends`、`/tags`；若 hover 过跳，只回退 hover token 的 `color-mix` 权重，不改 halo 尺寸。
 - 风险：新增淡蓝/淡青/淡金后，dark mode 下部分微控件可能出现“亮度感知过高”导致抢眼。
   - 防护：统一走语义 token（`accent-*-soft/text/halo`）并先回归导航、TOC、排序/回顶/复制按钮；必要时只回退 dark token 权重。
+- 风险：标签透明度下调后，浅色背景下小字号 tag-count 可能出现对比度不足。
+  - 防护：优先回归 `/posts`、`/tags`、`/tags/:tag` 的 count 与 hover 文本；只回调 `tag-fill-count` 和 `tag-text-color`，不改激活态对比。
 
 ## 5) 当前任务与下一步（预算 ≤ 35 行）
 
-- 当前任务：已完成“全站核心动效语言统一 + 小面积淡蓝/淡青/淡金点缀”落地（tokens/motion/posts/layout/content/main）。
-- 下一步 1：回归 `route-enter / side-panel / card / about` 编排一致性，确认桌面端与移动端节奏统一且不重播异常。
-- 下一步 2：重点核验导航下划线、TOC 进度、主题筛选计数、排序/回顶/复制按钮在 light/dark 下的对比度和层级感。
-- 下一步 3：若局部过亮，仅回调语义 token 权重（不改动结构与动效算法）。
+- 当前任务：已完成标签体系底色透明化（token + `posts.css`），覆盖文章标签、标签云与标签详情徽标，激活态保持清晰对比。
+- 下一步 1：回归 `/posts`、`/tags`、`/tags/:tag` 的 normal/hover/active/focus-visible 四态层级与可读性。
+- 下一步 2：重点检查 light/dark 下 tag-count 与主题标签 `tag-chip--theme` 的文本对比度。
+- 下一步 3：若观感仍偏重/偏淡，只回调 `tag-fill-*` 百分比，不改交互逻辑与动效参数。
 
 ## 6) 最近更新记录（预算 ≤ 10 行）
 
@@ -158,6 +161,7 @@
 - 2026-03-29：按 `$bolder + $frontend-design` 完成全站核心动效语义 token 化，并在导航/TOC/排序/回顶/复制等小控件落地淡蓝淡青淡金点缀与统一微光 halo 反馈。
 - 2026-03-29：按最新视觉反馈移除淡青/淡金应用，统一收敛为蓝色点缀，并去掉按钮内部渐变效果。
 - 2026-03-29：蓝色点缀进一步收敛为“仅头栏保留”，通过在 `site-main/site-footer/浮动控件` 范围覆盖语义 token 回退正文区配色。
+- 2026-03-30：实施标签底色透明化：下调 `tag-fill-*` 与标签组件背景浓度，新增 `tag-bubble` 细边框、减轻 `tag-count` 胶囊背景，并同步淡化 `tag-detail-badge/count`。
 
 ---
 

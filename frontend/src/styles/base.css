@@ -71,10 +71,13 @@ a:hover {
   z-index: 0;
   opacity: var(--decor-shape-opacity);
   background:
-    radial-gradient(circle at 8% 14%, var(--decor-rose-halo) 0 10rem, transparent 10.5rem),
-    radial-gradient(circle at 88% 20%, var(--decor-cyan-halo) 0 7.8rem, transparent 8.2rem),
-    radial-gradient(circle at 84% 82%, var(--decor-rose-halo-soft) 0 9rem, transparent 9.4rem),
-    radial-gradient(circle at 18% 78%, var(--decor-cyan-halo-soft) 0 7.4rem, transparent 7.8rem);
+    radial-gradient(circle at 12% 18%, var(--decor-rose-halo) 0 12rem, transparent 12.5rem),
+    radial-gradient(circle at 85% 25%, var(--decor-cyan-halo) 0 9rem, transparent 9.5rem),
+    radial-gradient(circle at 78% 78%, var(--decor-rose-halo-soft) 0 11rem, transparent 11.5rem),
+    radial-gradient(circle at 22% 82%, var(--decor-cyan-halo-soft) 0 8.5rem, transparent 9rem),
+    radial-gradient(circle at 50% 50%, var(--decor-sakura-petal) 0 0.8rem, transparent 1rem),
+    radial-gradient(circle at 30% 40%, var(--decor-sakura-petal) 0 0.6rem, transparent 0.8rem),
+    radial-gradient(circle at 70% 60%, var(--decor-sakura-petal) 0 0.7rem, transparent 0.9rem);
   animation: bg-shape-drift var(--decor-shape-duration) var(--motion-ease-out-quint) infinite alternate;
 }
 
@@ -94,9 +97,11 @@ a:hover {
     repeating-linear-gradient(180deg,
       var(--decor-dash-primary) 0 var(--decor-dash-length),
       transparent var(--decor-dash-length) calc(var(--decor-dash-length) + var(--decor-dash-gap))) right var(--decor-edge-offset) top var(--decor-edge-offset) / var(--decor-line-thickness) calc(100% - (var(--decor-edge-offset) * 2)) no-repeat,
-    radial-gradient(circle at 15% 24%, var(--decor-dot) 0 2px, transparent 2.4px),
-    radial-gradient(circle at 76% 36%, var(--decor-dot) 0 1.7px, transparent 2.2px),
-    radial-gradient(circle at 30% 82%, var(--decor-dot) 0 1.8px, transparent 2.3px),
-    radial-gradient(circle at 90% 72%, color-mix(in oklch, var(--decor-dot) 64%, transparent) 0 1.5px, transparent 2px);
+    radial-gradient(circle at 18% 28%, var(--decor-dot) 0 2.2px, transparent 2.6px),
+    radial-gradient(circle at 72% 32%, var(--decor-dot) 0 1.9px, transparent 2.4px),
+    radial-gradient(circle at 35% 78%, var(--decor-dot) 0 2px, transparent 2.5px),
+    radial-gradient(circle at 88% 68%, color-mix(in oklch, var(--decor-dot) 68%, transparent) 0 1.7px, transparent 2.2px),
+    radial-gradient(ellipse 120px 40px at 50% 15%, var(--decor-wave-primary) 0%, transparent 100%),
+    radial-gradient(ellipse 100px 35px at 50% 85%, var(--decor-wave-secondary) 0%, transparent 100%);
   animation: bg-dash-drift var(--decor-dash-duration) linear infinite;
 }
