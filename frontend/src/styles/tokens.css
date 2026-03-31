@@ -91,10 +91,10 @@
   --accent-bubble-soft: color-mix(in oklch, var(--brand-soft) 62%, var(--surface-soft));
   --accent-mauve-soft: color-mix(in oklch, var(--neutral-metal) 28%, var(--surface-soft));
   --accent-berry-soft: color-mix(in oklch, var(--rose-500) 18%, var(--surface-soft));
-  --shadow: 0 12px 28px color-mix(in oklch, var(--rose-700) var(--material-shadow-alpha), transparent),
-    0 4px 12px color-mix(in oklch, var(--p-sakura-light) 6%, transparent);
-  --shadow-strong: 0 16px 36px color-mix(in oklch, var(--rose-700) var(--material-shadow-strong-alpha), transparent),
-    0 6px 16px color-mix(in oklch, var(--p-ume-accent) 8%, transparent);
+  --shadow: 0 1px 3px color-mix(in oklch, var(--rose-700) var(--material-shadow-alpha), transparent),
+    0 2px 4px color-mix(in oklch, var(--p-sakura-light) 8%, transparent);
+  --shadow-strong: 0 2px 4px color-mix(in oklch, var(--rose-700) var(--material-shadow-strong-alpha), transparent),
+    0 1px 3px color-mix(in oklch, var(--p-ume-accent) 10%, transparent);
   --card-radius-main: 16px;
   --card-surface-main: var(--bg);
   --card-shadow-cool:
@@ -187,11 +187,11 @@
   --control-surface-highlight: color-mix(in srgb, var(--accent-info-soft) 84%, var(--control-surface-soft));
   --control-halo-interactive:
     0 0 0 1px color-mix(in srgb, var(--accent-interactive) 24%, transparent),
-    0 8px 16px color-mix(in srgb, var(--accent-interactive) 14%, transparent);
+    0 1px 3px color-mix(in srgb, var(--accent-interactive) 18%, transparent);
   --control-halo-highlight:
     0 0 0 1px color-mix(in srgb, var(--accent-highlight) 28%, transparent),
-    0 8px 16px color-mix(in srgb, var(--accent-highlight) 16%, transparent);
-  --control-shadow-hover: 0 6px 14px color-mix(in srgb, var(--accent-berry) 18%, transparent);
+    0 2px 4px color-mix(in srgb, var(--accent-highlight) 20%, transparent);
+  --control-shadow-hover: 0 2px 4px color-mix(in srgb, var(--accent-berry) 22%, transparent);
 
   /* 语义化文本颜色 */
   --text-secondary: color-mix(in oklch, var(--accent-secondary) 38%, var(--text-subtle));
@@ -199,8 +199,8 @@
   --text-info: color-mix(in oklch, var(--accent-info-text) 80%, var(--text-subtle));
 
   /* 文章封面阴影 */
-  --post-cover-shadow: 0 2px 8px color-mix(in oklch, var(--accent-secondary) 12%, transparent);
-  --post-cover-shadow-strong: 0 4px 12px color-mix(in oklch, var(--accent-secondary) 18%, transparent);
+  --post-cover-shadow: 0 1px 3px color-mix(in oklch, var(--accent-secondary) 14%, transparent);
+  --post-cover-shadow-strong: 0 2px 4px color-mix(in oklch, var(--accent-secondary) 20%, transparent);
 
   /* 按钮基础样式 */
   --button-border: 1px solid color-mix(in srgb, var(--accent-interactive) 24%, var(--border));
@@ -252,13 +252,13 @@ html[data-clarity-preview='flat_clean'] {
     --accent-berry-soft: color-mix(in oklch, var(--accent-berry) 18%, var(--surface-soft));
     --control-halo-interactive:
       0 0 0 1px color-mix(in srgb, var(--accent-interactive) 34%, transparent),
-      0 8px 16px color-mix(in srgb, black 36%, transparent);
+      0 1px 3px color-mix(in srgb, black 46%, transparent);
     --control-halo-highlight:
       0 0 0 1px color-mix(in srgb, var(--accent-highlight) 34%, transparent),
-      0 8px 16px color-mix(in srgb, black 36%, transparent);
+      0 2px 4px color-mix(in srgb, black 52%, transparent);
 
-    --shadow: 0 14px 30px rgba(0, 0, 0, 0.34);
-    --shadow-strong: 0 18px 40px rgba(0, 0, 0, 0.44);
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.34);
+    --shadow-strong: 0 2px 4px rgba(0, 0, 0, 0.44);
     --card-shadow-cool:
       0 0 0 1px color-mix(in srgb, var(--border) 86%, transparent),
       0 0 3px color-mix(in srgb, black 34%, transparent);

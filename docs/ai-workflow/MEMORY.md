@@ -39,6 +39,7 @@
 - `slug` 与 `tag` 必须匹配 `^[a-z0-9]+(?:-[a-z0-9]+)*$`。
 - 列表页、标签页、归档页只能展示 `status: published`。
 - `/posts/:slug` 若文章不存在或为草稿，必须进入 404。
+- 所有带模糊扩散的 `box-shadow` 必须限制在文章卡片同级（`3px/4px` 扩散级别）；禁止再引入 `8px+` 扩散阴影。
 - Stop Hooks 采用中等自动化：自动检查 + 报告，不无限重试。
 - 默认收尾输出三段：`Checks Run / Findings / Next Action`。
 - 每次修改后必须自动执行 memory sync；任务收尾必须再做一次兜底 sync。
@@ -75,6 +76,7 @@
 - 决策：`frontend/src/styles/global.css` 改为样式 manifest，按 `tokens -> base -> layout -> content -> posts -> motion` 顺序聚合子文件。
 - 决策：运行时 CSS 自定义属性读写统一走 `frontend/src/utils/dom-style.ts`，只抽样式 plumbing，不抽象动效算法本身。
 - 决策：全局 `card-shadow` 保持全包围 halo 尺寸不变（`0 0 3px / 0 0 4px`），并仅增强 hover/focus 阶段的颜色强度，不放大几何。
+- 决策：全站阴影扩散上限统一到文章卡片级（`3px/4px`）；头栏、封面、徽标、控件 halo 仅允许调颜色/透明度，不再放大 blur 几何。
 - 决策：全站动效新增“语义 token 层”（route/panel/reveal/feedback），并把 route-enter 与 about delay 常量在 `main.ts` 集中管理，避免多入口节奏漂移。
 - 决策：小面积控件点缀色按语义映射落地（`info=淡蓝` / `interactive=淡青` / `highlight=淡金`），仅覆盖边框、浅底、阴影与强调文字，不改正文主色。
 - 决策：将小面积点缀进一步收敛为“仅保留蓝色语义”，并移除按钮内部渐变底（`control-surface-*` 改为纯色混合底）。
@@ -120,6 +122,8 @@
   - 防护：统一走语义 token（`accent-*-soft/text/halo`）并先回归导航、TOC、排序/回顶/复制按钮；必要时只回退 dark token 权重。
 - 风险：标签透明度下调后，浅色背景下小字号 tag-count 可能出现对比度不足。
   - 防护：优先回归 `/posts`、`/tags`、`/tags/:tag` 的 count 与 hover 文本；只回调 `tag-fill-count` 和 `tag-text-color`，不改激活态对比。
+- 风险：全站阴影扩散压到 `3px/4px` 后，部分 hover/focus 反馈可能显得“轻”。
+  - 防护：优先通过颜色权重与透明度增强层级，不回退到更大扩散半径。
 
 ## 5) 当前任务与下一步（预算 ≤ 35 行）
 
@@ -130,6 +134,7 @@
 
 ## 6) 最近更新记录（预算 ≤ 10 行）
 
+- 2026-03-31：按“文章卡片级阴影”统一全站模糊扩散，约束为 `3px/4px`；保留 `0 0 0 1px/3px` 与 inset 描边用于可访问性。
 - 2026-03-20：新增 1Panel 静态部署脚本/文档/Nginx 片段，并将备案信息改为 `site.ts` 可配置。
 - 2026-03-20：备案展示改为“ICP 必显 + 公安可选”，并新增 `frontend-dist-latest.tar.gz` 上传别名。
 - 2026-03-20：更新备案信息为“蜀ICP备2026012160号 + 川公网安备51150302000177号”，并重新打包部署产物。

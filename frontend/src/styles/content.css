@@ -639,7 +639,7 @@
   border: 1px solid color-mix(in srgb, var(--tech-fg) 28%, var(--border));
   background: var(--tech-bg);
   color: var(--tech-fg);
-  box-shadow: 0 7px 14px color-mix(in srgb, var(--tech-fg) 14%, transparent);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--tech-fg) 16%, transparent);
   transition:
     transform var(--motion-transition-state),
     box-shadow var(--motion-transition-state),
@@ -649,7 +649,7 @@
 
 .home-intro-tech-badge:hover {
   transform: translateY(calc(var(--motion-distance-hover) * -0.75)) rotate(2deg);
-  box-shadow: 0 12px 20px color-mix(in srgb, var(--tech-fg) 24%, transparent);
+  box-shadow: 0 2px 4px color-mix(in srgb, var(--tech-fg) 26%, transparent);
 }
 
 .home-intro-tech-badge[data-tech='typescript'] {

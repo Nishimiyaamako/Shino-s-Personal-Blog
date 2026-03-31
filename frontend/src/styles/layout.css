@@ -29,10 +29,10 @@
   --control-surface-highlight: color-mix(in srgb, var(--surface-soft) 78%, var(--brand-soft));
   --control-halo-interactive:
     0 0 0 1px color-mix(in srgb, var(--accent-berry) 24%, transparent),
-    0 8px 16px color-mix(in srgb, var(--accent-berry) 14%, transparent);
+    0 1px 3px color-mix(in srgb, var(--accent-berry) 18%, transparent);
   --control-halo-highlight:
     0 0 0 1px color-mix(in srgb, var(--accent-berry) 30%, transparent),
-    0 8px 16px color-mix(in srgb, var(--accent-berry) 18%, transparent);
+    0 2px 4px color-mix(in srgb, var(--accent-berry) 22%, transparent);
 }
 
 .site-header-inner {
@@ -47,8 +47,7 @@
   padding-inline: clamp(0.5rem, 1.2vw, 1.25rem);
   background: var(--surface-elevated);
   border-bottom: 1px solid color-mix(in oklch, var(--border) 90%, transparent);
-  box-shadow: 0 6px 18px color-mix(in oklch, var(--rose-700) var(--material-shadow-alpha), transparent),
-    0 2px 8px color-mix(in oklch, var(--p-sakura-light) 10%, transparent);
+  box-shadow: var(--card-shadow-cool-hover);
   border-radius: var(--radius-md);
 }
 

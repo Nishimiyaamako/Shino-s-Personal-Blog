@@ -225,7 +225,7 @@
   border: 0;
   border-radius: var(--radius-sm);
   background: color-mix(in srgb, var(--surface) 86%, var(--brand-soft));
-  box-shadow: 0 6px 12px color-mix(in srgb, var(--accent-berry) 16%, transparent);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--accent-berry) 18%, transparent);
   color: color-mix(in srgb, var(--accent-berry) 80%, var(--text));
   font-size: 0.74rem;
   font-weight: 700;
