@@ -45,10 +45,10 @@
   gap: clamp(0.75rem, 1.5vw, 1.25rem);
   min-height: 62px;
   padding-inline: clamp(0.5rem, 1.2vw, 1.25rem);
-  background: var(--surface-elevated);
+  background: var(--card-surface-main);
   border-bottom: 1px solid color-mix(in oklch, var(--border) 90%, transparent);
   box-shadow: var(--card-shadow-cool-hover);
-  border-radius: var(--radius-md);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
 }
 
 .site-header--wide .site-header-inner {
