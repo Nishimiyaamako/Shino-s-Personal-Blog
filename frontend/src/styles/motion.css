@@ -25,6 +25,18 @@
   }
 }
 
+@keyframes friend-link-card-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(var(--friend-card-enter-x, 0px), calc(var(--motion-distance-reveal-primary) * 0.72), 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 @keyframes side-panel-pop-enter {
   from {
     opacity: 0;
@@ -195,6 +207,27 @@
   animation-delay: calc(var(--motion-index, 0) * var(--motion-stagger-step-card) + var(--motion-delay-card-reveal-base));
 }
 
+.friend-link-list > .friend-link-card.motion-card-rise {
+  --motion-delay-card-reveal-base: 44ms;
+  --motion-stagger-step-card: 82ms;
+  --motion-duration-reveal-primary: calc(var(--motion-duration-enter) - 70ms);
+  --friend-card-enter-x: calc(var(--motion-home-left-distance) * 0.12);
+  transform: translate3d(var(--friend-card-enter-x), calc(var(--motion-distance-reveal-primary) * 0.72), 0);
+}
+
+.friend-link-list > .friend-link-card.motion-card-rise:nth-child(odd) {
+  --friend-card-enter-x: calc(var(--motion-home-left-distance) * -0.12);
+}
+
+.friend-link-list > .friend-link-card.motion-card-rise:nth-child(even) {
+  --friend-card-enter-x: calc(var(--motion-home-left-distance) * 0.12);
+}
+
+.friend-link-list > .friend-link-card.motion-card-rise.is-visible {
+  animation: friend-link-card-rise var(--motion-duration-reveal-primary) var(--motion-ease-enter-primary) forwards;
+  animation-delay: calc(var(--motion-index, 0) * var(--motion-stagger-step-card) + var(--motion-delay-card-reveal-base));
+}
+
 .motion-stagger-item,
 .motion-observe-item {
   opacity: 0;
@@ -256,13 +289,16 @@
   .post-list--posts .post-card-cover,
   .post-list--tag-panel .post-card-cover,
   .site-nav a,
-  .site-nav a::after,
   .profile-contact-link,
   .post-card-article,
   .post-card-cover-image,
   .tag-list a,
   .archive-post-card,
   .friend-link-card,
+  .friend-link-card::before,
+  .friend-link-card::after,
+  .friend-link-avatar,
+  .friend-link-url,
   .site-footer-records a,
   .home-intro-tech-track,
   .home-intro-tech-badge {
@@ -272,6 +308,18 @@
 
   .tag-bubble {
     opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .friend-link-card,
+  .friend-link-avatar,
+  .friend-link-url {
+    transform: none !important;
+  }
+
+  .friend-link-card::before,
+  .friend-link-card::after {
+    opacity: 0 !important;
     transform: none !important;
   }
 

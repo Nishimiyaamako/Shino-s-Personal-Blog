@@ -802,32 +802,30 @@
   flex: none;
   min-width: var(--tag-hit-size);
   min-height: var(--tag-hit-size);
-  border: var(--tag-border-width) solid color-mix(in srgb, var(--accent-interactive) 30%, var(--tag-border-color));
-  border-radius: var(--tag-radius);
-  background: var(--control-surface-interactive);
-  color: var(--accent-interactive-text);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: color-mix(in srgb, var(--accent-berry) 68%, var(--text-subtle));
   cursor: pointer;
-  font-size: 1.18rem;
-  line-height: 1;
-  transition:
-    background-color var(--motion-transition-state),
-    border-color var(--motion-transition-state),
-    color var(--motion-transition-state),
-    transform var(--motion-transition-state),
-    box-shadow var(--motion-transition-state);
+  line-height: 0;
+  padding: 0;
+  transition: color var(--motion-transition-state);
 }
 
 .tag-posts-panel-close:hover {
-  background: color-mix(in srgb, var(--accent-interactive-soft) 82%, var(--tag-hover-surface));
-  border-color: color-mix(in srgb, var(--accent-interactive) 44%, var(--tag-hover-border-color));
-  color: var(--accent-interactive-text);
-  transform: translateY(calc(var(--motion-distance-hover) * -0.5));
-  box-shadow: var(--control-halo-interactive);
+  color: color-mix(in srgb, var(--accent-berry) 82%, var(--text));
 }
 
 .tag-posts-panel-close:focus-visible {
   outline: 2px solid var(--tag-focus-ring);
   outline-offset: 2px;
+  border-radius: var(--tag-radius);
+}
+
+.tag-posts-panel-close svg {
+  width: 18px;
+  height: 18px;
+  display: block;
 }
 
 .tag-posts-panel-body {
@@ -905,60 +903,42 @@
   color: var(--text-subtle);
 }
 
-.tag-detail-back-link {
+.tag-detail-back-link,
+.post-detail-back-button {
   width: fit-content;
   display: inline-flex;
   align-items: center;
   min-height: var(--tag-hit-size);
   padding-inline: 0.25rem;
+  color: var(--brand);
+  text-decoration: none;
   font-weight: 600;
-  transition: transform var(--motion-transition-feedback);
-}
-
-.tag-detail-back-link:hover {
-  transform: translateX(calc(var(--motion-distance-hover) * -0.5));
-}
-
-.tag-detail-back-link:focus-visible {
-  outline: 2px solid var(--tag-focus-ring);
-  outline-offset: 2px;
-  border-radius: var(--tag-radius);
+  transition:
+    transform var(--motion-transition-feedback),
+    color var(--motion-transition-feedback);
 }
 
 .post-detail-back-button {
-  width: fit-content;
-  border: 1px solid color-mix(in srgb, var(--accent-interactive) 24%, var(--border));
-  border-radius: var(--radius-sm);
-  background: var(--control-surface-interactive);
-  color: var(--accent-interactive-text);
+  border: 0;
+  background: transparent;
+  color: inherit;
   font: inherit;
-  font-size: 0.88rem;
-  font-weight: 600;
-  line-height: 1.45;
-  padding: 0.42rem 0.88rem;
+  line-height: inherit;
   cursor: pointer;
-  transition:
-    transform var(--motion-transition-feedback),
-    color var(--motion-transition-state),
-    border-color var(--motion-transition-state),
-    background-color var(--motion-transition-state),
-    box-shadow var(--motion-transition-state);
 }
 
+.tag-detail-back-link:hover,
 .post-detail-back-button:hover {
-  transform: translateX(calc(var(--motion-distance-hover) * -0.45));
-  border-color: color-mix(in srgb, var(--accent-interactive) 38%, var(--border));
-  background: color-mix(in srgb, var(--accent-interactive-soft) 84%, var(--control-surface-soft));
-  box-shadow: var(--control-halo-interactive);
+  color: color-mix(in oklch, var(--accent-berry) 76%, var(--brand));
+  text-decoration: underline;
+  transform: translateX(calc(var(--motion-distance-hover) * -0.5));
 }
 
-.post-detail-back-button:active {
-  transform: translateX(calc(var(--motion-distance-hover) * -0.2));
-}
-
+.tag-detail-back-link:focus-visible,
 .post-detail-back-button:focus-visible {
-  outline: var(--focus-ring-outline-strong);
+  outline: 2px solid var(--tag-focus-ring);
   outline-offset: 2px;
+  border-radius: var(--tag-radius);
 }
 
 .site-main--with-profile.site-main--with-post-toc .post-toc-rail {

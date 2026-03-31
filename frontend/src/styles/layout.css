@@ -39,10 +39,10 @@
   width: min(var(--layout-header), calc(100% - 2rem));
   max-width: var(--layout-header);
   margin-inline: auto;
-  display: grid;
-  grid-template-columns: var(--header-brand-width) minmax(0, 1fr);
+  display: flex;
   align-items: center;
-  column-gap: clamp(0.75rem, 1.5vw, 1.25rem);
+  justify-content: space-between;
+  gap: clamp(0.75rem, 1.5vw, 1.25rem);
   min-height: 62px;
   padding-inline: clamp(0.5rem, 1.2vw, 1.25rem);
   background: var(--surface-elevated);
@@ -56,10 +56,7 @@
 }
 
 .brand {
-  grid-column: 1;
-  justify-self: start;
-  width: 100%;
-  max-width: var(--header-brand-width);
+  flex: 0 0 auto;
   min-width: 0;
   display: inline-flex;
   flex-direction: column;
@@ -81,13 +78,11 @@
 }
 
 .site-nav {
-  grid-column: 2;
-  justify-self: end;
-  text-align: right;
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  width: 100%;
   justify-content: flex-end;
   gap: clamp(0.2rem, 0.8vw, 0.6rem);
   padding-inline: 0;
@@ -98,7 +93,6 @@
 }
 
 .site-nav a {
-  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -111,60 +105,24 @@
   color: var(--text-subtle);
   text-decoration: none;
   white-space: nowrap;
-  transition:
-    color var(--motion-transition-state),
-    transform var(--motion-transition-state),
-    box-shadow var(--motion-transition-state),
-    background-color var(--motion-transition-state);
-}
-
-.site-nav a::after {
-  content: '';
-  position: absolute;
-  left: 16%;
-  bottom: 0.2rem;
-  width: 0;
-  height: 2px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--accent-interactive) 78%, var(--accent-info));
-  opacity: 0.84;
-  transition:
-    width var(--motion-transition-state),
-    opacity var(--motion-transition-state);
+  transition: color var(--motion-transition-state);
 }
 
 .site-nav a:hover {
-  color: var(--accent-interactive-text);
-  background: color-mix(in srgb, var(--accent-interactive-soft) 58%, transparent);
+  color: color-mix(in srgb, var(--accent-berry) 70%, var(--text));
   text-decoration: none;
-  transform: translateY(calc(var(--motion-distance-hover) * -0.35));
-  box-shadow: var(--control-halo-interactive);
-}
-
-.site-nav a:hover::after {
-  width: 68%;
 }
 
 .site-nav a.is-active {
-  color: var(--accent-highlight-text);
+  color: color-mix(in srgb, var(--accent-berry) 86%, var(--text));
   font-weight: 600;
-  background: color-mix(in srgb, var(--accent-highlight-soft) 62%, transparent);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-highlight) 28%, transparent);
-}
-
-.site-nav a.is-active::after {
-  width: 68%;
-  background: color-mix(in srgb, var(--accent-highlight) 76%, var(--accent-interactive));
 }
 
 .site-nav a:focus-visible {
+  color: color-mix(in srgb, var(--accent-berry) 76%, var(--text));
   outline: var(--focus-ring-outline-soft);
   outline-offset: 2px;
   text-decoration: none;
-}
-
-.site-nav a:focus-visible::after {
-  width: 68%;
 }
 
 .site-nav-icon {
@@ -302,24 +260,24 @@
 @media (max-width: 1024px) {
   .site-header-inner {
     width: min(var(--layout-narrow), calc(100% - 1.5rem));
-    grid-template-columns: 1fr;
-    row-gap: var(--space-3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-3);
     padding-inline: clamp(0.15rem, 1vw, 0.55rem);
     min-height: 58px;
-    column-gap: var(--space-3);
   }
 
   .brand {
-    width: 100%;
-    justify-self: start;
+    width: auto;
     text-align: left;
   }
 
   .site-nav {
-    justify-self: stretch;
-    width: 100%;
+    flex: 1 1 auto;
+    width: auto;
     max-width: none;
-    justify-content: flex-start;
+    justify-content: flex-end;
   }
 
   .site-nav a {
@@ -360,8 +318,7 @@
   }
 
   .site-nav {
-    grid-column: auto;
-    justify-self: auto;
+    flex: 0 0 auto;
     width: 100%;
     justify-content: flex-start;
     gap: 0.1rem;
@@ -381,16 +338,6 @@
   .site-nav-icon {
     width: 17px;
     height: 17px;
-  }
-
-  .site-nav a::after {
-    left: 20%;
-  }
-
-  .site-nav a:hover::after,
-  .site-nav a.is-active::after,
-  .site-nav a:focus-visible::after {
-    width: 60%;
   }
 
   .site-main {
