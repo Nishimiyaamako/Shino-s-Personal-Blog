@@ -1501,7 +1501,7 @@ function setupAboutPageHydration(options: { onHydrated?: (aboutPageElement: HTML
         return;
       }
 
-      console.warn('[about] Failed to hydrate from /api/about, keep local fallback.', error);
+      console.debug('[about] Failed to hydrate from /api/about, keep local fallback.', error);
     }
   })();
 

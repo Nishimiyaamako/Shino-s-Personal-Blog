@@ -76,6 +76,13 @@ Styles are layered in `frontend/src/styles/` with strict import order (see `fron
 
 **Runtime CSS variables**: Use `frontend/src/utils/dom-style.ts` for reading/writing CSS custom properties at runtime (stagger indices, floating button positioning, TOC progress).
 
+**Design Token System** (as of 2026-03-30):
+- Semantic text colors: `--text-secondary`, `--text-tertiary`, `--text-info`
+- Card shadows: `--card-shadow-cool`, `--card-shadow-cool-hover`, `--card-shadow-warm`, `--card-shadow-warm-hover`
+- Post cover shadows: `--post-cover-shadow`, `--post-cover-shadow-strong`
+- Button base styles: `--button-border`, `--button-radius`, `--button-bg`, `--button-bg-hover`
+- All interactive elements use unified hover effect: `translateY(calc(var(--motion-distance-hover) * -1))` + `--card-shadow-cool-hover`
+
 ## Routes
 
 - `/` - Home

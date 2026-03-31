@@ -594,8 +594,7 @@
   --tag-layer-surface: color-mix(in srgb, var(--tag-surface) 70%, var(--accent-mauve-soft));
   --tag-layer-border: color-mix(in srgb, var(--tag-border-color) 88%, transparent);
   --tag-layer-text: color-mix(in srgb, var(--tag-text-color) 92%, var(--text));
-  --tag-layer-count-surface: color-mix(in srgb, var(--tag-count-surface) 58%, var(--tag-layer-surface));
-  --tag-bubble-hover-lift: -6px;
+  --tag-bubble-hover-lift: calc(var(--motion-distance-hover) * -1);
 
   max-width: min(100%, 18rem);
   min-height: var(--tag-hit-size);
@@ -644,8 +643,8 @@
   padding: 0 0.4rem;
   border-radius: 999px;
   font-size: 0.72em;
-  background: color-mix(in srgb, var(--accent-info-soft) 56%, var(--tag-layer-count-surface));
-  color: color-mix(in oklch, var(--accent-info-text) 88%, var(--tag-layer-text));
+  background: var(--tag-layer-count-surface);
+  color: var(--tag-layer-text);
   transition:
     background-color var(--motion-transition-state),
     color var(--motion-transition-state);
@@ -686,12 +685,14 @@
   --tag-layer-surface: #fce7f3;
   --tag-layer-border: color-mix(in srgb, #ec4899 18%, transparent);
   --tag-layer-text: color-mix(in srgb, #db2777 60%, transparent);
+  --tag-layer-count-surface: color-mix(in srgb, #ec4899 15%, #fce7f3);
 }
 
 .tag-bubble[data-color='strawberry'].is-active {
   --tag-layer-surface: #fbcfe8;
   --tag-layer-border: color-mix(in srgb, #ec4899 25%, transparent);
   --tag-layer-text: color-mix(in srgb, #db2777 70%, transparent);
+  --tag-layer-count-surface: color-mix(in srgb, #ec4899 20%, #fbcfe8);
 }
 
 .tag-bubble[data-color='bubble'] {
@@ -705,12 +706,14 @@
   --tag-layer-surface: #e0f2fe;
   --tag-layer-border: color-mix(in srgb, #0ea5e9 18%, transparent);
   --tag-layer-text: color-mix(in srgb, #0284c7 60%, transparent);
+  --tag-layer-count-surface: color-mix(in srgb, #0ea5e9 15%, #e0f2fe);
 }
 
 .tag-bubble[data-color='bubble'].is-active {
   --tag-layer-surface: #bae6fd;
   --tag-layer-border: color-mix(in srgb, #0ea5e9 25%, transparent);
   --tag-layer-text: color-mix(in srgb, #0284c7 70%, transparent);
+  --tag-layer-count-surface: color-mix(in srgb, #0ea5e9 20%, #bae6fd);
 }
 
 .tag-bubble[data-color='mauve'] {
@@ -724,18 +727,20 @@
   --tag-layer-surface: #f5f5f5;
   --tag-layer-border: color-mix(in srgb, #737373 18%, transparent);
   --tag-layer-text: color-mix(in srgb, #737373 60%, transparent);
+  --tag-layer-count-surface: color-mix(in srgb, #737373 15%, #f5f5f5);
 }
 
 .tag-bubble[data-color='mauve'].is-active {
   --tag-layer-surface: #e5e5e5;
   --tag-layer-border: color-mix(in srgb, #737373 25%, transparent);
   --tag-layer-text: color-mix(in srgb, #737373 70%, transparent);
+  --tag-layer-count-surface: color-mix(in srgb, #737373 20%, #e5e5e5);
 }
 
 .tag-bubble:hover,
 .tag-bubble:focus-visible {
   transform: translateY(var(--tag-bubble-hover-lift));
-  box-shadow: var(--card-shadow-cool-hover), var(--control-halo-interactive);
+  box-shadow: var(--card-shadow-cool-hover);
 }
 
 .tag-bubble:focus-visible {
@@ -744,14 +749,7 @@
 }
 
 .tag-bubble.is-active {
-  color: color-mix(in srgb, var(--tag-active-text-color) 90%, var(--accent-highlight-text));
-  background: color-mix(in srgb, var(--tag-active-surface) 72%, var(--accent-highlight-soft));
-  box-shadow: var(--card-shadow-cool-hover), var(--control-halo-highlight);
-}
-
-.tag-bubble.is-active .tag-count {
-  background: color-mix(in srgb, var(--accent-highlight) 34%, transparent);
-  color: color-mix(in srgb, var(--surface) 92%, var(--accent-highlight-text));
+  box-shadow: var(--card-shadow-cool-hover);
 }
 
 .tag-posts-panel {
