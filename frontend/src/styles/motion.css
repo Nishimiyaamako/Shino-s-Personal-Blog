@@ -290,8 +290,6 @@
   .post-list--posts .post-card-cover,
   .post-list--tag-panel .post-card-cover,
   .site-nav a,
-  .site-nav-icon,
-  .site-nav-label,
   .profile-contact-link,
   .profile-contact-platform,
   .profile-contact-label,
@@ -318,6 +316,10 @@
   .tag-bubble {
     opacity: 1 !important;
     transform: none !important;
+  }
+
+  .site-nav a::after {
+    transition: none !important;
   }
 
   .friend-link-card,
