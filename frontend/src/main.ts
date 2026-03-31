@@ -40,6 +40,7 @@ interface SidePanelMotionGroupConfig {
   shouldIncludeGroup?: boolean;
   shouldIncludeTarget?: (targetElement: HTMLElement) => boolean;
   innerSelectors?: readonly string[];
+  avatarSelectors?: readonly string[];
 }
 
 let refreshPostCardMotion: ((scope?: MotionScopeNode, options?: RefreshPostCardMotionOptions) => void) | null = null;
@@ -390,7 +391,9 @@ function setupPageEnhancements(pathname: string, options: { enableProfileCardRou
         directionClassName: 'motion-side-pop-item--from-left',
         variantClassName: 'motion-side-pop-item--profile',
         delayBaseMs: 84,
-        shouldIncludeGroup: options.enableProfileCardRouteMotion
+        shouldIncludeGroup: options.enableProfileCardRouteMotion,
+        innerSelectors: ['.profile-card-meta h2', '.profile-card-meta p', '.profile-contact-link'],
+        avatarSelectors: ['.profile-card-avatar']
       },
       {
         selectors: SIDE_PANEL_ALWAYS_POP_SELECTORS,
@@ -565,6 +568,8 @@ const SIDE_PANEL_RHYTHM_ITEM_STEP_MS = 58;
 const SIDE_PANEL_INNER_STAGGER_BASE_MS = 90;
 const SIDE_PANEL_INNER_STAGGER_STEP_MS = 45;
 const SIDE_PANEL_INNER_CHAIN_OFFSET_MS = 172;
+const SIDE_PANEL_PROFILE_AVATAR_DELAY_BASE_MS = 108;
+const SIDE_PANEL_PROFILE_AVATAR_STEP_MS = 28;
 const CONTENT_RHYTHM_LEAD_GROUP_DELAY_MS = 18;
 const CONTENT_RHYTHM_BODY_GROUP_DELAY_MS = 72;
 const CONTENT_RHYTHM_ITEM_STEP_MS = 52;
@@ -868,6 +873,7 @@ function setupSidePanelPopMotion(options: { groups: readonly SidePanelMotionGrou
   }
 
   const groupedInnerTargets: HTMLElement[][] = [];
+  const groupedAvatarTargets: HTMLElement[][] = [];
 
   for (const [groupIndex, group] of motionGroups.entries()) {
     const groupRhythmDelayMs = groupDelayByIndex.get(groupIndex) ?? 0;
@@ -882,11 +888,32 @@ function setupSidePanelPopMotion(options: { groups: readonly SidePanelMotionGrou
     }
 
     const innerTargets: HTMLElement[] = [];
+    const avatarTargets: HTMLElement[] = [];
 
-    if (desktopViewportMediaQuery.matches && group.innerSelectors?.length) {
+    if (desktopViewportMediaQuery.matches && (group.innerSelectors?.length || group.avatarSelectors?.length)) {
       for (const [targetIndex, targetElement] of group.targets.entries()) {
         const targetRhythmDelayMs =
           groupRhythmDelayMs + group.delayBaseMs + targetIndex * SIDE_PANEL_RHYTHM_ITEM_STEP_MS + SIDE_PANEL_INNER_CHAIN_OFFSET_MS;
+
+        if (group.avatarSelectors?.length) {
+          const avatarTargetsInTarget = Array.from(
+            targetElement.querySelectorAll<HTMLElement>(group.avatarSelectors.join(','))
+          );
+
+          for (const [avatarIndex, avatarTarget] of avatarTargetsInTarget.entries()) {
+            avatarTarget.classList.add('motion-profile-avatar-pop');
+            setCssVar(avatarTarget, '--motion-profile-avatar-index', String(avatarIndex));
+            setCssVar(avatarTarget, '--motion-profile-avatar-delay-base', `${SIDE_PANEL_PROFILE_AVATAR_DELAY_BASE_MS}ms`);
+            setCssVar(avatarTarget, '--motion-rhythm-group-delay', `${targetRhythmDelayMs}ms`);
+            setCssVar(avatarTarget, '--motion-rhythm-item-delay', `${avatarIndex * SIDE_PANEL_PROFILE_AVATAR_STEP_MS}ms`);
+            avatarTargets.push(avatarTarget);
+          }
+        }
+
+        if (!group.innerSelectors?.length) {
+          continue;
+        }
+
         const innerTargetsInTarget = Array.from(
           targetElement.querySelectorAll<HTMLElement>(group.innerSelectors.join(','))
         );
@@ -904,25 +931,32 @@ function setupSidePanelPopMotion(options: { groups: readonly SidePanelMotionGrou
     }
 
     groupedInnerTargets.push(innerTargets);
+    groupedAvatarTargets.push(avatarTargets);
   }
 
-  let revealInnerFrameId = 0;
+  const revealNestedFrameIds: number[] = [];
   const revealFrameIds = motionGroups.map((group, groupIndex) =>
     window.requestAnimationFrame(() => {
       for (const targetElement of group.targets) {
         targetElement.classList.add('is-visible');
       }
 
+      const avatarTargets = groupedAvatarTargets[groupIndex] ?? [];
       const innerTargets = groupedInnerTargets[groupIndex] ?? [];
-      if (!innerTargets.length) {
+      if (!avatarTargets.length && !innerTargets.length) {
         return;
       }
 
-      revealInnerFrameId = window.requestAnimationFrame(() => {
+      const revealNestedFrameId = window.requestAnimationFrame(() => {
+        for (const avatarTarget of avatarTargets) {
+          avatarTarget.classList.add('is-visible');
+        }
+
         for (const innerTarget of innerTargets) {
           innerTarget.classList.add('is-visible');
         }
       });
+      revealNestedFrameIds.push(revealNestedFrameId);
     })
   );
 
@@ -935,9 +969,19 @@ function setupSidePanelPopMotion(options: { groups: readonly SidePanelMotionGrou
       window.cancelAnimationFrame(revealFrameId);
     }
 
+    for (const revealNestedFrameId of revealNestedFrameIds) {
+      window.cancelAnimationFrame(revealNestedFrameId);
+    }
+
     for (const group of motionGroups) {
       for (const targetElement of group.targets) {
         targetElement.classList.add('is-visible');
+      }
+    }
+
+    for (const avatarTargets of groupedAvatarTargets) {
+      for (const avatarTarget of avatarTargets) {
+        avatarTarget.classList.add('is-visible');
       }
     }
 
@@ -951,13 +995,12 @@ function setupSidePanelPopMotion(options: { groups: readonly SidePanelMotionGrou
   reducedMotionMediaQuery.addEventListener('change', handleReducedMotionChange);
 
   return () => {
-    if (revealInnerFrameId) {
-      window.cancelAnimationFrame(revealInnerFrameId);
-      revealInnerFrameId = 0;
-    }
-
     for (const revealFrameId of revealFrameIds) {
       window.cancelAnimationFrame(revealFrameId);
+    }
+
+    for (const revealNestedFrameId of revealNestedFrameIds) {
+      window.cancelAnimationFrame(revealNestedFrameId);
     }
 
     reducedMotionMediaQuery.removeEventListener('change', handleReducedMotionChange);
