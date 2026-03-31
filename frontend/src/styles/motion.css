@@ -209,7 +209,11 @@
 
 .motion-side-pop-item.is-visible {
   animation: side-panel-pop-enter var(--motion-side-pop-duration) var(--motion-side-pop-ease) forwards;
-  animation-delay: calc(var(--motion-index, 0) * var(--motion-stagger-step-home) + var(--motion-side-pop-delay-base, var(--motion-delay-side-panel-base)));
+  animation-delay: calc(
+    var(--motion-rhythm-group-delay, 0ms)
+    + var(--motion-rhythm-item-delay, calc(var(--motion-index, 0) * var(--motion-stagger-step-home)))
+    + var(--motion-side-pop-delay-base, var(--motion-delay-side-panel-base))
+  );
 }
 
 .motion-side-pop-inner-item {
@@ -224,7 +228,12 @@
   transition:
     opacity 280ms var(--motion-ease-out-quart),
     transform 280ms var(--motion-ease-out-quart);
-  transition-delay: calc(var(--motion-side-pop-inner-delay-base, 90ms) + var(--motion-side-pop-inner-index, 0) * var(--motion-side-pop-inner-step, 45ms));
+  transition-delay: calc(
+    var(--motion-rhythm-group-delay, 0ms)
+    + var(--motion-rhythm-item-delay, 0ms)
+    + var(--motion-side-pop-inner-delay-base, 90ms)
+    + var(--motion-side-pop-inner-index, 0) * var(--motion-side-pop-inner-step, 45ms)
+  );
 }
 
 .motion-post-reading-item {
@@ -239,7 +248,11 @@
   transition:
     opacity var(--motion-post-reading-duration, 420ms) var(--motion-ease-enter-primary),
     transform var(--motion-post-reading-duration, 420ms) var(--motion-ease-enter-primary);
-  transition-delay: var(--motion-post-reading-delay, 0ms);
+  transition-delay: calc(
+    var(--motion-rhythm-group-delay, 0ms)
+    + var(--motion-rhythm-item-delay, 0ms)
+    + var(--motion-post-reading-delay, 0ms)
+  );
 }
 
 .motion-profile-edge-enter {
@@ -309,7 +322,10 @@
   transition:
     opacity var(--motion-duration-reveal-primary) var(--motion-ease-enter-primary),
     transform var(--motion-duration-reveal-primary) var(--motion-ease-enter-primary);
-  transition-delay: calc(var(--motion-index, 0) * var(--motion-stagger-step));
+  transition-delay: calc(
+    var(--motion-rhythm-group-delay, 0ms)
+    + var(--motion-rhythm-item-delay, calc(var(--motion-index, 0) * var(--motion-stagger-step)))
+  );
 }
 
 .page-about [data-about-motion] {
@@ -336,7 +352,11 @@
   .archive-timeline-end {
     opacity: 1 !important;
     transform: none !important;
+    animation-delay: 0ms !important;
     transition: none !important;
+    transition-delay: 0ms !important;
+    --motion-rhythm-group-delay: 0ms !important;
+    --motion-rhythm-item-delay: 0ms !important;
   }
 
   .tag-bubble,

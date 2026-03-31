@@ -30,6 +30,7 @@ interface AboutContentMotionOptions {
   animateInitialVisibleItems?: boolean;
 }
 type SidePanelDirectionClassName = 'motion-side-pop-item--from-left' | 'motion-side-pop-item--from-right';
+type ContentRhythmGroup = 'lead' | 'body';
 
 interface SidePanelMotionGroupConfig {
   selectors: readonly string[];
@@ -559,8 +560,15 @@ const HOME_POST_LIST_CLASS = 'post-list--home';
 const POST_CARD_ROW_TOLERANCE_PX = 10;
 const POST_CARD_STAGGER_CAP = 10;
 const MOBILE_SIDE_PANEL_MEDIA_QUERY = '(max-width: 1024px)';
+const SIDE_PANEL_RHYTHM_GROUP_STEP_MS = 72;
+const SIDE_PANEL_RHYTHM_ITEM_STEP_MS = 58;
 const SIDE_PANEL_INNER_STAGGER_BASE_MS = 90;
 const SIDE_PANEL_INNER_STAGGER_STEP_MS = 45;
+const SIDE_PANEL_INNER_CHAIN_OFFSET_MS = 172;
+const CONTENT_RHYTHM_LEAD_GROUP_DELAY_MS = 18;
+const CONTENT_RHYTHM_BODY_GROUP_DELAY_MS = 72;
+const CONTENT_RHYTHM_ITEM_STEP_MS = 52;
+const POST_DETAIL_READING_RHYTHM_GROUP_DELAY_MS = 72;
 const MOTION_DELAY_MS = {
   routeEnterStep: 24,
   about: {
@@ -602,6 +610,21 @@ function restoreNodePlacement(node: HTMLElement, parent: Node, nextSibling: Chil
   }
 
   parent.appendChild(node);
+}
+
+function resolveContentRhythmGroup(targetElement: HTMLElement): ContentRhythmGroup {
+  if (
+    targetElement.classList.contains('section-head')
+    || targetElement.classList.contains('about-hero')
+    || targetElement.classList.contains('hero-card')
+    || targetElement.classList.contains('tag-filter-shell')
+    || targetElement.classList.contains('tag-detail-header')
+    || targetElement.classList.contains('page-not-found')
+  ) {
+    return 'lead';
+  }
+
+  return 'body';
 }
 
 function setupMobileSidePanelPlacement(pathname: string): (() => void) | null {
@@ -820,28 +843,64 @@ function setupSidePanelPopMotion(options: { groups: readonly SidePanelMotionGrou
     return null;
   }
 
+  const groupDelayByIndex = new Map<number, number>();
+  const orderedGroupsByVisualFlow = motionGroups
+    .map((group, groupIndex) => {
+      const anchorTarget = group.targets[0];
+      const rect = anchorTarget?.getBoundingClientRect();
+
+      return {
+        groupIndex,
+        top: rect?.top ?? Number.MAX_SAFE_INTEGER,
+        left: rect?.left ?? Number.MAX_SAFE_INTEGER
+      };
+    })
+    .sort((leftEntry, rightEntry) => {
+      if (leftEntry.top !== rightEntry.top) {
+        return leftEntry.top - rightEntry.top;
+      }
+
+      return leftEntry.left - rightEntry.left;
+    });
+
+  for (const [order, groupMeta] of orderedGroupsByVisualFlow.entries()) {
+    groupDelayByIndex.set(groupMeta.groupIndex, order * SIDE_PANEL_RHYTHM_GROUP_STEP_MS);
+  }
+
   const groupedInnerTargets: HTMLElement[][] = [];
 
-  for (const group of motionGroups) {
+  for (const [groupIndex, group] of motionGroups.entries()) {
+    const groupRhythmDelayMs = groupDelayByIndex.get(groupIndex) ?? 0;
+
     for (const [index, targetElement] of group.targets.entries()) {
+      const itemRhythmDelayMs = index * SIDE_PANEL_RHYTHM_ITEM_STEP_MS;
       targetElement.classList.add('motion-side-pop-item', group.directionClassName, group.variantClassName);
       setCssVar(targetElement, '--motion-index', String(index));
       setCssVar(targetElement, '--motion-side-pop-delay-base', `${group.delayBaseMs}ms`);
+      setCssVar(targetElement, '--motion-rhythm-group-delay', `${groupRhythmDelayMs}ms`);
+      setCssVar(targetElement, '--motion-rhythm-item-delay', `${itemRhythmDelayMs}ms`);
     }
 
-    const innerTargets = desktopViewportMediaQuery.matches && group.innerSelectors?.length
-      ? Array.from(
-          group.targets.flatMap((targetElement) =>
-            Array.from(targetElement.querySelectorAll<HTMLElement>(group.innerSelectors?.join(',') ?? ''))
-          )
-        )
-      : [];
+    const innerTargets: HTMLElement[] = [];
 
-    for (const [innerIndex, innerTarget] of innerTargets.entries()) {
-      innerTarget.classList.add('motion-side-pop-inner-item');
-      setCssVar(innerTarget, '--motion-side-pop-inner-index', String(innerIndex));
-      setCssVar(innerTarget, '--motion-side-pop-inner-delay-base', `${SIDE_PANEL_INNER_STAGGER_BASE_MS}ms`);
-      setCssVar(innerTarget, '--motion-side-pop-inner-step', `${SIDE_PANEL_INNER_STAGGER_STEP_MS}ms`);
+    if (desktopViewportMediaQuery.matches && group.innerSelectors?.length) {
+      for (const [targetIndex, targetElement] of group.targets.entries()) {
+        const targetRhythmDelayMs =
+          groupRhythmDelayMs + group.delayBaseMs + targetIndex * SIDE_PANEL_RHYTHM_ITEM_STEP_MS + SIDE_PANEL_INNER_CHAIN_OFFSET_MS;
+        const innerTargetsInTarget = Array.from(
+          targetElement.querySelectorAll<HTMLElement>(group.innerSelectors.join(','))
+        );
+
+        for (const [innerIndex, innerTarget] of innerTargetsInTarget.entries()) {
+          innerTarget.classList.add('motion-side-pop-inner-item');
+          setCssVar(innerTarget, '--motion-side-pop-inner-index', String(innerIndex));
+          setCssVar(innerTarget, '--motion-side-pop-inner-delay-base', `${SIDE_PANEL_INNER_STAGGER_BASE_MS}ms`);
+          setCssVar(innerTarget, '--motion-side-pop-inner-step', `${SIDE_PANEL_INNER_STAGGER_STEP_MS}ms`);
+          setCssVar(innerTarget, '--motion-rhythm-group-delay', `${targetRhythmDelayMs}ms`);
+          setCssVar(innerTarget, '--motion-rhythm-item-delay', '0ms');
+          innerTargets.push(innerTarget);
+        }
+      }
     }
 
     groupedInnerTargets.push(innerTargets);
@@ -1255,9 +1314,21 @@ function setupGlobalMotionChoreography(): (() => void) | null {
       )
     : [];
 
+  const rhythmGroupCountMap = new Map<ContentRhythmGroup, number>([
+    ['lead', 0],
+    ['body', 0]
+  ]);
+
   for (const [index, targetElement] of staggerTargets.entries()) {
+    const rhythmGroup = resolveContentRhythmGroup(targetElement);
+    const rhythmGroupDelayMs = rhythmGroup === 'lead' ? CONTENT_RHYTHM_LEAD_GROUP_DELAY_MS : CONTENT_RHYTHM_BODY_GROUP_DELAY_MS;
+    const rhythmGroupIndex = rhythmGroupCountMap.get(rhythmGroup) ?? 0;
+
     targetElement.classList.add('motion-stagger-item');
     setCssVar(targetElement, '--motion-index', String(index));
+    setCssVar(targetElement, '--motion-rhythm-group-delay', `${rhythmGroupDelayMs}ms`);
+    setCssVar(targetElement, '--motion-rhythm-item-delay', `${rhythmGroupIndex * CONTENT_RHYTHM_ITEM_STEP_MS}ms`);
+    rhythmGroupCountMap.set(rhythmGroup, rhythmGroupIndex + 1);
   }
 
   for (const target of postDetailReadingTargets) {
@@ -1266,6 +1337,8 @@ function setupGlobalMotionChoreography(): (() => void) | null {
     setCssVar(target.targetElement, '--motion-post-reading-duration', `${target.durationMs}ms`);
     setCssVar(target.targetElement, '--motion-post-reading-offset-y', `${target.offsetY}px`);
     setCssVar(target.targetElement, '--motion-post-reading-scale-start', String(target.scaleStart));
+    setCssVar(target.targetElement, '--motion-rhythm-group-delay', `${POST_DETAIL_READING_RHYTHM_GROUP_DELAY_MS}ms`);
+    setCssVar(target.targetElement, '--motion-rhythm-item-delay', '0ms');
   }
 
   let revealStaggerFrameId = window.requestAnimationFrame(() => {
@@ -1848,11 +1921,20 @@ function setupPostDetailToc(): (() => void) | null {
     && tocElement.classList.contains('motion-side-pop-item');
 
   if (shouldAnimateTocInnerItems) {
+    const tocRhythmGroupDelay = tocElement.style.getPropertyValue('--motion-rhythm-group-delay').trim() || '0ms';
+    const tocRhythmItemDelay = tocElement.style.getPropertyValue('--motion-rhythm-item-delay').trim() || '0ms';
+
     for (const [index, tocHeadingItem] of tocHeadingItems.entries()) {
       tocHeadingItem.itemElement.classList.add('motion-side-pop-inner-item');
       setCssVar(tocHeadingItem.itemElement, '--motion-side-pop-inner-index', String(index));
       setCssVar(tocHeadingItem.itemElement, '--motion-side-pop-inner-delay-base', `${SIDE_PANEL_INNER_STAGGER_BASE_MS}ms`);
       setCssVar(tocHeadingItem.itemElement, '--motion-side-pop-inner-step', `${SIDE_PANEL_INNER_STAGGER_STEP_MS}ms`);
+      setCssVar(
+        tocHeadingItem.itemElement,
+        '--motion-rhythm-group-delay',
+        `calc(${tocRhythmGroupDelay} + ${tocRhythmItemDelay} + ${SIDE_PANEL_INNER_CHAIN_OFFSET_MS}ms)`
+      );
+      setCssVar(tocHeadingItem.itemElement, '--motion-rhythm-item-delay', '0ms');
     }
 
     tocInnerRevealFrameId = window.requestAnimationFrame(() => {

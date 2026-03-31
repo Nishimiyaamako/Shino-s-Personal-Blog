@@ -354,7 +354,8 @@
 .profile-contact-link:focus-visible {
   outline: var(--focus-ring-outline-strong);
   outline-offset: 1px;
-  transform: translateY(calc(var(--motion-distance-hover) * -1));
+  transform: translateX(calc(var(--motion-distance-hover) * 0.5));
+  background: color-mix(in srgb, var(--accent-interactive-soft) 72%, var(--control-surface-soft));
   box-shadow: var(--card-shadow-cool-hover);
 }
 
@@ -386,49 +387,50 @@
 }
 
 .profile-contact-link:focus-visible .profile-contact-platform {
-  transform: translateX(1px);
+  transform: translateX(1.5px);
   color: color-mix(in srgb, var(--accent-berry) 88%, var(--text));
 }
 
 .profile-contact-link:focus-visible .profile-contact-label {
-  transform: translateX(-1px);
-  color: color-mix(in srgb, var(--accent-berry) 64%, var(--text-subtle));
+  transform: translateX(1.5px);
+  color: color-mix(in srgb, var(--accent-interactive-text) 70%, var(--text));
 }
 
 .profile-contact-link:focus-visible .profile-contact-icon {
-  transform: translateX(1px) scale(1.04);
+  transform: translateX(1.5px) scale(1.04);
 }
 
 .profile-contact-link:active {
-  transform: translateY(calc(var(--motion-distance-hover) * -0.35)) scale(0.988);
+  transform: translateX(calc(var(--motion-distance-hover) * 0.22)) scale(0.996);
   box-shadow: var(--card-shadow-cool);
   transition-duration: var(--motion-duration-feedback);
 }
 
 .profile-contact-link:active .profile-contact-icon {
-  transform: scale(0.98);
+  transform: translateX(0.8px) scale(0.99);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .profile-contact-link:hover {
     color: var(--accent-berry);
     text-decoration: none;
-    transform: translateY(calc(var(--motion-distance-hover) * -1));
+    transform: translateX(calc(var(--motion-distance-hover) * 0.5));
+    background: color-mix(in srgb, var(--accent-interactive-soft) 72%, var(--control-surface-soft));
     box-shadow: var(--card-shadow-cool-hover);
   }
 
   .profile-contact-link:hover .profile-contact-platform {
-    transform: translateX(1px);
+    transform: translateX(1.5px);
     color: color-mix(in srgb, var(--accent-berry) 88%, var(--text));
   }
 
   .profile-contact-link:hover .profile-contact-label {
-    transform: translateX(-1px);
-    color: color-mix(in srgb, var(--accent-berry) 64%, var(--text-subtle));
+    transform: translateX(1.5px);
+    color: color-mix(in srgb, var(--accent-interactive-text) 70%, var(--text));
   }
 
   .profile-contact-link:hover .profile-contact-icon {
-    transform: translateX(1px) scale(1.04);
+    transform: translateX(1.5px) scale(1.04);
   }
 }
 
