@@ -557,7 +557,6 @@
   min-height: 72px;
   padding: 0.9rem 1rem;
   border-bottom: 1px dashed color-mix(in srgb, var(--accent-berry) 34%, var(--border));
-  background: color-mix(in srgb, var(--surface) 90%, var(--surface-soft));
 }
 
 .home-intro-fact-row:last-child {
@@ -595,7 +594,6 @@
 
 .home-intro-tech {
   border-bottom: 1px dashed color-mix(in srgb, var(--accent-berry) 30%, var(--border));
-  background: color-mix(in srgb, var(--surface-soft) 64%, var(--surface));
 }
 
 .home-intro-side-title {
@@ -618,7 +616,6 @@
   min-height: 6.48rem;
   border: 1px solid color-mix(in srgb, var(--accent-berry) 34%, var(--border));
   border-radius: var(--radius-sm);
-  background: var(--intro-window-bg);
   padding: 0.48rem 0.86rem;
   isolation: isolate;
 }
@@ -1498,6 +1495,7 @@
 }
 
 @media (max-width: 900px) {
+
   .page-about .about-story-block.is-left[data-about-motion],
   .page-about .about-story-block.is-right[data-about-motion] {
     --about-motion-offset-x: 0px;

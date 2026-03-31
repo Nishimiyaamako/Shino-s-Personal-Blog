@@ -1,8 +1,8 @@
 import { getTagStats } from '../data/posts';
 import type { PageRenderer } from '../types/router';
 import { escapeHtml } from '../utils/escape-html';
+import { resolveTagColorVariant } from '../utils/tag-color';
 
-const TAG_COLOR_VARIANTS = ['strawberry', 'bubble', 'mauve'] as const;
 const TAG_POSTS_PANEL_ID = 'tag-posts-panel';
 const TAG_POSTS_PANEL_TITLE_ID = 'tag-posts-panel-title';
 
@@ -32,7 +32,7 @@ export const renderTagsPage: PageRenderer = () => {
                         data-tag="${escapeHtml(tag)}"
                         data-count="${count}"
                         data-size="${resolveTagSize(count, minCount, maxCount)}"
-                        data-color="${TAG_COLOR_VARIANTS[index % TAG_COLOR_VARIANTS.length]}"
+                        data-color="${resolveTagColorVariant(tag)}"
                         aria-pressed="false"
                         aria-expanded="false"
                         aria-controls="${TAG_POSTS_PANEL_ID}"
