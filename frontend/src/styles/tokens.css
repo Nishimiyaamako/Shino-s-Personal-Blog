@@ -143,8 +143,9 @@
   --layout-narrow: min(760px, calc(100% - 2rem));
   --layout-wide: min(1280px, calc(100% - 2rem));
   --content-width: var(--layout-narrow);
+  --layout-header: min(calc(var(--content-width) * 1.2), calc(100% - 2rem));
+  --header-brand-width: clamp(180px, calc(var(--layout-header) * 0.22), 240px);
   --profile-width: clamp(204px, 18vw, 240px);
-  --header-left-col: calc((var(--layout-wide) - var(--content-width)) / 2);
 
   --motion-duration-feedback: 140ms;
   --motion-duration-state: 240ms;
