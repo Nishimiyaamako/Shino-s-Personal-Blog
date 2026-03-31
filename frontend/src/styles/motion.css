@@ -40,12 +40,16 @@
 @keyframes side-panel-pop-enter {
   from {
     opacity: 0;
-    transform: translate3d(var(--motion-side-pop-translate-x), var(--motion-distance-panel-y), 0);
+    transform: translate3d(
+      var(--motion-side-pop-translate-x, var(--motion-side-pop-translate-x-default, calc(var(--motion-home-left-distance) * -1))),
+      var(--motion-side-pop-translate-y, calc(var(--motion-distance-reveal-primary) * 0.72)),
+      0
+    ) scale(var(--motion-side-pop-scale-start, 1));
   }
 
   to {
     opacity: 1;
-    transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
@@ -156,23 +160,86 @@
 }
 
 .motion-side-pop-item {
-  --motion-side-pop-translate-x: calc(var(--motion-home-left-distance) * -1);
+  --motion-side-pop-translate-x-default: calc(var(--motion-home-left-distance) * -1);
+  --motion-side-pop-translate-y: calc(var(--motion-distance-reveal-primary) * 0.72);
+  --motion-side-pop-scale-start: 1;
+  --motion-side-pop-duration: var(--motion-duration-reveal-panel);
+  --motion-side-pop-ease: var(--motion-ease-enter-primary);
   opacity: 0;
-  transform: translate3d(var(--motion-side-pop-translate-x), var(--motion-distance-panel-y), 0);
+  transform: translate3d(
+    var(--motion-side-pop-translate-x, var(--motion-side-pop-translate-x-default)),
+    var(--motion-side-pop-translate-y),
+    0
+  ) scale(var(--motion-side-pop-scale-start));
   will-change: transform, opacity;
 }
 
 .motion-side-pop-item--from-left {
-  --motion-side-pop-translate-x: calc(var(--motion-home-left-distance) * -1);
+  --motion-side-pop-translate-x-default: calc(var(--motion-home-left-distance) * -1);
 }
 
 .motion-side-pop-item--from-right {
-  --motion-side-pop-translate-x: var(--motion-home-left-distance);
+  --motion-side-pop-translate-x-default: var(--motion-home-left-distance);
+}
+
+.motion-side-pop-item--profile {
+  --motion-side-pop-translate-x: -20px;
+  --motion-side-pop-translate-y: 8px;
+  --motion-side-pop-scale-start: 0.985;
+  --motion-side-pop-duration: 460ms;
+  --motion-side-pop-ease: var(--motion-ease-out-quint);
+}
+
+.motion-side-pop-item--intro {
+  --motion-side-pop-translate-x: -18px;
+  --motion-side-pop-translate-y: 10px;
+  --motion-side-pop-scale-start: 0.992;
+  --motion-side-pop-duration: 520ms;
+  --motion-side-pop-ease: var(--motion-ease-out-expo);
+}
+
+.motion-side-pop-item--theme,
+.motion-side-pop-item--toc {
+  --motion-side-pop-translate-x: 16px;
+  --motion-side-pop-translate-y: 10px;
+  --motion-side-pop-scale-start: 0.99;
+  --motion-side-pop-duration: 480ms;
+  --motion-side-pop-ease: var(--motion-ease-out-quint);
 }
 
 .motion-side-pop-item.is-visible {
-  animation: side-panel-pop-enter var(--motion-duration-reveal-panel) var(--motion-ease-enter-primary) forwards;
-  animation-delay: calc(var(--motion-index, 0) * var(--motion-stagger-step-home) + var(--motion-delay-side-panel-base));
+  animation: side-panel-pop-enter var(--motion-side-pop-duration) var(--motion-side-pop-ease) forwards;
+  animation-delay: calc(var(--motion-index, 0) * var(--motion-stagger-step-home) + var(--motion-side-pop-delay-base, var(--motion-delay-side-panel-base)));
+}
+
+.motion-side-pop-inner-item {
+  opacity: 0;
+  transform: translate3d(0, 8px, 0);
+  will-change: transform, opacity;
+}
+
+.motion-side-pop-inner-item.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity 280ms var(--motion-ease-out-quart),
+    transform 280ms var(--motion-ease-out-quart);
+  transition-delay: calc(var(--motion-side-pop-inner-delay-base, 90ms) + var(--motion-side-pop-inner-index, 0) * var(--motion-side-pop-inner-step, 45ms));
+}
+
+.motion-post-reading-item {
+  opacity: 0;
+  transform: translate3d(0, var(--motion-post-reading-offset-y, 10px), 0) scale(var(--motion-post-reading-scale-start, 1));
+  will-change: transform, opacity;
+}
+
+.motion-post-reading-item.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  transition:
+    opacity var(--motion-post-reading-duration, 420ms) var(--motion-ease-enter-primary),
+    transform var(--motion-post-reading-duration, 420ms) var(--motion-ease-enter-primary);
+  transition-delay: var(--motion-post-reading-delay, 0ms);
 }
 
 .motion-profile-edge-enter {
@@ -257,6 +324,8 @@
 
   .route-enter-target,
   .motion-side-pop-item,
+  .motion-side-pop-inner-item,
+  .motion-post-reading-item,
   .motion-profile-edge-enter,
   .motion-card-rise,
   .motion-stagger-item,
@@ -273,6 +342,8 @@
   .tag-bubble,
   .tag-count,
   .motion-side-pop-item,
+  .motion-side-pop-inner-item,
+  .motion-post-reading-item,
   .motion-profile-edge-enter,
   .motion-card-rise,
   .tag-posts-panel,
@@ -380,5 +451,14 @@
 
   .home-intro-tech-item[data-tech-fill='true'] {
     display: none;
+  }
+}
+
+@media (max-width: 1024px) {
+  .motion-side-pop-inner-item,
+  .motion-side-pop-inner-item.is-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }

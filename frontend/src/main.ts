@@ -29,6 +29,18 @@ interface AboutContentMotionOptions {
   root?: ParentNode;
   animateInitialVisibleItems?: boolean;
 }
+type SidePanelDirectionClassName = 'motion-side-pop-item--from-left' | 'motion-side-pop-item--from-right';
+
+interface SidePanelMotionGroupConfig {
+  selectors: readonly string[];
+  directionClassName: SidePanelDirectionClassName;
+  variantClassName: 'motion-side-pop-item--profile' | 'motion-side-pop-item--intro' | 'motion-side-pop-item--theme' | 'motion-side-pop-item--toc';
+  delayBaseMs: number;
+  shouldIncludeGroup?: boolean;
+  shouldIncludeTarget?: (targetElement: HTMLElement) => boolean;
+  innerSelectors?: readonly string[];
+}
+
 let refreshPostCardMotion: ((scope?: MotionScopeNode, options?: RefreshPostCardMotionOptions) => void) | null = null;
 let lastRenderedRoutePath: string | null = null;
 const HISTORY_STATE_NAV_INDEX_KEY = '__appNavIndex' as const;
@@ -154,10 +166,6 @@ function shouldRenderProfileCard(routePath: string): boolean {
 }
 
 function shouldEnableProfileCardRouteMotionForRoute(nextRoutePath: string): boolean {
-  if (window.matchMedia(MOBILE_SIDE_PANEL_MEDIA_QUERY).matches) {
-    return true;
-  }
-
   if (lastRenderedRoutePath === null) {
     return true;
   }
@@ -375,7 +383,38 @@ function setupPageEnhancements(pathname: string, options: { enableProfileCardRou
   }
 
   const cleanupSidePanelPopMotion = setupSidePanelPopMotion({
-    enableProfileCardGroup: options.enableProfileCardRouteMotion
+    groups: [
+      {
+        selectors: PROFILE_CARD_POP_SELECTORS,
+        directionClassName: 'motion-side-pop-item--from-left',
+        variantClassName: 'motion-side-pop-item--profile',
+        delayBaseMs: 84,
+        shouldIncludeGroup: options.enableProfileCardRouteMotion
+      },
+      {
+        selectors: SIDE_PANEL_ALWAYS_POP_SELECTORS,
+        directionClassName: 'motion-side-pop-item--from-left',
+        variantClassName: 'motion-side-pop-item--intro',
+        delayBaseMs: 96,
+        innerSelectors: ['.home-intro-fact-row', '.home-intro-tech', '.home-intro-hobby']
+      },
+      {
+        selectors: ['.post-theme-rail .post-theme-card'],
+        directionClassName: 'motion-side-pop-item--from-right',
+        variantClassName: 'motion-side-pop-item--theme',
+        delayBaseMs: 84,
+        shouldIncludeTarget: (targetElement) => !targetElement.closest<HTMLElement>('.post-theme-rail.is-inline-mobile'),
+        innerSelectors: ['.post-theme-item']
+      },
+      {
+        selectors: ['.post-toc-rail .post-toc-card'],
+        directionClassName: 'motion-side-pop-item--from-right',
+        variantClassName: 'motion-side-pop-item--toc',
+        delayBaseMs: 84,
+        shouldIncludeTarget: (targetElement) => !targetElement.closest<HTMLElement>('.post-toc-rail.is-inline-mobile'),
+        innerSelectors: ['.post-toc-item']
+      }
+    ]
   });
   if (cleanupSidePanelPopMotion) {
     cleanups.push(cleanupSidePanelPopMotion);
@@ -476,8 +515,6 @@ function setupPageEnhancements(pathname: string, options: { enableProfileCardRou
 }
 
 const PAGE_STAGGER_SELECTORS = [
-  ':scope > .page-header',
-  ':scope > .post-detail-back-row',
   ':scope > .section-head',
   ':scope > .page-section:not(.home-intro-panel)',
   ':scope > .about-hero',
@@ -492,8 +529,6 @@ const PAGE_STAGGER_SELECTORS = [
   ':scope > .tag-result-shell',
   ':scope > .tag-detail-header',
   ':scope > .archive-timeline',
-  ':scope > .post-detail-layout',
-  ':scope > .markdown-content',
   ':scope > .friend-link-add-card',
   ':scope > .empty-hint'
 ] as const;
@@ -514,15 +549,18 @@ const PROFILE_CARD_POP_SELECTORS = [
 const SIDE_PANEL_ALWAYS_POP_SELECTORS = [
   '.page-home > .home-intro-panel'
 ] as const;
-const SIDE_PANEL_RIGHT_POP_SELECTORS = [
-  '.post-theme-rail .post-theme-card',
-  '.post-toc-rail .post-toc-card'
-] as const;
+const POST_DETAIL_READING_MOTION_SELECTORS = {
+  header: ':scope > .page-header',
+  backRow: ':scope > .post-detail-back-row',
+  markdown: '.post-detail-layout > .markdown-content'
+} as const;
 const POST_LIST_SELECTOR = '.post-list, .friend-link-list';
 const HOME_POST_LIST_CLASS = 'post-list--home';
 const POST_CARD_ROW_TOLERANCE_PX = 10;
 const POST_CARD_STAGGER_CAP = 10;
 const MOBILE_SIDE_PANEL_MEDIA_QUERY = '(max-width: 1024px)';
+const SIDE_PANEL_INNER_STAGGER_BASE_MS = 90;
+const SIDE_PANEL_INNER_STAGGER_STEP_MS = 45;
 const MOTION_DELAY_MS = {
   routeEnterStep: 24,
   about: {
@@ -736,8 +774,9 @@ function setupRouteEnterTransition(): (() => void) | null {
   };
 }
 
-function setupSidePanelPopMotion(options: { enableProfileCardGroup: boolean }): (() => void) | null {
+function setupSidePanelPopMotion(options: { groups: readonly SidePanelMotionGroupConfig[] }): (() => void) | null {
   const reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const desktopViewportMediaQuery = window.matchMedia('(min-width: 1025px)');
   const collectOrderedTargets = (
     selectors: readonly string[],
     shouldIncludeTarget?: (targetElement: HTMLElement) => boolean
@@ -767,43 +806,64 @@ function setupSidePanelPopMotion(options: { enableProfileCardGroup: boolean }): 
       })
       .map((entry) => entry.targetElement);
 
-  const motionGroups = [
-    options.enableProfileCardGroup
-      ? {
-          targets: collectOrderedTargets(PROFILE_CARD_POP_SELECTORS),
-          directionClassName: 'motion-side-pop-item--from-left'
-        }
-      : null,
-    {
-      targets: collectOrderedTargets(SIDE_PANEL_ALWAYS_POP_SELECTORS),
-      directionClassName: 'motion-side-pop-item--from-left'
-    },
-    {
-      targets: collectOrderedTargets(
-        SIDE_PANEL_RIGHT_POP_SELECTORS,
-        (targetElement) =>
-          !targetElement.closest<HTMLElement>('.post-theme-rail.is-inline-mobile, .post-toc-rail.is-inline-mobile')
-      ),
-      directionClassName: 'motion-side-pop-item--from-right'
-    }
-  ].filter((group): group is { targets: HTMLElement[]; directionClassName: string } => Boolean(group?.targets.length));
+  const motionGroups = options.groups
+    .filter((groupOption) => groupOption.shouldIncludeGroup ?? true)
+    .map((groupOption) => {
+      return {
+        ...groupOption,
+        targets: collectOrderedTargets(groupOption.selectors, groupOption.shouldIncludeTarget)
+      };
+    })
+    .filter((group): group is SidePanelMotionGroupConfig & { targets: HTMLElement[] } => Boolean(group.targets.length));
 
   if (!motionGroups.length) {
     return null;
   }
 
+  const groupedInnerTargets: HTMLElement[][] = [];
+
   for (const group of motionGroups) {
     for (const [index, targetElement] of group.targets.entries()) {
-      targetElement.classList.add('motion-side-pop-item', group.directionClassName);
+      targetElement.classList.add('motion-side-pop-item', group.directionClassName, group.variantClassName);
       setCssVar(targetElement, '--motion-index', String(index));
+      setCssVar(targetElement, '--motion-side-pop-delay-base', `${group.delayBaseMs}ms`);
     }
+
+    const innerTargets = desktopViewportMediaQuery.matches && group.innerSelectors?.length
+      ? Array.from(
+          group.targets.flatMap((targetElement) =>
+            Array.from(targetElement.querySelectorAll<HTMLElement>(group.innerSelectors?.join(',') ?? ''))
+          )
+        )
+      : [];
+
+    for (const [innerIndex, innerTarget] of innerTargets.entries()) {
+      innerTarget.classList.add('motion-side-pop-inner-item');
+      setCssVar(innerTarget, '--motion-side-pop-inner-index', String(innerIndex));
+      setCssVar(innerTarget, '--motion-side-pop-inner-delay-base', `${SIDE_PANEL_INNER_STAGGER_BASE_MS}ms`);
+      setCssVar(innerTarget, '--motion-side-pop-inner-step', `${SIDE_PANEL_INNER_STAGGER_STEP_MS}ms`);
+    }
+
+    groupedInnerTargets.push(innerTargets);
   }
 
-  const revealFrameIds = motionGroups.map((group) =>
+  let revealInnerFrameId = 0;
+  const revealFrameIds = motionGroups.map((group, groupIndex) =>
     window.requestAnimationFrame(() => {
       for (const targetElement of group.targets) {
         targetElement.classList.add('is-visible');
       }
+
+      const innerTargets = groupedInnerTargets[groupIndex] ?? [];
+      if (!innerTargets.length) {
+        return;
+      }
+
+      revealInnerFrameId = window.requestAnimationFrame(() => {
+        for (const innerTarget of innerTargets) {
+          innerTarget.classList.add('is-visible');
+        }
+      });
     })
   );
 
@@ -821,11 +881,22 @@ function setupSidePanelPopMotion(options: { enableProfileCardGroup: boolean }): 
         targetElement.classList.add('is-visible');
       }
     }
+
+    for (const innerTargets of groupedInnerTargets) {
+      for (const innerTarget of innerTargets) {
+        innerTarget.classList.add('is-visible');
+      }
+    }
   };
 
   reducedMotionMediaQuery.addEventListener('change', handleReducedMotionChange);
 
   return () => {
+    if (revealInnerFrameId) {
+      window.cancelAnimationFrame(revealInnerFrameId);
+      revealInnerFrameId = 0;
+    }
+
     for (const revealFrameId of revealFrameIds) {
       window.cancelAnimationFrame(revealFrameId);
     }
@@ -1155,14 +1226,55 @@ function setupGlobalMotionChoreography(): (() => void) | null {
 
   const staggerTargets = Array.from(staggerTargetSet);
 
+  const postDetailReadingTargets = pageElement.classList.contains('page-post-detail')
+    ? [
+        {
+          targetElement: pageElement.querySelector<HTMLElement>(POST_DETAIL_READING_MOTION_SELECTORS.header),
+          delayMs: 60,
+          durationMs: 420,
+          offsetY: 10,
+          scaleStart: 0.992
+        },
+        {
+          targetElement: pageElement.querySelector<HTMLElement>(POST_DETAIL_READING_MOTION_SELECTORS.backRow),
+          delayMs: 90,
+          durationMs: 460,
+          offsetY: 12,
+          scaleStart: 0.996
+        },
+        {
+          targetElement: pageElement.querySelector<HTMLElement>(POST_DETAIL_READING_MOTION_SELECTORS.markdown),
+          delayMs: 120,
+          durationMs: 540,
+          offsetY: 14,
+          scaleStart: 1
+        }
+      ].filter(
+        (entry): entry is { targetElement: HTMLElement; delayMs: number; durationMs: number; offsetY: number; scaleStart: number } =>
+          Boolean(entry.targetElement)
+      )
+    : [];
+
   for (const [index, targetElement] of staggerTargets.entries()) {
     targetElement.classList.add('motion-stagger-item');
     setCssVar(targetElement, '--motion-index', String(index));
   }
 
+  for (const target of postDetailReadingTargets) {
+    target.targetElement.classList.add('motion-post-reading-item');
+    setCssVar(target.targetElement, '--motion-post-reading-delay', `${target.delayMs}ms`);
+    setCssVar(target.targetElement, '--motion-post-reading-duration', `${target.durationMs}ms`);
+    setCssVar(target.targetElement, '--motion-post-reading-offset-y', `${target.offsetY}px`);
+    setCssVar(target.targetElement, '--motion-post-reading-scale-start', String(target.scaleStart));
+  }
+
   let revealStaggerFrameId = window.requestAnimationFrame(() => {
     for (const targetElement of staggerTargets) {
       targetElement.classList.add('is-visible');
+    }
+
+    for (const target of postDetailReadingTargets) {
+      target.targetElement.classList.add('is-visible');
     }
   });
 
@@ -1222,6 +1334,10 @@ function setupGlobalMotionChoreography(): (() => void) | null {
 
     for (const targetElement of staggerTargets) {
       targetElement.classList.add('is-visible');
+    }
+
+    for (const target of postDetailReadingTargets) {
+      target.targetElement.classList.add('is-visible');
     }
   };
 
@@ -1726,6 +1842,28 @@ function setupPostDetailToc(): (() => void) | null {
 
   setTocVisibleState(true);
 
+  let tocInnerRevealFrameId = 0;
+  const shouldAnimateTocInnerItems = window.matchMedia('(min-width: 1025px)').matches
+    && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    && tocElement.classList.contains('motion-side-pop-item');
+
+  if (shouldAnimateTocInnerItems) {
+    for (const [index, tocHeadingItem] of tocHeadingItems.entries()) {
+      tocHeadingItem.itemElement.classList.add('motion-side-pop-inner-item');
+      setCssVar(tocHeadingItem.itemElement, '--motion-side-pop-inner-index', String(index));
+      setCssVar(tocHeadingItem.itemElement, '--motion-side-pop-inner-delay-base', `${SIDE_PANEL_INNER_STAGGER_BASE_MS}ms`);
+      setCssVar(tocHeadingItem.itemElement, '--motion-side-pop-inner-step', `${SIDE_PANEL_INNER_STAGGER_STEP_MS}ms`);
+    }
+
+    tocInnerRevealFrameId = window.requestAnimationFrame(() => {
+      tocInnerRevealFrameId = 0;
+
+      for (const tocHeadingItem of tocHeadingItems) {
+        tocHeadingItem.itemElement.classList.add('is-visible');
+      }
+    });
+  }
+
   const tocHeadingMap = new Map<string, TocHeadingItem>();
 
   for (const tocHeadingItem of tocHeadingItems) {
@@ -1890,6 +2028,11 @@ function setupPostDetailToc(): (() => void) | null {
   });
 
   return () => {
+    if (tocInnerRevealFrameId) {
+      window.cancelAnimationFrame(tocInnerRevealFrameId);
+      tocInnerRevealFrameId = 0;
+    }
+
     tocListElement.removeEventListener('click', handleTocClick);
     observer?.disconnect();
     window.removeEventListener('scroll', handleWindowScroll);
