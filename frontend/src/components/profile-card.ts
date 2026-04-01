@@ -30,7 +30,6 @@ export function renderProfileCard(): string {
           ${renderPlatformIcon(contact.platform)}
           <span>${escapeHtml(formatPlatform(contact.platform))}</span>
         </span>
-        <span class="profile-contact-label">${escapeHtml(contact.label)}</span>
       </a>
     </li>`;
       })
