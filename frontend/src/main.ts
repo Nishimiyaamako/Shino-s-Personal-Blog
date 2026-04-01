@@ -392,7 +392,7 @@ function setupPageEnhancements(pathname: string, options: { enableProfileCardRou
         variantClassName: 'motion-side-pop-item--profile',
         delayBaseMs: 84,
         shouldIncludeGroup: options.enableProfileCardRouteMotion,
-        innerSelectors: ['.profile-card-meta h2', '.profile-card-meta p', '.profile-contact-link'],
+        innerSelectors: ['.profile-card-meta h2', '.profile-card-meta p', '.profile-contact-link', '.profile-stat-card'],
         avatarSelectors: ['.profile-card-avatar']
       },
       {
@@ -400,7 +400,13 @@ function setupPageEnhancements(pathname: string, options: { enableProfileCardRou
         directionClassName: 'motion-side-pop-item--from-left',
         variantClassName: 'motion-side-pop-item--intro',
         delayBaseMs: 96,
-        innerSelectors: ['.home-intro-fact-row', '.home-intro-tech', '.home-intro-hobby']
+        innerSelectors: [
+          '.home-intro-fact-row',
+          '.home-intro-side-title',
+          '.home-intro-tech-window',
+          '.home-intro-tech-row',
+          '.home-intro-hobby-item'
+        ]
       },
       {
         selectors: ['.post-theme-rail .post-theme-card'],
@@ -568,8 +574,8 @@ const SIDE_PANEL_RHYTHM_ITEM_STEP_MS = 58;
 const SIDE_PANEL_INNER_STAGGER_BASE_MS = 90;
 const SIDE_PANEL_INNER_STAGGER_STEP_MS = 45;
 const SIDE_PANEL_INNER_CHAIN_OFFSET_MS = 172;
-const SIDE_PANEL_PROFILE_AVATAR_DELAY_BASE_MS = 108;
-const SIDE_PANEL_PROFILE_AVATAR_STEP_MS = 28;
+const SIDE_PANEL_PROFILE_AVATAR_DELAY_BASE_MS = 128;
+const SIDE_PANEL_PROFILE_AVATAR_STEP_MS = 22;
 const CONTENT_RHYTHM_LEAD_GROUP_DELAY_MS = 18;
 const CONTENT_RHYTHM_BODY_GROUP_DELAY_MS = 72;
 const CONTENT_RHYTHM_ITEM_STEP_MS = 52;

@@ -55,8 +55,8 @@
 
 @keyframes profile-avatar-pop-spin {
   from {
-    opacity: 0.22;
-    transform: translate3d(0, 10px, 0) scale(0.94) rotate(-50deg);
+    opacity: 0.36;
+    transform: translate3d(0, 6px, 0) scale(0.972) rotate(-50deg);
   }
 
   to {
@@ -250,18 +250,18 @@
 
 .motion-profile-avatar-pop {
   opacity: 0;
-  transform: translate3d(0, 10px, 0) scale(0.94) rotate(-50deg);
+  transform: translate3d(0, 6px, 0) scale(0.972) rotate(-50deg);
   transform-origin: 50% 52%;
   will-change: transform, opacity;
 }
 
 .motion-profile-avatar-pop.is-visible {
-  animation: profile-avatar-pop-spin 520ms var(--motion-ease-out-expo) forwards;
+  animation: profile-avatar-pop-spin 620ms var(--motion-ease-out-quart) forwards;
   animation-delay: calc(
     var(--motion-rhythm-group-delay, 0ms)
     + var(--motion-rhythm-item-delay, 0ms)
-    + var(--motion-profile-avatar-delay-base, 108ms)
-    + var(--motion-profile-avatar-index, 0) * 28ms
+    + var(--motion-profile-avatar-delay-base, 128ms)
+    + var(--motion-profile-avatar-index, 0) * 22ms
   );
 }
 
