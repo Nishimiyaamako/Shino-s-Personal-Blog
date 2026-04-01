@@ -316,6 +316,12 @@
   animation-delay: calc(var(--motion-index, 0) * var(--motion-stagger-step-card) + var(--motion-delay-card-reveal-base));
 }
 
+.post-list--home.is-home-post-motion-gated > .post-card[data-motion-card] {
+  opacity: 0;
+  transform: translateY(var(--motion-distance-reveal-primary));
+  pointer-events: none;
+}
+
 .friend-link-list > .friend-link-card.motion-card-rise {
   --motion-delay-card-reveal-base: 44ms;
   --motion-stagger-step-card: 82ms;
@@ -502,6 +508,12 @@
 
   .home-intro-tech-item[data-tech-fill='true'] {
     display: none;
+  }
+
+  .post-list--home.is-home-post-motion-gated > .post-card[data-motion-card] {
+    opacity: 1 !important;
+    transform: none !important;
+    pointer-events: auto !important;
   }
 }
 

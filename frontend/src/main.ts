@@ -24,6 +24,7 @@ let cleanupPageEnhancements: (() => void) | null = null;
 type MotionScopeNode = Document | Element;
 interface RefreshPostCardMotionOptions {
   replay?: boolean;
+  skipHomeGate?: boolean;
 }
 interface AboutContentMotionOptions {
   root?: ParentNode;
@@ -566,6 +567,9 @@ const POST_DETAIL_READING_MOTION_SELECTORS = {
 } as const;
 const POST_LIST_SELECTOR = '.post-list, .friend-link-list';
 const HOME_POST_LIST_CLASS = 'post-list--home';
+const HOME_POST_MOTION_GATED_CLASS = 'is-home-post-motion-gated';
+const HOME_POST_GATE_START_PROGRESS = 1 / 2;
+const HOME_POST_GATE_BUFFER_MS = 0;
 const POST_CARD_ROW_TOLERANCE_PX = 10;
 const POST_CARD_STAGGER_CAP = 10;
 const MOBILE_SIDE_PANEL_MEDIA_QUERY = '(max-width: 1024px)';
@@ -1099,8 +1103,130 @@ function setupPostCardRiseMotion(): (() => void) | null {
   const reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   const observedCardSet = new Set<HTMLElement>();
   const cardOrderMap = new WeakMap<HTMLElement, number>();
+  const gatedHomePostListSet = new Set<HTMLElement>();
   let observer: IntersectionObserver | null = null;
   let revealFrameId = 0;
+  let homePostGateTimerId = 0;
+  let homePostGateSession = 0;
+
+  const parseCssTimeListToMs = (rawTimeList: string): number[] => {
+    return rawTimeList
+      .split(',')
+      .map((timeValue) => timeValue.trim())
+      .filter(Boolean)
+      .map((timeValue) => {
+        if (timeValue.endsWith('ms')) {
+          return Number.parseFloat(timeValue.slice(0, -2));
+        }
+
+        if (timeValue.endsWith('s')) {
+          return Number.parseFloat(timeValue.slice(0, -1)) * 1000;
+        }
+
+        return Number.parseFloat(timeValue);
+      })
+      .filter((timeMs) => Number.isFinite(timeMs));
+  };
+
+  const parseCssScalarToMs = (rawTimeValue: string): number => {
+    const trimmedValue = rawTimeValue.trim();
+    if (!trimmedValue) {
+      return 0;
+    }
+
+    if (trimmedValue.endsWith('ms')) {
+      const valueInMs = Number.parseFloat(trimmedValue.slice(0, -2));
+      return Number.isFinite(valueInMs) ? valueInMs : 0;
+    }
+
+    if (trimmedValue.endsWith('s')) {
+      const valueInS = Number.parseFloat(trimmedValue.slice(0, -1));
+      return Number.isFinite(valueInS) ? valueInS * 1000 : 0;
+    }
+
+    const numericValue = Number.parseFloat(trimmedValue);
+    return Number.isFinite(numericValue) ? numericValue : 0;
+  };
+
+  const parseCssScalarToNumber = (rawNumericValue: string): number => {
+    const numericValue = Number.parseFloat(rawNumericValue.trim());
+    return Number.isFinite(numericValue) ? numericValue : 0;
+  };
+
+  const resolveCssMotionEndMs = (style: CSSStyleDeclaration, motionType: 'animation' | 'transition'): number => {
+    const delays = parseCssTimeListToMs(motionType === 'animation' ? style.animationDelay : style.transitionDelay);
+    const durations = parseCssTimeListToMs(motionType === 'animation' ? style.animationDuration : style.transitionDuration);
+
+    if (!delays.length || !durations.length) {
+      return 0;
+    }
+
+    const timelineLength = Math.max(delays.length, durations.length);
+    let maxMotionEndMs = 0;
+
+    for (let index = 0; index < timelineLength; index += 1) {
+      const delayMs = Math.max(0, delays[index % delays.length] ?? 0);
+      const durationMs = Math.max(0, durations[index % durations.length] ?? 0);
+      maxMotionEndMs = Math.max(maxMotionEndMs, delayMs + durationMs);
+    }
+
+    return maxMotionEndMs;
+  };
+
+  const resolveHomeIntroPanelMotionEndMs = (homeIntroPanelElement: HTMLElement): number => {
+    const panelMotionElement = homeIntroPanelElement.classList.contains('motion-side-pop-item')
+      ? homeIntroPanelElement
+      : (homeIntroPanelElement.querySelector<HTMLElement>('.motion-side-pop-item') ?? homeIntroPanelElement);
+    const panelMotionStyle = window.getComputedStyle(panelMotionElement);
+    let panelMotionEndMs = resolveCssMotionEndMs(panelMotionStyle, 'animation');
+    let innerMotionEndMs = 0;
+
+    if (panelMotionEndMs <= 0) {
+      const panelDelayMs =
+        parseCssScalarToMs(panelMotionStyle.getPropertyValue('--motion-rhythm-group-delay'))
+        + parseCssScalarToMs(panelMotionStyle.getPropertyValue('--motion-rhythm-item-delay'))
+        + parseCssScalarToMs(panelMotionStyle.getPropertyValue('--motion-side-pop-delay-base'));
+      const panelDurationMs = parseCssScalarToMs(panelMotionStyle.getPropertyValue('--motion-side-pop-duration'));
+      panelMotionEndMs = panelDelayMs + panelDurationMs;
+    }
+
+    const innerMotionElements = Array.from(
+      homeIntroPanelElement.querySelectorAll<HTMLElement>('.motion-side-pop-inner-item')
+    );
+
+    for (const innerMotionElement of innerMotionElements) {
+      const innerMotionStyle = window.getComputedStyle(innerMotionElement);
+      let currentInnerMotionEndMs = resolveCssMotionEndMs(innerMotionStyle, 'transition');
+
+      if (currentInnerMotionEndMs <= 0) {
+        const innerDelayMs =
+          parseCssScalarToMs(innerMotionStyle.getPropertyValue('--motion-rhythm-group-delay'))
+          + parseCssScalarToMs(innerMotionStyle.getPropertyValue('--motion-rhythm-item-delay'))
+          + parseCssScalarToMs(innerMotionStyle.getPropertyValue('--motion-side-pop-inner-delay-base'))
+          + parseCssScalarToNumber(innerMotionStyle.getPropertyValue('--motion-side-pop-inner-index'))
+          * parseCssScalarToMs(innerMotionStyle.getPropertyValue('--motion-side-pop-inner-step'));
+        currentInnerMotionEndMs = innerDelayMs + 280;
+      }
+
+      innerMotionEndMs = Math.max(innerMotionEndMs, currentInnerMotionEndMs);
+    }
+
+    return Math.max(panelMotionEndMs, innerMotionEndMs);
+  };
+
+  const clearHomePostGate = (): void => {
+    homePostGateSession += 1;
+
+    if (homePostGateTimerId) {
+      window.clearTimeout(homePostGateTimerId);
+      homePostGateTimerId = 0;
+    }
+
+    for (const homePostListElement of gatedHomePostListSet) {
+      homePostListElement.classList.remove(HOME_POST_MOTION_GATED_CLASS);
+    }
+    gatedHomePostListSet.clear();
+  };
 
   const revealCards = (cardElements: readonly HTMLElement[]): void => {
     for (const cardElement of cardElements) {
@@ -1152,6 +1278,66 @@ function setupPostCardRiseMotion(): (() => void) | null {
     }
   };
 
+  const maybeStartHomePostGate = (
+    scope: MotionScopeNode,
+    listEntries: ReadonlyArray<{ listElement: HTMLElement }>,
+    options: RefreshPostCardMotionOptions
+  ): boolean => {
+    if (options.skipHomeGate) {
+      clearHomePostGate();
+      return false;
+    }
+
+    const homePostListEntry = listEntries.find((listEntry) =>
+      listEntry.listElement.classList.contains(HOME_POST_LIST_CLASS)
+    );
+
+    if (!homePostListEntry) {
+      clearHomePostGate();
+      return false;
+    }
+
+    const pageHomeElement = document.querySelector<HTMLElement>('.page-home');
+    const homeIntroPanelElement = pageHomeElement?.querySelector<HTMLElement>('.home-intro-panel') ?? null;
+
+    if (!pageHomeElement || !homeIntroPanelElement) {
+      clearHomePostGate();
+      return false;
+    }
+
+    const homeIntroMotionEndMs = resolveHomeIntroPanelMotionEndMs(homeIntroPanelElement);
+    if (!Number.isFinite(homeIntroMotionEndMs) || homeIntroMotionEndMs <= 0) {
+      clearHomePostGate();
+      return false;
+    }
+
+    clearHomePostGate();
+    homePostListEntry.listElement.classList.add(HOME_POST_MOTION_GATED_CLASS);
+    gatedHomePostListSet.add(homePostListEntry.listElement);
+
+    const currentGateSession = homePostGateSession + 1;
+    homePostGateSession = currentGateSession;
+    const gateDelayMs = Math.max(
+      0,
+      Math.ceil(homeIntroMotionEndMs * HOME_POST_GATE_START_PROGRESS + HOME_POST_GATE_BUFFER_MS)
+    );
+
+    homePostGateTimerId = window.setTimeout(() => {
+      if (currentGateSession !== homePostGateSession) {
+        return;
+      }
+
+      homePostGateTimerId = 0;
+      for (const homePostListElement of gatedHomePostListSet) {
+        homePostListElement.classList.remove(HOME_POST_MOTION_GATED_CLASS);
+      }
+      gatedHomePostListSet.clear();
+      runPostCardMotion(scope, { replay: true, skipHomeGate: true });
+    }, gateDelayMs);
+
+    return true;
+  };
+
   const runPostCardMotion = (
     scope: MotionScopeNode = document,
     options: RefreshPostCardMotionOptions = {}
@@ -1166,6 +1352,7 @@ function setupPostCardRiseMotion(): (() => void) | null {
         revealFrameId = 0;
       }
 
+      clearHomePostGate();
       resetCardMotionState(scopedCardElements);
     }
 
@@ -1227,7 +1414,12 @@ function setupPostCardRiseMotion(): (() => void) | null {
     }
 
     if (reducedMotionMediaQuery.matches) {
+      clearHomePostGate();
       revealCards(orderedCards);
+      return;
+    }
+
+    if (maybeStartHomePostGate(scope, listEntries, options)) {
       return;
     }
 
@@ -1306,6 +1498,7 @@ function setupPostCardRiseMotion(): (() => void) | null {
       revealFrameId = 0;
     }
 
+    clearHomePostGate();
     observer?.disconnect();
     observedCardSet.clear();
     reducedMotionMediaQuery.removeEventListener('change', handleReducedMotionChange);
@@ -1336,31 +1529,31 @@ function setupGlobalMotionChoreography(): (() => void) | null {
 
   const postDetailReadingTargets = pageElement.classList.contains('page-post-detail')
     ? [
-        {
-          targetElement: pageElement.querySelector<HTMLElement>(POST_DETAIL_READING_MOTION_SELECTORS.header),
-          delayMs: 60,
-          durationMs: 420,
-          offsetY: 10,
-          scaleStart: 0.992
-        },
-        {
-          targetElement: pageElement.querySelector<HTMLElement>(POST_DETAIL_READING_MOTION_SELECTORS.backRow),
-          delayMs: 90,
-          durationMs: 460,
-          offsetY: 12,
-          scaleStart: 0.996
-        },
-        {
-          targetElement: pageElement.querySelector<HTMLElement>(POST_DETAIL_READING_MOTION_SELECTORS.markdown),
-          delayMs: 120,
-          durationMs: 540,
-          offsetY: 14,
-          scaleStart: 1
-        }
-      ].filter(
-        (entry): entry is { targetElement: HTMLElement; delayMs: number; durationMs: number; offsetY: number; scaleStart: number } =>
-          Boolean(entry.targetElement)
-      )
+      {
+        targetElement: pageElement.querySelector<HTMLElement>(POST_DETAIL_READING_MOTION_SELECTORS.header),
+        delayMs: 60,
+        durationMs: 420,
+        offsetY: 10,
+        scaleStart: 0.992
+      },
+      {
+        targetElement: pageElement.querySelector<HTMLElement>(POST_DETAIL_READING_MOTION_SELECTORS.backRow),
+        delayMs: 90,
+        durationMs: 460,
+        offsetY: 12,
+        scaleStart: 0.996
+      },
+      {
+        targetElement: pageElement.querySelector<HTMLElement>(POST_DETAIL_READING_MOTION_SELECTORS.markdown),
+        delayMs: 120,
+        durationMs: 540,
+        offsetY: 14,
+        scaleStart: 1
+      }
+    ].filter(
+      (entry): entry is { targetElement: HTMLElement; delayMs: number; durationMs: number; offsetY: number; scaleStart: number } =>
+        Boolean(entry.targetElement)
+    )
     : [];
 
   const rhythmGroupCountMap = new Map<ContentRhythmGroup, number>([
