@@ -1075,7 +1075,6 @@
 .post-detail-back-button {
   border: 0;
   background: transparent;
-  color: inherit;
   font: inherit;
   line-height: inherit;
   cursor: pointer;
@@ -1084,7 +1083,6 @@
 .tag-detail-back-link:hover,
 .post-detail-back-button:hover {
   color: color-mix(in oklch, var(--accent-berry) 76%, var(--brand));
-  text-decoration: underline;
   transform: translateX(calc(var(--motion-distance-hover) * -0.5));
 }
 

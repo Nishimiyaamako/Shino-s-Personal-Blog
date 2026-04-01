@@ -257,7 +257,6 @@
 
 .site-footer-records a:hover {
   color: var(--brand);
-  text-decoration: underline;
 }
 
 .site-footer-divider {

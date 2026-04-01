@@ -27,7 +27,6 @@ a {
 
 a:hover {
   color: color-mix(in oklch, var(--accent-berry) 76%, var(--brand));
-  text-decoration: underline;
 }
 
 .skip-link {

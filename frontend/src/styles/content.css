@@ -333,7 +333,7 @@
 }
 
 .profile-contact-link {
-  --profile-contact-accent: var(--p-wisteria);
+  --profile-contact-accent: var(--p-sakura-light);
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -354,15 +354,15 @@
 }
 
 .profile-contact-list>li:nth-child(3n + 1) .profile-contact-link {
-  --profile-contact-accent: var(--p-wisteria);
+  --profile-contact-accent: var(--p-sakura-light);
 }
 
 .profile-contact-list>li:nth-child(3n + 2) .profile-contact-link {
-  --profile-contact-accent: var(--p-ume-accent);
+  --profile-contact-accent: var(--p-wisteria);
 }
 
 .profile-contact-list>li:nth-child(3n + 3) .profile-contact-link {
-  --profile-contact-accent: var(--p-sakura-light);
+  --profile-contact-accent: var(--p-ume-accent);
 }
 
 .profile-contact-link:focus-visible {
@@ -833,20 +833,58 @@
   list-style: none;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.46rem;
+  gap: var(--space-2);
+}
+
+.home-intro-hobby-item {
+  min-width: 0;
+  max-width: 100%;
+  flex: 0 1 auto;
 }
 
 .home-intro-hobby-item span {
+  --home-hobby-tag-surface: #fef1f7;
+  --home-hobby-tag-surface-hover: #fce7f3;
+  --home-hobby-tag-border: color-mix(in srgb, #ec4899 12%, transparent);
+  --home-hobby-tag-border-hover: color-mix(in srgb, #ec4899 18%, transparent);
+  --home-hobby-tag-text: color-mix(in srgb, #db2777 50%, transparent);
+  --home-hobby-tag-text-hover: color-mix(in srgb, #db2777 60%, transparent);
+
   display: inline-flex;
   align-items: center;
-  min-height: 1.78rem;
-  padding: 0 0.72rem;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--accent-berry) 32%, var(--border));
-  background: color-mix(in srgb, var(--brand-soft) 56%, var(--surface));
-  color: color-mix(in srgb, var(--accent-berry) 82%, var(--text));
-  font-size: 0.82rem;
-  letter-spacing: 0.02em;
+  justify-content: center;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 1.875rem;
+  padding-inline: clamp(0.46rem, 1.05vw, 0.58rem);
+  border-radius: var(--tag-radius);
+  border: 1px solid var(--home-hobby-tag-border);
+  background: var(--home-hobby-tag-surface);
+  color: var(--home-hobby-tag-text);
+  font-weight: 600;
+  font-size: 0.76rem;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px color-mix(in oklch, var(--p-wisteria) 8%, transparent);
+  transition:
+    background-color var(--motion-transition-state),
+    color var(--motion-transition-state),
+    border-color var(--motion-transition-state),
+    transform var(--motion-transition-state),
+    box-shadow var(--motion-transition-state);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .home-intro-hobby-item span:hover {
+    background: var(--home-hobby-tag-surface-hover);
+    border-color: var(--home-hobby-tag-border-hover);
+    color: var(--home-hobby-tag-text-hover);
+    transform: translateY(calc(var(--motion-distance-hover) * -0.5));
+    box-shadow: 0 2px 4px color-mix(in oklch, var(--p-wisteria) 12%, transparent);
+  }
 }
 
 .visually-hidden,
