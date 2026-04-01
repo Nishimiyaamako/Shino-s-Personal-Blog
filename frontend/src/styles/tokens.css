@@ -4,11 +4,11 @@
   color-scheme: light dark;
 
   /* 全局基础配色（OKLCH） - 和风增强 */
-  --p-brand-500: oklch(68% 0.21 358); /* 更鲜艳的樱花粉 */
-  --p-brand-700: oklch(52% 0.20 357); /* 深樱色 */
+  --p-brand-500: oklch(66% 0.17 358); /* 柔和樱花粉 */
+  --p-brand-700: oklch(50% 0.16 357); /* 克制深樱色 */
   --p-sakura-light: oklch(82% 0.15 355); /* 淡樱 */
   --p-ume-accent: oklch(64% 0.18 340); /* 梅花紫粉 */
-  --p-accent-500: oklch(68% 0.11 317);
+  --p-accent-500: oklch(66% 0.08 317);
   --p-wisteria: oklch(70% 0.14 295); /* 藤紫 */
   --p-info-500: oklch(78% 0.065 248);
   --p-interactive-500: var(--p-info-500);
@@ -22,7 +22,7 @@
   --ivory-50: var(--p-neutral-50);
 
   --brand: var(--rose-500);
-  --brand-soft: color-mix(in oklch, var(--rose-500) 26%, var(--ivory-50));
+  --brand-soft: color-mix(in oklch, var(--rose-500) 18%, var(--ivory-50));
   --accent-berry: var(--rose-700);
   --accent-secondary: var(--cyan-500);
   --accent-secondary-soft: color-mix(in oklch, var(--accent-secondary) 24%, var(--ivory-50));
@@ -45,18 +45,18 @@
   --material-surface-dark-solid: 84%;
   --material-surface-dark-elevated-solid: 90%;
   --material-surface-dark-soft-solid: 82%;
-  --material-shadow-alpha: 8%;
-  --material-shadow-strong-alpha: 12%;
-  --material-shadow-alpha-dark: 32%;
-  --material-shadow-strong-alpha-dark: 42%;
+  --material-shadow-alpha: 6%;
+  --material-shadow-strong-alpha: 9%;
+  --material-shadow-alpha-dark: 26%;
+  --material-shadow-strong-alpha-dark: 34%;
   --material-header-backdrop: none;
   --material-card-backdrop: none;
-  --material-decor-line-opacity: 0.06;
-  --material-decor-shape-opacity: 0.08;
-  --material-post-cover-overlay-opacity: 0.34;
-  --material-post-cover-overlay-hover-opacity: 0.46;
-  --material-post-cover-bottom-opacity: 0.2;
-  --material-post-cover-bottom-hover-opacity: 0.3;
+  --material-decor-line-opacity: 0.035;
+  --material-decor-shape-opacity: 0.05;
+  --material-post-cover-overlay-opacity: 0.28;
+  --material-post-cover-overlay-hover-opacity: 0.38;
+  --material-post-cover-bottom-opacity: 0.16;
+  --material-post-cover-bottom-hover-opacity: 0.24;
 
   --bg: #fff;
   --surface: color-mix(in oklch, var(--ivory-50) var(--material-surface-solid), transparent);
@@ -71,9 +71,9 @@
   --tag-hit-size: 40px;
   --tag-hit-size-compact: 34px;
   --tag-pad-inline: 0.72rem;
-  --tag-fill-normal: 30%;
+  --tag-fill-normal: 24%;
   --tag-fill-quiet: 18%;
-  --tag-fill-hover: 40%;
+  --tag-fill-hover: 30%;
   --tag-fill-count: 24%;
   --tag-surface: color-mix(in srgb, var(--brand-soft) var(--tag-fill-normal), transparent);
   --tag-surface-quiet: color-mix(in srgb, var(--brand-soft) var(--tag-fill-quiet), transparent);
@@ -139,12 +139,12 @@
   --header-brand-width: clamp(180px, calc(var(--layout-header) * 0.22), 240px);
   --profile-width: clamp(204px, 18vw, 240px);
 
-  --motion-duration-feedback: 140ms;
-  --motion-duration-state: 240ms;
-  --motion-duration-enter: 460ms;
-  --motion-duration-enter-home: 520ms;
-  --motion-duration-profile-edge-enter: 820ms;
-  --motion-duration-route-enter: 220ms;
+  --motion-duration-feedback: 170ms;
+  --motion-duration-state: 300ms;
+  --motion-duration-enter: 560ms;
+  --motion-duration-enter-home: 620ms;
+  --motion-duration-profile-edge-enter: 980ms;
+  --motion-duration-route-enter: 280ms;
   --motion-stagger-step: 56ms;
   --motion-stagger-step-home: 72ms;
   --motion-stagger-step-card: 104ms;
@@ -160,11 +160,11 @@
   --motion-ease-enter-soft: var(--motion-ease-out-quart);
   --motion-ease-feedback: var(--motion-ease-out-quart);
 
-  --motion-distance-enter: 14px;
-  --motion-home-left-distance: 28px;
+  --motion-distance-enter: 10px;
+  --motion-home-left-distance: 20px;
   --motion-profile-edge-distance: 108vw;
   --motion-distance-route: 8px;
-  --motion-distance-hover: 2px;
+  --motion-distance-hover: 1px;
   --motion-distance-reveal-primary: var(--motion-distance-enter);
   --motion-distance-reveal-soft: var(--motion-distance-route);
   --motion-duration-reveal-primary: var(--motion-duration-enter);
@@ -178,12 +178,12 @@
   --control-surface-interactive: color-mix(in srgb, var(--accent-info-soft) 72%, var(--control-surface-soft));
   --control-surface-highlight: color-mix(in srgb, var(--accent-info-soft) 84%, var(--control-surface-soft));
   --control-halo-interactive:
-    0 0 0 1px color-mix(in srgb, var(--accent-interactive) 24%, transparent),
-    0 1px 3px color-mix(in srgb, var(--accent-interactive) 18%, transparent);
+    0 0 0 1px color-mix(in srgb, var(--accent-interactive) 20%, transparent),
+    0 1px 3px color-mix(in srgb, var(--accent-interactive) 14%, transparent);
   --control-halo-highlight:
-    0 0 0 1px color-mix(in srgb, var(--accent-highlight) 28%, transparent),
-    0 2px 4px color-mix(in srgb, var(--accent-highlight) 20%, transparent);
-  --control-shadow-hover: 0 2px 4px color-mix(in srgb, var(--accent-berry) 22%, transparent);
+    0 0 0 1px color-mix(in srgb, var(--accent-highlight) 22%, transparent),
+    0 2px 4px color-mix(in srgb, var(--accent-highlight) 16%, transparent);
+  --control-shadow-hover: 0 2px 4px color-mix(in srgb, var(--accent-berry) 18%, transparent);
 
   /* 语义化文本颜色 */
   --text-secondary: color-mix(in oklch, var(--accent-secondary) 38%, var(--text-subtle));
@@ -202,9 +202,9 @@
 }
 
 html[data-palette-preview='rose_atelier'] {
-  --p-brand-500: oklch(66% 0.19 358);
-  --p-brand-700: oklch(49% 0.19 357);
-  --p-accent-500: oklch(68% 0.11 317);
+  --p-brand-500: oklch(66% 0.17 358);
+  --p-brand-700: oklch(50% 0.16 357);
+  --p-accent-500: oklch(66% 0.08 317);
   --p-neutral-50: oklch(97% 0.012 335);
 }
 
@@ -225,12 +225,12 @@ html[data-clarity-preview='flat_clean'] {
     --border-strong: #556170;
     --card-surface-main: var(--surface-elevated);
 
-    --brand-soft: color-mix(in oklch, var(--rose-500) 18%, var(--surface-soft));
+    --brand-soft: color-mix(in oklch, var(--rose-500) 16%, var(--surface-soft));
     --accent-berry: color-mix(in oklch, var(--rose-500) 74%, var(--ivory-50));
     --accent-secondary-soft: color-mix(in oklch, var(--accent-secondary) 18%, var(--surface-soft));
-    --tag-fill-normal: 27%;
+    --tag-fill-normal: 23%;
     --tag-fill-quiet: 16%;
-    --tag-fill-hover: 34%;
+    --tag-fill-hover: 30%;
     --tag-fill-count: 20%;
     --accent-info-soft: color-mix(in oklch, var(--accent-info) 18%, var(--surface-soft));
     --accent-interactive-soft: color-mix(in oklch, var(--accent-interactive) 18%, var(--surface-soft));
@@ -243,26 +243,26 @@ html[data-clarity-preview='flat_clean'] {
     --accent-mauve-soft: color-mix(in oklch, var(--neutral-metal) 38%, var(--surface-soft));
     --accent-berry-soft: color-mix(in oklch, var(--accent-berry) 18%, var(--surface-soft));
     --control-halo-interactive:
-      0 0 0 1px color-mix(in srgb, var(--accent-interactive) 34%, transparent),
-      0 1px 3px color-mix(in srgb, black 46%, transparent);
+      0 0 0 1px color-mix(in srgb, var(--accent-interactive) 28%, transparent),
+      0 1px 3px color-mix(in srgb, black 40%, transparent);
     --control-halo-highlight:
-      0 0 0 1px color-mix(in srgb, var(--accent-highlight) 34%, transparent),
-      0 2px 4px color-mix(in srgb, black 52%, transparent);
+      0 0 0 1px color-mix(in srgb, var(--accent-highlight) 30%, transparent),
+      0 2px 4px color-mix(in srgb, black 46%, transparent);
 
-    --shadow: 0 1px 3px rgba(0, 0, 0, 0.34);
-    --shadow-strong: 0 2px 4px rgba(0, 0, 0, 0.44);
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
+    --shadow-strong: 0 2px 4px rgba(0, 0, 0, 0.36);
     --card-shadow-cool:
       0 0 0 1px color-mix(in srgb, var(--border) 86%, transparent),
-      0 0 3px color-mix(in srgb, black 34%, transparent);
+      0 0 3px color-mix(in srgb, black 28%, transparent);
     --card-shadow-cool-hover:
       0 0 0 1px color-mix(in srgb, var(--border-strong) 82%, transparent),
-      0 0 4px color-mix(in srgb, black 52%, transparent);
+      0 0 4px color-mix(in srgb, black 42%, transparent);
     --card-shadow-warm:
       0 0 0 1px color-mix(in srgb, var(--accent-berry) 18%, var(--border)),
-      0 0 3px color-mix(in srgb, black 34%, transparent);
+      0 0 3px color-mix(in srgb, black 28%, transparent);
     --card-shadow-warm-hover:
       0 0 0 1px color-mix(in srgb, var(--accent-berry) 32%, var(--border-strong)),
-      0 0 4px color-mix(in srgb, black 52%, transparent);
+      0 0 4px color-mix(in srgb, black 42%, transparent);
 
     --decor-pattern-opacity: 0.032;
     --decor-base-opacity: 0.044;
@@ -276,8 +276,8 @@ html[data-clarity-preview='flat_clean'] {
 
 @media (max-width: 960px) {
   :root {
-    --motion-distance-enter: 12px;
-    --motion-home-left-distance: 24px;
+    --motion-distance-enter: 9px;
+    --motion-home-left-distance: 18px;
     --motion-distance-route: 7px;
     --motion-stagger-step: 48ms;
     --motion-stagger-step-home: 64ms;
@@ -287,8 +287,8 @@ html[data-clarity-preview='flat_clean'] {
 
 @media (max-width: 640px) {
   :root {
-    --motion-distance-enter: 10px;
-    --motion-home-left-distance: 20px;
+    --motion-distance-enter: 8px;
+    --motion-home-left-distance: 16px;
     --motion-distance-route: 6px;
     --motion-stagger-step: 42ms;
     --motion-stagger-step-home: 56ms;

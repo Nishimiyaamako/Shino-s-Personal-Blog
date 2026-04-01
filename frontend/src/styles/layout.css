@@ -124,7 +124,7 @@
 }
 
 .site-nav a.is-active {
-  color: color-mix(in srgb, var(--accent-berry) 86%, var(--text));
+  color: color-mix(in srgb, var(--accent-berry) 80%, var(--text));
   font-weight: 600;
 }
 
@@ -133,7 +133,7 @@
 }
 
 .site-nav a:focus-visible {
-  color: color-mix(in srgb, var(--accent-berry) 76%, var(--text));
+  color: color-mix(in srgb, var(--accent-berry) 70%, var(--text));
   outline: var(--focus-ring-outline-soft);
   outline-offset: 2px;
   text-decoration: none;
@@ -159,15 +159,15 @@
 }
 
 .site-nav a:active {
-  transform: translateY(calc(var(--motion-distance-hover) * -0.2)) scale(0.994);
+  transform: translateY(calc(var(--motion-distance-hover) * -0.1)) scale(0.996);
   transition-duration: var(--motion-duration-feedback);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .site-nav a:hover {
-    color: color-mix(in srgb, var(--accent-berry) 70%, var(--text));
+    color: color-mix(in srgb, var(--accent-berry) 64%, var(--text));
     text-decoration: none;
-    transform: translateY(calc(var(--motion-distance-hover) * -0.5));
+    transform: translateY(calc(var(--motion-distance-hover) * -0.25));
   }
 
   .site-nav a:hover::after {

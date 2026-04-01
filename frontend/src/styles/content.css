@@ -580,7 +580,7 @@
 
 .home-intro-side-title {
   margin: 0 0 0.68rem;
-  color: color-mix(in srgb, var(--accent-berry) 74%, var(--text));
+  color: color-mix(in srgb, var(--accent-berry) 68%, var(--text));
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -591,7 +591,7 @@
   --intro-window-bg: color-mix(in srgb, var(--surface-soft) 72%, var(--surface));
   --home-intro-tech-gap: 0.62rem;
   --home-intro-tech-row-gap: 0.5rem;
-  --home-intro-tech-duration: 24s;
+  --home-intro-tech-duration: 34s;
 
   position: relative;
   overflow: hidden;
@@ -678,8 +678,8 @@
 }
 
 .home-intro-tech-badge:hover {
-  transform: translateY(calc(var(--motion-distance-hover) * -0.75)) rotate(2deg);
-  box-shadow: 0 2px 4px color-mix(in srgb, var(--tech-fg) 26%, transparent);
+  transform: translateY(calc(var(--motion-distance-hover) * -0.5)) rotate(0.8deg);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--tech-fg) 18%, transparent);
 }
 
 .home-intro-tech-badge[data-tech='typescript'] {
@@ -843,12 +843,12 @@
 }
 
 .home-intro-hobby-item span {
-  --home-hobby-tag-surface: #fef1f7;
-  --home-hobby-tag-surface-hover: #fce7f3;
-  --home-hobby-tag-border: color-mix(in srgb, #ec4899 12%, transparent);
-  --home-hobby-tag-border-hover: color-mix(in srgb, #ec4899 18%, transparent);
-  --home-hobby-tag-text: color-mix(in srgb, #db2777 50%, transparent);
-  --home-hobby-tag-text-hover: color-mix(in srgb, #db2777 60%, transparent);
+  --home-hobby-tag-surface: #fdf4f8;
+  --home-hobby-tag-surface-hover: #fbeaf2;
+  --home-hobby-tag-border: color-mix(in srgb, #ec4899 9%, transparent);
+  --home-hobby-tag-border-hover: color-mix(in srgb, #ec4899 13%, transparent);
+  --home-hobby-tag-text: color-mix(in srgb, #db2777 44%, transparent);
+  --home-hobby-tag-text-hover: color-mix(in srgb, #db2777 50%, transparent);
 
   display: inline-flex;
   align-items: center;
@@ -868,7 +868,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  box-shadow: 0 1px 2px color-mix(in oklch, var(--p-wisteria) 8%, transparent);
+  box-shadow: 0 1px 2px color-mix(in oklch, var(--p-wisteria) 6%, transparent);
   transition:
     background-color var(--motion-transition-state),
     color var(--motion-transition-state),
@@ -882,8 +882,8 @@
     background: var(--home-hobby-tag-surface-hover);
     border-color: var(--home-hobby-tag-border-hover);
     color: var(--home-hobby-tag-text-hover);
-    transform: translateY(calc(var(--motion-distance-hover) * -0.5));
-    box-shadow: 0 2px 4px color-mix(in oklch, var(--p-wisteria) 12%, transparent);
+    transform: translateY(calc(var(--motion-distance-hover) * -0.25));
+    box-shadow: 0 1px 2px color-mix(in oklch, var(--p-wisteria) 9%, transparent);
   }
 }
 

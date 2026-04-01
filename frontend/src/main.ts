@@ -573,43 +573,43 @@ const HOME_POST_GATE_BUFFER_MS = 0;
 const POST_CARD_ROW_TOLERANCE_PX = 10;
 const POST_CARD_STAGGER_CAP = 10;
 const MOBILE_SIDE_PANEL_MEDIA_QUERY = '(max-width: 1024px)';
-const SIDE_PANEL_RHYTHM_GROUP_STEP_MS = 72;
-const SIDE_PANEL_RHYTHM_ITEM_STEP_MS = 58;
-const SIDE_PANEL_INNER_STAGGER_BASE_MS = 90;
-const SIDE_PANEL_INNER_STAGGER_STEP_MS = 45;
-const SIDE_PANEL_INNER_CHAIN_OFFSET_MS = 172;
-const SIDE_PANEL_PROFILE_AVATAR_DELAY_BASE_MS = 128;
-const SIDE_PANEL_PROFILE_AVATAR_STEP_MS = 22;
-const CONTENT_RHYTHM_LEAD_GROUP_DELAY_MS = 18;
-const CONTENT_RHYTHM_BODY_GROUP_DELAY_MS = 72;
-const CONTENT_RHYTHM_ITEM_STEP_MS = 52;
-const POST_DETAIL_READING_RHYTHM_GROUP_DELAY_MS = 72;
+const SIDE_PANEL_RHYTHM_GROUP_STEP_MS = 86;
+const SIDE_PANEL_RHYTHM_ITEM_STEP_MS = 70;
+const SIDE_PANEL_INNER_STAGGER_BASE_MS = 108;
+const SIDE_PANEL_INNER_STAGGER_STEP_MS = 54;
+const SIDE_PANEL_INNER_CHAIN_OFFSET_MS = 206;
+const SIDE_PANEL_PROFILE_AVATAR_DELAY_BASE_MS = 154;
+const SIDE_PANEL_PROFILE_AVATAR_STEP_MS = 26;
+const CONTENT_RHYTHM_LEAD_GROUP_DELAY_MS = 22;
+const CONTENT_RHYTHM_BODY_GROUP_DELAY_MS = 86;
+const CONTENT_RHYTHM_ITEM_STEP_MS = 62;
+const POST_DETAIL_READING_RHYTHM_GROUP_DELAY_MS = 86;
 const MOTION_DELAY_MS = {
-  routeEnterStep: 24,
+  routeEnterStep: 29,
   about: {
     intro: {
-      initialBase: 208,
-      initialStep: 82,
-      scrollStep: 62
-    },
-    dialogue: {
-      initialBase: 392,
-      initialStep: 96,
+      initialBase: 250,
+      initialStep: 98,
       scrollStep: 74
     },
+    dialogue: {
+      initialBase: 470,
+      initialStep: 115,
+      scrollStep: 89
+    },
     timeline: {
-      initialBase: 548,
-      initialStep: 88,
-      scrollStep: 72
+      initialBase: 658,
+      initialStep: 106,
+      scrollStep: 86
     },
     journey: {
-      initialBase: 688,
-      initialStep: 80,
-      scrollStep: 66
+      initialBase: 826,
+      initialStep: 96,
+      scrollStep: 79
     },
     desktopDialogueOffset: {
-      initial: 28,
-      scroll: 24
+      initial: 34,
+      scroll: 29
     }
   }
 } as const;
