@@ -7,7 +7,7 @@
 1. `tokens.css`：全局 token、主题预览、dark mode、响应式 token
 2. `base.css`：reset、文本与链接、`app-shell` 背景装饰
 3. `layout.css`：header/nav/main/footer、通用页面壳层布局
-4. `content.css`：共享内容壳、about/profile/home-intro/archive/friends/markdown
+4. `content.css`：共享内容壳、about/profile/archive/friends/markdown
 5. `posts.css`：post list/card、tag、post detail、theme rail、TOC、floating actions
 6. `motion.css`：keyframes、动效状态类、`prefers-reduced-motion` 兜底
 
@@ -43,7 +43,6 @@
 适合留在局部的例子：
 
 - `about-*`
-- `home-intro-*`
 - `post-cover-*`
 - `floating-scroll-*`
 

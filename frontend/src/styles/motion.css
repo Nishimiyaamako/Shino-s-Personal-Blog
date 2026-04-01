@@ -89,16 +89,6 @@
   }
 }
 
-@keyframes home-intro-tech-marquee {
-  from {
-    transform: translateX(0);
-  }
-
-  to {
-    transform: translateX(-50%);
-  }
-}
-
 @keyframes sakura-float {
   0% {
     transform: translateY(0) translateX(0) rotate(0deg);
@@ -160,14 +150,6 @@
   --motion-side-pop-scale-start: 0.985;
   --motion-side-pop-duration: 460ms;
   --motion-side-pop-ease: var(--motion-ease-out-quint);
-}
-
-.motion-side-pop-item--intro {
-  --motion-side-pop-translate-x: -18px;
-  --motion-side-pop-translate-y: 10px;
-  --motion-side-pop-scale-start: 0.992;
-  --motion-side-pop-duration: 520ms;
-  --motion-side-pop-ease: var(--motion-ease-out-expo);
 }
 
 .motion-side-pop-item--theme,
@@ -276,12 +258,6 @@
   animation-delay: calc(var(--motion-index, 0) * var(--motion-stagger-step-card) + var(--motion-delay-card-reveal-base));
 }
 
-.post-list--home.is-home-post-motion-gated > .post-card[data-motion-card] {
-  opacity: 0;
-  transform: translateY(var(--motion-distance-reveal-primary));
-  pointer-events: none;
-}
-
 .friend-link-list > .friend-link-card.motion-card-rise {
   --motion-delay-card-reveal-base: 44ms;
   --motion-stagger-step-card: 82ms;
@@ -378,6 +354,7 @@
   .post-list--posts .post-card-cover,
   .post-list--tag-panel .post-card-cover,
   .site-nav a,
+  .header-search-trigger,
   .profile-contact-link,
   .profile-contact-platform,
   .profile-contact-label,
@@ -394,9 +371,7 @@
   .friend-link-card::after,
   .friend-link-avatar,
   .friend-link-url,
-  .site-footer-records a,
-  .home-intro-tech-track,
-  .home-intro-tech-badge {
+  .site-footer-records a {
     animation: none !important;
     transition: none !important;
   }
@@ -406,7 +381,8 @@
     transform: none !important;
   }
 
-  .site-nav a::after {
+  .site-nav a::after,
+  .header-search-trigger::after {
     transition: none !important;
   }
 
@@ -436,45 +412,6 @@
     transition: none !important;
   }
 
-  .home-intro-tech-window {
-    overflow: visible;
-  }
-
-  .home-intro-tech-window::before,
-  .home-intro-tech-window::after {
-    display: none;
-  }
-
-  .home-intro-tech-marquee {
-    gap: var(--home-intro-tech-row-gap);
-  }
-
-  .home-intro-tech-row {
-    overflow: visible;
-  }
-
-  .home-intro-tech-track {
-    width: 100%;
-    flex-wrap: wrap;
-  }
-
-  .home-intro-tech-list {
-    flex-wrap: wrap;
-  }
-
-  .home-intro-tech-list[aria-hidden='true'] {
-    display: none;
-  }
-
-  .home-intro-tech-item[data-tech-fill='true'] {
-    display: none;
-  }
-
-  .post-list--home.is-home-post-motion-gated > .post-card[data-motion-card] {
-    opacity: 1 !important;
-    transform: none !important;
-    pointer-events: auto !important;
-  }
 }
 
 @media (max-width: 1024px) {
