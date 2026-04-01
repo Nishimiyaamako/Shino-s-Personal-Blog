@@ -1448,9 +1448,7 @@
 }
 
 .post-toc-card:not(.has-toc) {
-  padding: 0;
-  background: transparent;
-  box-shadow: none;
+  display: none;
 }
 
 .post-toc-panel {
@@ -1745,10 +1743,6 @@
 
   .post-theme-mobile-toggle {
     display: inline-flex;
-  }
-
-  .post-toc-card:not(.has-toc) {
-    padding: 0;
   }
 
   .post-toc-scroll-area {

@@ -475,6 +475,11 @@ function setupPageEnhancements(pathname: string, options: { enableProfileCardRou
     if (cleanupPostDetailToc) {
       cleanups.push(cleanupPostDetailToc);
     }
+
+    const cleanupPostDetailCodeBlockCopy = setupPostDetailCodeBlockCopy();
+    if (cleanupPostDetailCodeBlockCopy) {
+      cleanups.push(cleanupPostDetailCodeBlockCopy);
+    }
   }
 
   if (pathname === '/archive') {
@@ -2087,6 +2092,7 @@ function setupPostDetailToc(): (() => void) | null {
   );
 
   if (!headingElements.length) {
+    tocListElement.innerHTML = '';
     setTocVisibleState(false);
     return null;
   }
@@ -2150,7 +2156,8 @@ function setupPostDetailToc(): (() => void) | null {
     });
   }
 
-  if (!tocHeadingItems.length) {
+  if (tocHeadingItems.length < 2) {
+    tocListElement.innerHTML = '';
     setTocVisibleState(false);
     return null;
   }
@@ -2365,6 +2372,145 @@ function setupPostDetailToc(): (() => void) | null {
     if (initialSyncFrameId) {
       window.cancelAnimationFrame(initialSyncFrameId);
       initialSyncFrameId = 0;
+    }
+  };
+}
+
+function setupPostDetailCodeBlockCopy(): (() => void) | null {
+  const codeElements = Array.from(
+    document.querySelectorAll<HTMLElement>('.page-post-detail .markdown-content pre > code')
+  );
+
+  if (!codeElements.length) {
+    return null;
+  }
+
+  interface PostCodeCopyControl {
+    buttonElement: HTMLButtonElement;
+    handleClick: () => void;
+    resetTimer: number;
+    isCopying: boolean;
+    copyValue: string;
+  }
+
+  const copyControls: PostCodeCopyControl[] = [];
+
+  const setButtonLabel = (
+    control: PostCodeCopyControl,
+    label: string,
+    state: 'default' | 'success' | 'error' = 'default'
+  ): void => {
+    control.buttonElement.textContent = label;
+    control.buttonElement.classList.toggle('is-copied', state === 'success');
+    control.buttonElement.classList.toggle('is-error', state === 'error');
+  };
+
+  const scheduleReset = (control: PostCodeCopyControl): void => {
+    if (control.resetTimer) {
+      window.clearTimeout(control.resetTimer);
+    }
+
+    control.resetTimer = window.setTimeout(() => {
+      control.resetTimer = 0;
+      setButtonLabel(control, '复制');
+    }, 1600);
+  };
+
+  const fallbackCopyText = (text: string): boolean => {
+    const textAreaElement = document.createElement('textarea');
+    textAreaElement.value = text;
+    textAreaElement.setAttribute('readonly', 'true');
+    textAreaElement.setAttribute('aria-hidden', 'true');
+    textAreaElement.style.position = 'fixed';
+    textAreaElement.style.opacity = '0';
+    textAreaElement.style.pointerEvents = 'none';
+    textAreaElement.style.left = '-9999px';
+
+    document.body.append(textAreaElement);
+    textAreaElement.select();
+    textAreaElement.setSelectionRange(0, text.length);
+
+    const copied = document.execCommand('copy');
+    textAreaElement.remove();
+    return copied;
+  };
+
+  for (const codeElement of codeElements) {
+    const preElement = codeElement.parentElement;
+    if (!(preElement instanceof HTMLPreElement)) {
+      continue;
+    }
+
+    if (preElement.querySelector<HTMLElement>('[data-role="post-code-copy"]')) {
+      continue;
+    }
+
+    const copyValue = codeElement.textContent ?? '';
+    if (!copyValue.trim()) {
+      continue;
+    }
+
+    const copyButtonElement = document.createElement('button');
+    copyButtonElement.type = 'button';
+    copyButtonElement.className = 'post-code-copy-button';
+    copyButtonElement.setAttribute('data-role', 'post-code-copy');
+    copyButtonElement.setAttribute('aria-label', '复制代码块');
+    copyButtonElement.textContent = '复制';
+    preElement.append(copyButtonElement);
+
+    const control: PostCodeCopyControl = {
+      buttonElement: copyButtonElement,
+      handleClick: () => {},
+      resetTimer: 0,
+      isCopying: false,
+      copyValue
+    };
+
+    const copyCode = async (): Promise<void> => {
+      if (control.isCopying) {
+        return;
+      }
+
+      control.isCopying = true;
+
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(control.copyValue);
+        } else if (!fallbackCopyText(control.copyValue)) {
+          throw new Error('fallback-copy-failed');
+        }
+
+        setButtonLabel(control, '已复制', 'success');
+      } catch {
+        setButtonLabel(control, '复制失败', 'error');
+      } finally {
+        control.isCopying = false;
+        scheduleReset(control);
+      }
+    };
+
+    control.handleClick = () => {
+      void copyCode();
+    };
+
+    copyButtonElement.addEventListener('click', control.handleClick);
+    copyControls.push(control);
+  }
+
+  if (!copyControls.length) {
+    return null;
+  }
+
+  return () => {
+    for (const control of copyControls) {
+      control.buttonElement.removeEventListener('click', control.handleClick);
+
+      if (control.resetTimer) {
+        window.clearTimeout(control.resetTimer);
+        control.resetTimer = 0;
+      }
+
+      control.buttonElement.remove();
     }
   };
 }

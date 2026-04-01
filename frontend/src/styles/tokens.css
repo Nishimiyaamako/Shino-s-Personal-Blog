@@ -193,6 +193,13 @@
   /* 文章封面阴影 */
   --post-cover-shadow: 0 1px 3px color-mix(in oklch, var(--accent-secondary) 14%, transparent);
   --post-cover-shadow-strong: 0 2px 4px color-mix(in oklch, var(--accent-secondary) 20%, transparent);
+  /* 文章标题前缀（预留后端配置入口，默认不显示） */
+  --post-heading-prefix-h1: '';
+  --post-heading-prefix-h2: '';
+  --post-heading-prefix-h3: '';
+  --post-heading-prefix-h4: '';
+  --post-heading-prefix-h5: '';
+  --post-heading-prefix-h6: '';
 
   /* 按钮基础样式 */
   --button-border: 1px solid color-mix(in srgb, var(--accent-interactive) 24%, var(--border));

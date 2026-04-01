@@ -1481,6 +1481,7 @@
 }
 
 .markdown-content pre {
+  position: relative;
   overflow: auto;
   padding: var(--space-4);
   border-radius: var(--radius-sm);
@@ -1489,6 +1490,51 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   word-break: break-word;
+}
+
+.post-code-copy-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 1;
+  border: 1px solid color-mix(in srgb, var(--accent-interactive) 24%, var(--border));
+  background: var(--control-surface-interactive);
+  color: var(--accent-info-text);
+  border-radius: 999px;
+  font-size: 0.58rem;
+  line-height: 1;
+  padding: 0.22rem 0.42rem;
+  cursor: pointer;
+  transition:
+    color var(--motion-transition-feedback),
+    border-color var(--motion-transition-feedback),
+    background-color var(--motion-transition-feedback),
+    box-shadow var(--motion-transition-feedback),
+    transform var(--motion-transition-feedback);
+}
+
+.post-code-copy-button:hover {
+  color: var(--accent-interactive-text);
+  border-color: color-mix(in srgb, var(--accent-interactive) 40%, var(--border));
+  box-shadow: var(--control-halo-interactive);
+  transform: translateY(calc(var(--motion-distance-hover) * -0.45));
+}
+
+.post-code-copy-button:focus-visible {
+  outline: var(--focus-ring-outline-soft);
+  outline-offset: 2px;
+}
+
+.post-code-copy-button.is-copied {
+  color: var(--accent-highlight-text);
+  border-color: color-mix(in srgb, var(--accent-highlight) 44%, var(--border));
+  background: var(--control-surface-highlight);
+  box-shadow: var(--control-halo-highlight);
+}
+
+.post-code-copy-button.is-error {
+  color: color-mix(in srgb, var(--rose-500) 82%, var(--accent-highlight-text));
+  border-color: color-mix(in srgb, var(--rose-500) 52%, var(--border));
 }
 
 .markdown-content pre code {
@@ -1510,8 +1556,248 @@
 
 .page-post-detail .post-detail-back-row {
   display: flex;
-  justify-content: flex-end;
-  margin-block: calc(var(--space-4) * -1);
+  justify-content: flex-start;
+  margin-block: calc(var(--space-4) * -0.5) 0;
+}
+
+.page-post-detail .page-header,
+.page-post-detail .post-detail-layout>.markdown-content {
+  border: 0;
+}
+
+.page-post-detail .page-header {
+  position: relative;
+  display: grid;
+  gap: 0.55rem;
+  padding: clamp(1rem, 1.7vw, 1.45rem) clamp(1rem, 2.1vw, 1.7rem);
+}
+
+.page-post-detail .page-header::after {
+  content: '';
+  display: block;
+  height: 1px;
+  margin-top: 0.35rem;
+  background: linear-gradient(90deg,
+      color-mix(in srgb, var(--accent-secondary) 64%, transparent),
+      color-mix(in srgb, var(--accent-berry) 62%, transparent));
+  opacity: 0.52;
+}
+
+.page-post-detail .page-header h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  line-height: 1.25;
+}
+
+.page-post-detail .page-header p {
+  margin: 0;
+}
+
+.page-post-detail .page-header .post-meta {
+  font-size: 0.84rem;
+  color: color-mix(in srgb, var(--accent-secondary) 42%, var(--text-subtle));
+}
+
+.page-post-detail .page-header .post-meta+* {
+  color: var(--text-subtle);
+}
+
+.page-post-detail .post-detail-layout>.markdown-content {
+  font-size: 1rem;
+  line-height: 1.82;
+  padding: clamp(1rem, 2vw, 1.65rem);
+}
+
+.page-post-detail .markdown-content>*+* {
+  margin-top: 1.25em;
+}
+
+.page-post-detail .markdown-content p {
+  margin: 0;
+  color: var(--text);
+}
+
+.page-post-detail .markdown-content h1,
+.page-post-detail .markdown-content h2,
+.page-post-detail .markdown-content h3,
+.page-post-detail .markdown-content h4,
+.page-post-detail .markdown-content h5,
+.page-post-detail .markdown-content h6 {
+  margin-top: 2em;
+  margin-bottom: 0.75em;
+  line-height: 1.28;
+  color: var(--text);
+  scroll-margin-top: calc(var(--profile-sticky-top) + var(--space-3));
+}
+
+.page-post-detail .markdown-content h1 {
+  font-size: clamp(1.42rem, 2.3vw, 1.82rem);
+  padding-bottom: 0.35em;
+  border-bottom: 2px solid color-mix(in srgb, var(--accent-secondary) 16%, var(--border));
+}
+
+.page-post-detail .markdown-content h2 {
+  font-size: clamp(1.2rem, 2vw, 1.45rem);
+  padding-bottom: 0.24em;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-secondary) 16%, var(--border));
+}
+
+.page-post-detail .markdown-content h3 {
+  font-size: clamp(1.08rem, 1.68vw, 1.24rem);
+}
+
+.page-post-detail .markdown-content h4 {
+  font-size: 1rem;
+}
+
+.page-post-detail .markdown-content h1::before {
+  content: var(--post-heading-prefix-h1, '');
+  color: color-mix(in srgb, var(--accent-berry) 86%, var(--text));
+  white-space: pre;
+}
+
+.page-post-detail .markdown-content h2::before {
+  content: var(--post-heading-prefix-h2, '');
+  color: color-mix(in srgb, var(--accent-berry) 82%, var(--text));
+  white-space: pre;
+}
+
+.page-post-detail .markdown-content h3::before {
+  content: var(--post-heading-prefix-h3, '');
+  color: color-mix(in srgb, var(--accent-secondary) 74%, var(--text));
+  white-space: pre;
+}
+
+.page-post-detail .markdown-content h4::before {
+  content: var(--post-heading-prefix-h4, '');
+  color: color-mix(in srgb, var(--accent-secondary) 68%, var(--text));
+  white-space: pre;
+}
+
+.page-post-detail .markdown-content h5::before {
+  content: var(--post-heading-prefix-h5, '');
+  color: var(--text-subtle);
+  white-space: pre;
+}
+
+.page-post-detail .markdown-content h6::before {
+  content: var(--post-heading-prefix-h6, '');
+  color: color-mix(in srgb, var(--text-subtle) 84%, var(--border-strong));
+  white-space: pre;
+}
+
+.page-post-detail .markdown-content a {
+  color: color-mix(in srgb, var(--accent-secondary) 72%, var(--brand));
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 calc(100% - 1px);
+  background-size: 0% 1.5px;
+  transition:
+    color var(--motion-transition-feedback),
+    background-size var(--motion-transition-feedback);
+}
+
+.page-post-detail .markdown-content a:hover {
+  color: color-mix(in srgb, var(--accent-secondary) 88%, var(--text));
+  background-size: 100% 1.5px;
+}
+
+.page-post-detail .markdown-content :not(pre)>code {
+  background: color-mix(in srgb, var(--accent-berry-soft) 40%, var(--surface-soft));
+  border: 1px solid color-mix(in srgb, var(--accent-berry) 22%, var(--border));
+  color: color-mix(in srgb, var(--accent-berry) 72%, var(--text));
+  font-size: 0.88em;
+  border-radius: 6px;
+  padding: 0.12rem 0.38rem;
+}
+
+.page-post-detail .markdown-content pre {
+  margin: 1.25rem 0;
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--accent-secondary) 18%, var(--border));
+  background: var(--card-surface-main);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--accent-secondary) 10%, transparent);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.page-post-detail .markdown-content pre code {
+  display: block;
+  line-height: 1.7;
+  font-size: 0.86rem;
+}
+
+.page-post-detail .post-code-copy-button {
+  top: auto;
+  right: 0.72rem;
+  bottom: 0.62rem;
+  padding: 0.16rem 0.56rem;
+  font-size: 0.62rem;
+  background: color-mix(in srgb, var(--control-surface-interactive) 90%, transparent);
+  border-color: color-mix(in srgb, var(--accent-secondary) 24%, var(--border));
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.page-post-detail .markdown-content blockquote {
+  margin: 1.25em 0;
+  padding: 0.72rem 1rem;
+  border-left: 4px solid color-mix(in srgb, var(--accent-berry) 60%, var(--brand));
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--card-surface-main);
+  color: var(--text-subtle);
+}
+
+.page-post-detail .markdown-content ul,
+.page-post-detail .markdown-content ol {
+  margin: 1em 0;
+  padding-left: 1.75em;
+  line-height: 1.78;
+}
+
+.page-post-detail .markdown-content li {
+  margin: 0.34em 0;
+}
+
+.page-post-detail .markdown-content hr {
+  border: 0;
+  height: 1px;
+  margin: 1.45rem 0;
+  background: color-mix(in srgb, var(--accent-secondary) 16%, var(--border));
+}
+
+.page-post-detail .markdown-content table {
+  width: 100%;
+  margin: 1rem 0;
+  border-collapse: collapse;
+  border: 1px solid color-mix(in srgb, var(--accent-secondary) 16%, var(--border));
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.page-post-detail .markdown-content th,
+.page-post-detail .markdown-content td {
+  padding: 0.58rem 0.72rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-secondary) 12%, var(--border));
+  text-align: left;
+  vertical-align: top;
+}
+
+.page-post-detail .markdown-content th {
+  font-weight: 700;
+  background: color-mix(in srgb, var(--accent-secondary-soft) 22%, var(--surface-soft));
+}
+
+.page-post-detail .markdown-content tr:last-child td {
+  border-bottom: 0;
+}
+
+.page-post-detail .markdown-content img {
+  margin: 1rem auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--accent-secondary) 18%, var(--border));
 }
 
 @media (max-width: 900px) {
