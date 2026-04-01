@@ -69,39 +69,35 @@ a:hover {
 
 .app-shell::before {
   z-index: 0;
-  opacity: var(--decor-shape-opacity);
-  background:
-    radial-gradient(circle at 12% 18%, var(--decor-rose-halo) 0 12rem, transparent 12.5rem),
-    radial-gradient(circle at 85% 25%, var(--decor-cyan-halo) 0 9rem, transparent 9.5rem),
-    radial-gradient(circle at 78% 78%, var(--decor-rose-halo-soft) 0 11rem, transparent 11.5rem),
-    radial-gradient(circle at 22% 82%, var(--decor-cyan-halo-soft) 0 8.5rem, transparent 9rem),
-    radial-gradient(circle at 50% 50%, var(--decor-sakura-petal) 0 0.8rem, transparent 1rem),
-    radial-gradient(circle at 30% 40%, var(--decor-sakura-petal) 0 0.6rem, transparent 0.8rem),
-    radial-gradient(circle at 70% 60%, var(--decor-sakura-petal) 0 0.7rem, transparent 0.9rem);
-  animation: bg-shape-drift var(--decor-shape-duration) var(--motion-ease-out-quint) infinite alternate;
+  opacity: 0;
+  background: none;
 }
 
 .app-shell::after {
   z-index: 1;
-  opacity: var(--decor-line-opacity);
+  opacity: var(--decor-pattern-opacity);
   background:
-    repeating-linear-gradient(90deg,
-      var(--decor-dash-primary) 0 var(--decor-dash-length),
-      transparent var(--decor-dash-length) calc(var(--decor-dash-length) + var(--decor-dash-gap))) left var(--decor-edge-offset) top var(--decor-edge-offset) / calc(100% - (var(--decor-edge-offset) * 2)) var(--decor-line-thickness) no-repeat,
-    repeating-linear-gradient(90deg,
-      var(--decor-dash-secondary) 0 var(--decor-dash-length),
-      transparent var(--decor-dash-length) calc(var(--decor-dash-length) + var(--decor-dash-gap))) left var(--decor-edge-offset) bottom var(--decor-edge-offset) / calc(100% - (var(--decor-edge-offset) * 2)) var(--decor-line-thickness) no-repeat,
-    repeating-linear-gradient(180deg,
-      var(--decor-dash-secondary) 0 var(--decor-dash-length),
-      transparent var(--decor-dash-length) calc(var(--decor-dash-length) + var(--decor-dash-gap))) left var(--decor-edge-offset) top var(--decor-edge-offset) / var(--decor-line-thickness) calc(100% - (var(--decor-edge-offset) * 2)) no-repeat,
-    repeating-linear-gradient(180deg,
-      var(--decor-dash-primary) 0 var(--decor-dash-length),
-      transparent var(--decor-dash-length) calc(var(--decor-dash-length) + var(--decor-dash-gap))) right var(--decor-edge-offset) top var(--decor-edge-offset) / var(--decor-line-thickness) calc(100% - (var(--decor-edge-offset) * 2)) no-repeat,
-    radial-gradient(circle at 18% 28%, var(--decor-dot) 0 2.2px, transparent 2.6px),
-    radial-gradient(circle at 72% 32%, var(--decor-dot) 0 1.9px, transparent 2.4px),
-    radial-gradient(circle at 35% 78%, var(--decor-dot) 0 2px, transparent 2.5px),
-    radial-gradient(circle at 88% 68%, color-mix(in oklch, var(--decor-dot) 68%, transparent) 0 1.7px, transparent 2.2px),
-    radial-gradient(ellipse 120px 40px at 50% 15%, var(--decor-wave-primary) 0%, transparent 100%),
-    radial-gradient(ellipse 100px 35px at 50% 85%, var(--decor-wave-secondary) 0%, transparent 100%);
-  animation: bg-dash-drift var(--decor-dash-duration) linear infinite;
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 calc(var(--decor-pattern-step) - var(--decor-pattern-line-thickness)),
+      var(--decor-pattern-line) calc(var(--decor-pattern-step) - var(--decor-pattern-line-thickness)) var(--decor-pattern-step)
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 calc(var(--decor-pattern-step) - var(--decor-pattern-line-thickness)),
+      var(--decor-pattern-line-alt) calc(var(--decor-pattern-step) - var(--decor-pattern-line-thickness)) var(--decor-pattern-step)
+    ),
+    radial-gradient(
+      circle at center,
+      var(--decor-pattern-dot) 0 var(--decor-pattern-dot-size),
+      transparent calc(var(--decor-pattern-dot-size) + 0.6px)
+    );
+  background-size:
+    100% 100%,
+    100% 100%,
+    var(--decor-pattern-step) var(--decor-pattern-step);
+  background-position:
+    0 0,
+    0 0,
+    calc(var(--decor-pattern-step) * 0.5) calc(var(--decor-pattern-step) * 0.5);
 }
