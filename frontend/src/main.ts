@@ -542,7 +542,6 @@ const PAGE_STAGGER_SELECTORS = [
   ':scope > .about-divider',
   ':scope > .about-dialogue',
   ':scope > .about-timeline',
-  ':scope > .about-journey',
   ':scope > .hero-card',
   ':scope > .page-not-found',
   ':scope > .tag-filter-shell',
@@ -605,11 +604,6 @@ const MOTION_DELAY_MS = {
       initialStep: 106,
       scrollStep: 86
     },
-    journey: {
-      initialBase: 826,
-      initialStep: 96,
-      scrollStep: 79
-    },
     desktopDialogueOffset: {
       initial: 34,
       scroll: 29
@@ -619,7 +613,6 @@ const MOTION_DELAY_MS = {
 const ABOUT_INTRO_ITEM_SELECTOR = '[data-about-motion="intro-item"]';
 const ABOUT_DIALOGUE_ITEM_SELECTOR = '[data-about-motion="dialogue-item"]';
 const ABOUT_TIMELINE_ITEM_SELECTOR = '[data-about-motion="timeline-item"]';
-const ABOUT_JOURNEY_ITEM_SELECTOR = '[data-about-motion="journey-item"]';
 
 function restoreNodePlacement(node: HTMLElement, parent: Node, nextSibling: ChildNode | null): void {
   if (nextSibling && nextSibling.parentNode === parent) {
@@ -1575,15 +1568,6 @@ function setupAboutContentMotion(options: AboutContentMotionOptions = {}): (() =
       initialBaseDelayMs: MOTION_DELAY_MS.about.timeline.initialBase,
       initialStepMs: MOTION_DELAY_MS.about.timeline.initialStep,
       scrollStepMs: MOTION_DELAY_MS.about.timeline.scrollStep
-    }
-  );
-  registerTargetGroup(
-    Array.from(aboutPageElement.querySelectorAll<HTMLElement>(ABOUT_JOURNEY_ITEM_SELECTOR)),
-    {
-      orderTargets: orderPostCardsTopToBottom,
-      initialBaseDelayMs: MOTION_DELAY_MS.about.journey.initialBase,
-      initialStepMs: MOTION_DELAY_MS.about.journey.initialStep,
-      scrollStepMs: MOTION_DELAY_MS.about.journey.scrollStep
     }
   );
 

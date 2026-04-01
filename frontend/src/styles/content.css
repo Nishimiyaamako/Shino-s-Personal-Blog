@@ -200,8 +200,7 @@
   right: 0;
 }
 
-.about-timeline,
-.about-journey {
+.about-timeline {
   display: grid;
   gap: 0.86rem;
 }
@@ -255,16 +254,6 @@
 .about-timeline-item p {
   margin: 0;
   line-height: 1.76;
-}
-
-.about-journey-copy {
-  display: grid;
-  gap: 0.78rem;
-}
-
-.about-journey-copy p {
-  margin: 0;
-  line-height: 1.8;
 }
 
 .profile-card {

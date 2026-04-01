@@ -25,7 +25,4 @@ export interface AboutViewModel {
   timelineTitle: string;
   timelineLabel: string;
   timelineEvents: AboutTimelineEvent[];
-  journeyTitle: string;
-  journeyLabel: string;
-  journeyParagraphs: string[];
 }

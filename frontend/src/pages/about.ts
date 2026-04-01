@@ -21,12 +21,6 @@ export function renderAboutPageBody(viewModel: AboutViewModel): string {
 
   const narrativeBlocks = viewModel.narrativeSections.map((section) => renderNarrativeSection(section)).join('');
   const timelineItems = viewModel.timelineEvents.map((event) => renderTimelineEvent(event)).join('');
-  const journeyParagraphs = viewModel.journeyParagraphs
-    .map(
-      (paragraph) =>
-        `<p class="about-journey-paragraph" data-about-motion="journey-item">${escapeHtml(paragraph)}</p>`
-    )
-    .join('');
 
   return `
 <header class="about-hero" aria-label="关于页标题">
@@ -57,18 +51,6 @@ export function renderAboutPageBody(viewModel: AboutViewModel): string {
   <ol class="about-timeline-list">
     ${timelineItems}
   </ol>
-</section>
-
-<div class="about-divider" aria-hidden="true"></div>
-
-<section class="about-journey" aria-label="轨迹叙事">
-  <header class="about-section-head">
-    <span class="about-section-label">${escapeHtml(viewModel.journeyLabel)}</span>
-    <h2>${escapeHtml(viewModel.journeyTitle)}</h2>
-  </header>
-  <div class="about-journey-copy">
-    ${journeyParagraphs}
-  </div>
 </section>
 `;
 }

@@ -16,9 +16,9 @@ const LIST_ITEM_REGEXP = /^[-*]\s+/;
 const SECTION_LABEL_MAP: Record<string, string> = {
   关于名字: 'Name Notes',
   目前状态: 'Current State',
+  爱好: 'Hobbies',
   游戏: 'Game Zone',
-  事件表: 'Milestones',
-  银生轨迹: 'Journey'
+  事件表: 'Milestones'
 };
 
 interface MarkdownSection {
@@ -74,11 +74,8 @@ function buildAboutViewModel(rawMarkdown: string): AboutViewModel {
   const introParagraphs = normalizeTextList(linesToParagraphs(parsedMarkdown.introLines)).slice(0, 3);
 
   const timelineSection = parsedMarkdown.sections.find((section) => /事件表|里程碑/i.test(section.heading));
-  const journeySection = parsedMarkdown.sections.find((section) => /轨迹|经历|journey/i.test(section.heading));
 
-  const narrativeSectionsSource = parsedMarkdown.sections.filter(
-    (section) => section !== timelineSection && section !== journeySection
-  );
+  const narrativeSectionsSource = parsedMarkdown.sections.filter((section) => section !== timelineSection);
 
   const narrativeSections = narrativeSectionsSource.map((section, index) => {
     const rawItems = extractSectionItems(section.lines);
@@ -94,7 +91,6 @@ function buildAboutViewModel(rawMarkdown: string): AboutViewModel {
   });
 
   const timelineEvents = parseTimelineEvents(timelineSection);
-  const journeyParagraphs = normalizeTextList(linesToParagraphs(journeySection?.lines ?? []));
 
   return {
     fingerprint: createFingerprint(normalizedMarkdown || JSON.stringify(parsedMarkdown)),
@@ -124,10 +120,7 @@ function buildAboutViewModel(rawMarkdown: string): AboutViewModel {
             date: 'TBD',
             detail: '暂无事件记录。'
           }
-        ],
-    journeyTitle: journeySection?.heading ?? '银生轨迹',
-    journeyLabel: sectionLabel(journeySection?.heading ?? '银生轨迹', 0),
-    journeyParagraphs: journeyParagraphs.length ? journeyParagraphs : ['轨迹内容整理中。']
+        ]
   };
 }
 
