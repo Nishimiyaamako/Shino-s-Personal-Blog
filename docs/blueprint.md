@@ -1,149 +1,139 @@
-# Personal Blog
+# Shino's Bolg Blueprint（V2）
 
-一个基于 **Vite + TypeScript + Elysia.js** 构建的个人博客项目。
+> As of 2026-04-02。
+> 文档定位：记录当前真实系统边界与近期演进方向，不承载未落地承诺。
 
-当前阶段的目标不是直接构建完整的全栈博客系统，而是先完成一个 **静态内容优先、结构清晰、可持续扩展** 的个人博客网站，并为未来的后端能力预留接口边界。
+## 1) 项目现状快照（As of 2026-04-02）
 
----
+当前系统是：**同一前端 SPA（含公开站点与后台路由）+ 单后端 API 服务**。
 
-## 项目简介
+- Frontend：Vite + TypeScript + Vanilla SPA
+- Backend：Elysia.js + Drizzle + SQLite + JWT
+- Content：Markdown 内容源 + 数据库存储与查询
+- Deploy：静态前端分发 + `/api`/`/uploads` 反向代理
 
-本项目用于构建个人博客网站，第一阶段重点关注以下内容：
+## 2) 系统架构与职责
 
-- 搭建一个可上线的个人博客前台
-- 使用 Markdown 管理文章内容
-- 建立清晰的前后端分层结构
-- 为未来搜索、评论、统计、后台等功能预留 API 边界
-- 通过实际项目训练现代 Web 工程化思维
+### Frontend（`frontend/`）
 
-项目的核心理念是：
+- 提供公开页面路由（首页、文章、标签、归档、友链、关于）。
+- 提供后台页面路由（`/admin/login`、`/admin`）。
+- 统一处理页面渲染、交互、主题样式、前后端 API 调用。
 
-> 先把博客本体做好，再逐步扩展动态能力。
+### Backend（`backend/`）
 
----
+- 提供 Public API（`/api/*`）与 Admin API（`/api/admin/*`）。
+- 提供管理员认证（JWT）、内容管理、友链管理、关于页管理、资料卡管理。
+- 提供上传文件服务（`/uploads/images/*`）。
 
-## 技术栈
+### Content（`frontend/src/content` + DB）
 
-### Frontend
-- Vite
-- TypeScript
+- Markdown 作为可维护内容源。
+- 后端可通过脚本导入内容并在 SQLite 中提供查询能力。
+- 前端遵循统一内容协议（frontmatter 规则）。
 
-前端负责：
+### Deploy（`deploy/`）
 
-- 页面展示
-- 页面路由
-- Markdown 内容渲染
-- 样式与视觉效果
-- 与后端 API 对接
+- 前端按静态产物部署。
+- Nginx/1Panel 负责 SPA 路由回退与 `/api`、`/uploads` 反代。
+- 可采用前台/后台双域名入口语义（后台入口映射到 `/admin/login`）。
 
-### Backend
-- Elysia.js
+## 3) 能力边界（已实现）
 
-后端负责：
+### 公开站点能力
 
-- 提供 `/api/*` 接口
-- 健康检查
-- 统计接口占位
-- 为未来搜索、评论、后台等功能扩展做准备
+- 文章列表、详情、标签、归档、友链、关于页。
+- 站内搜索、精选文章、资料卡展示。
 
-### Content
-- Markdown
-- 本地静态资源
-- 站点配置文件
+### 后台管理能力
 
----
+- 管理员登录。
+- 文章增删改查、发布/下线、精选排序。
+- 友链管理、关于页管理、资料卡管理。
+- 图片上传与回显 URL。
 
-## 项目目标
+### 内容与媒体能力
 
-### 第一阶段目标
-- 完成博客基础页面结构
-- 支持 Markdown 文章渲染
-- 实现文章列表与文章详情页
-- 支持标签页与归档页
-- 提供关于页
-- 建立后端 API 基础边界
-- 完成基础部署准备
+- Markdown 渲染与清洗。
+- SQLite 存储与搜索索引支持。
+- 上传图片通过后端统一访问路径提供。
 
-### 当前不包含
-以下能力暂不在第一阶段范围内：
+### 部署能力
 
-- 数据库
-- Redis
-- 登录系统
-- 后台管理系统
-- 评论系统
-- 富文本编辑器
-- 多用户能力
-- 复杂搜索系统
+- 开发态前后端分离运行并通过代理衔接。
+- 生产态由反向代理统一入口与路由分发。
 
----
+## 4) 路由与 API 边界（当前契约）
 
-## 页面结构
+### 前端关键路由
 
-当前规划的页面包括：
+- 公开：`/`、`/posts`、`/posts/:slug`、`/tags`、`/tags/:tag`、`/archive`、`/friends`、`/about`
+- 后台：`/admin/login`、`/admin`
+- 兜底：`/404`
 
-- `/` 首页
-- `/posts` 文章列表页
-- `/posts/:slug` 文章详情页
-- `/tags` 标签总览页
-- `/tags/:tag` 标签详情页
-- `/archive` 归档页
-- `/about` 关于页
-- `/404` 未找到页面
+### Public API（`/api/*`）
 
----
+- `GET /api/health`
+- `GET /api/posts`
+- `GET /api/posts/:slug`
+- `GET /api/home/featured`
+- `GET /api/friend-links`
+- `GET /api/about`
+- `GET /api/profile-card`
+- `GET /api/search`
 
-## API 规划
+### Admin API（`/api/admin/*`）
 
-第一阶段仅预留轻量接口：
+- `POST /api/admin/auth/login`
+- `GET/POST/PATCH/DELETE /api/admin/posts...`
+- `POST /api/admin/posts/:id/publish`
+- `POST /api/admin/posts/:id/unpublish`
+- `PATCH /api/admin/posts/:id/featured`
+- `POST /api/admin/uploads/image`
+- `GET/POST/PATCH/DELETE /api/admin/friend-links...`
+- `GET/PATCH /api/admin/about`
+- `GET/PATCH /api/admin/profile-card`
 
-- `/api/health`
-- `/api/stats`
+### Uploads
 
-后续可扩展：
+- `GET /uploads/images/:fileName`
 
-- `/api/search`
-- `/api/comment`
-- `/api/admin/*`
+## 5) 运行模型（开发态 vs 生产态）
 
----
+### 开发态
 
-## 项目结构
+- 前端开发服务默认端口：`5173`
+- 后端服务默认端口：`3001`
+- 链路：`Browser -> (可选本机反代) -> Vite:5173 -> Backend:3001`
+- `frontend/vite.config.ts` 将 `/api` 与 `/uploads` 代理到后端。
 
-```text
-blog-project/
-├─ frontend/
-│  ├─ public/
-│  ├─ src/
-│  │  ├─ assets/
-│  │  ├─ components/
-│  │  ├─ pages/
-│  │  ├─ router/
-│  │  ├─ styles/
-│  │  ├─ content/
-│  │  │  ├─ posts/
-│  │  │  └─ pages/
-│  │  ├─ data/
-│  │  ├─ utils/
-│  │  ├─ types/
-│  │  ├─ config/
-│  │  └─ main.ts
-│  └─ package.json
-│
-├─ backend/
-│  ├─ src/
-│  │  ├─ routes/
-│  │  ├─ services/
-│  │  ├─ middleware/
-│  │  ├─ types/
-│  │  ├─ utils/
-│  │  └─ index.ts
-│  └─ package.json
-│
-├─ docs/
-│  ├─ blueprint.md
-│  └─ content-spec.md
-│
-└─ deploy/
-   ├─ nginx/
-   └─ scripts/
+### 生产态
+
+- 链路：`Browser -> Nginx/1Panel -> SPA 静态资源 + Backend:3001`
+- `/api` 与 `/uploads` 由反代转发到后端。
+- 可采用 `blog.<domain>` 与 `admin.<domain>` 双入口语义（`admin` 根路径跳转到 `/admin/login`）。
+
+## 6) 短路线图（Next）
+
+1. 强化本机与线上链路一致性：补齐可直接复用的本机反代模板与验收清单。
+2. 收敛内容源工作流：明确 Markdown 与数据库之间的日常更新路径与责任边界。
+3. 提升质量与安全基线：在现有 typecheck/test/build 之外补充更稳定的回归与配置校验。
+
+## 7) 非目标与约束
+
+### 非目标
+
+- 本文不定义具体迭代排期或人力分配。
+- 本文不作为低层 schema/字段规范文档。
+- 本文不把未实现能力写成交付承诺。
+
+### 约束
+
+- 当前不拆分独立后台前端工程，后台仍属于同一 SPA 路由体系。
+- 任何新能力说明必须以“已实现边界优先”，禁止回退到占位式表述。
+
+## 8) 权威来源
+
+- 架构与域名/端口拓扑：[docs/ai-workflow/ARCHITECTURE.md](./ai-workflow/ARCHITECTURE.md)
+- 内容协议：[docs/content-spec.md](./content-spec.md)
+- 项目结构总览：[PROJECT_STRUCTURE.zh-CN.md](../PROJECT_STRUCTURE.zh-CN.md)

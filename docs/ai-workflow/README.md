@@ -21,11 +21,14 @@
 
 1. 启动后端：`cd backend && bun run dev`（默认监听 `127.0.0.1:3001`）。
 2. 启动前端：`cd frontend && bun run dev --host 127.0.0.1 --port 5173`。
-3. 本机反代绑定两个域名到前端（例如 `blog.local.test`、`admin.local.test`）。
-4. 为 `admin.local.test` 配置根路径跳转：`/ -> /admin/login`。
+3. 本机反代绑定两个域名到前端（默认建议 `blog.localhost`、`admin.localhost`）。
+4. 为 `admin.localhost` 配置根路径跳转：`/ -> /admin/login`。
 5. `frontend/.env.example` 默认已是开发代理链：
    - `VITE_DEV_API_PROXY_TARGET=http://127.0.0.1:3001`
    - `VITE_API_BASE_URL=`（空值，走同源请求）
+6. 可直接执行一键验收脚本（自动拉起服务、反代、链路检查、质量闸门）：
+   - `./deploy/scripts/local-verify.sh`
+   - 默认脚本使用 Docker Nginx `--network host`，避免前端绑定 `127.0.0.1` 时出现 `502 Bad Gateway`
 
 开发态链路心智模型：
 
@@ -50,6 +53,8 @@
   - 现实：还要配 `/uploads`，否则图片预览会断。
 - 误解：本机用域名后不需要关心 Vite 代理。
   - 现实：当前默认开发链路仍依赖 Vite 的 `/api` 与 `/uploads` 代理。
+- 误解：Docker bridge 反代一定能访问前端 `127.0.0.1:5173`。
+  - 现实：在 Linux 下 bridge 容器无法直连宿主 `127.0.0.1`，推荐用 host network 或改前端监听地址。
 
 ## 5) 标准工作回路
 

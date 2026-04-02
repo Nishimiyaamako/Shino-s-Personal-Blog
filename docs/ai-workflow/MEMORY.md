@@ -36,6 +36,7 @@
 - `frontend/.env.example`：`VITE_DEV_API_PROXY_TARGET=http://127.0.0.1:3001`，`VITE_API_BASE_URL=`（默认同源）
 - 访问契约：`blog.<domain>`（前台）+ `admin.<domain>`（后台入口域名）
 - 默认质量闸门命令：`cd backend && bun run typecheck && bun run test && bun run build && cd ../frontend && bun run typecheck && bun run build`
+- 一键本机验收脚本：`./deploy/scripts/local-verify.sh`
 - 协作文档目录：`docs/ai-workflow/`
 
 ## 2) 不可违反约束（预算 ≤ 35 行）
@@ -59,6 +60,7 @@
 - 决策：后台域名以“登录入口语义”为主，根路径应重定向到 `/admin/login`。
 - 决策：本机调试主推统一域名入口（local reverse proxy），隐藏端口心智负担。
 - 决策：开发期 API 代理保持 Vite 现状（`/api`、`/uploads` -> `3001`）。
+- 决策：本机 Docker 反代默认采用 `--network host`，避免前端绑定 `127.0.0.1` 时 bridge 模式返回 `502`。
 - 决策：质量闸门主命令维持 backend + frontend 双段校验。
 - 决策：frontend 任务默认技能链继续保持 `frontend-design -> harden -> polish`。
 - 决策：任务收尾必须执行 memory sync。
@@ -73,14 +75,16 @@
   - 防护：默认保持空值；仅在明确跨域方案时填写，并同步说明 CORS 策略。
 - 风险：上传图片路径只代理 `/api` 不代理 `/uploads` 时，后台可上传但前台/后台预览失效。
   - 防护：部署与本机代理必须同时覆盖 `/api` 与 `/uploads`。
+- 风险：前端仅监听 `127.0.0.1` 时，Docker bridge 反代无法访问宿主回环地址，导致域名请求 `502`。
+  - 防护：本机验收默认用 Docker host network，或将前端监听改为可被容器访问的地址。
 - 风险：对所有 frontend 改动统一套用设计链，可能在纯逻辑改动中造成过度设计。
   - 防护：用户显式点名 skill 优先；必要时在计划中裁剪技能范围。
 
 ## 5) 当前任务与下一步（预算 ≤ 35 行）
 
-- 当前任务：重构 AI 协作文档，统一“双域名后台 + 端口链路认知”。
-- 下一步 1：按 `docs/ai-workflow/ARCHITECTURE.md` 在本机落地 `blog.local.test` / `admin.local.test` 代理。
-- 下一步 2：在真实排障中复用“先域名、再反代、再后端端口”的最小排查流程。
+- 当前任务：固化“本机双域名链路验收”执行脚本并回写文档。
+- 下一步 1：统一团队本机验收入口到 `./deploy/scripts/local-verify.sh`。
+- 下一步 2：若需 `blog.local.test` / `admin.local.test`，在脚本外补 hosts 映射并设置 `BLOG_HOST`、`ADMIN_HOST`。
 - 下一步 3：后续若新增部署方式（Docker/Caddy/1Panel 子站点），同步更新架构页映射表。
 
 ## 6) 最近更新记录（预算 ≤ 10 行）
@@ -89,6 +93,8 @@
 - 2026-04-02：确立访问契约：`blog.<domain>` 前台、`admin.<domain>` 后台入口。
 - 2026-04-02：将本机调试默认策略改为“统一域名入口 + 本机反代”。
 - 2026-04-02：补充域名/端口链路核对要求，避免开发态与生产态心智混淆。
+- 2026-04-02：新增 `deploy/scripts/local-verify.sh`，固化本机双域名链路验收流程。
+- 2026-04-02：确认 Docker bridge + 前端 `127.0.0.1` 组合会触发 `502`，默认改用 host network。
 
 ---
 

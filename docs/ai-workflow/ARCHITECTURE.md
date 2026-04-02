@@ -14,8 +14,8 @@
 
 ```text
 Browser
-  |- http://blog.local.test
-  |- http://admin.local.test
+  |- http://blog.localhost
+  |- http://admin.localhost
           |
           v
 Local Reverse Proxy (Nginx/Caddy)
@@ -57,10 +57,10 @@ Backend API (Elysia :3001)
 
 | 场景 | 入口 URL | 反代层 | 上游服务 | 最终处理 |
 | --- | --- | --- | --- | --- |
-| 开发 | `http://blog.local.test/` | Local Reverse Proxy | `http://127.0.0.1:5173` | Vite 返回页面 |
-| 开发 | `http://admin.local.test/` | Local Reverse Proxy | `302 -> /admin/login` | 跳到后台登录路由 |
-| 开发 | `http://admin.local.test/api/admin/auth/login` | Local Reverse Proxy -> Vite Proxy | `http://127.0.0.1:3001` | Backend 登录接口 |
-| 开发 | `http://blog.local.test/uploads/images/*` | Local Reverse Proxy -> Vite Proxy | `http://127.0.0.1:3001` | Backend 静态上传文件 |
+| 开发 | `http://blog.localhost/` | Local Reverse Proxy | `http://127.0.0.1:5173` | Vite 返回页面 |
+| 开发 | `http://admin.localhost/` | Local Reverse Proxy | `302 -> /admin/login` | 跳到后台登录路由 |
+| 开发 | `http://admin.localhost/api/admin/auth/login` | Local Reverse Proxy -> Vite Proxy | `http://127.0.0.1:3001` | Backend 登录接口 |
+| 开发 | `http://blog.localhost/uploads/images/*` | Local Reverse Proxy -> Vite Proxy | `http://127.0.0.1:3001` | Backend 静态上传文件 |
 | 生产 | `https://blog.<domain>/` | Nginx/1Panel | SPA dist | 前台页面 |
 | 生产 | `https://admin.<domain>/` | Nginx/1Panel | `302 -> /admin/login` | 后台入口跳转 |
 | 生产 | `https://admin.<domain>/api/admin/auth/login` | Nginx/1Panel | `http://127.0.0.1:3001` | Backend 登录接口 |
@@ -70,8 +70,8 @@ Backend API (Elysia :3001)
 
 1. 启动后端：`cd backend && bun run dev`
 2. 启动前端：`cd frontend && bun run dev --host 127.0.0.1 --port 5173`
-3. 启动本机反代并绑定域名（`blog.local.test`、`admin.local.test`）
-4. 验证后台入口：访问 `http://admin.local.test/` 应进入 `/admin/login`
+3. 启动本机反代并绑定域名（默认 `blog.localhost`、`admin.localhost`）
+4. 验证后台入口：访问 `http://admin.localhost/` 应进入 `/admin/login`
 
 ## 6) 最小排障流程（固定顺序）
 
@@ -82,15 +82,15 @@ Backend API (Elysia :3001)
 可直接执行的检查命令（本机示例）：
 
 ```bash
-curl -I http://admin.local.test/
-curl -sS http://admin.local.test/api/health
-curl -sS http://blog.local.test/api/health
+curl -I http://admin.localhost/
+curl -sS http://admin.localhost/api/health
+curl -sS http://blog.localhost/api/health
 curl -sS http://127.0.0.1:3001/api/health
 ```
 
 期望结果：
 
-- `admin.local.test/` 返回 `302` 到 `/admin/login`（或直接落到登录页）。
+- `admin.localhost/` 返回 `302` 到 `/admin/login`（或直接落到登录页）。
 - 两个域名下 `/api/health` 都返回后端健康响应。
 - 直连 `:3001` 健康响应正常，说明后端服务本身可用。
 
@@ -100,3 +100,17 @@ curl -sS http://127.0.0.1:3001/api/health
   - `VITE_DEV_API_PROXY_TARGET=http://127.0.0.1:3001`
   - `VITE_API_BASE_URL=`（空值，同源）
 - 若你改成跨域 API（填写绝对 `VITE_API_BASE_URL`），必须同步处理 CORS、Cookie/Token 策略与文档说明。
+
+## 8) 一键链路验收脚本
+
+- 脚本路径：`deploy/scripts/local-verify.sh`
+- 默认行为：
+  - 拉起后端 `:3001` 与前端 `:5173`（已存在则复用）
+  - 以 Docker Nginx `--network host` 建立 `blog.localhost` / `admin.localhost` 反代
+  - 执行链路检查、功能验收、质量闸门
+  - 自动清理临时反代容器
+- 运行命令：
+
+```bash
+./deploy/scripts/local-verify.sh
+```
