@@ -4,123 +4,105 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Shino's Bolg** - A personal blog built as a Vite + TypeScript Vanilla SPA with Markdown-based content.
+**Shino's Bolg** is a personal blog project with a real full-stack runtime.
 
-- Frontend: Vite + TypeScript (no framework, vanilla DOM manipulation)
-- Backend: Elysia.js placeholder (not yet implemented)
-- Content: Markdown files with frontmatter in `frontend/src/content/posts/`
+- Frontend: Vite + TypeScript + Vanilla SPA (public pages + admin pages in one app)
+- Backend: Elysia.js + Drizzle + SQLite + JWT (already implemented)
+- Content: Markdown + database-backed content APIs
 - Package Manager: Bun
 
 ## Development Commands
 
 ```bash
+# Backend development
+cd backend
+bun install
+bun run dev            # Start backend (default 127.0.0.1:3001)
+bun run typecheck
+bun run test
+bun run build
+bun run migrate
+bun run seed
+
 # Frontend development
 cd frontend
 bun install
-bun run dev          # Start dev server
-bun run build        # Production build
-bun run preview      # Preview production build
-bun run typecheck    # Type checking without emit
+bun run dev            # Start Vite dev server (default 127.0.0.1:5173)
+bun run typecheck
+bun run build
+bun run preview
 
 # Quality gate (run before commits)
-cd frontend && bun run typecheck && bun run build
+cd backend && bun run typecheck && bun run test && bun run build && cd ../frontend && bun run typecheck && bun run build
 ```
 
-## Architecture
+## Runtime Architecture
 
-### Frontend Structure
+- Current shape: **one SPA + one backend service**.
+- Frontend routes include admin entries:
+  - `/admin/login`
+  - `/admin`
+- Backend default port: `3001` (see `backend/src/config/env.ts`).
+- Vite dev proxy forwards `/api` and `/uploads` to backend target (default `http://127.0.0.1:3001`).
+- Admin login API: `POST /api/admin/auth/login`.
 
-The frontend is a **client-side SPA** with manual routing and DOM rendering:
+Recommended local mental model:
 
-- **Entry**: `frontend/src/main.ts` - App shell, navigation, route switching, page enhancements
-- **Router**: `frontend/src/router/index.ts` - Route table, dynamic parameter matching, 404 fallback
-- **Pages**: `frontend/src/pages/*.ts` - Page-level render modules (home, posts, post-detail, tags, etc.)
-- **Components**: `frontend/src/components/*.ts` - Reusable UI render fragments
-- **Data Layer**: `frontend/src/data/*.ts` - Content parsing, view models, local data sources
-- **Types**: `frontend/src/types/*.ts` - Domain type definitions
+- Browser hits domains (for example `blog.local.test` and `admin.local.test`)
+- Local reverse proxy forwards to Vite (`:5173`)
+- Vite forwards `/api` and `/uploads` to backend (`:3001`)
 
-### Content System
+For detailed domain/port topology, use:
 
-Articles are Markdown files with strict frontmatter validation:
+- `docs/ai-workflow/ARCHITECTURE.md`
 
-**Required fields** (see `docs/content-spec.md`):
-- `title`: string (non-empty)
-- `slug`: string (kebab-case, used in URL `/posts/:slug`)
-- `date`: string (YYYY-MM-DD format)
-- `tags`: string[] (at least 1, kebab-case)
-- `summary`: string (non-empty, ~140 chars)
-- `status`: 'draft' | 'published' (only published shown in lists)
+## Frontend Architecture
 
-**Content pipeline**:
-1. Import via `import.meta.glob(..., { query: '?raw', eager: true })`
-2. Parse frontmatter with `gray-matter`
-3. Render Markdown with `marked`
-4. Sanitize HTML with `DOMPurify`
+The frontend is a client-side SPA with manual routing and DOM rendering:
 
-### Styles Architecture
+- Entry: `frontend/src/main.ts`
+- Router: `frontend/src/router/index.ts`
+- Pages: `frontend/src/pages/*.ts`
+- Components: `frontend/src/components/*.ts`
+- Runtime features: `frontend/src/features/*.ts`
+- Data layer: `frontend/src/data/*.ts`
+- Types: `frontend/src/types/*.ts`
 
-Styles are layered in `frontend/src/styles/` with strict import order (see `frontend/src/styles/README.md`):
+## Backend Architecture
 
-1. `tokens.css` - Global tokens, theme variables, dark mode, responsive tokens
-2. `base.css` - Reset, base elements, app-shell background decorations
-3. `layout.css` - Header/nav/main/footer, page shell layout
-4. `content.css` - Shared content shells (about, profile, home-intro, archive, friends, markdown)
-5. `posts.css` - Post list/cards, tags, post detail, theme rail, TOC, floating actions
-6. `motion.css` - Keyframes, motion state classes, reduced-motion fallbacks
+Backend code is organized as:
 
-**Only import `global.css` in `main.ts`** - it aggregates all other layers.
+- Entrypoints: `backend/src/index.ts`, `backend/src/app.ts`
+- Routes: `backend/src/routes/public.ts`, `backend/src/routes/admin.ts`
+- Services: `backend/src/services/*.ts`
+- Auth: `backend/src/auth/*.ts`
+- Database: `backend/src/db/*.ts`
+- Scripts: `backend/src/scripts/*.ts`
+- Tests: `backend/src/__tests__/api.test.ts`
 
-**Token guidelines**:
-- Use global tokens (`tokens.css`) when: used by 3+ areas, global semantic (focus ring, transition, surface), shared across light/dark
-- Use local recipe variables when: serves single module, module-prefixed names
+Main public/admin API groups:
 
-**Runtime CSS variables**: Use `frontend/src/utils/dom-style.ts` for reading/writing CSS custom properties at runtime (stagger indices, floating button positioning, TOC progress).
+- Public: `/api/health`, `/api/posts`, `/api/home/featured`, `/api/friend-links`, `/api/about`, `/api/profile-card`, `/api/search`
+- Admin: `/api/admin/auth/login`, `/api/admin/posts`, `/api/admin/friend-links`, `/api/admin/about`, `/api/admin/profile-card`, `/api/admin/uploads/image`
 
-**Design Token System** (as of 2026-03-30):
-- Semantic text colors: `--text-secondary`, `--text-tertiary`, `--text-info`
-- Card shadows: `--card-shadow-cool`, `--card-shadow-cool-hover`, `--card-shadow-warm`, `--card-shadow-warm-hover`
-- Post cover shadows: `--post-cover-shadow`, `--post-cover-shadow-strong`
-- Button base styles: `--button-border`, `--button-radius`, `--button-bg`, `--button-bg-hover`
-- All interactive elements use unified hover effect: `translateY(calc(var(--motion-distance-hover) * -1))` + `--card-shadow-cool-hover`
+## Content & Security Notes
 
-## Routes
+- Markdown rendering stack: `marked` + `DOMPurify`.
+- Frontmatter validation remains strict for post content fields.
+- Admin token is stored in browser localStorage key `shino.admin.token`.
+- Upload URLs are served via `/uploads/images/*` from backend.
 
-- `/` - Home
-- `/posts` - Post list
-- `/posts/:slug` - Post detail
-- `/tags` - Tag overview
-- `/tags/:tag` - Tag detail
-- `/archive` - Archive
-- `/friends` - Friend links
-- `/about` - About page
-- `/404` - Not found
+## AI Workflow Docs
 
-## Backend API (Placeholder)
+Use `docs/ai-workflow/` as the primary collaboration baseline:
 
-Currently `backend/` is a scaffold. Planned endpoints:
-
-- `GET /api/about` → `{ markdown: string }` (about page tries remote, falls back to local)
-- `/api/health`, `/api/stats`, `/api/search`, `/api/comment`, `/api/admin/*` (not implemented)
-
-## AI Workflow
-
-This project uses AI collaboration baseline docs in `docs/ai-workflow/`:
-
-- `MEMORY.md` - Project long-term memory (decisions, risks, current tasks)
-- `STOP_HOOKS.md` - Stop-point self-check rules
-- `README.md` - Workflow usage guide
-
-**Standard workflow loop**:
-```
-Requirement → Plan → plan-stop-audit → frontend-preflight-skill-stack (if frontend changes)
-→ Implementation (auto task-stop-memory-sync after each change) → code-stop-typecheck
-→ task-stop-memory-sync (fallback) → Delivery
-```
+- `MEMORY.md` - Project long-term memory
+- `STOP_HOOKS.md` - Stop-point checks
+- `README.md` - Workflow usage
+- `ARCHITECTURE.md` - Domain/port routing topology
 
 ## Important Notes
 
-- Project name is **"Shino's Bolg"** (intentional spelling, do not auto-correct to "Blog")
-- No framework - all DOM manipulation is vanilla TypeScript
-- Import order in styles matters - respect the layering
-- Content frontmatter validation is strict - follow `docs/content-spec.md`
-- Only `status: published` posts appear in lists; drafts/missing slugs → 404
+- Project name is **"Shino's Bolg"** (intentional spelling, do not auto-correct).
+- Keep frontend style import order consistent (`global.css` as manifest entry).
+- Do not re-introduce "backend placeholder/scaffold" descriptions in docs.

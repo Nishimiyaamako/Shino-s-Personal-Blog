@@ -14,9 +14,24 @@ import type { FriendLink } from '../types/friend-link';
 import type { ProfileCardConfig } from '../types/profile-card';
 
 const ADMIN_TOKEN_STORAGE_KEY = 'shino.admin.token';
+const RAW_API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim() ?? '';
+const API_BASE_URL = RAW_API_BASE_URL.replace(/\/+$/, '');
+
+function toApiUrl(path: string): string {
+  if (/^https?:\/\//i.test(path) || path.startsWith('//')) {
+    return path;
+  }
+
+  if (!API_BASE_URL) {
+    return path;
+  }
+
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return `${API_BASE_URL}${normalizedPath}`;
+}
 
 async function fetchJson<T>(url: string, init: RequestInit = {}): Promise<T> {
-  const response = await fetch(url, {
+  const response = await fetch(toApiUrl(url), {
     ...init,
     headers: {
       accept: 'application/json',
