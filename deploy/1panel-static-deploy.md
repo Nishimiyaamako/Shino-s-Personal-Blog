@@ -1,67 +1,103 @@
-# 1Panel 快速上线（静态站点 + 公安联网验证）
+# 1Panel 单域名上线（静态前端卷挂载 + 后端容器）
 
-> 目标：最快让站点公网可访问、HTTPS 正常、SPA 刷新不 404，并能核验备案信息。
+> 目标：稳定上线 `https://<domain>`（前台 + 后台路径），并确保 `/api`、`/uploads` 正常可用。
 
-## 1) 本地构建并打包前端
+## 1) 上线前准备（本地）
+
+1. 本机链路验收：
+
+```bash
+./deploy/scripts/local-verify.sh
+```
+
+2. 构建前端静态包：
 
 ```bash
 ./deploy/scripts/build-frontend-dist.sh
 ```
 
-执行后会生成：
-
-- `deploy/artifacts/frontend-dist-YYYYMMDD-HHMMSS.tar.gz`
-- `deploy/artifacts/frontend-dist-latest.tar.gz`（推荐上传这个，始终指向最新构建）
-
-## 2) 1Panel 创建静态站点
-
-1. 进入 **网站** -> **创建网站** -> 选择 **静态网站**。
-2. 绑定已备案域名（例如 `example.com`）。
-3. 网站目录保持默认或自定义一个明确路径（后续上传文件到该目录）。
-
-## 3) 上传构建产物
-
-1. 把 `deploy/artifacts/*.tar.gz` 上传到 1Panel 网站根目录。
-2. 在 1Panel 文件管理中解压归档。
-3. 确认网站根目录直接包含 `index.html` 与 `assets/`（不要多一层 `dist/`）。
-
-## 4) 配置 Nginx SPA 回退
-
-1. 进入 1Panel 该网站的配置文件页。
-2. 在对应 `server {}` 中加入 `deploy/nginx/1panel-static-spa-snippet.conf` 内容：
-   - `try_files $uri $uri/ /index.html;`
-3. 保存并重载 Nginx。
-
-## 5) 配置 HTTPS
-
-1. 进入 1Panel 该网站 -> SSL。
-2. 上传你现有证书（`fullchain.pem` + `privkey.pem` 或等价文件）。
-3. 开启 **强制 HTTPS**（HTTP 自动跳转 HTTPS）。
-
-## 6) 备案信息核对（当前仅工信部备案）
-
-备案信息集中在：
-
-- `frontend/src/config/site.ts`
-
-需要核对：
-
-- `icpRecordText / icpRecordUrl`
-- `publicSecurityRecordText / publicSecurityRecordUrl`（如果还没有公安联网备案号，保持空字符串即可）
-
-如需修改，改完后重新执行第 1 步并覆盖上传。
-
-## 7) 验收命令（替换为你的域名）
+3. 后端生产 env 检查（替换为你的服务器 env 文件）：
 
 ```bash
-curl -I http://your-domain.com
-curl -I https://your-domain.com
-curl -I https://your-domain.com/posts
-curl -I https://your-domain.com/tags
+./deploy/scripts/check-backend-prod-env.sh /opt/shino-blog/env/backend.env
+```
+
+## 2) 后端先上线（1Panel 容器）
+
+后端部署请按：
+
+- `deploy/1panel-backend-deploy.md`
+
+确保：
+
+- `curl -sS http://127.0.0.1:3001/api/health` 返回 `{"ok":true,...}`。
+
+## 3) 前端静态卷准备（主机目录）
+
+1. 创建前端静态目录：
+
+```bash
+sudo mkdir -p /opt/shino-blog/frontend-dist
+sudo chown -R 1000:1000 /opt/shino-blog/frontend-dist
+```
+
+2. 上传 `deploy/artifacts/frontend-dist-latest.tar.gz` 到服务器并解压到该目录。
+
+3. 解压后确认目录直接包含：
+
+- `index.html`
+- `assets/`
+
+说明：当前前端静态包已经包含后台页面路由（`/admin/login`、`/admin`），不是另一套独立后台构建。
+
+## 4) 1Panel 静态网站（单站点）
+
+1. 进入 1Panel **网站** -> **创建网站** -> 选择 **静态网站**。
+2. 绑定域名：`<domain>`。
+3. 网站根目录指向前一步主机目录（`/opt/shino-blog/frontend-dist`，由 1Panel/Nginx 挂载提供）。
+4. 在网站配置加入反代与 SPA 回退规则：
+
+- 可复用 `deploy/nginx/1panel-static-spa-snippet.conf`
+- 若你需要完整单域名示例，可参考 `deploy/nginx/1panel-single-domain-template.conf`
+
+5. 核对关键规则：
+
+- `/api/*` -> `http://127.0.0.1:3001`
+- `/uploads/*` -> `http://127.0.0.1:3001`
+- 其他路径 -> `try_files ... /index.html`
+
+## 5) HTTPS 与证书
+
+在该站点：
+
+- 上传证书（`fullchain.pem` + `privkey.pem`）
+- 开启强制 HTTPS（HTTP -> HTTPS）
+
+## 6) 线上 smoke test（必须过）
+
+将 `<domain>` 替换为真实域名：
+
+```bash
+curl -I https://<domain>/
+curl -I https://<domain>/admin/login
+curl -sS https://<domain>/api/health
+curl -I https://<domain>/posts
+curl -I https://<domain>/uploads/images/steam-bugs-linux.webp
 ```
 
 期望：
 
-- HTTP 返回 301/308 跳转到 HTTPS。
-- HTTPS 页面返回 200。
-- 二级路由（`/posts`、`/tags`）刷新不 404。
+- `https://<domain>/` 返回 `200`
+- `https://<domain>/admin/login` 返回 `200`
+- `/api/health` 返回 `ok: true`
+- `/posts` 与 `/uploads/images/...` 返回 `200`
+
+## 7) 回滚流程（前端 + 后端 + 数据）
+
+1. 前端回滚：解压上一个 `frontend-dist-*.tar.gz` 覆盖 `/opt/shino-blog/frontend-dist`。
+2. 后端回滚：容器切回上一个稳定镜像 tag 并重启。
+3. 数据回滚：
+
+- 停后端容器
+- 恢复 `/opt/shino-blog/data/blog.sqlite` 备份
+- 启动容器并重新 smoke test

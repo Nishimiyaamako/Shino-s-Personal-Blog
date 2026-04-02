@@ -67,9 +67,16 @@ export function createAdminRoutes(context: DatabaseContext) {
         return { error: 'Unauthorized' };
       }
 
-      return {
-        items: listAdminPosts(context)
-      };
+      const searchParams = new URL(request.url).searchParams;
+      const queryStatus = searchParams.get('status');
+
+      return listAdminPosts(context, {
+        q: searchParams.get('q') ?? undefined,
+        status: queryStatus === 'draft' || queryStatus === 'published' ? queryStatus : 'all',
+        tag: searchParams.get('tag') ?? undefined,
+        page: Number(searchParams.get('page') ?? ''),
+        pageSize: Number(searchParams.get('pageSize') ?? '')
+      });
     })
     .post('/posts', async ({ request, set }) => {
       const admin = await requireAdmin(request, set);

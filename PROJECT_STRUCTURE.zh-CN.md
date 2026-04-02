@@ -26,7 +26,7 @@
 │     ├─ main.ts                              # SPA 入口（App Shell、路由切换、页面增强）
 │     ├─ router/index.ts                      # 路由表（含 /admin/login、/admin）
 │     ├─ pages/                               # 页面渲染模块
-│     ├─ features/                            # 运行时行为（public hydration / admin 交互）
+│     ├─ features/                            # 运行时行为（public hydration / admin 模块化交互）
 │     ├─ components/                          # 可复用渲染片段
 │     ├─ data/                                # API 调用、内容解析、视图模型
 │     ├─ types/                               # 领域类型
@@ -56,9 +56,17 @@
 │     ├─ README.md                            # 工作流说明与运行手册
 │     └─ ARCHITECTURE.md                      # 域名/反代/端口拓扑与排障流程
 └─ deploy/
-   ├─ 1panel-static-deploy.md                 # 1Panel 部署指引
-   ├─ nginx/1panel-static-spa-snippet.conf    # Nginx 片段（SPA + /api + /uploads）
+   ├─ 1panel-static-deploy.md                 # 1Panel 单域名上线（静态前端卷挂载 + 后端容器）
+   ├─ 1panel-backend-deploy.md                # 后端容器常驻部署指南
+   ├─ post-release-checklist.md               # 发布后巡检清单
+   ├─ backup-restore-runbook.md               # 数据/媒体备份恢复手册
+   ├─ nginx/1panel-static-spa-snippet.conf    # 单站点可复用片段（SPA + /api + /uploads）
+   ├─ nginx/1panel-single-domain-template.conf # 单域名完整模板
+   ├─ nginx/1panel-dual-domain-template.conf  # 兼容保留：旧文件名（内容已对齐单域名）
    ├─ scripts/build-frontend-dist.sh          # 前端构建与打包脚本
+   ├─ scripts/check-backend-prod-env.sh       # 生产 env 安全检查
+   ├─ scripts/local-verify.sh                 # 本机链路验收
+   ├─ scripts/online-smoke.sh                 # 线上 smoke 检查
    └─ artifacts/                              # 构建产物目录
 ```
 
@@ -109,7 +117,7 @@
 
 - 开发态：`Browser -> (可选本机反代) -> Vite:5173 -> Backend:3001`（`/api`、`/uploads` 由 Vite 代理）。
 - 生产态：`Browser -> Nginx/1Panel -> SPA + Backend:3001`（`/api`、`/uploads` 由反代转发）。
-- 后台入口建议使用独立子域名语义（例如 `admin.<domain>`），但后台页面仍在同一 SPA 内。
+- 生产入口采用单域名：`https://<domain>`；后台入口为同域路径 `/admin/login`。
 
 ## 5) 本次清理说明（2026-04-02）
 
@@ -117,3 +125,4 @@
 - 路由边界补齐 `/admin/login` 与 `/admin`。
 - API 边界改为“已实现接口”而非“规划接口”。
 - 与 `docs/ai-workflow/*`（尤其 `ARCHITECTURE.md`）保持一致。
+- 补充 1Panel 后端容器部署、线上 smoke 与备份恢复文档。

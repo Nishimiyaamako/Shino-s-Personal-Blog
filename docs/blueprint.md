@@ -36,7 +36,7 @@
 
 - 前端按静态产物部署。
 - Nginx/1Panel 负责 SPA 路由回退与 `/api`、`/uploads` 反代。
-- 可采用前台/后台双域名入口语义（后台入口映射到 `/admin/login`）。
+- 采用单域名入口语义（后台入口路径为 `/admin/login`）。
 
 ## 3) 能力边界（已实现）
 
@@ -111,7 +111,7 @@
 
 - 链路：`Browser -> Nginx/1Panel -> SPA 静态资源 + Backend:3001`
 - `/api` 与 `/uploads` 由反代转发到后端。
-- 可采用 `blog.<domain>` 与 `admin.<domain>` 双入口语义（`admin` 根路径跳转到 `/admin/login`）。
+- 采用 `https://<domain>` 单入口语义，后台路径为 `/admin/login`。
 
 ## 6) 短路线图（Next）
 

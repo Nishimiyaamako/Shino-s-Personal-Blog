@@ -258,6 +258,86 @@ describe('post publish and search', () => {
     expect(contentPayload.items.some((item) => item.slug === 'search-content-hit')).toBeTrue();
   });
 
+  test('admin list posts supports q/status/tag filters and pagination', async () => {
+    const token = await login();
+
+    const cases = [
+      {
+        title: 'Alpha Draft',
+        slug: 'alpha-draft',
+        date: '2026-04-01',
+        summary: 'alpha summary',
+        tags: ['alpha'],
+        contentMarkdown: 'draft alpha body',
+        status: 'draft'
+      },
+      {
+        title: 'Beta Published',
+        slug: 'beta-published',
+        date: '2026-04-01',
+        summary: 'beta summary',
+        tags: ['beta'],
+        contentMarkdown: 'published beta body',
+        status: 'published'
+      },
+      {
+        title: 'Gamma Published',
+        slug: 'gamma-published',
+        date: '2026-04-01',
+        summary: 'gamma summary',
+        tags: ['beta'],
+        contentMarkdown: 'published gamma body',
+        status: 'published'
+      }
+    ] as const;
+
+    for (const payload of cases) {
+      const createResponse = await requestJson('/api/admin/posts', {
+        method: 'POST',
+        token,
+        body: payload
+      });
+      expect(createResponse.status).toBe(200);
+    }
+
+    const qSearch = await requestJson('/api/admin/posts?q=Gamma', { token });
+    expect(qSearch.status).toBe(200);
+    const qPayload = (await qSearch.json()) as {
+      items: Array<{ slug: string }>;
+      total: number;
+      page: number;
+      pageSize: number;
+    };
+    expect(qPayload.items.some((item) => item.slug === 'gamma-published')).toBeTrue();
+    expect(qPayload.total).toBeGreaterThanOrEqual(1);
+    expect(qPayload.page).toBe(1);
+
+    const statusSearch = await requestJson('/api/admin/posts?status=draft', { token });
+    expect(statusSearch.status).toBe(200);
+    const statusPayload = (await statusSearch.json()) as { items: Array<{ status: string }> };
+    expect(statusPayload.items.length).toBeGreaterThanOrEqual(1);
+    expect(statusPayload.items.every((item) => item.status === 'draft')).toBeTrue();
+
+    const tagSearch = await requestJson('/api/admin/posts?tag=beta', { token });
+    expect(tagSearch.status).toBe(200);
+    const tagPayload = (await tagSearch.json()) as { items: Array<{ slug: string }> };
+    expect(tagPayload.items.some((item) => item.slug === 'beta-published')).toBeTrue();
+    expect(tagPayload.items.some((item) => item.slug === 'gamma-published')).toBeTrue();
+
+    const pageSearch = await requestJson('/api/admin/posts?status=published&page=1&pageSize=1', { token });
+    expect(pageSearch.status).toBe(200);
+    const pagePayload = (await pageSearch.json()) as {
+      items: Array<{ slug: string }>;
+      total: number;
+      page: number;
+      pageSize: number;
+    };
+    expect(pagePayload.items.length).toBe(1);
+    expect(pagePayload.page).toBe(1);
+    expect(pagePayload.pageSize).toBe(1);
+    expect(pagePayload.total).toBeGreaterThanOrEqual(2);
+  });
+
   test('reject duplicated slug when creating posts', async () => {
     const token = await login();
 

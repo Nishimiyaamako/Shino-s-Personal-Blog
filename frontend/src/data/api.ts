@@ -3,6 +3,8 @@ import type {
   AdminFriendLink,
   AdminLoginResponse,
   AdminPost,
+  AdminPostListQuery,
+  AdminPostListResponse,
   AdminProfileCard,
   ApiListResponse,
   PublicPostsResponse,
@@ -272,21 +274,58 @@ export async function adminLogin(username: string, password: string): Promise<Ad
   });
 }
 
-export async function adminListPosts(token: string): Promise<AdminPost[]> {
-  const payload = await adminFetchJson<ApiListResponse<unknown>>('/api/admin/posts', token);
+function toAdminPost(item: unknown): AdminPost {
+  const detail = ensurePostDetail(item);
+  const record = item as Record<string, unknown>;
 
-  return Array.isArray(payload.items)
-    ? payload.items.map((item) => {
-        const detail = ensurePostDetail(item);
-        const record = item as Record<string, unknown>;
+  return {
+    ...detail,
+    id: Number(record.id ?? 0),
+    isFeatured: Boolean(record.isFeatured)
+  } satisfies AdminPost;
+}
 
-        return {
-          ...detail,
-          id: Number(record.id ?? 0),
-          isFeatured: Boolean(record.isFeatured)
-        } satisfies AdminPost;
-      })
-    : [];
+export async function adminListPosts(
+  token: string,
+  query: AdminPostListQuery = {}
+): Promise<AdminPostListResponse> {
+  const searchParams = new URLSearchParams();
+
+  if (query.q?.trim()) {
+    searchParams.set('q', query.q.trim());
+  }
+
+  if (query.status && query.status !== 'all') {
+    searchParams.set('status', query.status);
+  }
+
+  if (query.tag?.trim()) {
+    searchParams.set('tag', query.tag.trim());
+  }
+
+  if (query.page && Number.isFinite(query.page)) {
+    searchParams.set('page', String(query.page));
+  }
+
+  if (query.pageSize && Number.isFinite(query.pageSize)) {
+    searchParams.set('pageSize', String(query.pageSize));
+  }
+
+  const queryString = searchParams.toString();
+  const payload = await adminFetchJson<Record<string, unknown>>(
+    `/api/admin/posts${queryString ? `?${queryString}` : ''}`,
+    token
+  );
+
+  const itemsRaw = Array.isArray(payload.items) ? payload.items : [];
+  const items = itemsRaw.map((item) => toAdminPost(item));
+
+  return {
+    items,
+    total: Number(payload.total ?? items.length),
+    page: Number(payload.page ?? query.page ?? 1),
+    pageSize: Number(payload.pageSize ?? query.pageSize ?? 20)
+  };
 }
 
 export async function adminCreatePost(token: string, payload: Partial<AdminPost>): Promise<AdminPost> {
@@ -298,14 +337,7 @@ export async function adminCreatePost(token: string, payload: Partial<AdminPost>
     body: JSON.stringify(payload)
   });
 
-  const detail = ensurePostDetail(response.item);
-  const record = response.item as Record<string, unknown>;
-
-  return {
-    ...detail,
-    id: Number(record.id ?? 0),
-    isFeatured: Boolean(record.isFeatured)
-  };
+  return toAdminPost(response.item);
 }
 
 export async function adminUpdatePost(
@@ -321,14 +353,7 @@ export async function adminUpdatePost(
     body: JSON.stringify(payload)
   });
 
-  const detail = ensurePostDetail(response.item);
-  const record = response.item as Record<string, unknown>;
-
-  return {
-    ...detail,
-    id: Number(record.id ?? 0),
-    isFeatured: Boolean(record.isFeatured)
-  };
+  return toAdminPost(response.item);
 }
 
 export async function adminDeletePost(token: string, postId: number): Promise<void> {
@@ -342,14 +367,7 @@ export async function adminPublishPost(token: string, postId: number): Promise<A
     method: 'POST'
   });
 
-  const detail = ensurePostDetail(response.item);
-  const record = response.item as Record<string, unknown>;
-
-  return {
-    ...detail,
-    id: Number(record.id ?? 0),
-    isFeatured: Boolean(record.isFeatured)
-  };
+  return toAdminPost(response.item);
 }
 
 export async function adminUnpublishPost(token: string, postId: number): Promise<AdminPost> {
@@ -357,14 +375,7 @@ export async function adminUnpublishPost(token: string, postId: number): Promise
     method: 'POST'
   });
 
-  const detail = ensurePostDetail(response.item);
-  const record = response.item as Record<string, unknown>;
-
-  return {
-    ...detail,
-    id: Number(record.id ?? 0),
-    isFeatured: Boolean(record.isFeatured)
-  };
+  return toAdminPost(response.item);
 }
 
 export async function adminSetFeatured(
@@ -381,14 +392,7 @@ export async function adminSetFeatured(
     body: JSON.stringify({ isFeatured, featuredOrder })
   });
 
-  const detail = ensurePostDetail(response.item);
-  const record = response.item as Record<string, unknown>;
-
-  return {
-    ...detail,
-    id: Number(record.id ?? 0),
-    isFeatured: Boolean(record.isFeatured)
-  };
+  return toAdminPost(response.item);
 }
 
 export async function adminUploadImage(token: string, file: File): Promise<UploadImageResponse['item']> {

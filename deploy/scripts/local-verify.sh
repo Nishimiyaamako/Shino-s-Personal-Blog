@@ -11,7 +11,6 @@ FRONTEND_LOG="${FRONTEND_LOG:-/tmp/pb-frontend-dev.log}"
 NGINX_CONF="${NGINX_CONF:-/tmp/pb-local-nginx.conf}"
 
 BLOG_HOST="${BLOG_HOST:-blog.localhost}"
-ADMIN_HOST="${ADMIN_HOST:-admin.localhost}"
 PROXY_NAME="${PROXY_NAME:-pb-local-proxy}"
 PROXY_IMAGE="${PROXY_IMAGE:-nginx:1.27-alpine}"
 
@@ -130,7 +129,7 @@ else
 fi
 
 echo "[4/7] Local Proxy"
-cat >"$NGINX_CONF" <<EOF
+cat >"$NGINX_CONF" <<EOF2
 server {
   listen 80;
   server_name $BLOG_HOST;
@@ -144,25 +143,7 @@ server {
     proxy_set_header X-Forwarded-Proto \$scheme;
   }
 }
-
-server {
-  listen 80;
-  server_name $ADMIN_HOST;
-
-  location = / {
-    return 302 /admin/login;
-  }
-
-  location / {
-    proxy_pass http://127.0.0.1:5173;
-    proxy_http_version 1.1;
-    proxy_set_header Host \$host;
-    proxy_set_header X-Real-IP \$remote_addr;
-    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto \$scheme;
-  }
-}
-EOF
+EOF2
 
 docker rm -f "$PROXY_NAME" >/dev/null 2>&1 || true
 docker run -d \
@@ -174,30 +155,31 @@ docker run -d \
 docker ps --filter "name=$PROXY_NAME" --format "proxy={{.Names}} status={{.Status}} net={{.Networks}}"
 
 echo "[5/7] Route Chain"
-admin_headers="$(curl -sSI "http://$ADMIN_HOST/" | tr -d '\r')"
-echo "$admin_headers" | sed -n '1p'
-echo "$admin_headers" | grep -i '^Location:' | head -n 1
+root_headers="$(curl -sSI "http://$BLOG_HOST/" | tr -d '\r')"
+admin_login_headers="$(curl -sSI "http://$BLOG_HOST/admin/login" | tr -d '\r')"
 
-admin_health="$(curl -sS "http://$ADMIN_HOST/api/health")"
-blog_health="$(curl -sS "http://$BLOG_HOST/api/health")"
+# Show root and admin route status lines for quick diagnosis
+echo "$root_headers" | sed -n '1p'
+echo "$admin_login_headers" | sed -n '1p'
+
+site_health="$(curl -sS "http://$BLOG_HOST/api/health")"
 direct_health="$(curl -sS "http://127.0.0.1:3001/api/health")"
 
-echo "$admin_health"
-echo "$blog_health"
+echo "$site_health"
 echo "$direct_health"
 
-echo "$admin_health" | grep -q '"ok":true'
-echo "$blog_health" | grep -q '"ok":true'
+echo "$site_health" | grep -q '"ok":true'
 echo "$direct_health" | grep -q '"ok":true'
 
 echo "[6/7] Functional Acceptance"
 assert_status_200 "/posts" "http://$BLOG_HOST/posts"
 assert_status_200 "/tags" "http://$BLOG_HOST/tags"
 assert_status_200 "/archive" "http://$BLOG_HOST/archive"
+assert_status_200 "/admin/login" "http://$BLOG_HOST/admin/login"
 assert_status_200 "/uploads/images/steam-bugs-linux.webp" "http://$BLOG_HOST/uploads/images/steam-bugs-linux.webp"
 
 login_response="$(
-  curl -sS -X POST "http://$ADMIN_HOST/api/admin/auth/login" \
+  curl -sS -X POST "http://$BLOG_HOST/api/admin/auth/login" \
     -H 'content-type: application/json' \
     -d '{"username":"admin","password":"admin123"}'
 )"

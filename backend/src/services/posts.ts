@@ -38,6 +38,21 @@ export interface AdminPostRecord extends ApiPostDetail {
   isFeatured: boolean;
 }
 
+export interface ListAdminPostOptions {
+  page?: number;
+  pageSize?: number;
+  q?: string;
+  status?: PostStatus | 'all';
+  tag?: string;
+}
+
+export interface ListAdminPostResult {
+  items: AdminPostRecord[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 interface PostRow {
   id: number;
   title: string;
@@ -384,7 +399,64 @@ export function listFeaturedPosts(context: DatabaseContext, limit = 5): ApiPostS
   return rows.map((row) => toSummary(row, tagMap.get(row.id) ?? []));
 }
 
-export function listAdminPosts(context: DatabaseContext): AdminPostRecord[] {
+export function listAdminPosts(
+  context: DatabaseContext,
+  options: ListAdminPostOptions = {}
+): ListAdminPostResult {
+  const page = Math.max(1, Number(options.page) || 1);
+  const pageSize = Math.min(100, Math.max(1, Number(options.pageSize) || 20));
+  const offset = (page - 1) * pageSize;
+  const searchQuery = options.q?.trim() ?? '';
+  const statusFilter = options.status === 'draft' || options.status === 'published' ? options.status : null;
+  const tagFilter = options.tag?.trim() ? normalizeTag(options.tag) : '';
+
+  if (tagFilter && !TAG_REGEXP.test(tagFilter)) {
+    return {
+      items: [],
+      total: 0,
+      page,
+      pageSize
+    };
+  }
+
+  const whereParts: string[] = [];
+  const params: Array<string | number> = [];
+
+  if (statusFilter) {
+    whereParts.push('p.status = ?');
+    params.push(statusFilter);
+  }
+
+  if (searchQuery) {
+    whereParts.push(`
+      (
+        p.title LIKE ?
+        OR p.summary LIKE ?
+        OR p.slug LIKE ?
+        OR p.content_markdown LIKE ?
+      )
+    `);
+    const likeValue = `%${searchQuery}%`;
+    params.push(likeValue, likeValue, likeValue, likeValue);
+  }
+
+  if (tagFilter) {
+    whereParts.push(`
+      EXISTS (
+        SELECT 1
+        FROM post_tags pt
+        INNER JOIN tags t ON t.id = pt.tag_id
+        WHERE pt.post_id = p.id AND t.name = ?
+      )
+    `);
+    params.push(tagFilter);
+  }
+
+  const whereSql = whereParts.length ? whereParts.join(' AND ') : '1=1';
+  const totalRow = context.sqlite
+    .query(`SELECT COUNT(1) AS count FROM posts p WHERE ${whereSql}`)
+    .get(...params) as { count: number };
+
   const rows = context.sqlite
     .query(`
       SELECT
@@ -402,16 +474,23 @@ export function listAdminPosts(context: DatabaseContext): AdminPostRecord[] {
         p.featured_order AS featuredOrder,
         p.published_at AS publishedAt
       FROM posts p
+      WHERE ${whereSql}
       ORDER BY p.updated_at DESC, p.id DESC
+      LIMIT ? OFFSET ?
     `)
-    .all() as PostRow[];
+    .all(...params, pageSize, offset) as PostRow[];
 
   const tagMap = readTagsByPostIds(
     context,
     rows.map((row) => row.id)
   );
 
-  return rows.map((row) => toDetail(row, tagMap.get(row.id) ?? []));
+  return {
+    items: rows.map((row) => toDetail(row, tagMap.get(row.id) ?? [])),
+    total: totalRow.count,
+    page,
+    pageSize
+  };
 }
 
 export function getAdminPostById(context: DatabaseContext, postId: number): AdminPostRecord | null {

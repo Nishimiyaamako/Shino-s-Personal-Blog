@@ -38,6 +38,20 @@ export interface AdminPost extends PostDetail {
   status: PostStatus;
 }
 
+export interface AdminPostListQuery {
+  q?: string;
+  status?: PostStatus | 'all';
+  tag?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface AdminPostListResponse extends ApiListResponse<AdminPost> {
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 export interface AdminFriendLink extends FriendLink {
   id: number;
   enabled: boolean;

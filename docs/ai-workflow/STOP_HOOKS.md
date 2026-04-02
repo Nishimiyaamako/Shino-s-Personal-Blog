@@ -45,7 +45,7 @@
 - **Trigger**：最终交付前。
 - **Condition**：任务涉及任一项：启动方式、反代、域名、端口、API 基地址、部署文档。
 - **Action**：显式核对并写出以下链路（至少一条 public 与一条 admin）：
-  - 入口域名（例如 `blog.<domain>` / `admin.<domain>`）
+  - 入口位置（例如 `https://<domain>/` 与 `https://<domain>/admin/login`）
   - 反代层（Vite dev proxy / Nginx / Caddy / 1Panel）
   - 上游服务与端口（`frontend:5173`、`backend:3001`）
   - 登录链路关键点（`/admin/login` 与 `POST /api/admin/auth/login`）

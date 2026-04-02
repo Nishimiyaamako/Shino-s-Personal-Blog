@@ -5,8 +5,9 @@ export const renderAdminPage: PageRenderer = () => {
 <section class="page page-admin page-admin-dashboard">
   <header class="page-header admin-header">
     <div>
+      <p class="admin-kicker">Shino Admin Console</p>
       <h1>内容管理后台</h1>
-      <p>管理文章发布、精选、友链、关于页、名片卡。</p>
+      <p>统一管理文章、精选、友链、关于页与名片卡，所有操作都在同一会话内完成。</p>
     </div>
     <button type="button" class="admin-logout-button" data-role="admin-logout">退出登录</button>
   </header>
@@ -27,11 +28,54 @@ export const renderAdminPage: PageRenderer = () => {
             <h2>文章列表</h2>
             <button type="button" data-role="admin-post-new">新建</button>
           </div>
+
+          <form class="admin-filter-form" data-role="admin-post-filter-form">
+            <div class="admin-filter-grid">
+              <label>
+                <span>搜索</span>
+                <input type="search" name="q" data-role="admin-post-search" placeholder="标题 / slug / 摘要 / 正文" />
+              </label>
+              <label>
+                <span>状态</span>
+                <select name="status" data-role="admin-post-status-filter">
+                  <option value="all">全部</option>
+                  <option value="draft">草稿</option>
+                  <option value="published">已发布</option>
+                </select>
+              </label>
+              <label>
+                <span>标签</span>
+                <input type="text" name="tag" data-role="admin-post-tag-filter" placeholder="如：typescript" />
+              </label>
+              <label>
+                <span>每页</span>
+                <select name="pageSize" data-role="admin-post-page-size">
+                  <option value="10">10</option>
+                  <option value="20" selected>20</option>
+                  <option value="50">50</option>
+                </select>
+              </label>
+            </div>
+            <div class="admin-inline-actions">
+              <button type="submit" data-role="admin-post-filter-apply">应用筛选</button>
+              <button type="button" data-role="admin-post-filter-reset">重置</button>
+            </div>
+          </form>
+
           <ul class="admin-post-list" data-role="admin-post-list"></ul>
+          <div class="admin-pagination" data-role="admin-post-pagination">
+            <button type="button" data-role="admin-post-prev-page">上一页</button>
+            <p data-role="admin-post-page-summary">第 1 页</p>
+            <button type="button" data-role="admin-post-next-page">下一页</button>
+          </div>
         </aside>
 
         <div class="admin-form-col">
           <form class="admin-post-form" data-role="admin-post-form">
+            <div class="admin-form-head">
+              <h2 data-role="admin-post-form-title">新建文章</h2>
+              <p data-role="admin-post-form-meta">当前为新建模式，保存后可发布。</p>
+            </div>
             <input type="hidden" name="id" />
             <label><span>标题</span><input type="text" name="title" required /></label>
             <label><span>slug</span><input type="text" name="slug" required /></label>
@@ -68,7 +112,7 @@ export const renderAdminPage: PageRenderer = () => {
             </div>
 
             <div class="admin-form-actions">
-              <button type="submit">保存</button>
+              <button type="submit" data-role="admin-post-save">保存</button>
               <button type="button" data-role="admin-post-publish">发布</button>
               <button type="button" data-role="admin-post-unpublish">下线</button>
               <button type="button" data-role="admin-post-delete">删除</button>
@@ -82,8 +126,10 @@ export const renderAdminPage: PageRenderer = () => {
 
     <section class="admin-panel" data-role="admin-panel" data-panel="featured" hidden>
       <h2>精选排序</h2>
-      <p>仅显示已标记为精选的文章，可快速调整顺序。</p>
+      <p>仅显示已发布文章，可快速开关首页精选并调整排序。</p>
       <ul class="admin-featured-list" data-role="admin-featured-list"></ul>
+      <p class="admin-form-error" data-role="admin-featured-error" hidden></p>
+      <p class="admin-form-success" data-role="admin-featured-success" hidden></p>
     </section>
 
     <section class="admin-panel" data-role="admin-panel" data-panel="friends" hidden>
@@ -96,6 +142,10 @@ export const renderAdminPage: PageRenderer = () => {
         </aside>
         <div class="admin-form-col">
           <form class="admin-friend-form" data-role="admin-friend-form">
+            <div class="admin-form-head">
+              <h2 data-role="admin-friend-form-title">新建友链</h2>
+              <p data-role="admin-friend-form-meta">填写基础信息后即可保存。</p>
+            </div>
             <input type="hidden" name="id" />
             <label><span>名称</span><input type="text" name="name" required /></label>
             <label><span>描述</span><textarea name="description" rows="2" required></textarea></label>
@@ -108,6 +158,7 @@ export const renderAdminPage: PageRenderer = () => {
               <button type="button" data-role="admin-friend-cancel" hidden>取消编辑</button>
             </div>
             <p class="admin-form-error" data-role="admin-friend-error" hidden></p>
+            <p class="admin-form-success" data-role="admin-friend-success" hidden></p>
           </form>
         </div>
       </div>

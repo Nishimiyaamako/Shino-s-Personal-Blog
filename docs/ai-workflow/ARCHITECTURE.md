@@ -1,26 +1,25 @@
 # ARCHITECTURE.md（Shino's Bolg）
 
 > Updated on 2026-04-02.
-> 目的：统一“后台独立域名 + 本机端口心智”，让开发与生产链路可一眼定位。
+> 目的：统一“单域名同源 + 本机端口隐藏”心智，让开发与生产链路可一眼定位。
 
 ## 1) 当前真实结构
 
 - 前端：单一 SPA（公开页面 + 后台页面）。
-- 后台页面路由：`/admin/login`、`/admin`（仍在同一前端工程内）。
+- 后台页面路由：`/admin/login`、`/admin`（与前台页面同一前端工程）。
 - 后端：单一 API 服务（Elysia），默认端口 `3001`。
 - 后台登录接口：`POST /api/admin/auth/login`。
+- 部署契约：单域名入口 `https://<domain>`，后台从同域路径进入（`/admin/login`）。
 
 ## 2) 本机开发拓扑（推荐）
 
 ```text
 Browser
   |- http://blog.localhost
-  |- http://admin.localhost
           |
           v
 Local Reverse Proxy (Nginx/Caddy)
-  |- admin host: / -> /admin/login
-  |- other paths -> http://127.0.0.1:5173
+  |- all routes -> http://127.0.0.1:5173
           |
           v
 Vite Dev Server (:5173)
@@ -31,18 +30,16 @@ Vite Dev Server (:5173)
 Backend API (Elysia :3001)
 ```
 
-核心心智：浏览器只看域名；端口细节在反代与 Vite 代理内部完成。
+核心心智：浏览器只看一个域名；端口细节在反代与 Vite 代理内部完成。
 
-## 3) 生产部署拓扑（双域名）
+## 3) 生产部署拓扑（单域名）
 
 ```text
 Browser
-  |- https://blog.<domain>
-  |- https://admin.<domain>
+  |- https://<domain>
           |
           v
 Nginx / 1Panel
-  |- admin host: / -> /admin/login
   |- /api/* -> http://127.0.0.1:3001
   |- /uploads/* -> http://127.0.0.1:3001
   |- other routes -> SPA dist (index.html + assets)
@@ -51,47 +48,47 @@ Nginx / 1Panel
 Backend API (Elysia :3001)
 ```
 
-核心心智：前台域名和后台域名都能访问同一 SPA 与同一后端服务。
+核心心智：前台与后台页面都由同一 SPA 提供；`/api` 与 `/uploads` 统一反代到同一后端容器。
 
 ## 4) 域名到端口映射表
 
 | 场景 | 入口 URL | 反代层 | 上游服务 | 最终处理 |
 | --- | --- | --- | --- | --- |
-| 开发 | `http://blog.localhost/` | Local Reverse Proxy | `http://127.0.0.1:5173` | Vite 返回页面 |
-| 开发 | `http://admin.localhost/` | Local Reverse Proxy | `302 -> /admin/login` | 跳到后台登录路由 |
-| 开发 | `http://admin.localhost/api/admin/auth/login` | Local Reverse Proxy -> Vite Proxy | `http://127.0.0.1:3001` | Backend 登录接口 |
+| 开发 | `http://blog.localhost/` | Local Reverse Proxy | `http://127.0.0.1:5173` | Vite 返回首页 |
+| 开发 | `http://blog.localhost/admin/login` | Local Reverse Proxy | `http://127.0.0.1:5173` | Vite 返回后台登录页 |
+| 开发 | `http://blog.localhost/api/admin/auth/login` | Local Reverse Proxy -> Vite Proxy | `http://127.0.0.1:3001` | Backend 登录接口 |
 | 开发 | `http://blog.localhost/uploads/images/*` | Local Reverse Proxy -> Vite Proxy | `http://127.0.0.1:3001` | Backend 静态上传文件 |
-| 生产 | `https://blog.<domain>/` | Nginx/1Panel | SPA dist | 前台页面 |
-| 生产 | `https://admin.<domain>/` | Nginx/1Panel | `302 -> /admin/login` | 后台入口跳转 |
-| 生产 | `https://admin.<domain>/api/admin/auth/login` | Nginx/1Panel | `http://127.0.0.1:3001` | Backend 登录接口 |
-| 生产 | `https://blog.<domain>/uploads/images/*` | Nginx/1Panel | `http://127.0.0.1:3001` | Backend 静态上传文件 |
+| 生产 | `https://<domain>/` | Nginx/1Panel | SPA dist | 前台页面 |
+| 生产 | `https://<domain>/admin/login` | Nginx/1Panel | SPA dist | 后台登录页 |
+| 生产 | `https://<domain>/api/admin/auth/login` | Nginx/1Panel | `http://127.0.0.1:3001` | Backend 登录接口 |
+| 生产 | `https://<domain>/uploads/images/*` | Nginx/1Panel | `http://127.0.0.1:3001` | Backend 静态上传文件 |
 
 ## 5) 启动顺序（本机）
 
 1. 启动后端：`cd backend && bun run dev`
 2. 启动前端：`cd frontend && bun run dev --host 127.0.0.1 --port 5173`
-3. 启动本机反代并绑定域名（默认 `blog.localhost`、`admin.localhost`）
-4. 验证后台入口：访问 `http://admin.localhost/` 应进入 `/admin/login`
+3. 启动本机反代并绑定域名（默认 `blog.localhost`）
+4. 验证后台入口：访问 `http://blog.localhost/admin/login`
 
 ## 6) 最小排障流程（固定顺序）
 
-1. 先看入口域名：确认你访问的是 `blog.*` 还是 `admin.*`，路径是否正确。
-2. 再看反代：确认该域名的反代规则是否把请求转发到预期上游。
+1. 先看入口路径：确认访问的是前台路径还是后台路径（`/admin/login`）。
+2. 再看反代：确认 `/api` 与 `/uploads` 是否转发到 `127.0.0.1:3001`。
 3. 最后看后端端口：确认 `127.0.0.1:3001` 是否存活、接口是否响应。
 
 可直接执行的检查命令（本机示例）：
 
 ```bash
-curl -I http://admin.localhost/
-curl -sS http://admin.localhost/api/health
+curl -I http://blog.localhost/
+curl -I http://blog.localhost/admin/login
 curl -sS http://blog.localhost/api/health
 curl -sS http://127.0.0.1:3001/api/health
 ```
 
 期望结果：
 
-- `admin.localhost/` 返回 `302` 到 `/admin/login`（或直接落到登录页）。
-- 两个域名下 `/api/health` 都返回后端健康响应。
+- `/` 与 `/admin/login` 都应返回 `200`。
+- 域名下 `/api/health` 返回后端健康响应。
 - 直连 `:3001` 健康响应正常，说明后端服务本身可用。
 
 ## 7) 配置约束提醒
@@ -106,7 +103,7 @@ curl -sS http://127.0.0.1:3001/api/health
 - 脚本路径：`deploy/scripts/local-verify.sh`
 - 默认行为：
   - 拉起后端 `:3001` 与前端 `:5173`（已存在则复用）
-  - 以 Docker Nginx `--network host` 建立 `blog.localhost` / `admin.localhost` 反代
+  - 以 Docker Nginx `--network host` 建立 `blog.localhost` 反代
   - 执行链路检查、功能验收、质量闸门
   - 自动清理临时反代容器
 - 运行命令：
@@ -114,3 +111,11 @@ curl -sS http://127.0.0.1:3001/api/health
 ```bash
 ./deploy/scripts/local-verify.sh
 ```
+
+## 9) 生产部署相关资产
+
+- 后端容器部署：`deploy/1panel-backend-deploy.md`
+- 前端单域名发布：`deploy/1panel-static-deploy.md`
+- 单域名 Nginx 模板：`deploy/nginx/1panel-single-domain-template.conf`
+- 生产 env 安全检查：`deploy/scripts/check-backend-prod-env.sh`
+- 线上 smoke 检查：`deploy/scripts/online-smoke.sh`

@@ -12,17 +12,17 @@
 ## 2) 当前架构一行结论
 
 - 真实结构是：`一个前端 SPA（含 /admin/login 与 /admin） + 一个后端 API 服务`。
-- 用户入口契约是：`blog.<domain>`（前台）与 `admin.<domain>`（后台入口域名）。
+- 用户入口契约是：单域名 `https://<domain>`，后台入口路径 `https://<domain>/admin/login`。
 - 后台登录接口固定：`POST /api/admin/auth/login`。
 
 ## 3) 一页式运行手册
 
-### 3.1 本机开发（推荐：统一域名入口）
+### 3.1 本机开发（推荐：单域名入口）
 
 1. 启动后端：`cd backend && bun run dev`（默认监听 `127.0.0.1:3001`）。
 2. 启动前端：`cd frontend && bun run dev --host 127.0.0.1 --port 5173`。
-3. 本机反代绑定两个域名到前端（默认建议 `blog.localhost`、`admin.localhost`）。
-4. 为 `admin.localhost` 配置根路径跳转：`/ -> /admin/login`。
+3. 本机反代绑定一个域名到前端（默认建议 `blog.localhost`）。
+4. 从 `http://blog.localhost/admin/login` 进入后台。
 5. `frontend/.env.example` 默认已是开发代理链：
    - `VITE_DEV_API_PROXY_TARGET=http://127.0.0.1:3001`
    - `VITE_API_BASE_URL=`（空值，走同源请求）
@@ -36,16 +36,16 @@
 - API 请求：`浏览器域名 -> 本机反代 -> Vite(:5173) -> Backend(:3001)`
 - 上传资源：`/uploads/*` 走同一链路到后端
 
-### 3.2 生产部署（双域名 + 同后端）
+### 3.2 生产部署（单域名 + 同后端）
 
-1. `blog.<domain>` 和 `admin.<domain>` 均指向同一前端构建产物（同一 SPA）。
-2. 两个域名都需把 `/api/*`、`/uploads/*` 反代到后端（默认 `127.0.0.1:3001`）。
-3. `admin.<domain>` 保持 `/ -> /admin/login`，突出后台登录入口语义。
+1. `https://<domain>` 指向同一前端构建产物（同一 SPA）。
+2. 同一域名下把 `/api/*`、`/uploads/*` 反代到后端（默认 `127.0.0.1:3001`）。
+3. 后台入口固定为同域路径 `/admin/login`。
 4. 前端默认同源请求，不强制设置 `VITE_API_BASE_URL`。
 
 ## 4) 常见误解（重点）
 
-- 误解：`admin.<domain>` 应该是另一套前端工程。
+- 误解：后台页面必须是另一套前端工程。
   - 现实：当前后台是同一 SPA 内路由，不是独立构建。
 - 误解：浏览器没看到 `:3001` 就说明后端没参与。
   - 现实：生产态端口会被反代隐藏。
@@ -66,7 +66,16 @@
 
 - `cd backend && bun run typecheck && bun run test && bun run build && cd ../frontend && bun run typecheck && bun run build`
 
-## 7) 前端技能自动路由（默认）
+## 7) 部署与巡检脚本（新增）
+
+- 本机链路验收：`./deploy/scripts/local-verify.sh`
+- 生产 env 检查：`./deploy/scripts/check-backend-prod-env.sh /path/to/backend.env`
+- 线上 smoke：`./deploy/scripts/online-smoke.sh <domain>`
+- 后端容器部署：`deploy/1panel-backend-deploy.md`
+- 发布后巡检：`deploy/post-release-checklist.md`
+- 备份恢复 Runbook：`deploy/backup-restore-runbook.md`
+
+## 8) 前端技能自动路由（默认）
 
 - 触发条件：任务将修改 `frontend/` 目录内任意受管文件。
 - 默认技能链：`frontend-design -> harden -> polish`（固定顺序）。
