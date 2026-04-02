@@ -1,4 +1,5 @@
 import { getPostBySlug } from '../data/posts';
+import type { PostDetail } from '../types/content';
 import type { PageRenderer } from '../types/router';
 import { formatDateLabel } from '../utils/date';
 import { escapeHtml } from '../utils/escape-html';
@@ -17,9 +18,13 @@ export const renderPostDetailPage: PageRenderer = ({ params }) => {
 `;
   }
 
+  return renderPostDetailBody(post);
+};
+
+export function renderPostDetailBody(post: PostDetail): string {
   return `
-<article class="page page-post-detail">
-  <header class="page-header">
+<article class="page page-post-detail" data-role="post-detail-page" data-post-slug="${escapeHtml(post.slug)}">
+  <header class="page-header" data-role="post-detail-header">
     <h1>${escapeHtml(post.title)}</h1>
     <p class="post-meta">
       <time datetime="${post.date}">${formatDateLabel(post.date)}</time>
@@ -36,10 +41,10 @@ export const renderPostDetailPage: PageRenderer = ({ params }) => {
   </div>
 
   <div class="post-detail-layout">
-    <section class="markdown-content">
+    <section class="markdown-content" data-role="post-detail-markdown">
       ${post.contentHtml}
     </section>
   </div>
 </article>
 `;
-};
+}

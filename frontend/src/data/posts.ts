@@ -32,6 +32,8 @@ marked.use({
 });
 
 let allPostCache: PostDetail[] | null = null;
+let remotePublishedPostCache: PostDetail[] | null = null;
+let remotePublishedPostFingerprint = '';
 
 export interface PublishedWritingStats {
   postCount: number;
@@ -40,6 +42,114 @@ export interface PublishedWritingStats {
 
 export function loadPosts(): PostSummary[] {
   return getPublishedPosts().map((post) => toSummary(post));
+}
+
+export function loadHomeFeaturedPosts(limit = 5): PostSummary[] {
+  const normalizedLimit = Math.max(1, Number(limit) || 5);
+  const publishedPosts = getPublishedPosts();
+  const featuredPosts = publishedPosts
+    .filter((post) => typeof post.featuredOrder === 'number')
+    .sort((left, right) => {
+      const leftOrder = left.featuredOrder ?? Number.MAX_SAFE_INTEGER;
+      const rightOrder = right.featuredOrder ?? Number.MAX_SAFE_INTEGER;
+
+      if (leftOrder !== rightOrder) {
+        return leftOrder - rightOrder;
+      }
+
+      return right.date.localeCompare(left.date, 'en');
+    });
+
+  if (featuredPosts.length) {
+    return featuredPosts.slice(0, normalizedLimit).map((post) => toSummary(post));
+  }
+
+  return publishedPosts.slice(0, normalizedLimit).map((post) => toSummary(post));
+}
+
+export function applyRemotePublishedPostSummaries(summaries: PostSummary[]): boolean {
+  const normalizedSummaries = summaries
+    .map((summary) => normalizeRemoteSummary(summary))
+    .filter((summary) => summary.title && summary.slug && summary.date && summary.summary);
+  const localPostMap = new Map(getAllPosts().map((post) => [post.slug, post] as const));
+  const nextRemotePosts: PostDetail[] = normalizedSummaries.map((summary) => {
+    const localPost = localPostMap.get(summary.slug);
+
+    if (localPost) {
+      return {
+        ...localPost,
+        ...summary
+      };
+    }
+
+    return {
+      ...summary,
+      status: 'published',
+      contentMarkdown: '',
+      contentHtml: '<p>该文章正文稍后加载。</p>'
+    };
+  });
+
+  nextRemotePosts.sort((left, right) => {
+    if (left.date !== right.date) {
+      return right.date.localeCompare(left.date, 'en');
+    }
+
+    return left.slug.localeCompare(right.slug, 'en');
+  });
+
+  const nextFingerprint = buildPostFingerprint(nextRemotePosts);
+
+  if (nextFingerprint === remotePublishedPostFingerprint) {
+    return false;
+  }
+
+  remotePublishedPostCache = nextRemotePosts;
+  remotePublishedPostFingerprint = nextFingerprint;
+  return true;
+}
+
+export function applyRemotePostDetail(detail: PostDetail): boolean {
+  const normalizedDetail = normalizeRemoteDetail(detail);
+
+  if (!normalizedDetail.slug) {
+    return false;
+  }
+
+  const baseRemotePosts = remotePublishedPostCache ? [...remotePublishedPostCache] : [...getPublishedPosts()];
+  const targetIndex = baseRemotePosts.findIndex((post) => post.slug === normalizedDetail.slug);
+
+  if (targetIndex === -1) {
+    baseRemotePosts.push(normalizedDetail);
+  } else {
+    baseRemotePosts[targetIndex] = {
+      ...baseRemotePosts[targetIndex],
+      ...normalizedDetail
+    };
+  }
+
+  baseRemotePosts.sort((left, right) => {
+    if (left.date !== right.date) {
+      return right.date.localeCompare(left.date, 'en');
+    }
+
+    return left.slug.localeCompare(right.slug, 'en');
+  });
+
+  const nextFingerprint = buildPostFingerprint(baseRemotePosts);
+
+  if (nextFingerprint === remotePublishedPostFingerprint) {
+    return false;
+  }
+
+  remotePublishedPostCache = baseRemotePosts;
+  remotePublishedPostFingerprint = nextFingerprint;
+  return true;
+}
+
+export function clearRemotePostOverrides(): void {
+  remotePublishedPostCache = null;
+  remotePublishedPostFingerprint = '';
 }
 
 export function getPostBySlug(slug: string): PostDetail | null {
@@ -226,6 +336,10 @@ export function getPublishedWritingStats(): PublishedWritingStats {
 }
 
 function getPublishedPosts(): PostDetail[] {
+  if (remotePublishedPostCache) {
+    return remotePublishedPostCache.filter((post) => post.status === 'published');
+  }
+
   return getAllPosts().filter((post) => post.status === 'published');
 }
 
@@ -548,6 +662,47 @@ function toSummary(post: PostDetail): PostSummary {
     date: post.date,
     theme: post.theme,
     tags: [...post.tags],
-    summary: post.summary
+    summary: post.summary,
+    coverImageUrl: post.coverImageUrl,
+    featuredOrder: post.featuredOrder
   };
+}
+
+function normalizeRemoteSummary(summary: PostSummary): PostSummary {
+  return {
+    title: summary.title.trim(),
+    slug: summary.slug.trim(),
+    date: summary.date.trim(),
+    theme: summary.theme?.trim() || undefined,
+    tags: summary.tags.map((tag) => tag.trim()).filter(Boolean),
+    summary: summary.summary.trim(),
+    coverImageUrl: summary.coverImageUrl?.trim() || undefined,
+    featuredOrder: typeof summary.featuredOrder === 'number' ? summary.featuredOrder : undefined
+  };
+}
+
+function normalizeRemoteDetail(detail: PostDetail): PostDetail {
+  return {
+    ...normalizeRemoteSummary(detail),
+    status: detail.status,
+    contentMarkdown: detail.contentMarkdown,
+    contentHtml: detail.contentHtml
+  };
+}
+
+function buildPostFingerprint(posts: PostDetail[]): string {
+  return posts
+    .map((post) =>
+      [
+        post.slug,
+        post.date,
+        post.summary,
+        post.coverImageUrl ?? '',
+        post.featuredOrder ?? '',
+        post.status,
+        post.contentHtml.length,
+        post.contentMarkdown.length
+      ].join('|')
+    )
+    .join('||');
 }

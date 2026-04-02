@@ -1,4 +1,4 @@
-export type ProfilePlatform = 'github' | 'bilibili' | 'gmail';
+export type ProfilePlatform = string;
 
 export interface ProfileContact {
   platform: ProfilePlatform;

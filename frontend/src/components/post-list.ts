@@ -123,7 +123,7 @@ export function renderPostList(posts: PostSummary[], options: RenderPostListOpti
   ${posts
       .map((post) => {
         const isHomeVariant = variant === 'home';
-        const coverUrl = `/images/covers/${post.slug}.webp`;
+        const coverUrl = post.coverImageUrl || `/images/covers/${post.slug}.webp`;
         const coverImage = renderCoverImage(coverUrl);
         const cardClassName = `post-card post-card--${variant}`;
         const visibleLabelItems = resolveVisibleLabelItems(post, options);

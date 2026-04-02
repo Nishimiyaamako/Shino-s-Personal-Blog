@@ -31,7 +31,9 @@ export const renderPostsPage: PageRenderer = () => {
         </span>
       </button>
     </div>
-    ${renderPostList(posts, { emptyHint: '暂无已发布文章。', variant: 'posts' })}
+    <div data-role="posts-list-slot">
+      ${renderPostList(posts, { emptyHint: '暂无已发布文章。', variant: 'posts' })}
+    </div>
     <p class="empty-hint post-theme-empty-hint" data-role="post-theme-empty-hint" hidden>当前主题下暂无已发布文章。</p>
   </div>
 </section>

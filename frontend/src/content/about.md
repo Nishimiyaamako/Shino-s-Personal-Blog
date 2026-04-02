@@ -27,7 +27,9 @@ heroSubtitle: About · NagaShino
 
 ## 爱好
 
-- 待补充：正在整理爱好清单
+- 见证和ACGN圈子吃瓜
+- 骑行、跑步
+- 美术设计
 
 ## 事件表
 

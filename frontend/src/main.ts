@@ -5,6 +5,8 @@ import { renderProfileCard } from './components/profile-card';
 import { SITE_CONFIG } from './config/site';
 import { fetchAboutViewModel } from './data/about';
 import { getPostsByTag, getThemeStats } from './data/posts';
+import { setupAdminDashboard, setupAdminLogin } from './features/admin';
+import { setupHeaderSearchModal, setupPublicDataHydration } from './features/public-runtime';
 import { renderAboutPageBody } from './pages/about';
 import { PRIMARY_NAV_LINKS, resolveRoute, type PrimaryNavIcon } from './router';
 import { clearCssVar, readCssLengthPx, setCssPxVar, setCssVar } from './utils/dom-style';
@@ -392,6 +394,24 @@ function navigateTo(path: string, options: { replace?: boolean } = {}): void {
 function setupPageEnhancements(pathname: string, options: { enableProfileCardRouteMotion: boolean }): (() => void) | null {
   const cleanups: Array<() => void> = [];
 
+  const cleanupHeaderSearchModal = setupHeaderSearchModal();
+  if (cleanupHeaderSearchModal) {
+    cleanups.push(cleanupHeaderSearchModal);
+  }
+
+  const cleanupPublicDataHydration = setupPublicDataHydration(pathname, {
+    onDataChanged: () => {
+      if (window.location.pathname !== pathname) {
+        return;
+      }
+
+      renderApp();
+    }
+  });
+  if (cleanupPublicDataHydration) {
+    cleanups.push(cleanupPublicDataHydration);
+  }
+
   const cleanupMobileSidePanelPlacement = setupMobileSidePanelPlacement(pathname);
   if (cleanupMobileSidePanelPlacement) {
     cleanups.push(cleanupMobileSidePanelPlacement);
@@ -520,6 +540,26 @@ function setupPageEnhancements(pathname: string, options: { enableProfileCardRou
     });
     if (cleanupAboutPageHydration) {
       cleanups.push(cleanupAboutPageHydration);
+    }
+  }
+
+  if (pathname === '/admin/login') {
+    const cleanupAdminLogin = setupAdminLogin({
+      onNavigate: (path) => navigateTo(path)
+    });
+
+    if (cleanupAdminLogin) {
+      cleanups.push(cleanupAdminLogin);
+    }
+  }
+
+  if (pathname === '/admin') {
+    const cleanupAdminDashboard = setupAdminDashboard({
+      onNavigate: (path) => navigateTo(path)
+    });
+
+    if (cleanupAdminDashboard) {
+      cleanups.push(cleanupAdminDashboard);
     }
   }
 

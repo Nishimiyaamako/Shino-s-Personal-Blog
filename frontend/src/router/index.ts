@@ -1,5 +1,6 @@
-import { hasPublishedPostSlug } from '../data/posts';
 import { renderArchivePage } from '../pages/archive';
+import { renderAdminLoginPage } from '../pages/admin-login';
+import { renderAdminPage } from '../pages/admin';
 import { renderAboutPage } from '../pages/about';
 import { renderFriendsPage } from '../pages/friends';
 import { renderHomePage } from '../pages/home';
@@ -22,6 +23,8 @@ export const ROUTE_RECORDS: RouteRecord[] = [
   { path: '/archive', title: '归档', render: renderArchivePage },
   { path: '/friends', title: '友链', render: renderFriendsPage },
   { path: '/about', title: '关于', render: renderAboutPage },
+  { path: '/admin/login', title: '后台登录', render: renderAdminLoginPage },
+  { path: '/admin', title: '内容管理', render: renderAdminPage },
   { path: NOT_FOUND_PATH, title: '404', render: renderNotFoundPage }
 ];
 
@@ -47,10 +50,6 @@ export function resolveRoute(pathname: string): RouteResolution {
     const params = matchPath(route.path, normalizedPath);
 
     if (params === null) {
-      continue;
-    }
-
-    if (route.path === '/posts/:slug' && !hasPublishedPostSlug(params.slug ?? '')) {
       continue;
     }
 
