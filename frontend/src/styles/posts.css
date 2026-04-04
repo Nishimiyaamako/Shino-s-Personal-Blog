@@ -339,12 +339,22 @@
   min-height: clamp(156px, 21vw, 214px);
 }
 
+.post-card-home-article:not(.no-cover) {
+  align-items: stretch;
+}
+
 .post-card--home .post-card-body {
   position: relative;
   flex: 1 1 auto;
-  width: 100%;
+  min-width: 0;
+  width: auto;
   padding: var(--home-card-body-pad-block) var(--home-card-body-pad-inline);
   gap: 0.7rem;
+}
+
+.post-card--home .post-card-title,
+.post-card--home .post-card-summary {
+  overflow-wrap: anywhere;
 }
 
 .post-card-meta-row {
@@ -370,20 +380,12 @@
   text-align: right;
 }
 
-.post-card--home .post-card-home-article.has-cover .post-card-body {
-  width: calc(100% - var(--home-cover-width) - var(--home-cover-gap) - 0.5rem);
-}
-
-.post-card--home .post-card-home-article.has-cover .post-card-label-item--hide-on-home-cover {
-  display: none;
-}
-
 .post-card-home-cover {
-  position: absolute;
-  top: var(--home-cover-gap);
-  right: var(--home-cover-gap);
-  bottom: var(--home-cover-gap);
+  position: relative;
+  flex: 0 0 var(--home-cover-width);
   width: var(--home-cover-width);
+  align-self: stretch;
+  margin: var(--home-cover-gap) var(--home-cover-gap) var(--home-cover-gap) 0;
   display: block;
   overflow: hidden;
   border-radius: 10px;
@@ -400,11 +402,6 @@
 .post-card-home-cover:focus-visible {
   outline: var(--focus-ring-outline-strong);
   outline-offset: -2px;
-}
-
-.post-card-home-article:not(.has-cover):not(.no-cover) .post-card-home-cover {
-  opacity: 0;
-  pointer-events: none;
 }
 
 .post-card-home-article.no-cover .post-card-home-cover {
@@ -1795,21 +1792,28 @@
   }
 
   .post-list--home .post-card {
-    --home-cover-width: clamp(88px, 33vw, 126px);
+    --home-cover-width: clamp(84px, 31vw, 118px);
     --home-cover-gap: 0.56rem;
     --home-card-body-pad-block: 0.86rem;
     --home-card-body-pad-inline: 0.9rem;
   }
 
   .post-card--home .post-card-article {
-    min-height: 150px;
+    min-height: 144px;
   }
 
   .post-card--home .post-card-body {
-    gap: 0.55rem;
+    gap: 0.5rem;
+  }
+
+  .post-list--home .post-card-title {
+    font-size: 0.97rem;
+    line-height: 1.36;
   }
 
   .post-list--home .post-card-summary {
+    font-size: 0.85rem;
+    line-height: 1.6;
     -webkit-line-clamp: 2;
   }
 
@@ -1826,12 +1830,16 @@
     overflow: visible;
   }
 
+  .post-list--home .post-card-home-cover {
+    margin: var(--home-cover-gap) var(--home-cover-gap) var(--home-cover-gap) 0;
+  }
+
   .post-list--home .post-card-date--home {
     order: -1;
     flex: 0 0 100%;
     margin-inline-start: 0;
     text-align: left;
-    font-size: 0.74rem;
+    font-size: 0.72rem;
   }
 
   .post-toc-scroll-area {
