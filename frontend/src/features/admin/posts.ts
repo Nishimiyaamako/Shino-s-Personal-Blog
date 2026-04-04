@@ -21,6 +21,7 @@ import {
 interface AdminPostsModuleOptions {
   rootElement: HTMLElement;
   token: string;
+  onDirtyChange?: (dirty: boolean) => void;
 }
 
 export interface AdminPostsModule {
@@ -36,8 +37,22 @@ interface PostFilters {
   pageSize: number;
 }
 
+function confirmByExactTitle(options: {
+  actionLabel: string;
+  postTitle: string;
+  hint: string;
+}): boolean {
+  const input = window.prompt(`${options.actionLabel}\n${options.hint}\n请输入文章标题确认：\n${options.postTitle}`);
+
+  if (input === null) {
+    return false;
+  }
+
+  return input.trim() === options.postTitle.trim();
+}
+
 export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPostsModule | null {
-  const { rootElement, token } = options;
+  const { rootElement, token, onDirtyChange } = options;
 
   const postListElement = rootElement.querySelector<HTMLElement>('[data-role="admin-post-list"]');
   const postForm = rootElement.querySelector<HTMLFormElement>('[data-role="admin-post-form"]');
@@ -65,6 +80,7 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
   const statusSelect = rootElement.querySelector<HTMLSelectElement>('[data-role="admin-post-status-filter"]');
   const tagInput = rootElement.querySelector<HTMLInputElement>('[data-role="admin-post-tag-filter"]');
   const pageSizeSelect = rootElement.querySelector<HTMLSelectElement>('[data-role="admin-post-page-size"]');
+  const applyFilterButton = rootElement.querySelector<HTMLButtonElement>('[data-role="admin-post-filter-apply"]');
   const resetFilterButton = rootElement.querySelector<HTMLButtonElement>('[data-role="admin-post-filter-reset"]');
   const prevPageButton = rootElement.querySelector<HTMLButtonElement>('[data-role="admin-post-prev-page"]');
   const nextPageButton = rootElement.querySelector<HTMLButtonElement>('[data-role="admin-post-next-page"]');
@@ -104,6 +120,7 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
   let posts: AdminPost[] = [];
   let featuredSourcePosts: AdminPost[] = [];
   let busy = false;
+  let postFormDirty = false;
 
   const filters: PostFilters = {
     q: '',
@@ -127,6 +144,32 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
     pageSizeSelect.value = String(filters.pageSize);
   };
 
+  const setPostFormDirty = (nextDirty: boolean): void => {
+    if (postFormDirty === nextDirty) {
+      return;
+    }
+
+    postFormDirty = nextDirty;
+    onDirtyChange?.(nextDirty);
+  };
+
+  const confirmDiscardDraft = (): boolean => {
+    if (!postFormDirty) {
+      return true;
+    }
+
+    return window.confirm('当前文章有未保存变更，确认丢弃并继续操作吗？');
+  };
+
+  const guardBeforeCollectionRefresh = (actionLabel: string): boolean => {
+    if (confirmDiscardDraft()) {
+      return true;
+    }
+
+    setMessage(postErrorElement, `已取消${actionLabel}，当前编辑内容未变更。`, { error: true });
+    return false;
+  };
+
   const setBusy = (nextBusy: boolean): void => {
     busy = nextBusy;
     const allActionButtons = [
@@ -137,6 +180,7 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
       postDeleteButton,
       coverUploadButton,
       contentUploadButton,
+      applyFilterButton,
       resetFilterButton,
       prevPageButton,
       nextPageButton
@@ -166,12 +210,13 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
     const selectedPost = getSelectedPost();
     if (!selectedPost) {
       postFormTitleElement.textContent = '新建文章';
-      postFormMetaElement.textContent = '当前为新建模式，保存后可发布。';
+      postFormMetaElement.textContent = '当前为新建模式。建议先保存草稿，再执行发布。';
       return;
     }
 
+    const statusLabel = selectedPost.status === 'published' ? '已发布' : '草稿';
     postFormTitleElement.textContent = `编辑文章：${selectedPost.title}`;
-    postFormMetaElement.textContent = `slug: ${selectedPost.slug} · 状态: ${selectedPost.status}`;
+    postFormMetaElement.textContent = `Slug：${selectedPost.slug} · 状态：${statusLabel}`;
   };
 
   const renderPostCollections = (): void => {
@@ -195,9 +240,13 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
     updatePostFormHead();
     updatePostMarkdownPreview();
     renderPostCollections();
+    setPostFormDirty(false);
   };
 
   const refresh = async (): Promise<void> => {
+    postListElement.innerHTML = '<li class="admin-state-hint">正在加载文章列表…</li>';
+    featuredListElement.innerHTML = '<li class="admin-state-hint">正在加载精选列表…</li>';
+
     const query: AdminPostListQuery = {
       q: filters.q || undefined,
       status: filters.status,
@@ -234,6 +283,7 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
     fillPostForm(postForm, null);
     updatePostFormHead();
     updatePostMarkdownPreview();
+    setPostFormDirty(false);
     setMessage(postErrorElement, '');
     setMessage(postSuccessElement, '');
     renderPostCollections();
@@ -242,7 +292,7 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
   const runPostAction = async (
     action: () => Promise<void>,
     successMessage: string,
-    optionsForRefresh: { resetPage?: boolean } = {}
+    optionsForRefresh: { resetPage?: boolean; refreshAfter?: boolean } = {}
   ): Promise<void> => {
     if (busy) {
       return;
@@ -257,7 +307,9 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
       if (optionsForRefresh.resetPage) {
         filters.page = 1;
       }
-      await refresh();
+      if (optionsForRefresh.refreshAfter !== false) {
+        await refresh();
+      }
       setMessage(postSuccessElement, successMessage);
       setMessage(featuredSuccessElement, '');
       setMessage(featuredErrorElement, '');
@@ -286,12 +338,22 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
       return;
     }
 
+    if (postId !== selectedPostId && !confirmDiscardDraft()) {
+      setMessage(postErrorElement, '已取消切换文章，当前编辑内容未变更。', { error: true });
+      return;
+    }
+
     selectedPostId = postId;
     syncPostFormBySelection();
   };
 
   const handlePostContentInput = (): void => {
+    setPostFormDirty(true);
     updatePostMarkdownPreview();
+  };
+
+  const handlePostFormInput = (): void => {
+    setPostFormDirty(true);
   };
 
   const handlePostSave = async (event: SubmitEvent): Promise<void> => {
@@ -329,6 +391,23 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
       return;
     }
 
+    const selectedPost = getSelectedPost();
+    const postTitle = selectedPost?.title ?? '';
+
+    if (!postTitle) {
+      setMessage(postErrorElement, '未找到当前文章标题，请刷新后重试。', { error: true });
+      return;
+    }
+
+    if (!confirmByExactTitle({
+      actionLabel: '下线文章',
+      postTitle,
+      hint: '下线后前台将不再显示该文章。'
+    })) {
+      setMessage(postErrorElement, '标题不匹配，已取消下线操作。', { error: true });
+      return;
+    }
+
     await runPostAction(async () => {
       await adminUnpublishPost(token, selectedPostId);
     }, '文章已下线。');
@@ -340,7 +419,20 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
       return;
     }
 
-    if (!window.confirm('确认删除这篇文章吗？该操作不可撤销。')) {
+    const selectedPost = getSelectedPost();
+    const postTitle = selectedPost?.title ?? '';
+
+    if (!postTitle) {
+      setMessage(postErrorElement, '未找到当前文章标题，请刷新后重试。', { error: true });
+      return;
+    }
+
+    if (!confirmByExactTitle({
+      actionLabel: '删除文章（不可恢复）',
+      postTitle,
+      hint: '删除后将移除正文、状态和精选信息。'
+    })) {
+      setMessage(postErrorElement, '标题不匹配，已取消删除操作。', { error: true });
       return;
     }
 
@@ -360,8 +452,9 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
     await runPostAction(async () => {
       const uploaded = await adminUploadImage(token, file);
       (postForm.elements.namedItem('coverImageUrl') as HTMLInputElement).value = uploaded.url;
+      setPostFormDirty(true);
       coverUploadInput.value = '';
-    }, '图片上传成功。');
+    }, '图片上传成功，记得保存文章。', { refreshAfter: false });
   };
 
   const insertMarkdownAtCursor = (content: string): void => {
@@ -383,8 +476,9 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
       const uploaded = await adminUploadImage(token, file);
       const imageAlt = file.name ? file.name.replace(/\.[^./\\]+$/, '') : 'image';
       insertMarkdownAtCursor(`\n![${imageAlt}](${uploaded.url})\n`);
+      setPostFormDirty(true);
       contentUploadInput.value = '';
-    }, '图片已插入正文。');
+    }, '图片已插入正文，记得保存文章。', { refreshAfter: false });
   };
 
   const handleFeaturedSave = async (event: Event): Promise<void> => {
@@ -415,6 +509,10 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
       return;
     }
 
+    if (!guardBeforeCollectionRefresh('保存精选设置')) {
+      return;
+    }
+
     setBusy(true);
     setMessage(featuredErrorElement, '');
     setMessage(featuredSuccessElement, '');
@@ -438,6 +536,11 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
 
   const handleFilterSubmit = async (event: SubmitEvent): Promise<void> => {
     event.preventDefault();
+
+    if (!guardBeforeCollectionRefresh('应用筛选')) {
+      return;
+    }
+
     filters.q = searchInput.value.trim();
     filters.status = statusSelect.value === 'draft' || statusSelect.value === 'published' ? statusSelect.value : 'all';
     filters.tag = tagInput.value.trim().toLowerCase();
@@ -450,6 +553,10 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
   };
 
   const handleFilterReset = async (): Promise<void> => {
+    if (!guardBeforeCollectionRefresh('重置筛选')) {
+      return;
+    }
+
     filters.q = '';
     filters.status = 'all';
     filters.tag = '';
@@ -467,6 +574,10 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
       return;
     }
 
+    if (!guardBeforeCollectionRefresh('切换分页')) {
+      return;
+    }
+
     filters.page -= 1;
     await runPostAction(async () => Promise.resolve(), '');
   };
@@ -477,17 +588,28 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
       return;
     }
 
+    if (!guardBeforeCollectionRefresh('切换分页')) {
+      return;
+    }
+
     filters.page += 1;
     await runPostAction(async () => Promise.resolve(), '');
   };
 
   const handlePostNew = (): void => {
+    if (!confirmDiscardDraft()) {
+      setMessage(postErrorElement, '已取消新建，当前编辑内容未变更。', { error: true });
+      return;
+    }
+
     setFormToNew();
   };
 
   postListElement.addEventListener('click', handlePostListClick);
   postNewButton.addEventListener('click', handlePostNew);
   postForm.addEventListener('submit', handlePostSave);
+  postForm.addEventListener('input', handlePostFormInput);
+  postForm.addEventListener('change', handlePostFormInput);
   postContentTextarea.addEventListener('input', handlePostContentInput);
   postPublishButton.addEventListener('click', handlePostPublish);
   postUnpublishButton.addEventListener('click', handlePostUnpublish);
@@ -510,6 +632,8 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
       postListElement.removeEventListener('click', handlePostListClick);
       postNewButton.removeEventListener('click', handlePostNew);
       postForm.removeEventListener('submit', handlePostSave);
+      postForm.removeEventListener('input', handlePostFormInput);
+      postForm.removeEventListener('change', handlePostFormInput);
       postContentTextarea.removeEventListener('input', handlePostContentInput);
       postPublishButton.removeEventListener('click', handlePostPublish);
       postUnpublishButton.removeEventListener('click', handlePostUnpublish);
@@ -521,6 +645,7 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
       resetFilterButton.removeEventListener('click', handleFilterReset);
       prevPageButton.removeEventListener('click', handlePrevPage);
       nextPageButton.removeEventListener('click', handleNextPage);
+      setPostFormDirty(false);
     }
   };
 }

@@ -13,6 +13,15 @@ import type { PageRenderContext, RouteParams, RouteRecord } from '../types/route
 
 const NOT_FOUND_PATH = '/404';
 export type PrimaryNavIcon = 'home' | 'posts' | 'tags' | 'archive' | 'friends' | 'about';
+export type AdminModuleRoute = 'posts' | 'featured' | 'friends' | 'about' | 'profile';
+
+export const ADMIN_MODULE_LINKS: Array<{ href: `/admin/${AdminModuleRoute}`; label: string; module: AdminModuleRoute }> = [
+  { href: '/admin/posts', label: '文章管理', module: 'posts' },
+  { href: '/admin/featured', label: '精选管理', module: 'featured' },
+  { href: '/admin/friends', label: '友链管理', module: 'friends' },
+  { href: '/admin/about', label: '关于页', module: 'about' },
+  { href: '/admin/profile', label: '名片卡', module: 'profile' }
+];
 
 export const ROUTE_RECORDS: RouteRecord[] = [
   { path: '/', title: '首页', render: renderHomePage },
@@ -24,6 +33,11 @@ export const ROUTE_RECORDS: RouteRecord[] = [
   { path: '/friends', title: '友链', render: renderFriendsPage },
   { path: '/about', title: '关于', render: renderAboutPage },
   { path: '/admin/login', title: '后台登录', render: renderAdminLoginPage },
+  { path: '/admin/posts', title: '后台 · 文章管理', render: renderAdminPage },
+  { path: '/admin/featured', title: '后台 · 精选管理', render: renderAdminPage },
+  { path: '/admin/friends', title: '后台 · 友链管理', render: renderAdminPage },
+  { path: '/admin/about', title: '后台 · 关于页', render: renderAdminPage },
+  { path: '/admin/profile', title: '后台 · 名片卡', render: renderAdminPage },
   { path: '/admin', title: '内容管理', render: renderAdminPage },
   { path: NOT_FOUND_PATH, title: '404', render: renderNotFoundPage }
 ];
@@ -41,6 +55,26 @@ export interface RouteResolution {
   route: RouteRecord;
   context: PageRenderContext;
   isFallback: boolean;
+}
+
+export function isAdminPathname(pathname: string): boolean {
+  const normalized = normalizePathname(pathname);
+  return normalized === '/admin' || normalized === '/admin/login' || normalized.startsWith('/admin/');
+}
+
+export function resolveAdminModule(pathname: string): AdminModuleRoute {
+  const normalized = normalizePathname(pathname);
+  if (!normalized.startsWith('/admin/')) {
+    return 'posts';
+  }
+
+  const module = normalized.slice('/admin/'.length);
+
+  if (module === 'featured' || module === 'friends' || module === 'about' || module === 'profile') {
+    return module;
+  }
+
+  return 'posts';
 }
 
 export function resolveRoute(pathname: string): RouteResolution {

@@ -6,7 +6,7 @@
 ## 1) 当前真实结构
 
 - 前端：单一 SPA（公开页面 + 后台页面）。
-- 后台页面路由：`/admin/login`、`/admin`（与前台页面同一前端工程）。
+- 后台页面路由：`/admin/login`、`/admin/posts`、`/admin/featured`、`/admin/friends`、`/admin/about`、`/admin/profile`（与前台页面同一前端工程）。
 - 后端：单一 API 服务（Elysia），默认端口 `3001`。
 - 后台登录接口：`POST /api/admin/auth/login`。
 - 部署契约：单域名入口 `https://<domain>`，后台从同域路径进入（`/admin/login`）。
@@ -23,7 +23,7 @@ Local Reverse Proxy (Nginx/Caddy)
           |
           v
 Vite Dev Server (:5173)
-  |- page routes: /, /posts, /admin/login, /admin
+  |- page routes: /, /posts, /admin/login, /admin/{module}
   |- /api/* and /uploads/* -> proxy target http://127.0.0.1:3001
           |
           v
@@ -56,10 +56,12 @@ Backend API (Elysia :3001)
 | --- | --- | --- | --- | --- |
 | 开发 | `http://blog.localhost/` | Local Reverse Proxy | `http://127.0.0.1:5173` | Vite 返回首页 |
 | 开发 | `http://blog.localhost/admin/login` | Local Reverse Proxy | `http://127.0.0.1:5173` | Vite 返回后台登录页 |
+| 开发 | `http://blog.localhost/admin/friends` | Local Reverse Proxy | `http://127.0.0.1:5173` | Vite 返回后台友链模块页 |
 | 开发 | `http://blog.localhost/api/admin/auth/login` | Local Reverse Proxy -> Vite Proxy | `http://127.0.0.1:3001` | Backend 登录接口 |
 | 开发 | `http://blog.localhost/uploads/images/*` | Local Reverse Proxy -> Vite Proxy | `http://127.0.0.1:3001` | Backend 静态上传文件 |
 | 生产 | `https://<domain>/` | Nginx/1Panel | SPA dist | 前台页面 |
 | 生产 | `https://<domain>/admin/login` | Nginx/1Panel | SPA dist | 后台登录页 |
+| 生产 | `https://<domain>/admin/friends` | Nginx/1Panel | SPA dist | 后台友链模块页 |
 | 生产 | `https://<domain>/api/admin/auth/login` | Nginx/1Panel | `http://127.0.0.1:3001` | Backend 登录接口 |
 | 生产 | `https://<domain>/uploads/images/*` | Nginx/1Panel | `http://127.0.0.1:3001` | Backend 静态上传文件 |
 
@@ -87,7 +89,7 @@ curl -sS http://127.0.0.1:3001/api/health
 
 期望结果：
 
-- `/` 与 `/admin/login` 都应返回 `200`。
+- `/`、`/admin/login`、`/admin/posts` 都应返回 `200`。
 - 域名下 `/api/health` 返回后端健康响应。
 - 直连 `:3001` 健康响应正常，说明后端服务本身可用。
 

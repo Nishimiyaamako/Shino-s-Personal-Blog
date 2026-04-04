@@ -29,7 +29,7 @@
 - 项目根目录：`/home/shino/Codes/Personal Blog`
 - 技术栈：`Frontend: Vite + TypeScript (Vanilla SPA, 含后台页面); Backend: Elysia.js + Drizzle + SQLite + JWT`
 - 真实架构：`一个前端 SPA + 一个后端 API 服务`
-- 前端路由含后台：`/admin/login`、`/admin`
+- 前端路由含后台：`/admin/login`、`/admin/posts`、`/admin/featured`、`/admin/friends`、`/admin/about`、`/admin/profile`
 - 后端登录接口：`POST /api/admin/auth/login`
 - 后端默认端口：`3001`（`backend/src/config/env.ts`）
 - Vite 开发默认端口：`5173`（未显式改写）
@@ -63,6 +63,10 @@
 - 决策：本机 Docker 反代默认采用 `--network host`，避免前端绑定 `127.0.0.1` 时 bridge 模式返回 `502`。
 - 决策：生产部署默认采用“1Panel 静态站点 + 后端容器常驻 + 单域名入口”。
 - 决策：Admin Posts 列表接口扩展为支持 `q/status/tag/page/pageSize`，并返回 `total/page/pageSize` 元信息。
+- 决策：后台壳层与前台壳层解耦，`/admin*` 不再复用前台 header/nav/footer。
+- 决策：后台 IA 改为子路由（`/admin/{module}`）并按当前模块懒加载数据刷新。
+- 决策：后台引入“未保存变更”可见提示与离开拦截（站内跳转、前进后退、刷新关闭）。
+- 决策：后台模块加载失败时提供显式“重试加载”入口，避免停留在不可行动错误态。
 - 决策：质量闸门主命令维持 backend + frontend 双段校验。
 - 决策：frontend 任务默认技能链继续保持 `frontend-design -> harden -> polish`。
 - 决策：任务收尾必须执行 memory sync。
@@ -85,10 +89,12 @@
   - 防护：用户显式点名 skill 优先；必要时在计划中裁剪技能范围。
 - 风险：服务器到 Docker Hub 出口不可达时，后端镜像构建会超时，导致上线步骤中断。
   - 防护：上线前先验证镜像拉取连通性，必要时配置镜像代理或改用离线镜像导入。
+- 风险：协作文档若仍停留 `/admin` 旧描述，会导致排障和验收按错入口路径。
+  - 防护：文档统一使用 `/admin/{module}` 契约，并保留 `/admin -> /admin/posts` 重定向说明。
 
 ## 5) 当前任务与下一步（预算 ≤ 35 行）
 
-- 当前任务：落地生产部署基线与后台全模块重构（进行中，已完成前端发布包构建与 env 规则校验）。
+- 当前任务：落地生产部署基线与后台工具化重构（进行中，含独立壳层/子路由/风险操作防护/未保存拦截）。
 - 下一步 1：在服务器侧打通镜像拉取链路后，按 `deploy/1panel-backend-deploy.md` 完成后端容器上线。
 - 下一步 2：按 `deploy/1panel-static-deploy.md` 完成单域名 smoke 与发布后巡检。
 - 下一步 3：继续迭代后台模块交互体验与回归测试覆盖。
@@ -102,7 +108,8 @@
 - 2026-04-02：新增 `deploy/scripts/local-verify.sh`，固化本机单域名链路验收流程。
 - 2026-04-02：确认 Docker bridge + 前端 `127.0.0.1` 组合会触发 `502`，默认改用 host network。
 - 2026-04-02：新增后端容器部署文档、env 检查脚本、线上 smoke 脚本与备份恢复 runbook。
-- 2026-04-02：Admin Posts 后台接口支持筛选分页，前端后台改为模块化组织。
+- 2026-04-02：后台改为独立工具壳层，新增 `/admin/{module}` 子路由与按模块懒加载刷新。
+- 2026-04-02：补齐未保存变更提示与离开拦截，新增后台模块失败态重试入口。
 - 2026-04-02：执行 `build-frontend-dist.sh` 产出 `deploy/artifacts/frontend-dist-latest.tar.gz`。
 - 2026-04-02：执行生产 env 校验，确认示例文件默认密码与 JWT secret 会被 `ENV_CHECK=FAIL` 拦截。
 

@@ -11,7 +11,7 @@
 
 ## 2) 当前架构一行结论
 
-- 真实结构是：`一个前端 SPA（含 /admin/login 与 /admin） + 一个后端 API 服务`。
+- 真实结构是：`一个前端 SPA（含 /admin/login 与 /admin/{module}） + 一个后端 API 服务`。
 - 用户入口契约是：单域名 `https://<domain>`，后台入口路径 `https://<domain>/admin/login`。
 - 后台登录接口固定：`POST /api/admin/auth/login`。
 

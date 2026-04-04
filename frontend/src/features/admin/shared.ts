@@ -77,7 +77,8 @@ export function renderMarkdownPreviewHtml(markdownText: string): string {
 }
 
 export function formatPostStatus(post: AdminPost): string {
-  return `${post.status}${post.isFeatured ? ' · featured' : ''}`;
+  const statusLabel = post.status === 'published' ? '已发布' : '草稿';
+  return `${statusLabel}${post.isFeatured ? ' · 首页精选' : ''}`;
 }
 
 export function readPostFormPayload(form: HTMLFormElement): Partial<AdminPost> {
@@ -128,14 +129,14 @@ export function fillPostForm(form: HTMLFormElement, post: AdminPost | null): voi
 
 export function renderAdminPostList(posts: AdminPost[], selectedPostId: number): string {
   if (!posts.length) {
-    return '<li class="empty-hint">当前筛选条件下暂无文章。</li>';
+    return '<li class="admin-state-hint">当前筛选条件下暂无文章。你可以点击“新建文章”开始创建。</li>';
   }
 
   return posts
     .map(
       (post) => `<li>
       <button type="button" class="admin-list-button${post.id === selectedPostId ? ' is-active' : ''}" data-role="admin-post-select" data-post-id="${post.id}">
-        <strong>${escapeHtml(post.title)}</strong>
+        <strong class="admin-truncate">${escapeHtml(post.title)}</strong>
         <small>${escapeHtml(post.date)} · ${escapeHtml(formatPostStatus(post))}</small>
       </button>
     </li>`
@@ -158,22 +159,22 @@ export function renderFeaturedList(posts: AdminPost[]): string {
     });
 
   if (!featuredPosts.length) {
-    return '<li class="empty-hint">暂无已发布文章。</li>';
+    return '<li class="admin-state-hint">暂无可管理的已发布文章。请先发布文章后再设置精选。</li>';
   }
 
   return featuredPosts
     .map(
       (post) => `<li class="admin-featured-item" data-featured-id="${post.id}">
       <div>
-        <strong>${escapeHtml(post.title)}</strong>
-        <small>${escapeHtml(post.slug)}</small>
+        <strong class="admin-truncate">${escapeHtml(post.title)}</strong>
+        <small class="admin-truncate">${escapeHtml(post.slug)}</small>
       </div>
       <label>
         <input type="checkbox" data-role="admin-featured-enabled" ${post.isFeatured ? 'checked' : ''} />
-        <span>精选</span>
+        <span>首页精选</span>
       </label>
-      <input type="number" min="1" value="${typeof post.featuredOrder === 'number' ? post.featuredOrder : ''}" data-role="admin-featured-order" placeholder="排序" />
-      <button type="button" data-role="admin-featured-save">保存</button>
+      <input type="number" min="1" value="${typeof post.featuredOrder === 'number' ? post.featuredOrder : ''}" data-role="admin-featured-order" placeholder="排序值" />
+      <button type="button" class="admin-btn admin-btn-secondary" data-role="admin-featured-save">保存</button>
     </li>`
     )
     .join('');
@@ -181,20 +182,20 @@ export function renderFeaturedList(posts: AdminPost[]): string {
 
 export function renderFriendList(links: AdminFriendLink[]): string {
   if (!links.length) {
-    return '<li class="empty-hint">暂无友链。</li>';
+    return '<li class="admin-state-hint">当前还没有友链。填写右侧表单后即可创建。</li>';
   }
 
   return links
     .map(
       (link) => `<li>
       <div>
-        <strong>${escapeHtml(link.name)}</strong>
-        <small>${escapeHtml(link.url)}</small>
+        <strong class="admin-truncate">${escapeHtml(link.name)}</strong>
+        <small class="admin-truncate">${escapeHtml(link.url)}</small>
         <small>${link.enabled ? '已启用' : '已停用'} · 排序 ${link.displayOrder}</small>
       </div>
       <div class="admin-inline-actions">
-        <button type="button" data-role="admin-friend-edit" data-friend-id="${link.id}">编辑</button>
-        <button type="button" data-role="admin-friend-delete" data-friend-id="${link.id}">删除</button>
+        <button type="button" class="admin-btn admin-btn-secondary" data-role="admin-friend-edit" data-friend-id="${link.id}">编辑</button>
+        <button type="button" class="admin-btn admin-btn-danger" data-role="admin-friend-delete" data-friend-id="${link.id}">删除</button>
       </div>
     </li>`
     )

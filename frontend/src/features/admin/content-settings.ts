@@ -9,6 +9,7 @@ import { parseContacts, serializeContacts, setMessage } from './shared';
 interface AdminContentSettingsModuleOptions {
   rootElement: HTMLElement;
   token: string;
+  onDirtyChange?: (scope: 'about-form' | 'profile-form', dirty: boolean) => void;
 }
 
 export interface AdminContentSettingsModule {
@@ -19,7 +20,7 @@ export interface AdminContentSettingsModule {
 export function setupAdminContentSettingsModule(
   options: AdminContentSettingsModuleOptions
 ): AdminContentSettingsModule | null {
-  const { rootElement, token } = options;
+  const { rootElement, token, onDirtyChange } = options;
 
   const aboutForm = rootElement.querySelector<HTMLFormElement>('[data-role="admin-about-form"]');
   const aboutErrorElement = rootElement.querySelector<HTMLElement>('[data-role="admin-about-error"]');
@@ -34,6 +35,26 @@ export function setupAdminContentSettingsModule(
   }
 
   let busy = false;
+  let aboutFormDirty = false;
+  let profileFormDirty = false;
+
+  const setAboutFormDirty = (nextDirty: boolean): void => {
+    if (aboutFormDirty === nextDirty) {
+      return;
+    }
+
+    aboutFormDirty = nextDirty;
+    onDirtyChange?.('about-form', nextDirty);
+  };
+
+  const setProfileFormDirty = (nextDirty: boolean): void => {
+    if (profileFormDirty === nextDirty) {
+      return;
+    }
+
+    profileFormDirty = nextDirty;
+    onDirtyChange?.('profile-form', nextDirty);
+  };
 
   const setBusy = (nextBusy: boolean): void => {
     busy = nextBusy;
@@ -60,6 +81,8 @@ export function setupAdminContentSettingsModule(
     (profileForm.elements.namedItem('bio') as HTMLTextAreaElement).value = profilePayload.bio;
     (profileForm.elements.namedItem('avatar') as HTMLInputElement).value = profilePayload.avatar;
     (profileForm.elements.namedItem('contacts') as HTMLTextAreaElement).value = serializeContacts(profilePayload.contacts);
+    setAboutFormDirty(false);
+    setProfileFormDirty(false);
   };
 
   const handleAboutSubmit = async (event: SubmitEvent): Promise<void> => {
@@ -75,7 +98,8 @@ export function setupAdminContentSettingsModule(
     try {
       const markdown = String(new FormData(aboutForm).get('markdown') ?? '');
       await adminUpdateAbout(token, markdown);
-      setMessage(aboutSuccessElement, '关于页已保存。');
+      setMessage(aboutSuccessElement, '关于页已保存并立即生效。');
+      setAboutFormDirty(false);
     } catch (error) {
       setMessage(aboutErrorElement, error instanceof Error ? error.message : '保存失败', { error: true });
     } finally {
@@ -95,7 +119,18 @@ export function setupAdminContentSettingsModule(
 
     try {
       const formData = new FormData(profileForm);
-      const contacts = parseContacts(String(formData.get('contacts') ?? ''));
+      const rawContacts = String(formData.get('contacts') ?? '');
+      const nonEmptyLines = rawContacts
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+
+      const malformedLine = nonEmptyLines.find((line) => line.split('|').filter(Boolean).length < 2);
+      if (malformedLine) {
+        throw new Error(`联系方式格式不正确：${malformedLine}。请使用“平台|显示名|链接”。`);
+      }
+
+      const contacts = parseContacts(rawContacts);
 
       await adminUpdateProfileCard(token, {
         name: String(formData.get('name') ?? ''),
@@ -104,7 +139,8 @@ export function setupAdminContentSettingsModule(
         contacts
       });
 
-      setMessage(profileSuccessElement, '名片卡已保存。');
+      setMessage(profileSuccessElement, '名片卡已保存并立即生效。');
+      setProfileFormDirty(false);
     } catch (error) {
       setMessage(profileErrorElement, error instanceof Error ? error.message : '保存失败', { error: true });
     } finally {
@@ -112,14 +148,32 @@ export function setupAdminContentSettingsModule(
     }
   };
 
+  const handleAboutFormInput = (): void => {
+    setAboutFormDirty(true);
+  };
+
+  const handleProfileFormInput = (): void => {
+    setProfileFormDirty(true);
+  };
+
   aboutForm.addEventListener('submit', handleAboutSubmit);
+  aboutForm.addEventListener('input', handleAboutFormInput);
+  aboutForm.addEventListener('change', handleAboutFormInput);
   profileForm.addEventListener('submit', handleProfileSubmit);
+  profileForm.addEventListener('input', handleProfileFormInput);
+  profileForm.addEventListener('change', handleProfileFormInput);
 
   return {
     refresh,
     destroy: () => {
       aboutForm.removeEventListener('submit', handleAboutSubmit);
+      aboutForm.removeEventListener('input', handleAboutFormInput);
+      aboutForm.removeEventListener('change', handleAboutFormInput);
       profileForm.removeEventListener('submit', handleProfileSubmit);
+      profileForm.removeEventListener('input', handleProfileFormInput);
+      profileForm.removeEventListener('change', handleProfileFormInput);
+      setAboutFormDirty(false);
+      setProfileFormDirty(false);
     }
   };
 }

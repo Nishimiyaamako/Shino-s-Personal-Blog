@@ -24,7 +24,7 @@
 │  │  └─ images/covers/                       # 封面图静态资源
 │  └─ src/
 │     ├─ main.ts                              # SPA 入口（App Shell、路由切换、页面增强）
-│     ├─ router/index.ts                      # 路由表（含 /admin/login、/admin）
+│     ├─ router/index.ts                      # 路由表（含 /admin/login、/admin/{module}）
 │     ├─ pages/                               # 页面渲染模块
 │     ├─ features/                            # 运行时行为（public hydration / admin 模块化交互）
 │     ├─ components/                          # 可复用渲染片段
@@ -82,6 +82,11 @@
 - `/about`
 - `/admin/login`
 - `/admin`
+- `/admin/posts`
+- `/admin/featured`
+- `/admin/friends`
+- `/admin/about`
+- `/admin/profile`
 - `/404`
 
 ## 3) 后端 API 边界（当前已实现）
@@ -122,7 +127,7 @@
 ## 5) 本次清理说明（2026-04-02）
 
 - 移除“backend scaffold/placeholder/暂不实现后台”旧描述。
-- 路由边界补齐 `/admin/login` 与 `/admin`。
+- 路由边界补齐 `/admin/login` 与 `/admin/{module}`。
 - API 边界改为“已实现接口”而非“规划接口”。
 - 与 `docs/ai-workflow/*`（尤其 `ARCHITECTURE.md`）保持一致。
 - 补充 1Panel 后端容器部署、线上 smoke 与备份恢复文档。

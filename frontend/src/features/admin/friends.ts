@@ -10,6 +10,7 @@ import { renderFriendList, setMessage } from './shared';
 interface AdminFriendsModuleOptions {
   rootElement: HTMLElement;
   token: string;
+  onDirtyChange?: (dirty: boolean) => void;
 }
 
 export interface AdminFriendsModule {
@@ -18,7 +19,7 @@ export interface AdminFriendsModule {
 }
 
 export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): AdminFriendsModule | null {
-  const { rootElement, token } = options;
+  const { rootElement, token, onDirtyChange } = options;
 
   const friendListElement = rootElement.querySelector<HTMLElement>('[data-role="admin-friend-list"]');
   const friendForm = rootElement.querySelector<HTMLFormElement>('[data-role="admin-friend-form"]');
@@ -43,6 +44,28 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
   let friendLinks: AdminFriendLink[] = [];
   let selectedFriendId = 0;
   let busy = false;
+  let formDirty = false;
+
+  const setFormDirty = (nextDirty: boolean): void => {
+    if (formDirty === nextDirty) {
+      return;
+    }
+
+    formDirty = nextDirty;
+    onDirtyChange?.(nextDirty);
+  };
+
+  const confirmDiscardDraft = (actionLabel: string): boolean => {
+    if (!formDirty) {
+      return true;
+    }
+
+    const shouldContinue = window.confirm('当前友链表单有未保存变更，确认丢弃并继续操作吗？');
+    if (!shouldContinue) {
+      setMessage(friendErrorElement, `已取消${actionLabel}，当前编辑内容未变更。`, { error: true });
+    }
+    return shouldContinue;
+  };
 
   const setBusy = (nextBusy: boolean): void => {
     busy = nextBusy;
@@ -68,8 +91,9 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
       friendSubmitButton.textContent = '保存友链';
       friendCancelButton.hidden = true;
       friendFormTitle.textContent = '新建友链';
-      friendFormMeta.textContent = '填写基础信息后即可保存。';
+      friendFormMeta.textContent = '填写后保存即可在前台展示。';
       selectedFriendId = 0;
+      setFormDirty(false);
       return;
     }
 
@@ -84,7 +108,8 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
     friendSubmitButton.textContent = '更新友链';
     friendCancelButton.hidden = false;
     friendFormTitle.textContent = `编辑友链：${friend.name}`;
-    friendFormMeta.textContent = `当前链接：${friend.url}`;
+    friendFormMeta.textContent = `当前地址：${friend.url}`;
+    setFormDirty(false);
   };
 
   const refresh = async (): Promise<void> => {
@@ -138,9 +163,17 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
   };
 
   const handleFriendCancel = (): void => {
+    if (!confirmDiscardDraft('取消编辑')) {
+      return;
+    }
+
     setMessage(friendErrorElement, '');
     setMessage(friendSuccessElement, '');
     fillFriendForm(null);
+  };
+
+  const handleFriendFormInput = (): void => {
+    setFormDirty(true);
   };
 
   const handleFriendListClick = async (event: Event): Promise<void> => {
@@ -155,6 +188,11 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
       if (!friendId) {
         return;
       }
+
+      if (friendId !== selectedFriendId && !confirmDiscardDraft('切换友链')) {
+        return;
+      }
+
       fillFriendForm(getFriendById(friendId));
       setMessage(friendErrorElement, '');
       setMessage(friendSuccessElement, '');
@@ -171,7 +209,11 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
       return;
     }
 
-    if (!window.confirm('确认删除该友链吗？')) {
+    if (friendId !== selectedFriendId && !confirmDiscardDraft('删除友链')) {
+      return;
+    }
+
+    if (!window.confirm('确认删除该友链吗？删除后前台将立即不可见。')) {
       return;
     }
 
@@ -196,6 +238,8 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
   };
 
   friendForm.addEventListener('submit', handleFriendFormSubmit);
+  friendForm.addEventListener('input', handleFriendFormInput);
+  friendForm.addEventListener('change', handleFriendFormInput);
   friendCancelButton.addEventListener('click', handleFriendCancel);
   friendListElement.addEventListener('click', handleFriendListClick);
   fillFriendForm(null);
@@ -204,8 +248,11 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
     refresh,
     destroy: () => {
       friendForm.removeEventListener('submit', handleFriendFormSubmit);
+      friendForm.removeEventListener('input', handleFriendFormInput);
+      friendForm.removeEventListener('change', handleFriendFormInput);
       friendCancelButton.removeEventListener('click', handleFriendCancel);
       friendListElement.removeEventListener('click', handleFriendListClick);
+      setFormDirty(false);
     }
   };
 }

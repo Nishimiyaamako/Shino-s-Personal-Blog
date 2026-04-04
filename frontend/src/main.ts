@@ -8,7 +8,7 @@ import { getPostsByTag, getThemeStats } from './data/posts';
 import { setupAdminDashboard, setupAdminLogin } from './features/admin';
 import { setupHeaderSearchModal, setupPublicDataHydration } from './features/public-runtime';
 import { renderAboutPageBody } from './pages/about';
-import { PRIMARY_NAV_LINKS, resolveRoute, type PrimaryNavIcon } from './router';
+import { PRIMARY_NAV_LINKS, isAdminPathname, resolveRoute, type PrimaryNavIcon } from './router';
 import { clearCssVar, readCssLengthPx, setCssPxVar, setCssVar } from './utils/dom-style';
 import { escapeHtml } from './utils/escape-html';
 import { normalizeThemeKey } from './utils/theme';
@@ -54,6 +54,7 @@ type AppHistoryState = Record<string, unknown> & {
   [HISTORY_STATE_NAV_INDEX_KEY]?: number;
 };
 let currentHistoryIndex = 0;
+let suppressNextPopstateRender = false;
 
 function cloneHistoryState(state: unknown = window.history.state): Record<string, unknown> {
   if (!state || typeof state !== 'object' || Array.isArray(state)) {
@@ -105,7 +106,21 @@ function renderApp(): void {
   cleanupPageEnhancements = null;
 
   const { route, context, isFallback } = resolveRoute(window.location.pathname);
+  const isAdminRoute = isAdminPathname(context.pathname);
   const pageTitle = isFallback ? `404 (${context.pathname})` : route.title;
+  const pageContent = route.render(context);
+
+  document.title = `${pageTitle} | ${SITE_TITLE}`;
+
+  if (isAdminRoute) {
+    appElement.innerHTML = renderAdminShell(pageContent);
+    lastRenderedRoutePath = route.path;
+    cleanupPageEnhancements = setupPageEnhancements(context.pathname, {
+      enableProfileCardRouteMotion: false
+    });
+    return;
+  }
+
   const hasProfileCard = shouldRenderProfileCard(route.path);
   const shouldEnableProfileCardRouteMotion = shouldEnableProfileCardRouteMotionForRoute(route.path);
   const hasPostTocRail = route.path === '/posts/:slug';
@@ -118,7 +133,6 @@ function renderApp(): void {
     ? `site-main site-main--with-profile${hasPostTocRail ? ' site-main--with-post-toc' : ''}${hasPostThemeRail ? ' site-main--with-post-theme' : ''}`
     : 'site-main';
   const mainClassName = `${baseMainClassName}${isFriendsPage ? ' site-main--friends' : ''}${isAboutPage ? ' site-main--about' : ''}`;
-  const pageContent = route.render(context);
   const mainLayout = hasProfileCard
     ? `<div class="site-main-layout${hasPostTocRail ? ' site-main-layout--with-toc' : ''}${hasPostThemeRail ? ' site-main-layout--with-theme' : ''}">
         ${renderProfileCard()}
@@ -127,8 +141,6 @@ function renderApp(): void {
         ${hasPostThemeRail ? renderPostThemeRail() : ''}
       </div>`
     : `<div class="site-page-content">${pageContent}</div>`;
-
-  document.title = `${pageTitle} | ${SITE_TITLE}`;
 
   appElement.innerHTML = `
 <a class="skip-link" href="#main-content">跳到正文</a>
@@ -164,6 +176,17 @@ function renderApp(): void {
   cleanupPageEnhancements = setupPageEnhancements(context.pathname, {
     enableProfileCardRouteMotion: shouldEnableProfileCardRouteMotion
   });
+}
+
+function renderAdminShell(pageContent: string): string {
+  return `
+<a class="skip-link" href="#main-content">跳到主要工作区</a>
+<div class="admin-app-shell">
+  <main id="main-content" class="admin-main-content" tabindex="-1">
+    ${pageContent}
+  </main>
+</div>
+`;
 }
 
 function shouldRenderProfileCard(routePath: string): boolean {
@@ -375,14 +398,46 @@ function renderFloatingScrollTopButton(): string {
 `;
 }
 
+function hasUnsavedAdminChanges(): boolean {
+  const adminDashboardElement = document.querySelector<HTMLElement>('.page-admin-dashboard');
+  return adminDashboardElement?.dataset.adminDirty === 'true';
+}
+
+function confirmAdminNavigation(nextLocation: string): boolean {
+  if (!hasUnsavedAdminChanges()) {
+    return true;
+  }
+
+  const nextPathname = new URL(nextLocation, window.location.origin).pathname;
+  const isInAdminNow = document.querySelector<HTMLElement>('.page-admin-dashboard') !== null;
+  const isStayingInsideAdmin = isInAdminNow && isAdminPathname(nextPathname);
+  const message = isStayingInsideAdmin
+    ? '当前有未保存变更，确认切换模块并丢弃这些改动吗？'
+    : '当前有未保存变更，确认离开后台并丢弃这些改动吗？';
+
+  return window.confirm(message);
+}
+
 function navigateTo(path: string, options: { replace?: boolean } = {}): void {
   const url = new URL(path, window.location.origin);
   const nextLocation = `${url.pathname}${url.search}${url.hash}`;
   const currentLocation = `${window.location.pathname}${window.location.search}${window.location.hash}`;
 
+  if (currentLocation === nextLocation) {
+    if (options.replace) {
+      window.history.replaceState(createHistoryStateWithIndex(currentHistoryIndex), '', nextLocation);
+      renderApp();
+    }
+    return;
+  }
+
+  if (!confirmAdminNavigation(nextLocation)) {
+    return;
+  }
+
   if (options.replace) {
     window.history.replaceState(createHistoryStateWithIndex(currentHistoryIndex), '', nextLocation);
-  } else if (currentLocation !== nextLocation) {
+  } else {
     currentHistoryIndex += 1;
     window.history.pushState(createHistoryStateWithIndex(currentHistoryIndex), '', nextLocation);
   }
@@ -393,6 +448,39 @@ function navigateTo(path: string, options: { replace?: boolean } = {}): void {
 
 function setupPageEnhancements(pathname: string, options: { enableProfileCardRouteMotion: boolean }): (() => void) | null {
   const cleanups: Array<() => void> = [];
+  const currentSearch = window.location.search;
+
+  if (isAdminPathname(pathname)) {
+    if (pathname === '/admin/login') {
+      const cleanupAdminLogin = setupAdminLogin({
+        onNavigate: (path, navigateOptions) => navigateTo(path, navigateOptions),
+        currentPathname: pathname,
+        currentSearch
+      });
+
+      if (!cleanupAdminLogin) {
+        return null;
+      }
+
+      return () => {
+        cleanupAdminLogin();
+      };
+    }
+
+    const cleanupAdminDashboard = setupAdminDashboard({
+      onNavigate: (path, navigateOptions) => navigateTo(path, navigateOptions),
+      currentPathname: pathname,
+      currentSearch
+    });
+
+    if (!cleanupAdminDashboard) {
+      return null;
+    }
+
+    return () => {
+      cleanupAdminDashboard();
+    };
+  }
 
   const cleanupHeaderSearchModal = setupHeaderSearchModal();
   if (cleanupHeaderSearchModal) {
@@ -540,26 +628,6 @@ function setupPageEnhancements(pathname: string, options: { enableProfileCardRou
     });
     if (cleanupAboutPageHydration) {
       cleanups.push(cleanupAboutPageHydration);
-    }
-  }
-
-  if (pathname === '/admin/login') {
-    const cleanupAdminLogin = setupAdminLogin({
-      onNavigate: (path) => navigateTo(path)
-    });
-
-    if (cleanupAdminLogin) {
-      cleanups.push(cleanupAdminLogin);
-    }
-  }
-
-  if (pathname === '/admin') {
-    const cleanupAdminDashboard = setupAdminDashboard({
-      onNavigate: (path) => navigateTo(path)
-    });
-
-    if (cleanupAdminDashboard) {
-      cleanups.push(cleanupAdminDashboard);
     }
   }
 
@@ -3121,8 +3189,32 @@ document.addEventListener('click', (event) => {
 });
 
 window.addEventListener('popstate', (event) => {
-  currentHistoryIndex = readHistoryIndex(event.state) ?? 0;
+  if (suppressNextPopstateRender) {
+    suppressNextPopstateRender = false;
+    return;
+  }
+
+  const nextHistoryIndex = readHistoryIndex(event.state) ?? 0;
+  const nextLocation = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+
+  if (!confirmAdminNavigation(nextLocation)) {
+    suppressNextPopstateRender = true;
+    const rollbackDelta = nextHistoryIndex < currentHistoryIndex ? 1 : -1;
+    window.history.go(rollbackDelta);
+    return;
+  }
+
+  currentHistoryIndex = nextHistoryIndex;
   renderApp();
+});
+
+window.addEventListener('beforeunload', (event) => {
+  if (!hasUnsavedAdminChanges()) {
+    return;
+  }
+
+  event.preventDefault();
+  event.returnValue = '';
 });
 
 ensureHistoryIndexState();

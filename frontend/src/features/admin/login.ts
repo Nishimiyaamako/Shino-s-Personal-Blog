@@ -2,7 +2,42 @@ import { adminLogin, readAdminToken, writeAdminToken } from '../../data/api';
 import { setMessage } from './shared';
 
 export interface AdminFeatureOptions {
-  onNavigate: (path: string) => void;
+  onNavigate: (path: string, options?: { replace?: boolean }) => void;
+  currentPathname: string;
+  currentSearch: string;
+}
+
+const ALLOWED_NEXT_PATHS = new Set([
+  '/admin',
+  '/admin/posts',
+  '/admin/featured',
+  '/admin/friends',
+  '/admin/about',
+  '/admin/profile'
+]);
+
+function resolveNextPath(pathname: string, search: string): string {
+  const searchParams = new URLSearchParams(search);
+  const next = searchParams.get('next')?.trim() ?? '';
+
+  if (!next.startsWith('/')) {
+    return '/admin/posts';
+  }
+
+  try {
+    const resolved = new URL(next, window.location.origin);
+    if (!ALLOWED_NEXT_PATHS.has(resolved.pathname)) {
+      return '/admin/posts';
+    }
+
+    if (resolved.pathname === '/admin') {
+      return '/admin/posts';
+    }
+
+    return `${resolved.pathname}${resolved.search}${resolved.hash}`;
+  } catch {
+    return '/admin/posts';
+  }
 }
 
 export function setupAdminLogin(options: AdminFeatureOptions): (() => void) | null {
@@ -13,9 +48,10 @@ export function setupAdminLogin(options: AdminFeatureOptions): (() => void) | nu
   }
 
   const errorElement = document.querySelector<HTMLElement>('[data-role="admin-login-error"]');
+  const targetPath = resolveNextPath(options.currentPathname, options.currentSearch);
 
   if (readAdminToken()) {
-    options.onNavigate('/admin');
+    options.onNavigate(targetPath, { replace: true });
     return null;
   }
 
@@ -33,9 +69,10 @@ export function setupAdminLogin(options: AdminFeatureOptions): (() => void) | nu
     try {
       const response = await adminLogin(username, password);
       writeAdminToken(response.token);
-      options.onNavigate('/admin');
+      options.onNavigate(targetPath, { replace: true });
     } catch (error) {
-      setMessage(errorElement, error instanceof Error ? error.message : '登录失败', { error: true });
+      const fallback = '登录失败，请检查账号或密码后重试。';
+      setMessage(errorElement, error instanceof Error ? error.message : fallback, { error: true });
     } finally {
       submitButton?.removeAttribute('disabled');
     }
