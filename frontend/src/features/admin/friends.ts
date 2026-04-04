@@ -7,6 +7,84 @@ import {
 import type { AdminFriendLink } from '../../types/api';
 import { renderFriendList, setMessage } from './shared';
 
+type FriendImportField = 'name' | 'description' | 'avatar' | 'url';
+
+const FRIEND_IMPORT_FIELDS: FriendImportField[] = ['name', 'description', 'avatar', 'url'];
+
+function extractCodeBlockContent(rawSnippet: string): string {
+  const normalized = rawSnippet.trim();
+  const fencedBlock = normalized.match(/```[^\n]*\n([\s\S]*?)```/);
+  return fencedBlock?.[1]?.trim() ?? normalized;
+}
+
+function isFriendImportField(value: string): value is FriendImportField {
+  return FRIEND_IMPORT_FIELDS.some((field) => field === value);
+}
+
+function parseFriendImportValue(rawValue: string): string | null {
+  const normalized = rawValue.trim().replace(/,\s*$/, '');
+  const quote = normalized.at(0);
+
+  if (!quote || (quote !== '\'' && quote !== '"') || normalized.at(-1) !== quote) {
+    return null;
+  }
+
+  return normalized
+    .slice(1, -1)
+    .replace(/\\n/g, '\n')
+    .replace(/\\r/g, '\r')
+    .replace(/\\t/g, '\t')
+    .replace(/\\"/g, '"')
+    .replace(/\\'/g, '\'')
+    .replace(/\\\\/g, '\\');
+}
+
+function parseFriendSnippet(rawSnippet: string): Partial<Record<FriendImportField, string>> {
+  const snippetBody = extractCodeBlockContent(rawSnippet)
+    .replace(/;\s*$/, '')
+    .trim()
+    .replace(/,\s*$/, '')
+    .trim();
+
+  const unwrappedSnippet = snippetBody.startsWith('{') && snippetBody.endsWith('}')
+    ? snippetBody.slice(1, -1).trim()
+    : snippetBody;
+
+  const parsed: Partial<Record<FriendImportField, string>> = {};
+
+  for (const rawLine of unwrappedSnippet.split(/\r?\n/)) {
+    const normalizedLine = rawLine.trim();
+
+    if (!normalizedLine || normalizedLine === '{' || normalizedLine === '}' || normalizedLine.startsWith('//')) {
+      continue;
+    }
+
+    const cleanedLine = normalizedLine.replace(/,\s*$/, '');
+    const separatorIndex = cleanedLine.indexOf(':');
+    if (separatorIndex <= 0) {
+      continue;
+    }
+
+    const rawField = cleanedLine
+      .slice(0, separatorIndex)
+      .trim()
+      .replace(/^['"`]/, '')
+      .replace(/['"`]$/, '');
+    if (!isFriendImportField(rawField)) {
+      continue;
+    }
+
+    const parsedValue = parseFriendImportValue(cleanedLine.slice(separatorIndex + 1));
+    if (parsedValue === null) {
+      continue;
+    }
+
+    parsed[rawField] = parsedValue;
+  }
+
+  return parsed;
+}
+
 interface AdminFriendsModuleOptions {
   rootElement: HTMLElement;
   token: string;
@@ -29,6 +107,8 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
   const friendCancelButton = rootElement.querySelector<HTMLButtonElement>('[data-role="admin-friend-cancel"]');
   const friendFormTitle = rootElement.querySelector<HTMLElement>('[data-role="admin-friend-form-title"]');
   const friendFormMeta = rootElement.querySelector<HTMLElement>('[data-role="admin-friend-form-meta"]');
+  const friendImportInput = rootElement.querySelector<HTMLTextAreaElement>('[data-role="admin-friend-import-input"]');
+  const friendImportParseButton = rootElement.querySelector<HTMLButtonElement>('[data-role="admin-friend-parse"]');
 
   if (
     !friendListElement
@@ -37,6 +117,8 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
     || !friendCancelButton
     || !friendFormTitle
     || !friendFormMeta
+    || !friendImportInput
+    || !friendImportParseButton
   ) {
     return null;
   }
@@ -72,9 +154,11 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
     if (nextBusy) {
       friendSubmitButton.setAttribute('disabled', 'true');
       friendCancelButton.setAttribute('disabled', 'true');
+      friendImportParseButton.setAttribute('disabled', 'true');
     } else {
       friendSubmitButton.removeAttribute('disabled');
       friendCancelButton.removeAttribute('disabled');
+      friendImportParseButton.removeAttribute('disabled');
     }
   };
 
@@ -92,6 +176,7 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
       friendCancelButton.hidden = true;
       friendFormTitle.textContent = '新建友链';
       friendFormMeta.textContent = '填写后保存即可在前台展示。';
+      friendImportInput.value = '';
       selectedFriendId = 0;
       setFormDirty(false);
       return;
@@ -109,6 +194,7 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
     friendCancelButton.hidden = false;
     friendFormTitle.textContent = `编辑友链：${friend.name}`;
     friendFormMeta.textContent = `当前地址：${friend.url}`;
+    friendImportInput.value = '';
     setFormDirty(false);
   };
 
@@ -172,7 +258,44 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
     fillFriendForm(null);
   };
 
-  const handleFriendFormInput = (): void => {
+  const handleFriendImportParse = (): void => {
+    if (busy) {
+      return;
+    }
+
+    setMessage(friendErrorElement, '');
+    setMessage(friendSuccessElement, '');
+
+    const parsed = parseFriendSnippet(friendImportInput.value);
+    const parsedFields = FRIEND_IMPORT_FIELDS.filter((field) => Object.hasOwn(parsed, field));
+
+    if (!parsedFields.length) {
+      setMessage(friendErrorElement, '未识别到可用字段，请粘贴包含 name/description/avatar/url 的对象代码块。', { error: true });
+      return;
+    }
+
+    if (parsed.name !== undefined) {
+      (friendForm.elements.namedItem('name') as HTMLInputElement).value = parsed.name;
+    }
+    if (parsed.description !== undefined) {
+      (friendForm.elements.namedItem('description') as HTMLTextAreaElement).value = parsed.description;
+    }
+    if (parsed.avatar !== undefined) {
+      (friendForm.elements.namedItem('avatar') as HTMLInputElement).value = parsed.avatar;
+    }
+    if (parsed.url !== undefined) {
+      (friendForm.elements.namedItem('url') as HTMLInputElement).value = parsed.url;
+    }
+
+    setFormDirty(true);
+    setMessage(friendSuccessElement, `已填充 ${parsedFields.length} 个字段，请确认后保存。`);
+  };
+
+  const handleFriendFormInput = (event: Event): void => {
+    if (event.target === friendImportInput) {
+      return;
+    }
+
     setFormDirty(true);
   };
 
@@ -240,6 +363,7 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
   friendForm.addEventListener('submit', handleFriendFormSubmit);
   friendForm.addEventListener('input', handleFriendFormInput);
   friendForm.addEventListener('change', handleFriendFormInput);
+  friendImportParseButton.addEventListener('click', handleFriendImportParse);
   friendCancelButton.addEventListener('click', handleFriendCancel);
   friendListElement.addEventListener('click', handleFriendListClick);
   fillFriendForm(null);
@@ -250,6 +374,7 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
       friendForm.removeEventListener('submit', handleFriendFormSubmit);
       friendForm.removeEventListener('input', handleFriendFormInput);
       friendForm.removeEventListener('change', handleFriendFormInput);
+      friendImportParseButton.removeEventListener('click', handleFriendImportParse);
       friendCancelButton.removeEventListener('click', handleFriendCancel);
       friendListElement.removeEventListener('click', handleFriendListClick);
       setFormDirty(false);

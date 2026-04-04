@@ -214,6 +214,24 @@ export const renderAdminPage: PageRenderer = (context) => {
                 <h2 data-role="admin-friend-form-title">新建友链</h2>
                 <p data-role="admin-friend-form-meta">录入基础信息后即可展示到前台。</p>
               </div>
+              <section class="admin-form-section admin-friend-import" aria-label="友链代码块导入">
+                <h3>代码块导入</h3>
+                <label>
+                  <span>粘贴友链对象代码</span>
+                  <textarea
+                    name="friendSnippet"
+                    rows="6"
+                    data-role="admin-friend-import-input"
+                    placeholder="name: 'ShinoLog',&#10;description: '某个状态混沌家伙的Blog',&#10;avatar: 'https://example.com/avatar.png',&#10;url: 'https://nagashino.top/'"
+                  ></textarea>
+                </label>
+                <p class="admin-friend-import-hint">
+                  支持直接粘贴对象代码、可带/不带花括号，或粘贴 Markdown \`\`\`ts 代码块。解析后仅填充表单，不会自动保存。
+                </p>
+                <div class="admin-form-actions">
+                  <button type="button" class="admin-btn admin-btn-secondary" data-role="admin-friend-parse">解析并填充</button>
+                </div>
+              </section>
               <input type="hidden" name="id" />
               <label><span>名称</span><input type="text" name="name" required /></label>
               <label><span>描述</span><textarea name="description" rows="2" required></textarea></label>

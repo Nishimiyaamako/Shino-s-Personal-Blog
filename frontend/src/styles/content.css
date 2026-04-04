@@ -1927,6 +1927,26 @@
   color: color-mix(in oklch, var(--text-subtle) 85%, var(--text));
 }
 
+.admin-friend-import {
+  gap: 0.55rem;
+}
+
+.admin-friend-import h3 {
+  margin: 0;
+}
+
+.admin-friend-import textarea {
+  min-height: 136px;
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+}
+
+.admin-friend-import-hint {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.48;
+  color: color-mix(in oklch, var(--text-subtle) 92%, var(--text));
+}
+
 .admin-form-head {
   display: grid;
   gap: 0.3rem;
