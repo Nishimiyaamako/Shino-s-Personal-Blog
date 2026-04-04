@@ -228,7 +228,7 @@ function renderHeaderSearchTrigger(): string {
     type="button"
     class="header-search-trigger"
     data-role="header-search-trigger"
-    aria-label="站内搜索（即将上线）"
+    aria-label="站内搜索"
   >
     <span class="header-search-trigger-icon" aria-hidden="true">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">

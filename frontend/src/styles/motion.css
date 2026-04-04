@@ -355,6 +355,15 @@
   .post-list--tag-panel .post-card-cover,
   .site-nav a,
   .header-search-trigger,
+  .site-search-modal-shell,
+  .site-search-modal-backdrop,
+  .site-search-modal,
+  .site-search-input-wrap,
+  .site-search-close,
+  .site-search-result-item,
+  .site-search-retry,
+  .site-search-tag,
+  .site-search-spinner,
   .profile-contact-link,
   .profile-contact-platform,
   .profile-contact-label,
@@ -384,6 +393,17 @@
   .site-nav a::after,
   .header-search-trigger::after {
     transition: none !important;
+  }
+
+  .site-search-modal-shell,
+  .site-search-modal-backdrop,
+  .site-search-modal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .site-search-spinner {
+    animation: none !important;
   }
 
   .friend-link-card,
