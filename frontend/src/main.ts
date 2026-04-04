@@ -50,6 +50,9 @@ let lastRenderedRoutePath: string | null = null;
 const HISTORY_STATE_NAV_INDEX_KEY = '__appNavIndex' as const;
 const FIXED_PREVIEW_PALETTE_ID = 'rose_atelier' as const;
 const FIXED_CLARITY_PREVIEW_ID = 'flat_clean' as const;
+const HEADER_DRAWER_PANEL_ID = 'header-drawer-panel' as const;
+const HEADER_DRAWER_CLOSE_TRANSITION_MS = 180;
+const MOBILE_HEADER_DRAWER_MEDIA_QUERY = '(max-width: 640px)';
 type AppHistoryState = Record<string, unknown> & {
   [HISTORY_STATE_NAV_INDEX_KEY]?: number;
 };
@@ -128,6 +131,7 @@ function renderApp(): void {
   const isFriendsPage = route.path === '/friends';
   const isAboutPage = route.path === '/about';
   const hasFloatingScrollTopButton = shouldRenderFloatingScrollTopButton(route.path);
+  const navigationMarkup = renderNavigation(context.pathname);
   const headerClassName = 'site-header site-header--wide';
   const baseMainClassName = hasProfileCard
     ? `site-main site-main--with-profile${hasPostTocRail ? ' site-main--with-post-toc' : ''}${hasPostThemeRail ? ' site-main--with-post-theme' : ''}`
@@ -151,10 +155,18 @@ function renderApp(): void {
         <strong>${SITE_TITLE}</strong>
         <span>${SITE_SUBTITLE}</span>
       </a>
-      <nav class="site-nav" aria-label="主导航">
-        ${renderNavigation(context.pathname)}
+      <nav class="site-nav site-nav--desktop" aria-label="主导航">
+        ${navigationMarkup}
       </nav>
-      ${renderHeaderSearchTrigger()}
+      <div class="site-header-actions">
+        ${renderHeaderSearchTrigger()}
+        ${renderHeaderDrawerTrigger()}
+      </div>
+    </div>
+    <div class="header-drawer-panel" id="${HEADER_DRAWER_PANEL_ID}" data-role="header-drawer-panel" hidden>
+      <nav class="site-nav site-nav--drawer" aria-label="移动主导航">
+        ${navigationMarkup}
+      </nav>
     </div>
   </header>
 
@@ -237,6 +249,26 @@ function renderHeaderSearchTrigger(): string {
       </svg>
     </span>
     <span class="header-search-trigger-label">搜索</span>
+  </button>`;
+}
+
+function renderHeaderDrawerTrigger(): string {
+  return `<button
+    type="button"
+    class="header-drawer-trigger"
+    data-role="header-drawer-trigger"
+    aria-label="打开导航菜单"
+    aria-controls="${HEADER_DRAWER_PANEL_ID}"
+    aria-expanded="false"
+  >
+    <span class="header-drawer-trigger-icon" aria-hidden="true">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 7h16" />
+        <path d="M4 12h16" />
+        <path d="M4 17h16" />
+      </svg>
+    </span>
+    <span class="header-drawer-trigger-label">菜单</span>
   </button>`;
 }
 
@@ -446,6 +478,169 @@ function navigateTo(path: string, options: { replace?: boolean } = {}): void {
   window.scrollTo(0, 0);
 }
 
+function setupHeaderDrawer(): (() => void) | null {
+  const triggerButton = document.querySelector<HTMLButtonElement>('[data-role="header-drawer-trigger"]');
+  const panelElement = document.querySelector<HTMLElement>('[data-role="header-drawer-panel"]');
+  const searchTriggerButton = document.querySelector<HTMLButtonElement>('[data-role="header-search-trigger"]');
+
+  if (!triggerButton || !panelElement) {
+    return null;
+  }
+
+  const mobileMediaQuery = window.matchMedia(MOBILE_HEADER_DRAWER_MEDIA_QUERY);
+  let closeTransitionTimer = 0;
+  let isOpen = false;
+
+  const clearCloseTransitionTimer = (): void => {
+    if (!closeTransitionTimer) {
+      return;
+    }
+
+    window.clearTimeout(closeTransitionTimer);
+    closeTransitionTimer = 0;
+  };
+
+  const syncTriggerState = (open: boolean): void => {
+    triggerButton.setAttribute('aria-expanded', open ? 'true' : 'false');
+    triggerButton.setAttribute('aria-label', open ? '关闭导航菜单' : '打开导航菜单');
+  };
+
+  const closeDrawer = (options: { immediate?: boolean } = {}): void => {
+    if (!isOpen && panelElement.hidden) {
+      return;
+    }
+
+    isOpen = false;
+    clearCloseTransitionTimer();
+    syncTriggerState(false);
+    document.body.classList.remove('is-header-drawer-open');
+    panelElement.classList.remove('is-open');
+
+    if (options.immediate || panelElement.hidden) {
+      panelElement.hidden = true;
+      return;
+    }
+
+    closeTransitionTimer = window.setTimeout(() => {
+      closeTransitionTimer = 0;
+      panelElement.hidden = true;
+    }, HEADER_DRAWER_CLOSE_TRANSITION_MS);
+  };
+
+  const openDrawer = (): void => {
+    if (!mobileMediaQuery.matches || isOpen) {
+      return;
+    }
+
+    isOpen = true;
+    clearCloseTransitionTimer();
+    syncTriggerState(true);
+    panelElement.hidden = false;
+    document.body.classList.add('is-header-drawer-open');
+
+    window.requestAnimationFrame(() => {
+      if (!isOpen || panelElement.hidden) {
+        return;
+      }
+
+      panelElement.classList.add('is-open');
+    });
+  };
+
+  const toggleDrawer = (): void => {
+    if (isOpen) {
+      closeDrawer();
+      return;
+    }
+
+    openDrawer();
+  };
+
+  const handleTriggerClick = (): void => {
+    toggleDrawer();
+  };
+
+  const handleSearchTriggerClickCapture = (): void => {
+    if (!isOpen) {
+      return;
+    }
+
+    closeDrawer({ immediate: true });
+  };
+
+  const handlePanelClick = (event: MouseEvent): void => {
+    const target = event.target;
+
+    if (!(target instanceof Element)) {
+      return;
+    }
+
+    if (target.closest('a[data-link]')) {
+      closeDrawer({ immediate: true });
+    }
+  };
+
+  const handleDocumentClick = (event: MouseEvent): void => {
+    if (!isOpen || !mobileMediaQuery.matches) {
+      return;
+    }
+
+    const target = event.target;
+
+    if (!(target instanceof Node)) {
+      return;
+    }
+
+    if (triggerButton.contains(target) || panelElement.contains(target)) {
+      return;
+    }
+
+    closeDrawer();
+  };
+
+  const handleDocumentKeydown = (event: KeyboardEvent): void => {
+    if (event.key !== 'Escape' || !isOpen) {
+      return;
+    }
+
+    event.preventDefault();
+    closeDrawer();
+    triggerButton.focus();
+  };
+
+  const handleViewportChange = (event: MediaQueryListEvent): void => {
+    if (event.matches) {
+      return;
+    }
+
+    closeDrawer({ immediate: true });
+  };
+
+  panelElement.hidden = true;
+  panelElement.classList.remove('is-open');
+  syncTriggerState(false);
+
+  triggerButton.addEventListener('click', handleTriggerClick);
+  panelElement.addEventListener('click', handlePanelClick);
+  document.addEventListener('click', handleDocumentClick);
+  document.addEventListener('keydown', handleDocumentKeydown);
+  mobileMediaQuery.addEventListener('change', handleViewportChange);
+  searchTriggerButton?.addEventListener('click', handleSearchTriggerClickCapture, true);
+
+  return () => {
+    closeDrawer({ immediate: true });
+    clearCloseTransitionTimer();
+
+    triggerButton.removeEventListener('click', handleTriggerClick);
+    panelElement.removeEventListener('click', handlePanelClick);
+    document.removeEventListener('click', handleDocumentClick);
+    document.removeEventListener('keydown', handleDocumentKeydown);
+    mobileMediaQuery.removeEventListener('change', handleViewportChange);
+    searchTriggerButton?.removeEventListener('click', handleSearchTriggerClickCapture, true);
+    document.body.classList.remove('is-header-drawer-open');
+  };
+}
+
 function setupPageEnhancements(pathname: string, options: { enableProfileCardRouteMotion: boolean }): (() => void) | null {
   const cleanups: Array<() => void> = [];
   const currentSearch = window.location.search;
@@ -480,6 +675,11 @@ function setupPageEnhancements(pathname: string, options: { enableProfileCardRou
     return () => {
       cleanupAdminDashboard();
     };
+  }
+
+  const cleanupHeaderDrawer = setupHeaderDrawer();
+  if (cleanupHeaderDrawer) {
+    cleanups.push(cleanupHeaderDrawer);
   }
 
   const cleanupHeaderSearchModal = setupHeaderSearchModal();

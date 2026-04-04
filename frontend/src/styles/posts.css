@@ -330,8 +330,6 @@
   --home-cover-gap: 0.72rem;
   --home-card-body-pad-block: 1.05rem;
   --home-card-body-pad-inline: 1.1rem;
-  --home-date-slot-width: 5.6rem;
-  --home-date-slot-gap: 0.4rem;
 }
 
 .post-card-home-article {
@@ -350,36 +348,30 @@
 }
 
 .post-card-meta-row {
-  display: block;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.38rem 0.5rem;
   min-width: 0;
   margin-top: auto;
 }
 
 .post-card-meta-row .tag-list.tag-list--card {
+  flex: 1 1 auto;
   min-width: 0;
   margin-top: 0;
 }
 
 .post-card-date--home {
-  position: absolute;
-  right: var(--home-card-body-pad-inline);
-  bottom: calc(var(--home-card-body-pad-block) + ((var(--post-card-tag-hit-size) - 1lh) / 2));
+  position: static;
+  flex: 0 0 auto;
+  margin-inline-start: auto;
   min-width: max-content;
   text-align: right;
-  z-index: 2;
 }
 
 .post-card--home .post-card-home-article.has-cover .post-card-body {
   width: calc(100% - var(--home-cover-width) - var(--home-cover-gap) - 0.5rem);
-}
-
-.post-card--home .post-card-home-article.has-cover .post-card-date--home {
-  right: calc(var(--home-cover-width) + var(--home-cover-gap) + var(--home-date-slot-gap));
-}
-
-.post-card--home .post-card-home-article.has-cover .post-card-meta-row .tag-list.tag-list--card {
-  max-width: calc(100% - var(--home-date-slot-width) - var(--home-date-slot-gap));
-  padding-right: var(--home-date-slot-gap);
 }
 
 .post-card--home .post-card-home-article.has-cover .post-card-label-item--hide-on-home-cover {
@@ -1807,8 +1799,6 @@
     --home-cover-gap: 0.56rem;
     --home-card-body-pad-block: 0.86rem;
     --home-card-body-pad-inline: 0.9rem;
-    --home-date-slot-width: 5rem;
-    --home-date-slot-gap: 0.32rem;
   }
 
   .post-card--home .post-card-article {
@@ -1817,6 +1807,31 @@
 
   .post-card--home .post-card-body {
     gap: 0.55rem;
+  }
+
+  .post-list--home .post-card-summary {
+    -webkit-line-clamp: 2;
+  }
+
+  .post-list--home .post-card-meta-row {
+    align-items: flex-start;
+    gap: 0.32rem 0.4rem;
+  }
+
+  .post-list--home .post-card-meta-row .tag-list.tag-list--card {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    row-gap: 0.32rem;
+    overflow: visible;
+  }
+
+  .post-list--home .post-card-date--home {
+    order: -1;
+    flex: 0 0 100%;
+    margin-inline-start: 0;
+    text-align: left;
+    font-size: 0.74rem;
   }
 
   .post-toc-scroll-area {

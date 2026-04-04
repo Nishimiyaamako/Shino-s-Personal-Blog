@@ -355,6 +355,8 @@
   .post-list--tag-panel .post-card-cover,
   .site-nav a,
   .header-search-trigger,
+  .header-drawer-trigger,
+  .header-drawer-panel,
   .site-search-modal-shell,
   .site-search-modal-backdrop,
   .site-search-modal,
@@ -391,7 +393,8 @@
   }
 
   .site-nav a::after,
-  .header-search-trigger::after {
+  .header-search-trigger::after,
+  .header-drawer-trigger::after {
     transition: none !important;
   }
 

@@ -294,6 +294,11 @@ html[data-clarity-preview='flat_clean'] {
 
 @media (max-width: 640px) {
   :root {
+    --space-2: 0.46rem;
+    --space-3: 0.68rem;
+    --space-4: 0.9rem;
+    --space-5: 1.34rem;
+    --space-6: 1.78rem;
     --motion-distance-enter: 8px;
     --motion-home-left-distance: 16px;
     --motion-distance-route: 6px;

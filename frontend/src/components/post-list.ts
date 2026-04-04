@@ -154,12 +154,12 @@ export function renderPostList(posts: PostSummary[], options: RenderPostListOpti
                 })
                 .join('')}
           </ul>
+          <time class="post-card-date post-card-date--home" datetime="${post.date}">${formatDateLabel(post.date)}</time>
         </div>
       </div>
       <a class="post-card-home-cover" href="/posts/${post.slug}" data-link aria-label="阅读：${escapeHtml(post.title)}">
         ${coverImage}
       </a>
-      <time class="post-card-date post-card-date--home" datetime="${post.date}">${formatDateLabel(post.date)}</time>
     </article>
   </li>`;
         }

@@ -104,3 +104,9 @@ a:hover {
     0 0,
     calc(var(--decor-pattern-step) * 0.5) calc(var(--decor-pattern-step) * 0.5);
 }
+
+@media (max-width: 640px) {
+  html {
+    font-size: 95%;
+  }
+}
