@@ -1,4 +1,6 @@
-/* Layout layer: shell, header, nav, main/footer scaffolding */
+/* Layout layer: Flat Design - 布局系统 */
+
+/* ========== 站点头部 ========== */
 .site-header {
   position: sticky;
   top: 0;
@@ -6,77 +8,63 @@
   background: transparent;
 }
 
-.site-main,
-.site-footer {
-  width: min(760px, calc(100% - 2rem));
-  margin-inline: auto;
-}
-
-/* 蓝色点缀仅保留头栏：正文区/浮动控件回退到原有主色语义 */
-.site-main,
-.site-footer,
-.floating-scroll-top-wrap {
-  --accent-info: var(--accent-berry);
-  --accent-interactive: var(--accent-berry);
-  --accent-highlight: var(--accent-berry);
-  --accent-info-soft: color-mix(in oklch, var(--brand-soft) 62%, var(--surface-soft));
-  --accent-interactive-soft: color-mix(in oklch, var(--brand-soft) 68%, var(--surface-soft));
-  --accent-highlight-soft: color-mix(in oklch, var(--brand-soft) 74%, var(--surface-soft));
-  --accent-info-text: color-mix(in oklch, var(--accent-berry) 66%, var(--text));
-  --accent-interactive-text: color-mix(in oklch, var(--accent-berry) 74%, var(--text));
-  --accent-highlight-text: color-mix(in oklch, var(--accent-berry) 82%, var(--text));
-  --control-surface-interactive: var(--control-surface-soft);
-  --control-surface-highlight: color-mix(in srgb, var(--surface-soft) 78%, var(--brand-soft));
-  --control-halo-interactive:
-    0 0 0 1px color-mix(in srgb, var(--accent-berry) 24%, transparent),
-    0 1px 3px color-mix(in srgb, var(--accent-berry) 18%, transparent);
-  --control-halo-highlight:
-    0 0 0 1px color-mix(in srgb, var(--accent-berry) 30%, transparent),
-    0 2px 4px color-mix(in srgb, var(--accent-berry) 22%, transparent);
-}
-
 .site-header-inner {
-  width: min(var(--layout-header), calc(100% - 2rem));
-  max-width: var(--layout-header);
+  width: min(var(--layout-max-width), calc(100% - var(--space-6)));
+  max-width: var(--layout-max-width);
   margin-inline: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: clamp(0.75rem, 1.5vw, 1.25rem);
-  min-height: 62px;
-  padding-inline: clamp(0.5rem, 1.2vw, 1.25rem);
-  background: var(--card-surface-main);
-  border-bottom: 1px solid color-mix(in oklch, var(--border) 90%, transparent);
-  box-shadow: var(--card-shadow-cool-hover);
+  gap: var(--space-4);
+  min-height: 64px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-top: none;
   border-radius: 0 0 var(--radius-md) var(--radius-md);
+  box-shadow: var(--shadow-flat);
 }
 
 .site-header--wide .site-header-inner {
-  width: min(var(--layout-header), calc(100% - 2rem));
+  width: min(var(--layout-max-width), calc(100% - var(--space-6)));
 }
 
+/* ========== 品牌标识 ========== */
 .brand {
   flex: 0 0 auto;
   min-width: 0;
   display: inline-flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-1);
   text-align: left;
   color: inherit;
   text-decoration: none;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  transition: transform var(--transition-fast);
+}
+
+.brand:hover {
+  transform: translateY(-2px);
 }
 
 .brand strong {
-  font-size: 1.5rem;
-  letter-spacing: 0.01em;
-  color: color-mix(in srgb, var(--accent-berry) 72%, var(--text));
+  font-size: var(--text-xl);
+  font-weight: var(--font-extrabold);
+  letter-spacing: -0.02em;
+  color: var(--brand);
+  line-height: 1;
 }
 
 .brand span {
-  font-size: 0.82rem;
-  color: color-mix(in oklch, var(--accent-secondary) 44%, var(--text-subtle));
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  font-weight: var(--font-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
+/* ========== 站点导航 ========== */
 .site-nav {
   flex: 1 1 auto;
   min-width: 0;
@@ -84,7 +72,7 @@
   align-items: center;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: clamp(0.2rem, 0.8vw, 0.6rem);
+  gap: var(--space-2);
   padding-inline: 0;
 }
 
@@ -98,58 +86,63 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.42rem;
-  min-height: 2.2rem;
-  padding: 0.18rem var(--space-3);
-  border: 0;
+  gap: var(--space-2);
+  min-height: 40px;
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid transparent;
   background: transparent;
   border-radius: var(--radius-sm);
   position: relative;
-  color: var(--text-subtle);
+  color: var(--text-secondary);
   font: inherit;
+  font-weight: var(--font-medium);
+  font-size: var(--text-sm);
   line-height: 1;
   cursor: pointer;
   -webkit-appearance: none;
   appearance: none;
   text-decoration: none;
   white-space: nowrap;
-  transition:
-    color var(--motion-transition-state),
-    transform var(--motion-transition-state);
+  transition: all var(--transition-fast);
 }
 
-.site-nav a::after,
-.header-search-trigger::after,
-.header-drawer-trigger::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 15%;
-  width: 0;
-  height: 2px;
-  background: currentColor;
-  pointer-events: none;
-  transition: width var(--motion-transition-state);
+.site-nav a:hover,
+.header-search-trigger:hover,
+.header-drawer-trigger:hover {
+  color: var(--brand);
+  background: var(--brand-pale);
+  border-color: var(--brand);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-flat-sm);
 }
 
 .site-nav a.is-active {
-  color: color-mix(in srgb, var(--accent-berry) 80%, var(--text));
-  font-weight: 600;
+  color: var(--text-inverse);
+  background: var(--brand);
+  border-color: var(--brand-dark);
+  box-shadow: var(--shadow-flat-pink);
+  font-weight: var(--font-semibold);
 }
 
-.site-nav a.is-active::after {
-  width: 70%;
+.site-nav a.is-active:hover {
+  background: var(--brand-light);
 }
 
 .site-nav a:focus-visible,
 .header-search-trigger:focus-visible,
 .header-drawer-trigger:focus-visible {
-  color: color-mix(in srgb, var(--accent-berry) 70%, var(--text));
-  outline: var(--focus-ring-outline-soft);
-  outline-offset: 2px;
-  text-decoration: none;
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
+.site-nav a:active,
+.header-search-trigger:active,
+.header-drawer-trigger:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-flat-active);
+}
+
+/* 导航图标 */
 .site-nav-icon {
   width: 18px;
   height: 18px;
@@ -169,11 +162,12 @@
   line-height: 1;
 }
 
+/* ========== 头部操作区 ========== */
 .site-header-actions {
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
-  gap: clamp(0.2rem, 0.8vw, 0.6rem);
+  gap: var(--space-2);
   flex: 0 0 auto;
 }
 
@@ -186,21 +180,7 @@
   display: none;
 }
 
-.header-search-trigger-icon {
-  width: 18px;
-  height: 18px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-}
-
-.header-search-trigger-icon svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
+.header-search-trigger-icon,
 .header-drawer-trigger-icon {
   width: 18px;
   height: 18px;
@@ -210,65 +190,28 @@
   flex: none;
 }
 
+.header-search-trigger-icon svg,
 .header-drawer-trigger-icon svg {
   width: 100%;
   height: 100%;
   display: block;
 }
 
-.site-nav a:active,
-.header-search-trigger:active,
-.header-drawer-trigger:active {
-  transform: translateY(calc(var(--motion-distance-hover) * -0.1)) scale(0.996);
-  transition-duration: var(--motion-duration-feedback);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .site-nav a:hover,
-  .header-search-trigger:hover,
-  .header-drawer-trigger:hover {
-    color: color-mix(in srgb, var(--accent-berry) 64%, var(--text));
-    text-decoration: none;
-    transform: translateY(calc(var(--motion-distance-hover) * -0.25));
-  }
-
-  .site-nav a:hover::after,
-  .header-search-trigger:hover::after,
-  .header-drawer-trigger:hover::after {
-    width: 70%;
-  }
-
-  .site-nav--drawer a:hover {
-    color: color-mix(in srgb, var(--accent-berry) 72%, var(--text));
-    border-color: color-mix(in srgb, var(--accent-berry) 28%, var(--border));
-    background: color-mix(in srgb, var(--brand-soft) 46%, var(--surface-soft));
-    box-shadow: 0 2px 6px color-mix(in srgb, var(--accent-berry) 18%, transparent);
-    transform: translateX(1px);
-  }
-
-  .site-nav--drawer a:hover::after {
-    width: 0.44rem;
-    opacity: 0.82;
-    transform: translateX(1px) rotate(45deg);
-  }
-}
-
+/* ========== 抽屉面板 ========== */
 .header-drawer-panel {
   display: none;
   width: max-content;
-  max-width: calc(100vw - 1rem - env(safe-area-inset-right));
+  max-width: calc(100vw - var(--space-4));
   margin: 0;
-  padding: 0.3rem;
-  background: color-mix(in srgb, var(--card-surface-main) 92%, var(--surface-soft));
-  border: 1px solid color-mix(in srgb, var(--accent-berry) 26%, var(--border));
-  border-radius: calc(var(--radius-md) - 1px);
-  box-shadow: var(--card-shadow-cool-hover);
+  padding: var(--space-2);
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-flat-lg);
   opacity: 0;
   transform: translate3d(14px, 0, 0);
   pointer-events: none;
-  transition:
-    opacity var(--motion-transition-state),
-    transform var(--motion-transition-state);
+  transition: all var(--transition-normal);
 }
 
 .header-drawer-panel.is-open {
@@ -283,77 +226,74 @@
   display: grid;
   grid-template-columns: 1fr;
   justify-content: stretch;
-  gap: 0.2rem;
+  gap: var(--space-1);
 }
 
 .site-nav--drawer a {
   width: 100%;
   display: grid;
-  grid-template-columns: auto auto auto;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   justify-content: flex-start;
   min-height: 44px;
-  padding: 0.44rem 0.52rem;
-  gap: 0.44rem;
-  border: 1px solid color-mix(in srgb, var(--accent-berry) 16%, var(--border));
-  border-radius: calc(var(--radius-sm) + 2px);
-  background: color-mix(in srgb, var(--surface-soft) 80%, transparent);
-  color: color-mix(in srgb, var(--accent-secondary) 42%, var(--text));
-  transform: translateX(0);
-  transition:
-    color var(--motion-transition-state),
-    background var(--motion-transition-state),
-    border-color var(--motion-transition-state),
-    box-shadow var(--motion-transition-state),
-    transform var(--motion-transition-state);
+  padding: var(--space-2) var(--space-3);
+  gap: var(--space-2);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-soft);
+  color: var(--text-secondary);
+  font-weight: var(--font-medium);
+  transition: all var(--transition-fast);
 }
 
-.site-nav--drawer a::after {
-  content: '';
-  position: static;
-  display: block;
-  width: 0.44rem;
-  height: 0.44rem;
-  background: transparent;
-  margin-inline-start: 0.08rem;
-  border-top: 1.4px solid currentColor;
-  border-right: 1.4px solid currentColor;
-  opacity: 0.55;
-  transform: rotate(45deg);
-  transition:
-    opacity var(--motion-transition-state),
-    transform var(--motion-transition-state);
+.site-nav--drawer a:hover {
+  color: var(--brand);
+  background: var(--brand-pale);
+  border-color: var(--brand);
+  transform: translateX(4px);
 }
 
 .site-nav--drawer a.is-active {
-  color: color-mix(in srgb, var(--accent-berry) 82%, var(--text));
-  border-color: color-mix(in srgb, var(--accent-berry) 34%, var(--border));
-  background: color-mix(in srgb, var(--brand-soft) 62%, transparent);
-  box-shadow: 0 1px 3px color-mix(in srgb, var(--accent-berry) 20%, transparent);
-}
-
-.site-nav--drawer a.is-active::after {
-  width: 0.44rem;
-  opacity: 0.9;
-  transform: translateX(1px) rotate(45deg);
+  color: var(--text-inverse);
+  background: var(--brand);
+  border-color: var(--brand-dark);
+  box-shadow: var(--shadow-flat-pink);
 }
 
 .site-nav--drawer .site-nav-label {
   min-width: 0;
-  max-width: calc(100vw - 8.6rem - env(safe-area-inset-right));
+  max-width: calc(100vw - 8rem);
   line-height: 1.2;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
-.site-nav--drawer a:active {
-  transform: translateX(0.5px) scale(0.997);
-  transition-duration: var(--motion-duration-feedback);
+.site-nav--drawer a::after {
+  content: '→';
+  font-size: var(--text-sm);
+  opacity: 0;
+  transition: all var(--transition-fast);
+}
+
+.site-nav--drawer a:hover::after {
+  opacity: 1;
+}
+
+.site-nav--drawer a.is-active::after {
+  opacity: 1;
+  color: var(--text-inverse);
+}
+
+/* ========== 主体内容区 ========== */
+.site-main,
+.site-footer {
+  width: min(var(--layout-narrow), calc(100% - var(--space-6)));
+  margin-inline: auto;
 }
 
 .site-main {
-  padding: var(--space-6) 0 var(--space-6);
+  padding: var(--space-8) 0;
 }
 
 .site-main--friends {
@@ -361,7 +301,7 @@
 }
 
 .site-main--about {
-  width: min(920px, calc(100% - 2rem));
+  width: min(920px, calc(100% - var(--space-6)));
 }
 
 .site-main--friends>.site-page-content {
@@ -373,20 +313,22 @@
 
 .site-main-layout {
   display: grid;
-  gap: var(--space-5);
+  gap: var(--space-6);
 }
 
 .site-page-content {
   min-width: 0;
 }
 
+/* 带侧边栏的布局 */
 .site-main--with-profile {
-  width: min(1280px, calc(100% - 2rem));
+  width: min(var(--layout-wide), calc(100% - var(--space-6)));
 }
 
 .site-main--with-profile .site-main-layout {
   grid-template-columns: minmax(0, 1fr) minmax(0, 760px) minmax(0, 1fr);
   align-items: start;
+  gap: var(--space-6);
 }
 
 .site-main--with-profile .site-page-content {
@@ -396,6 +338,7 @@
   margin-inline: auto;
 }
 
+/* ========== 页面容器 ========== */
 .page {
   display: grid;
   gap: var(--space-5);
@@ -405,14 +348,15 @@
   min-width: 0;
 }
 
+/* ========== 站点底部 ========== */
 .site-footer {
-  padding: var(--space-5) 0 var(--space-6);
-  color: var(--text-subtle);
-  font-size: 0.92rem;
-  border-top: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
+  padding: var(--space-6) 0 var(--space-8);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  border-top: 2px solid var(--border);
   text-align: center;
   display: grid;
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
 .site-footer p {
@@ -430,16 +374,21 @@
 .site-footer-records a {
   color: inherit;
   text-decoration: none;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
 }
 
 .site-footer-records a:hover {
   color: var(--brand);
+  background: var(--brand-pale);
 }
 
 .site-footer-divider {
-  color: color-mix(in srgb, var(--text-subtle) 65%, var(--surface));
+  color: var(--border-strong);
 }
 
+/* ========== 响应式布局 ========== */
 @media (max-width: 1200px) {
 
   /* 首页兜底：<=1200 统一单列，资料卡始终在顶部 */
@@ -466,18 +415,13 @@
 
 @media (max-width: 1024px) {
   .site-header-inner {
-    width: min(var(--layout-narrow), calc(100% - 1.5rem));
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: var(--space-3);
-    padding-inline: clamp(0.15rem, 1vw, 0.55rem);
-    min-height: 58px;
+    width: min(var(--layout-narrow), calc(100% - var(--space-5)));
+    min-height: 60px;
+    padding: var(--space-2) var(--space-3);
   }
 
-  .brand {
-    width: auto;
-    text-align: left;
+  .brand strong {
+    font-size: var(--text-lg);
   }
 
   .site-nav--desktop {
@@ -494,14 +438,14 @@
   .site-nav a,
   .header-search-trigger,
   .header-drawer-trigger {
-    gap: 0.35rem;
-    min-height: 2.05rem;
-    padding-inline: var(--space-2);
-    font-size: 0.93rem;
+    gap: var(--space-1);
+    min-height: 36px;
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--text-sm);
   }
 
   .site-main--with-profile {
-    width: min(760px, calc(100% - 2rem));
+    width: min(760px, calc(100% - var(--space-5)));
   }
 
   .site-main--with-profile .site-main-layout {
@@ -523,7 +467,7 @@
 
 @media (max-width: 640px) {
   .site-header-inner {
-    width: min(var(--layout-narrow), calc(100% - 1rem));
+    width: min(var(--layout-narrow), calc(100% - var(--space-4)));
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
@@ -533,11 +477,11 @@
   }
 
   .brand strong {
-    font-size: 1.28rem;
+    font-size: var(--text-lg);
   }
 
   .brand span {
-    font-size: 0.76rem;
+    font-size: var(--text-xs);
   }
 
   .site-nav--desktop {
@@ -545,19 +489,26 @@
   }
 
   .site-header-actions {
-    gap: 0.4rem;
+    gap: var(--space-2);
   }
 
   .header-search-trigger,
   .header-drawer-trigger {
     min-width: 44px;
     min-height: 44px;
-    padding-inline: 0.56rem;
+    padding: var(--space-2);
     gap: 0;
-    border: 1px solid color-mix(in srgb, var(--accent-berry) 18%, var(--border));
-    border-radius: calc(var(--radius-sm) + 2px);
-    background: color-mix(in srgb, var(--surface-soft) 82%, transparent);
-    color: color-mix(in srgb, var(--accent-secondary) 46%, var(--text));
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface-soft);
+    color: var(--text-secondary);
+    box-shadow: var(--shadow-flat-sm);
+  }
+
+  .header-search-trigger:hover,
+  .header-drawer-trigger:hover {
+    border-color: var(--brand);
+    background: var(--brand-pale);
   }
 
   .header-search-trigger-label,
@@ -565,16 +516,11 @@
     display: none;
   }
 
-  .header-search-trigger::after,
-  .header-drawer-trigger::after {
-    display: none;
-  }
-
   .header-search-trigger-icon,
   .header-drawer-trigger-icon,
   .site-nav--drawer .site-nav-icon {
-    width: 17px;
-    height: 17px;
+    width: 20px;
+    height: 20px;
   }
 
   .header-drawer-trigger {
@@ -582,19 +528,19 @@
   }
 
   .header-drawer-trigger[aria-expanded='true'] {
-    color: color-mix(in srgb, var(--accent-berry) 76%, var(--text));
-    border-color: color-mix(in srgb, var(--accent-berry) 36%, var(--border));
-    background: color-mix(in srgb, var(--brand-soft) 62%, var(--surface-soft));
-    box-shadow: 0 2px 5px color-mix(in srgb, var(--accent-berry) 20%, transparent);
+    color: var(--text-inverse);
+    background: var(--brand);
+    border-color: var(--brand-dark);
+    box-shadow: var(--shadow-flat-pink);
   }
 
   .header-drawer-panel {
     display: block;
     position: absolute;
-    top: calc(100% + 0.32rem);
-    right: max(0.5rem, env(safe-area-inset-right));
+    top: calc(100% + var(--space-2));
+    right: var(--space-2);
     width: max-content;
-    max-width: calc(100vw - 1rem - env(safe-area-inset-right));
+    max-width: calc(100vw - var(--space-4));
     z-index: 32;
     max-height: min(78vh, 30rem);
     overflow: auto;
@@ -602,15 +548,19 @@
   }
 
   .site-nav--drawer {
-    gap: 0.28rem;
+    gap: var(--space-1);
   }
 
   .site-nav--drawer a {
-    min-height: 44px;
-    font-size: 0.9rem;
+    min-height: 48px;
+    font-size: var(--text-base);
   }
 
   .site-main {
-    padding-top: var(--space-5);
+    padding: var(--space-6) 0;
+  }
+
+  .site-footer {
+    padding: var(--space-5) 0 var(--space-6);
   }
 }

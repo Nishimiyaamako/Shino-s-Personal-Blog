@@ -1,7 +1,9 @@
-/* Base layer: reset, typography, links, shell backdrop */
+/* Base layer: Flat Design - 基础样式重置与排版 */
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html,
@@ -14,41 +16,55 @@ body {
   display: none !important;
 }
 
+/* ========== 基础排版 ========== */
 body {
   font-family: var(--font-base);
-  line-height: 1.65;
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
   background: var(--bg);
   color: var(--text);
   position: relative;
   overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* ========== 链接样式 ========== */
 a {
   color: var(--brand);
   text-decoration: none;
-  transition: color var(--motion-transition-feedback);
+  transition: color var(--transition-fast);
 }
 
 a:hover {
-  color: color-mix(in oklch, var(--accent-berry) 76%, var(--brand));
+  color: var(--brand-dark);
 }
 
+a:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+/* ========== 无障碍跳过链接 ========== */
 .skip-link {
   position: absolute;
   left: -9999px;
   top: var(--space-2);
   padding: var(--space-2) var(--space-4);
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 2px solid var(--brand);
   border-radius: var(--radius-sm);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-flat);
+  font-weight: var(--font-medium);
+  z-index: 100;
 }
 
 .skip-link:focus-visible {
   left: var(--space-4);
-  z-index: 100;
 }
 
+/* ========== 应用外壳 ========== */
 .app-shell {
   min-height: 100vh;
   display: grid;
@@ -62,6 +78,7 @@ a:hover {
   z-index: 2;
 }
 
+/* 平面化背景装饰 - 几何点阵 */
 .app-shell::before,
 .app-shell::after {
   content: '';
@@ -72,41 +89,263 @@ a:hover {
 
 .app-shell::before {
   z-index: 0;
-  opacity: 0;
-  background: none;
+  background: var(--bg);
 }
 
 .app-shell::after {
   z-index: 1;
-  opacity: var(--decor-pattern-opacity);
-  background:
-    repeating-linear-gradient(
-      0deg,
-      transparent 0 calc(var(--decor-pattern-step) - var(--decor-pattern-line-thickness)),
-      var(--decor-pattern-line) calc(var(--decor-pattern-step) - var(--decor-pattern-line-thickness)) var(--decor-pattern-step)
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent 0 calc(var(--decor-pattern-step) - var(--decor-pattern-line-thickness)),
-      var(--decor-pattern-line-alt) calc(var(--decor-pattern-step) - var(--decor-pattern-line-thickness)) var(--decor-pattern-step)
-    ),
-    radial-gradient(
-      circle at center,
-      var(--decor-pattern-dot) 0 var(--decor-pattern-dot-size),
-      transparent calc(var(--decor-pattern-dot-size) + 0.6px)
-    );
-  background-size:
-    100% 100%,
-    100% 100%,
-    var(--decor-pattern-step) var(--decor-pattern-step);
-  background-position:
-    0 0,
-    0 0,
-    calc(var(--decor-pattern-step) * 0.5) calc(var(--decor-pattern-step) * 0.5);
+  opacity: 0.4;
+  background-image:
+    radial-gradient(circle at center, var(--decor-dot-color) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: 0 0;
+}
+
+/* ========== 标题样式 ========== */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  font-weight: var(--font-bold);
+  line-height: var(--leading-tight);
+  color: var(--text);
+  margin-bottom: var(--space-4);
+}
+
+h1 {
+  font-size: var(--text-4xl);
+  margin-bottom: var(--space-5);
+}
+
+h2 {
+  font-size: var(--text-3xl);
+  margin-top: var(--space-6);
+}
+
+h3 {
+  font-size: var(--text-2xl);
+  margin-top: var(--space-5);
+}
+
+h4 {
+  font-size: var(--text-xl);
+  margin-top: var(--space-4);
+}
+
+h5 {
+  font-size: var(--text-lg);
+  margin-top: var(--space-4);
+}
+
+h6 {
+  font-size: var(--text-base);
+  margin-top: var(--space-4);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ========== 段落与文本 ========== */
+p {
+  margin-bottom: var(--space-4);
+}
+
+strong,
+b {
+  font-weight: var(--font-bold);
+  color: var(--text);
+}
+
+em,
+i {
+  font-style: italic;
+}
+
+small {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+/* ========== 列表 ========== */
+ul,
+ol {
+  margin-bottom: var(--space-4);
+  padding-left: var(--space-6);
+}
+
+li {
+  margin-bottom: var(--space-2);
+}
+
+/* ========== 图片 ========== */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ========== 水平线 ========== */
+hr {
+  border: none;
+  height: 2px;
+  background: var(--border);
+  margin: var(--space-6) 0;
+}
+
+/* ========== 代码 ========== */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--surface-soft);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  color: var(--brand-dark);
+}
+
+pre {
+  font-family: var(--font-mono);
+  background: var(--surface-soft);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  margin-bottom: var(--space-4);
+  border: 2px solid var(--border);
+}
+
+pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+
+/* ========== 引用 ========== */
+blockquote {
+  border-left: 4px solid var(--brand);
+  padding-left: var(--space-4);
+  margin: var(--space-5) 0;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* ========== 表格 ========== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--space-4);
+}
+
+th,
+td {
+  padding: var(--space-3);
+  text-align: left;
+  border-bottom: 2px solid var(--border);
+}
+
+th {
+  font-weight: var(--font-semibold);
+  background: var(--surface-soft);
+}
+
+/* ========== 表单元素基础 ========== */
+input,
+textarea,
+select,
+button {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+input,
+textarea,
+select {
+  background: var(--surface);
+  border: var(--input-border);
+  border-radius: var(--input-radius);
+  padding: var(--input-padding);
+  color: var(--text);
+  transition: border-color var(--transition-fast);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--brand);
+}
+
+/* ========== 按钮基础 ========== */
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* ========== 选中文字 ========== */
+::selection {
+  background: var(--brand-pale);
+  color: var(--brand-dark);
+}
+
+/* ========== 滚动条 ========== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-soft);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ========== 响应式 ========== */
+@media (max-width: 960px) {
+  h1 {
+    font-size: var(--text-3xl);
+  }
+
+  h2 {
+    font-size: var(--text-2xl);
+  }
+
+  h3 {
+    font-size: var(--text-xl);
+  }
 }
 
 @media (max-width: 640px) {
   html {
-    font-size: 93%;
+    font-size: 93.75%;
+  }
+
+  h1 {
+    font-size: var(--text-2xl);
+  }
+
+  h2 {
+    font-size: var(--text-xl);
+  }
+
+  h3 {
+    font-size: var(--text-lg);
+  }
+
+  ul,
+  ol {
+    padding-left: var(--space-4);
   }
 }

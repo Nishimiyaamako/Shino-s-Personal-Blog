@@ -1,314 +1,288 @@
-/* Token layer: palette, semantic aliases, material, layout, motion, theme overrides */
+/* Token layer: Flat Design System - 平面化设计风格 */
+/* 特点: 纯色块、长投影、8pt网格、几何排版 */
 
 :root {
   color-scheme: light dark;
 
-  /* 全局基础配色（OKLCH） - 和风增强 */
-  --p-brand-500: oklch(66% 0.17 358); /* 柔和樱花粉 */
-  --p-brand-700: oklch(50% 0.16 357); /* 克制深樱色 */
-  --p-sakura-light: oklch(82% 0.15 355); /* 淡樱 */
-  --p-ume-accent: oklch(64% 0.18 340); /* 梅花紫粉 */
-  --p-accent-500: oklch(66% 0.08 317);
-  --p-wisteria: oklch(70% 0.14 295); /* 藤紫 */
-  --p-info-500: oklch(78% 0.065 248);
-  --p-interactive-500: var(--p-info-500);
-  --p-highlight-500: var(--p-info-500);
-  --p-neutral-50: oklch(97% 0.012 335);
+  /* ========== 核心色彩系统（纯色块，无渐变） ========== */
+  /* 主色调 - 活力粉 */
+  --flat-pink: #e85d75;
+  --flat-pink-dark: #c94a60;
+  --flat-pink-light: #f07085;
+  --flat-pink-pale: #ffe4e8;
 
-  /* 兼容现有语义命名，避免大面积重构 */
-  --rose-500: var(--p-brand-500);
-  --rose-700: var(--p-brand-700);
-  --cyan-500: var(--p-accent-500);
-  --ivory-50: var(--p-neutral-50);
+  /* 辅助色 */
+  --flat-coral: #ff6b6b;
+  --flat-teal: #4ecdc4;
+  --flat-yellow: #ffe66d;
+  --flat-purple: #a18cd1;
 
-  --brand: var(--rose-500);
-  --brand-soft: color-mix(in oklch, var(--rose-500) 18%, var(--ivory-50));
-  --accent-berry: var(--rose-700);
-  --accent-secondary: var(--cyan-500);
-  --accent-secondary-soft: color-mix(in oklch, var(--accent-secondary) 24%, var(--ivory-50));
-  --accent-info: var(--p-info-500);
-  --accent-interactive: var(--accent-info);
-  --accent-highlight: var(--accent-info);
-  --accent-info-soft: color-mix(in oklch, var(--accent-info) 26%, var(--surface));
-  --accent-interactive-soft: color-mix(in oklch, var(--accent-interactive) 24%, var(--surface));
-  --accent-highlight-soft: color-mix(in oklch, var(--accent-highlight) 26%, var(--surface));
-  --accent-info-text: color-mix(in oklch, var(--accent-info) 54%, var(--text));
-  --accent-interactive-text: color-mix(in oklch, var(--accent-interactive) 58%, var(--text));
-  --accent-highlight-text: color-mix(in oklch, var(--accent-highlight) 62%, var(--text));
-  --ink-dark: color-mix(in oklch, var(--rose-700) 80%, var(--accent-secondary));
-  --neutral-metal: color-mix(in oklch, var(--rose-700) 24%, var(--ivory-50));
+  /* 中性色 */
+  --flat-white: #ffffff;
+  --flat-gray-50: #fafafa;
+  --flat-gray-100: #f5f5f5;
+  --flat-gray-200: #eeeeee;
+  --flat-gray-300: #e0e0e0;
+  --flat-gray-400: #bdbdbd;
+  --flat-gray-500: #9e9e9e;
+  --flat-gray-600: #757575;
+  --flat-gray-700: #616161;
+  --flat-gray-800: #424242;
+  --flat-gray-900: #212121;
+  --flat-black: #1a1a1a;
 
-  /* 材质层（定稿：flat_clean） */
-  --material-surface-solid: 96%;
-  --material-surface-elevated-solid: 98%;
-  --material-surface-soft-solid: 95%;
-  --material-surface-dark-solid: 84%;
-  --material-surface-dark-elevated-solid: 90%;
-  --material-surface-dark-soft-solid: 82%;
-  --material-shadow-alpha: 6%;
-  --material-shadow-strong-alpha: 9%;
-  --material-shadow-alpha-dark: 26%;
-  --material-shadow-strong-alpha-dark: 34%;
-  --material-header-backdrop: none;
-  --material-card-backdrop: none;
-  --material-decor-line-opacity: 0.035;
-  --material-decor-shape-opacity: 0.05;
-  --material-post-cover-overlay-opacity: 0.28;
-  --material-post-cover-overlay-hover-opacity: 0.38;
-  --material-post-cover-bottom-opacity: 0.16;
-  --material-post-cover-bottom-hover-opacity: 0.24;
+  /* 语义化颜色映射 */
+  --brand: var(--flat-pink);
+  --brand-dark: var(--flat-pink-dark);
+  --brand-light: var(--flat-pink-light);
+  --brand-pale: var(--flat-pink-pale);
 
-  --bg: #fff;
-  --surface: color-mix(in oklch, var(--ivory-50) var(--material-surface-solid), transparent);
-  --surface-elevated: color-mix(in oklch, var(--ivory-50) var(--material-surface-elevated-solid), transparent);
-  --surface-soft: color-mix(in oklch, var(--ivory-50) var(--material-surface-soft-solid), var(--accent-secondary-soft));
-  --text: color-mix(in oklch, oklch(24% 0.028 338) 72%, var(--rose-700));
-  --text-subtle: color-mix(in oklch, var(--text) 72%, var(--ivory-50));
-  --border: color-mix(in oklch, var(--rose-500) 24%, var(--ivory-50));
-  --border-strong: color-mix(in oklch, var(--rose-700) 34%, var(--accent-secondary));
-  --tag-radius: var(--radius-sm);
-  --tag-border-width: 1px;
-  --tag-hit-size: 40px;
-  --tag-hit-size-compact: 34px;
-  --tag-pad-inline: 0.72rem;
-  --tag-fill-normal: 24%;
-  --tag-fill-quiet: 18%;
-  --tag-fill-hover: 30%;
-  --tag-fill-count: 24%;
-  --tag-surface: color-mix(in srgb, var(--brand-soft) var(--tag-fill-normal), transparent);
-  --tag-surface-quiet: color-mix(in srgb, var(--brand-soft) var(--tag-fill-quiet), transparent);
-  --tag-border-color: color-mix(in srgb, var(--accent-berry) 34%, var(--border));
-  --tag-text-color: color-mix(in srgb, var(--accent-berry) 78%, var(--text));
-  --tag-hover-surface: color-mix(in srgb, var(--brand-soft) var(--tag-fill-hover), transparent);
-  --tag-hover-border-color: color-mix(in srgb, var(--accent-secondary) 30%, var(--accent-berry));
-  --tag-hover-text-color: color-mix(in srgb, var(--accent-berry) 88%, var(--text));
-  --tag-active-surface: color-mix(in srgb, var(--brand) 60%, var(--surface));
-  --tag-active-border-color: color-mix(in srgb, var(--accent-secondary) 38%, var(--accent-berry));
-  --tag-active-text-color: var(--surface);
-  --tag-focus-ring: color-mix(in srgb, var(--brand-soft) 64%, var(--brand));
-  --tag-count-surface: color-mix(in srgb, var(--brand-soft) var(--tag-fill-count), transparent);
+  /* 背景色 */
+  --bg: var(--flat-gray-50);
+  --surface: var(--flat-white);
+  --surface-elevated: var(--flat-white);
+  --surface-soft: var(--flat-gray-100);
+  --surface-muted: var(--flat-gray-200);
 
-  --accent-bubble-soft: color-mix(in oklch, var(--brand-soft) 62%, var(--surface-soft));
-  --accent-mauve-soft: color-mix(in oklch, var(--neutral-metal) 28%, var(--surface-soft));
-  --accent-berry-soft: color-mix(in oklch, var(--rose-500) 18%, var(--surface-soft));
-  --shadow: 0 1px 3px color-mix(in oklch, var(--rose-700) var(--material-shadow-alpha), transparent),
-    0 2px 4px color-mix(in oklch, var(--p-sakura-light) 8%, transparent);
-  --shadow-strong: 0 2px 4px color-mix(in oklch, var(--rose-700) var(--material-shadow-strong-alpha), transparent),
-    0 1px 3px color-mix(in oklch, var(--p-ume-accent) 10%, transparent);
-  --card-radius-main: 16px;
-  --card-surface-main: var(--bg);
-  --card-shadow-cool:
-    0 1px 3px color-mix(in oklch, var(--accent-secondary) 15%, transparent);
-  --card-shadow-cool-hover:
-    0 2px 4px color-mix(in oklch, var(--accent-secondary) 20%, transparent);
-  --card-shadow-warm:
-    0 1px 3px color-mix(in oklch, var(--brand) 15%, transparent);
-  --card-shadow-warm-hover:
-    0 2px 4px color-mix(in oklch, var(--brand) 20%, transparent);
+  /* 文字色 */
+  --text: var(--flat-gray-900);
+  --text-secondary: var(--flat-gray-600);
+  --text-tertiary: var(--flat-gray-500);
+  --text-muted: var(--flat-gray-400);
+  --text-inverse: var(--flat-white);
 
-  --decor-pattern-opacity: var(--material-decor-line-opacity);
-  --decor-base-opacity: var(--material-decor-shape-opacity);
-  --decor-pattern-step: 22px;
-  --decor-pattern-line-thickness: 1px;
-  --decor-pattern-dot-size: 1.1px;
-  --decor-pattern-line: color-mix(in oklch, var(--rose-500) 17%, transparent);
-  --decor-pattern-line-alt: color-mix(in oklch, var(--p-wisteria) 15%, transparent);
-  --decor-pattern-dot: color-mix(in oklch, var(--p-wisteria) 20%, transparent);
-  --decor-base-tint-rose: color-mix(in oklch, var(--rose-500) 12%, transparent);
-  --decor-base-tint-wisteria: color-mix(in oklch, var(--p-wisteria) 11%, transparent);
+  /* 边框色 */
+  --border: var(--flat-gray-300);
+  --border-strong: var(--flat-gray-400);
+  --border-light: var(--flat-gray-200);
 
-  --radius-sm: 8px;
-  --radius-md: 12px;
+  /* ========== 长投影系统 ========== */
+  /* 长投影效果 - 平面化设计标志性特征 */
+  --shadow-flat-none: none;
+  --shadow-flat-sm: 0 2px 0 var(--flat-gray-300);
+  --shadow-flat: 0 4px 0 var(--flat-gray-300);
+  --shadow-flat-md: 0 6px 0 var(--flat-gray-400);
+  --shadow-flat-lg: 0 8px 0 var(--flat-gray-400);
+  --shadow-flat-xl: 0 12px 0 var(--flat-gray-500);
 
-  --font-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Microsoft YaHei', 'Meiryo',
-    sans-serif;
-  --font-heading: 'Noto Serif JP', 'Source Han Serif', 'Source Han Serif SC', serif, var(--font-base);
+  /* 彩色长投影 */
+  --shadow-flat-pink: 0 4px 0 var(--flat-pink-dark);
+  --shadow-flat-pink-lg: 0 8px 0 var(--flat-pink-dark);
+  --shadow-flat-coral: 0 4px 0 #e85555;
+  --shadow-flat-teal: 0 4px 0 #3dbdb5;
 
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.5rem;
-  --space-6: 2rem;
+  /* 悬停时投影上移效果 */
+  --shadow-flat-hover: 0 2px 0 var(--flat-gray-300);
+  --shadow-flat-active: 0 0 0 var(--flat-gray-300);
 
-  --profile-sticky-top: 96px;
-  --layout-narrow: min(760px, calc(100% - 2rem));
-  --layout-wide: min(1280px, calc(100% - 2rem));
-  --content-width: var(--layout-narrow);
-  --layout-header: min(calc(var(--content-width) * 1.2), calc(100% - 2rem));
-  --header-brand-width: clamp(180px, calc(var(--layout-header) * 0.22), 240px);
-  --profile-width: clamp(204px, 18vw, 240px);
+  /* ========== 8pt 网格系统 ========== */
+  --space-0: 0;
+  --space-1: 4px;
+  /* 0.25rem */
+  --space-2: 8px;
+  /* 0.5rem */
+  --space-3: 12px;
+  /* 0.75rem */
+  --space-4: 16px;
+  /* 1rem */
+  --space-5: 24px;
+  /* 1.5rem */
+  --space-6: 32px;
+  /* 2rem */
+  --space-7: 40px;
+  /* 2.5rem */
+  --space-8: 48px;
+  /* 3rem */
+  --space-9: 64px;
+  /* 4rem */
+  --space-10: 80px;
+  /* 5rem */
 
-  --motion-duration-feedback: 170ms;
-  --motion-duration-state: 300ms;
-  --motion-duration-enter: 560ms;
-  --motion-duration-enter-home: 620ms;
-  --motion-duration-profile-edge-enter: 980ms;
-  --motion-duration-route-enter: 280ms;
-  --motion-stagger-step: 56ms;
-  --motion-stagger-step-home: 72ms;
-  --motion-stagger-step-card: 104ms;
-  --motion-stagger-step-route: 24ms;
-  --motion-delay-card-reveal-base: 80ms;
-  --motion-delay-side-panel-base: 72ms;
-  --motion-delay-profile-edge-base: 84ms;
+  /* ========== 圆角系统 ========== */
+  --radius-none: 0;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
 
-  --motion-ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
-  --motion-ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
-  --motion-ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-  --motion-ease-enter-primary: var(--motion-ease-out-quint);
-  --motion-ease-enter-soft: var(--motion-ease-out-quart);
-  --motion-ease-feedback: var(--motion-ease-out-quart);
-
-  --motion-distance-enter: 10px;
-  --motion-home-left-distance: 20px;
-  --motion-profile-edge-distance: 108vw;
-  --motion-distance-route: 8px;
-  --motion-distance-hover: 1px;
-  --motion-distance-reveal-primary: var(--motion-distance-enter);
-  --motion-distance-reveal-soft: var(--motion-distance-route);
-  --motion-duration-reveal-primary: var(--motion-duration-enter);
-  --motion-duration-reveal-panel: var(--motion-duration-enter-home);
-  --motion-duration-reveal-route: var(--motion-duration-route-enter);
-  --motion-transition-feedback: var(--motion-duration-feedback) var(--motion-ease-out-quart);
-  --motion-transition-state: var(--motion-duration-state) var(--motion-ease-out-quart);
-  --focus-ring-outline-soft: 2px solid color-mix(in srgb, var(--brand-soft) 68%, var(--brand));
-  --focus-ring-outline-strong: 2px solid var(--brand);
-  --control-surface-soft: color-mix(in srgb, var(--surface-soft) 82%, var(--brand-soft));
-  --control-surface-interactive: color-mix(in srgb, var(--accent-info-soft) 72%, var(--control-surface-soft));
-  --control-surface-highlight: color-mix(in srgb, var(--accent-info-soft) 84%, var(--control-surface-soft));
-  --control-halo-interactive:
-    0 0 0 1px color-mix(in srgb, var(--accent-interactive) 20%, transparent),
-    0 1px 3px color-mix(in srgb, var(--accent-interactive) 14%, transparent);
-  --control-halo-highlight:
-    0 0 0 1px color-mix(in srgb, var(--accent-highlight) 22%, transparent),
-    0 2px 4px color-mix(in srgb, var(--accent-highlight) 16%, transparent);
-  --control-shadow-hover: 0 2px 4px color-mix(in srgb, var(--accent-berry) 18%, transparent);
-
-  /* 语义化文本颜色 */
-  --text-secondary: color-mix(in oklch, var(--accent-secondary) 38%, var(--text-subtle));
-  --text-tertiary: color-mix(in oklch, var(--accent-secondary) 44%, var(--text-subtle));
-  --text-info: color-mix(in oklch, var(--accent-info-text) 80%, var(--text-subtle));
-
-  /* 文章封面阴影 */
-  --post-cover-shadow: 0 1px 3px color-mix(in oklch, var(--accent-secondary) 14%, transparent);
-  --post-cover-shadow-strong: 0 2px 4px color-mix(in oklch, var(--accent-secondary) 20%, transparent);
-  /* 文章标题前缀（预留后端配置入口，默认不显示） */
-  --post-heading-prefix-h1: '';
-  --post-heading-prefix-h2: '';
-  --post-heading-prefix-h3: '';
-  --post-heading-prefix-h4: '';
-  --post-heading-prefix-h5: '';
-  --post-heading-prefix-h6: '';
-
-  /* 按钮基础样式 */
-  --button-border: 1px solid color-mix(in srgb, var(--accent-interactive) 24%, var(--border));
+  /* 卡片圆角 */
+  --card-radius: var(--radius-md);
   --button-radius: var(--radius-sm);
-  --button-bg: var(--control-surface-interactive);
-  --button-bg-hover: var(--control-surface-highlight);
+  --tag-radius: var(--radius-sm);
+  --input-radius: var(--radius-sm);
+
+  /* ========== 字体系统 ========== */
+  --font-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --font-heading: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+
+  /* 字体大小 - 8pt 基准 */
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 18px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 32px;
+  --text-4xl: 40px;
+  --text-5xl: 48px;
+
+  /* 字重 */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --font-extrabold: 800;
+
+  /* 行高 */
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+
+  /* ========== 布局系统 ========== */
+  --layout-max-width: 1200px;
+  --layout-narrow: min(760px, calc(100% - 32px));
+  --layout-wide: min(1280px, calc(100% - 32px));
+  --content-width: var(--layout-narrow);
+
+  /* 间距 */
+  --section-gap: var(--space-8);
+  --card-gap: var(--space-4);
+  --element-gap: var(--space-3);
+
+  /* ========== 组件变量 ========== */
+  /* 按钮 */
+  --button-height: 40px;
+  --button-height-sm: 32px;
+  --button-height-lg: 48px;
+  --button-padding: var(--space-4);
+  --button-bg: var(--brand);
+  --button-bg-hover: var(--brand-light);
+  --button-bg-active: var(--brand-dark);
+  --button-text: var(--text-inverse);
+  --button-border: none;
+
+  /* 卡片 */
+  --card-bg: var(--surface);
+  --card-border: 2px solid var(--border);
+  --card-shadow: var(--shadow-flat);
+  --card-shadow-hover: var(--shadow-flat-sm);
+  --card-padding: var(--space-5);
+
+  /* 标签 */
+  --tag-height: 28px;
+  --tag-padding: var(--space-2) var(--space-3);
+  --tag-bg: var(--surface-soft);
+  --tag-bg-active: var(--brand);
+  --tag-text: var(--text-secondary);
+  --tag-text-active: var(--text-inverse);
+  --tag-border: 2px solid var(--border);
+
+  /* 输入框 */
+  --input-height: 44px;
+  --input-bg: var(--surface);
+  --input-border: 2px solid var(--border);
+  --input-border-focus: 2px solid var(--brand);
+  --input-padding: var(--space-3) var(--space-4);
+
+  /* ========== 动效系统 ========== */
+  /* 时长 */
+  --duration-instant: 0ms;
+  --duration-fast: 100ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 500ms;
+
+  /* 缓动函数 */
+  --ease-linear: linear;
+  --ease-out: cubic-bezier(0.0, 0.0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0.0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* 过渡 */
+  --transition-fast: var(--duration-fast) var(--ease-out);
+  --transition-normal: var(--duration-normal) var(--ease-out);
+  --transition-slow: var(--duration-slow) var(--ease-out);
+
+  /* 位移 */
+  --move-sm: 2px;
+  --move-md: 4px;
+  --move-lg: 8px;
+
+  /* ========== 装饰元素 ========== */
+  --decor-line-color: var(--flat-gray-200);
+  --decor-dot-color: var(--flat-gray-300);
+  --decor-pattern-opacity: 0.5;
+
+  /* 焦点环 */
+  --focus-ring: 0 0 0 3px var(--brand-pale);
+  --focus-ring-offset: 2px;
 }
 
-html[data-palette-preview='rose_atelier'] {
-  --p-brand-500: oklch(66% 0.17 358);
-  --p-brand-700: oklch(50% 0.16 357);
-  --p-accent-500: oklch(66% 0.08 317);
-  --p-neutral-50: oklch(97% 0.012 335);
-}
-
-html[data-clarity-preview='flat_clean'] {
-  --bg: #fff;
-}
-
+/* ========== 暗色模式 ========== */
 @media (prefers-color-scheme: dark) {
-  :root,
-  html[data-clarity-preview='flat_clean'] {
-    --bg: #111216;
-    --surface: #171a20;
-    --surface-elevated: #1d2128;
-    --surface-soft: #232832;
-    --text: #eceff4;
-    --text-subtle: #aab2bf;
-    --border: #2e3540;
-    --border-strong: #556170;
-    --card-surface-main: var(--surface-elevated);
+  :root {
+    /* 背景色 */
+    --bg: var(--flat-gray-900);
+    --surface: var(--flat-gray-800);
+    --surface-elevated: var(--flat-gray-700);
+    --surface-soft: var(--flat-gray-800);
+    --surface-muted: var(--flat-gray-700);
 
-    --brand-soft: color-mix(in oklch, var(--rose-500) 16%, var(--surface-soft));
-    --accent-berry: color-mix(in oklch, var(--rose-500) 74%, var(--ivory-50));
-    --accent-secondary-soft: color-mix(in oklch, var(--accent-secondary) 18%, var(--surface-soft));
-    --tag-fill-normal: 23%;
-    --tag-fill-quiet: 16%;
-    --tag-fill-hover: 30%;
-    --tag-fill-count: 20%;
-    --accent-info-soft: color-mix(in oklch, var(--accent-info) 18%, var(--surface-soft));
-    --accent-interactive-soft: color-mix(in oklch, var(--accent-interactive) 18%, var(--surface-soft));
-    --accent-highlight-soft: color-mix(in oklch, var(--accent-highlight) 20%, var(--surface-soft));
-    --accent-info-text: color-mix(in oklch, var(--accent-info) 64%, var(--text));
-    --accent-interactive-text: color-mix(in oklch, var(--accent-interactive) 64%, var(--text));
-    --accent-highlight-text: color-mix(in oklch, var(--accent-highlight) 54%, var(--text));
-    --neutral-metal: color-mix(in oklch, var(--ivory-50) 24%, var(--surface-soft));
-    --accent-bubble-soft: color-mix(in oklch, var(--brand-soft) 64%, var(--surface-soft));
-    --accent-mauve-soft: color-mix(in oklch, var(--neutral-metal) 38%, var(--surface-soft));
-    --accent-berry-soft: color-mix(in oklch, var(--accent-berry) 18%, var(--surface-soft));
-    --control-halo-interactive:
-      0 0 0 1px color-mix(in srgb, var(--accent-interactive) 28%, transparent),
-      0 1px 3px color-mix(in srgb, black 40%, transparent);
-    --control-halo-highlight:
-      0 0 0 1px color-mix(in srgb, var(--accent-highlight) 30%, transparent),
-      0 2px 4px color-mix(in srgb, black 46%, transparent);
+    /* 文字色 */
+    --text: var(--flat-gray-50);
+    --text-secondary: var(--flat-gray-400);
+    --text-tertiary: var(--flat-gray-500);
+    --text-muted: var(--flat-gray-600);
+    --text-inverse: var(--flat-gray-900);
 
-    --shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
-    --shadow-strong: 0 2px 4px rgba(0, 0, 0, 0.36);
-    --card-shadow-cool:
-      0 0 0 1px color-mix(in srgb, var(--border) 86%, transparent),
-      0 0 3px color-mix(in srgb, black 28%, transparent);
-    --card-shadow-cool-hover:
-      0 0 0 1px color-mix(in srgb, var(--border-strong) 82%, transparent),
-      0 0 4px color-mix(in srgb, black 42%, transparent);
-    --card-shadow-warm:
-      0 0 0 1px color-mix(in srgb, var(--accent-berry) 18%, var(--border)),
-      0 0 3px color-mix(in srgb, black 28%, transparent);
-    --card-shadow-warm-hover:
-      0 0 0 1px color-mix(in srgb, var(--accent-berry) 32%, var(--border-strong)),
-      0 0 4px color-mix(in srgb, black 42%, transparent);
+    /* 边框色 */
+    --border: var(--flat-gray-700);
+    --border-strong: var(--flat-gray-600);
+    --border-light: var(--flat-gray-800);
 
-    --decor-pattern-opacity: 0.032;
-    --decor-base-opacity: 0.044;
-    --decor-pattern-line: color-mix(in oklch, var(--rose-500) 8%, transparent);
-    --decor-pattern-line-alt: color-mix(in oklch, var(--accent-secondary) 7%, transparent);
-    --decor-pattern-dot: color-mix(in oklch, var(--accent-secondary) 10%, transparent);
-    --decor-base-tint-rose: color-mix(in oklch, var(--rose-500) 7%, transparent);
-    --decor-base-tint-wisteria: color-mix(in oklch, var(--accent-secondary) 6%, transparent);
+    /* 长投影 - 暗色模式 */
+    --shadow-flat-sm: 0 2px 0 var(--flat-black);
+    --shadow-flat: 0 4px 0 var(--flat-black);
+    --shadow-flat-md: 0 6px 0 var(--flat-black);
+    --shadow-flat-lg: 0 8px 0 var(--flat-black);
+    --shadow-flat-xl: 0 12px 0 #0d0d0d;
+
+    --shadow-flat-pink: 0 4px 0 #a63d52;
+    --shadow-flat-pink-lg: 0 8px 0 #a63d52;
+
+    /* 卡片 */
+    --card-border: 2px solid var(--border);
+
+    /* 装饰 */
+    --decor-line-color: var(--flat-gray-700);
+    --decor-dot-color: var(--flat-gray-600);
   }
 }
 
+/* ========== 响应式断点 ========== */
 @media (max-width: 960px) {
   :root {
-    --motion-distance-enter: 9px;
-    --motion-home-left-distance: 18px;
-    --motion-distance-route: 7px;
-    --motion-stagger-step: 48ms;
-    --motion-stagger-step-home: 64ms;
-    --motion-stagger-step-card: 96ms;
+    --section-gap: var(--space-6);
+    --card-gap: var(--space-3);
+    --text-3xl: 28px;
+    --text-4xl: 36px;
+    --text-5xl: 40px;
   }
 }
 
 @media (max-width: 640px) {
   :root {
-    --space-2: 0.46rem;
-    --space-3: 0.68rem;
-    --space-4: 0.9rem;
-    --space-5: 1.34rem;
-    --space-6: 1.78rem;
-    --motion-distance-enter: 8px;
-    --motion-home-left-distance: 16px;
-    --motion-distance-route: 6px;
-    --motion-stagger-step: 42ms;
-    --motion-stagger-step-home: 56ms;
-    --motion-stagger-step-card: 90ms;
-    --decor-pattern-step: 20px;
-    --decor-pattern-line-thickness: 0.9px;
-    --decor-pattern-dot-size: 1px;
-    --decor-pattern-opacity: calc(var(--material-decor-line-opacity) * 0.9);
-    --decor-base-opacity: calc(var(--material-decor-shape-opacity) * 0.9);
+    --section-gap: var(--space-5);
+    --card-padding: var(--space-4);
+    --button-height: 36px;
+    --input-height: 40px;
+    --text-2xl: 22px;
+    --text-3xl: 24px;
+    --text-4xl: 28px;
   }
 }
