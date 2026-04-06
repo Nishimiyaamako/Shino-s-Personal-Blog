@@ -1,11 +1,12 @@
 # AI Workflow（Shino's Bolg）
 
-> Updated on 2026-04-02.
+> Updated on 2026-04-06.
 
 ## 1) 文件说明
 
 - `MEMORY.md`：项目长期记忆（前 200 行高信噪比）。
 - `STOP_HOOKS.md`：停止点自检规则。
+- `ROOCODE_CODE_MODE_SYSTEM_INSTRUCTION.md`：RooCode `Code` 模式可直接粘贴的系统指令模板（含 Tool Safety Guard）。
 - `ARCHITECTURE.md`：运行拓扑与端口/域名映射手册。
 - `README.md`：协作入口（本文件）。
 
@@ -59,7 +60,7 @@
 ## 5) 标准工作回路
 
 ```text
-需求 -> 计划 -> plan-stop-audit -> frontend-preflight-skill-stack(仅 frontend 改动) -> 实施 -> code-stop-typecheck -> delivery-stop-domain-port-chain(命中链路任务) -> task-stop-memory-sync -> 交付
+需求 -> 计划 -> plan-stop-audit -> frontend-preflight-skill-stack(仅 frontend 改动) -> tool-stop-safety-guard(工具调用前后) -> 实施 -> code-stop-typecheck -> delivery-stop-domain-port-chain(命中链路任务) -> task-stop-memory-sync -> 交付
 ```
 
 ## 6) 默认质量闸门
@@ -81,3 +82,13 @@
 - 默认技能链：`frontend-design -> harden -> polish`（固定顺序）。
 - 优先级：用户显式点名的 skill 优先于默认技能链。
 - 例外：非 frontend 改动任务不触发该链。
+
+## 9) RooCode 防重复执行规则（Code 模式）
+
+- 规则入口：`docs/ai-workflow/ROOCODE_CODE_MODE_SYSTEM_INSTRUCTION.md`
+- 核心目标：避免同一无效工具调用反复执行，防止触发 `Tool call repetition limit reached`。
+- 默认策略：
+  - 同签名失败最多 2 次，超限即停机并请求用户选择下一步。
+  - 明确禁止 `read_file('.')` 或目录读取回环，必须切换 `list_files`。
+  - 遇到 `missing nativeArgs` / `Required values not set` 仅允许修参重试 1 次。
+  - 大文件只允许 `offset` 递增分片读取。

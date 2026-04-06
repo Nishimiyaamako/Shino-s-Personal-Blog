@@ -1,6 +1,6 @@
 # MEMORY.md（Shino's Bolg）
 
-> Updated on 2026-04-02.
+> Updated on 2026-04-06.
 > 目标：把会影响实现决策的关键信息压缩在前 200 行。
 
 ## 0) 维护约定（前 200 行工作区）
@@ -51,6 +51,7 @@
 - 若用户显式点名其他 skill，以用户指定优先；默认链不强行追加。
 - Stop Hooks 采用中等自动化：自动检查 + 报告，不无限重试。
 - 默认收尾输出三段：`Checks Run / Findings / Next Action`。
+- 命中工具调用任务时，必须启用 `tool-stop-safety-guard`：同签名失败最多 2 次，超限进入 `stall mode` 等待用户选择。
 
 ## 3) 关键决策（预算 ≤ 55 行）
 
@@ -70,6 +71,7 @@
 - 决策：质量闸门主命令维持 backend + frontend 双段校验。
 - 决策：frontend 任务默认技能链继续保持 `frontend-design -> harden -> polish`。
 - 决策：任务收尾必须执行 memory sync。
+- 决策：新增 RooCode `Code` 模式 Tool Safety Guard 规则，阻断同参工具调用循环（`read_file('.')`、缺参重放、offset 回退）。
 
 ## 4) 已踩坑与回归风险（预算 ≤ 40 行）
 
@@ -91,6 +93,8 @@
   - 防护：上线前先验证镜像拉取连通性，必要时配置镜像代理或改用离线镜像导入。
 - 风险：协作文档若仍停留 `/admin` 旧描述，会导致排障和验收按错入口路径。
   - 防护：文档统一使用 `/admin/{module}` 契约，并保留 `/admin -> /admin/posts` 重定向说明。
+- 风险：工具调用失败后若无重试预算与签名去重，容易出现同调用参数无限重试并触发 repetition limit。
+  - 防护：启用 `tool-stop-safety-guard`，统一执行“2 次失败上限 + stall mode + 目录读取拦截”。
 
 ## 5) 当前任务与下一步（预算 ≤ 35 行）
 
@@ -111,7 +115,7 @@
 - 2026-04-02：后台改为独立工具壳层，新增 `/admin/{module}` 子路由与按模块懒加载刷新。
 - 2026-04-02：补齐未保存变更提示与离开拦截，新增后台模块失败态重试入口。
 - 2026-04-02：执行 `build-frontend-dist.sh` 产出 `deploy/artifacts/frontend-dist-latest.tar.gz`。
-- 2026-04-02：执行生产 env 校验，确认示例文件默认密码与 JWT secret 会被 `ENV_CHECK=FAIL` 拦截。
+- 2026-04-06：新增 `tool-stop-safety-guard` 与 `ROOCODE_CODE_MODE_SYSTEM_INSTRUCTION.md`，落地防重复执行规则。
 
 ---
 
