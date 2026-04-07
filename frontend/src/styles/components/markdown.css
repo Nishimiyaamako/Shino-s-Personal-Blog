@@ -1,0 +1,260 @@
+/* Markdown Content Component */
+
+.markdown-content {
+    line-height: 1.8;
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.markdown-content> :first-child {
+    margin-top: 0;
+}
+
+.markdown-content> :last-child {
+    margin-bottom: 0;
+}
+
+/* Headings */
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4 {
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3 {
+    scroll-margin-top: calc(var(--profile-sticky-top) + var(--space-3));
+}
+
+/* Code */
+.markdown-content code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+    font-size: 0.9em;
+    background: var(--surface-soft);
+    border-radius: 6px;
+    padding: 0.1rem 0.35rem;
+}
+
+/* Preformatted blocks */
+.markdown-content pre {
+    position: relative;
+    overflow: auto;
+    padding: var(--space-4);
+    border-radius: var(--radius-sm);
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.markdown-content pre code {
+    background: transparent;
+    padding: 0;
+    white-space: inherit;
+}
+
+/* Blockquotes */
+.markdown-content blockquote {
+    margin: 1rem 0;
+    padding: 0.35rem 1rem;
+    border-left: 4px solid var(--brand);
+    background: var(--surface-soft);
+}
+
+/* Post Detail Specific Styles */
+.page-post-detail .post-detail-layout>.markdown-content {
+    font-size: 1rem;
+    line-height: 1.82;
+    padding: clamp(1rem, 2vw, 1.65rem);
+}
+
+.page-post-detail .markdown-content>*+* {
+    margin-top: 1.25em;
+}
+
+.page-post-detail .markdown-content p {
+    margin: 0;
+    color: var(--text);
+}
+
+.page-post-detail .markdown-content h1,
+.page-post-detail .markdown-content h2,
+.page-post-detail .markdown-content h3,
+.page-post-detail .markdown-content h4,
+.page-post-detail .markdown-content h5,
+.page-post-detail .markdown-content h6 {
+    margin-top: 2em;
+    margin-bottom: 0.75em;
+    line-height: 1.28;
+    color: var(--text);
+    scroll-margin-top: calc(var(--profile-sticky-top) + var(--space-3));
+}
+
+.page-post-detail .markdown-content h1 {
+    font-size: clamp(1.42rem, 2.3vw, 1.82rem);
+    padding-bottom: 0.35em;
+    border-bottom: 2px solid color-mix(in srgb, var(--accent-secondary) 16%, var(--border));
+}
+
+.page-post-detail .markdown-content h2 {
+    font-size: clamp(1.2rem, 2vw, 1.45rem);
+    padding-bottom: 0.24em;
+    border-bottom: 1px solid color-mix(in srgb, var(--accent-secondary) 16%, var(--border));
+}
+
+.page-post-detail .markdown-content h3 {
+    font-size: clamp(1.08rem, 1.68vw, 1.24rem);
+}
+
+.page-post-detail .markdown-content h4 {
+    font-size: 1rem;
+}
+
+/* Heading prefixes */
+.page-post-detail .markdown-content h1::before {
+    content: var(--post-heading-prefix-h1, '');
+    color: color-mix(in srgb, var(--accent-berry) 86%, var(--text));
+    white-space: pre;
+}
+
+.page-post-detail .markdown-content h2::before {
+    content: var(--post-heading-prefix-h2, '');
+    color: color-mix(in srgb, var(--accent-berry) 82%, var(--text));
+    white-space: pre;
+}
+
+.page-post-detail .markdown-content h3::before {
+    content: var(--post-heading-prefix-h3, '');
+    color: color-mix(in srgb, var(--accent-secondary) 74%, var(--text));
+    white-space: pre;
+}
+
+.page-post-detail .markdown-content h4::before {
+    content: var(--post-heading-prefix-h4, '');
+    color: color-mix(in srgb, var(--accent-secondary) 68%, var(--text));
+    white-space: pre;
+}
+
+.page-post-detail .markdown-content h5::before {
+    content: var(--post-heading-prefix-h5, '');
+    color: var(--text-subtle);
+    white-space: pre;
+}
+
+.page-post-detail .markdown-content h6::before {
+    content: var(--post-heading-prefix-h6, '');
+    color: color-mix(in srgb, var(--text-subtle) 84%, var(--border-strong));
+    white-space: pre;
+}
+
+/* Links */
+.page-post-detail .markdown-content a {
+    color: color-mix(in srgb, var(--accent-secondary) 72%, var(--brand));
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: 0 calc(100% - 1px);
+    background-size: 0% 1.5px;
+    transition:
+        color var(--motion-transition-feedback),
+        background-size var(--motion-transition-feedback);
+}
+
+.page-post-detail .markdown-content a:hover {
+    color: color-mix(in srgb, var(--accent-secondary) 88%, var(--text));
+    background-size: 100% 1.5px;
+}
+
+/* Inline code in post detail */
+.page-post-detail .markdown-content :not(pre)>code {
+    background: color-mix(in srgb, var(--accent-berry-soft) 40%, var(--surface-soft));
+    border: 1px solid color-mix(in srgb, var(--accent-berry) 22%, var(--border));
+    color: color-mix(in srgb, var(--accent-berry) 72%, var(--text));
+    font-size: 0.88em;
+    border-radius: 6px;
+    padding: 0.12rem 0.38rem;
+}
+
+/* Code blocks in post detail */
+.page-post-detail .markdown-content pre {
+    margin: 1.25rem 0;
+    border-radius: var(--radius-sm);
+    border: 1px solid color-mix(in srgb, var(--accent-secondary) 18%, var(--border));
+    background: var(--card-surface-main);
+    box-shadow: 0 1px 3px color-mix(in srgb, var(--accent-secondary) 10%, transparent);
+}
+
+.page-post-detail .markdown-content pre code {
+    display: block;
+    line-height: 1.7;
+    font-size: 0.86rem;
+}
+
+/* Blockquotes in post detail */
+.page-post-detail .markdown-content blockquote {
+    margin: 1.25em 0;
+    padding: 0.72rem 1rem;
+    border-left: 4px solid color-mix(in srgb, var(--accent-berry) 60%, var(--brand));
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    background: var(--card-surface-main);
+    color: var(--text-subtle);
+}
+
+/* Lists */
+.page-post-detail .markdown-content ul,
+.page-post-detail .markdown-content ol {
+    margin: 1em 0;
+    padding-left: 1.75em;
+    line-height: 1.78;
+}
+
+.page-post-detail .markdown-content li {
+    margin: 0.34em 0;
+}
+
+/* Horizontal rule */
+.page-post-detail .markdown-content hr {
+    border: 0;
+    height: 1px;
+    margin: 1.45rem 0;
+    background: color-mix(in srgb, var(--accent-secondary) 16%, var(--border));
+}
+
+/* Tables */
+.page-post-detail .markdown-content table {
+    width: 100%;
+    margin: 1rem 0;
+    border-collapse: collapse;
+    border: 1px solid color-mix(in srgb, var(--accent-secondary) 16%, var(--border));
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.page-post-detail .markdown-content th,
+.page-post-detail .markdown-content td {
+    padding: 0.58rem 0.72rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--accent-secondary) 12%, var(--border));
+    text-align: left;
+    vertical-align: top;
+}
+
+.page-post-detail .markdown-content th {
+    font-weight: 700;
+    background: color-mix(in srgb, var(--accent-secondary-soft) 22%, var(--surface-soft));
+}
+
+.page-post-detail .markdown-content tr:last-child td {
+    border-bottom: 0;
+}
+
+/* Images */
+.page-post-detail .markdown-content img {
+    margin: 1rem auto;
+    border-radius: var(--radius-sm);
+    border: 1px solid color-mix(in srgb, var(--accent-secondary) 18%, var(--border));
+}

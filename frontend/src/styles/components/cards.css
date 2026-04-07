@@ -1,0 +1,116 @@
+/* Cards layer: reusable card surface patterns */
+
+/* Base card surface - extracted from repeated patterns in content.css */
+.card-surface {
+    background: var(--card-surface-main);
+    border: 0;
+    border-radius: var(--card-radius-main);
+    box-shadow: var(--card-shadow-cool);
+    backdrop-filter: var(--material-card-backdrop);
+    -webkit-backdrop-filter: var(--material-card-backdrop);
+}
+
+.card-surface--warm {
+    box-shadow: var(--card-shadow-warm);
+}
+
+.card-surface--warm-hover:hover {
+    box-shadow: var(--card-shadow-warm-hover);
+}
+
+.card-surface--cool-hover:hover {
+    box-shadow: var(--card-shadow-cool-hover);
+}
+
+/* Card padding variants */
+.card-padding--default {
+    padding: var(--space-5);
+}
+
+.card-padding--compact {
+    padding: var(--space-4);
+}
+
+/* Hero card and page section - unified from content.css */
+.hero-card,
+.page-section {
+    background: var(--card-surface-main);
+    border: 0;
+    border-radius: var(--card-radius-main);
+    box-shadow: var(--card-shadow-warm);
+    backdrop-filter: var(--material-card-backdrop);
+    -webkit-backdrop-filter: var(--material-card-backdrop);
+}
+
+/* Stats list item, markdown content, page header - unified cool variant */
+.stats-list li,
+.markdown-content,
+.page-not-found,
+.page-header {
+    background: var(--card-surface-main);
+    border: 0;
+    border-radius: var(--card-radius-main);
+    box-shadow: var(--card-shadow-cool);
+    backdrop-filter: var(--material-card-backdrop);
+    -webkit-backdrop-filter: var(--material-card-backdrop);
+}
+
+/* Common card content padding */
+.hero-card,
+.page-section,
+.page-header,
+.page-not-found,
+.markdown-content {
+    padding: var(--space-5);
+}
+
+/* Card headings */
+.hero-card h1,
+.page-header h1 {
+    margin: 0 0 var(--space-2);
+    line-height: 1.3;
+}
+
+.hero-card p,
+.page-header p,
+.markdown-content p {
+    margin: var(--space-2) 0 0;
+}
+
+/* Eyebrow text pattern */
+.eyebrow {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--brand);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+/* Section head pattern */
+.section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+}
+
+.section-head h2,
+.page-section h2 {
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Visually hidden utility */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}

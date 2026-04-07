@@ -1,0 +1,199 @@
+/* Profile Card Component */
+
+.profile-card {
+    background: var(--card-surface-main);
+    border: 0;
+    border-radius: var(--card-radius-main);
+    box-shadow: var(--card-shadow-warm);
+    backdrop-filter: var(--material-card-backdrop);
+    -webkit-backdrop-filter: var(--material-card-backdrop);
+    padding: var(--space-4);
+    display: grid;
+    gap: var(--space-4);
+    position: sticky;
+    top: var(--profile-sticky-top);
+    max-height: calc(100vh - var(--profile-sticky-top) - var(--space-5));
+    overflow: auto;
+    transition: transform var(--motion-transition-state), box-shadow var(--motion-transition-state);
+}
+
+.profile-card:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--card-shadow-warm-hover);
+}
+
+.site-main--with-profile .profile-card {
+    grid-column: 1;
+    justify-self: end;
+    width: clamp(204px, 18vw, 240px);
+    max-width: 100%;
+}
+
+/* Profile Card Header */
+.profile-card-header {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-3);
+    text-align: center;
+}
+
+.profile-card-avatar {
+    width: 88px;
+    height: 88px;
+    border-radius: 999px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    background: var(--surface-soft);
+}
+
+.profile-card-meta h2 {
+    margin: 0;
+    font-size: 1.08rem;
+    line-height: 1.35;
+}
+
+.profile-card-meta p {
+    margin: var(--space-2) 0 0;
+    color: var(--text-subtle);
+    font-size: 0.94rem;
+}
+
+/* Profile Contact List */
+.profile-contact-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: var(--space-2);
+}
+
+.profile-contact-link {
+    --profile-contact-accent: var(--p-sakura-light);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.52rem;
+    min-height: 40px;
+    padding: 0.34rem var(--space-3);
+    border-radius: var(--radius-sm);
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-decoration: none;
+    text-align: left;
+    transition:
+        color var(--motion-transition-state),
+        background-color var(--motion-transition-state),
+        transform var(--motion-transition-state),
+        box-shadow var(--motion-transition-state);
+}
+
+.profile-contact-list>li:nth-child(3n + 1) .profile-contact-link {
+    --profile-contact-accent: var(--p-sakura-light);
+}
+
+.profile-contact-list>li:nth-child(3n + 2) .profile-contact-link {
+    --profile-contact-accent: var(--p-wisteria);
+}
+
+.profile-contact-list>li:nth-child(3n + 3) .profile-contact-link {
+    --profile-contact-accent: var(--p-ume-accent);
+}
+
+.profile-contact-link:focus-visible {
+    outline: var(--focus-ring-outline-strong);
+    outline-offset: 1px;
+    transform: translateY(calc(var(--motion-distance-hover) * -0.5));
+    box-shadow: var(--card-shadow-cool-hover);
+}
+
+.profile-contact-platform {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.42rem;
+    color: color-mix(in oklch, var(--profile-contact-accent) 70%, var(--text-subtle));
+    font-weight: 600;
+    font-size: 0.93rem;
+    line-height: 1.2;
+    transition: color var(--motion-transition-state);
+}
+
+.profile-contact-icon {
+    width: 0.96rem;
+    height: 0.96rem;
+    flex: none;
+    transition: transform var(--motion-transition-feedback);
+}
+
+.profile-contact-link:focus-visible .profile-contact-platform {
+    color: color-mix(in oklch, var(--profile-contact-accent) 70%, var(--text));
+}
+
+.profile-contact-link:active {
+    transform: translateY(calc(var(--motion-distance-hover) * -0.2)) scale(0.998);
+    box-shadow: var(--card-shadow-cool);
+    transition-duration: var(--motion-duration-feedback);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .profile-contact-link:hover {
+        text-decoration: none;
+        transform: translateY(calc(var(--motion-distance-hover) * -0.5));
+        box-shadow: var(--card-shadow-cool-hover);
+    }
+
+    .profile-contact-link:hover .profile-contact-platform {
+        color: color-mix(in oklch, var(--profile-contact-accent) 54%, var(--text));
+    }
+}
+
+/* Profile Card Divider */
+.profile-card-divider {
+    height: 1px;
+    background: var(--border);
+}
+
+/* Profile Stats */
+.profile-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+}
+
+.profile-stat-card {
+    margin: 0;
+    padding: var(--space-3);
+    border-radius: var(--radius-sm);
+    border: 0;
+    text-align: center;
+}
+
+.profile-stat-value {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.5;
+    color: var(--text);
+}
+
+.profile-stat-label {
+    margin: var(--space-1) 0 0;
+    font-size: 0.7rem;
+    color: var(--text-subtle);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .profile-card {
+        position: static;
+        max-height: none;
+        overflow: visible;
+    }
+
+    .site-main--with-profile .profile-card {
+        justify-self: stretch;
+        width: auto;
+        max-width: none;
+    }
+}

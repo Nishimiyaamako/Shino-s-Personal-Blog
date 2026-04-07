@@ -1,0 +1,128 @@
+/* Admin Forms Styles */
+
+/* Admin Form Variants */
+.admin-login-form,
+.admin-post-form,
+.admin-friend-form,
+.admin-about-form,
+.admin-profile-form {
+    display: grid;
+    gap: 0.75rem;
+    background: var(--admin-surface-muted);
+    border: 1px solid color-mix(in oklch, var(--admin-border) 88%, transparent);
+    border-radius: 12px;
+    padding: 0.95rem;
+}
+
+/* Form Section */
+.admin-form-section {
+    display: grid;
+    gap: 0.62rem;
+    border: 1px solid color-mix(in oklch, var(--admin-border) 70%, transparent);
+    border-radius: 10px;
+    padding: 0.72rem;
+    background: color-mix(in oklch, var(--admin-surface) 92%, var(--surface-soft));
+}
+
+.admin-form-section h3 {
+    font-size: 0.92rem;
+    letter-spacing: 0.02em;
+    color: color-mix(in oklch, var(--text-subtle) 85%, var(--text));
+}
+
+/* Friend Import */
+.admin-friend-import {
+    gap: 0.55rem;
+}
+
+.admin-friend-import h3 {
+    margin: 0;
+}
+
+.admin-friend-import textarea {
+    min-height: 136px;
+    font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+}
+
+.admin-friend-import-hint {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.48;
+    color: color-mix(in oklch, var(--text-subtle) 92%, var(--text));
+}
+
+/* Form Head */
+.admin-form-head {
+    display: grid;
+    gap: 0.3rem;
+}
+
+.admin-form-head p {
+    margin: 0;
+    color: var(--text-subtle);
+    font-size: 0.88rem;
+}
+
+/* Form Labels */
+.admin-login-form label,
+.admin-post-form label,
+.admin-friend-form label,
+.admin-about-form label,
+.admin-profile-form label {
+    display: grid;
+    gap: 0.32rem;
+}
+
+.admin-login-form label>span,
+.admin-post-form label>span,
+.admin-friend-form label>span,
+.admin-about-form label>span,
+.admin-profile-form label>span {
+    font-size: 0.84rem;
+    color: color-mix(in oklch, var(--text-subtle) 84%, var(--text));
+}
+
+/* Form Inputs */
+.admin-login-form input,
+.admin-login-form textarea,
+.admin-post-form input,
+.admin-post-form textarea,
+.admin-post-form select,
+.admin-friend-form input,
+.admin-friend-form textarea,
+.admin-about-form textarea,
+.admin-profile-form input,
+.admin-profile-form textarea {
+    width: 100%;
+    border: 1px solid var(--admin-border);
+    background: color-mix(in oklch, var(--admin-surface) 92%, var(--surface));
+    border-radius: 10px;
+    color: var(--text);
+    padding: 0.62rem 0.74rem;
+    min-height: 44px;
+    font: inherit;
+}
+
+.admin-login-form textarea,
+.admin-post-form textarea,
+.admin-friend-form textarea,
+.admin-about-form textarea,
+.admin-profile-form textarea {
+    resize: vertical;
+}
+
+/* Admin Filter Form */
+.admin-filter-form {
+    display: grid;
+    gap: 0.62rem;
+    padding: 0.62rem;
+    border: 1px solid var(--admin-border);
+    border-radius: 10px;
+    background: color-mix(in oklch, var(--admin-surface) 88%, var(--surface-soft));
+}
+
+.admin-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.62rem;
+}

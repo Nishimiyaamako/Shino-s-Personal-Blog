@@ -1,0 +1,278 @@
+/* Admin Core Styles */
+
+.admin-app-shell {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at 10% 8%, color-mix(in oklch, var(--accent-secondary) 8%, transparent), transparent 28%),
+        radial-gradient(circle at 90% 0%, color-mix(in oklch, var(--brand) 9%, transparent), transparent 24%),
+        color-mix(in oklch, var(--surface) 92%, var(--bg));
+}
+
+.admin-main-content {
+    width: min(1500px, calc(100% - 2rem));
+    margin-inline: auto;
+    padding: clamp(1rem, 2vw, 1.5rem) 0 clamp(1.5rem, 3.4vw, 2.6rem);
+}
+
+/* Admin Page */
+.page-admin {
+    --admin-surface: color-mix(in oklch, var(--surface-elevated) 94%, var(--surface-soft));
+    --admin-surface-muted: color-mix(in oklch, var(--surface-soft) 92%, var(--surface));
+    --admin-border: color-mix(in oklch, var(--border) 82%, var(--accent-secondary-soft));
+    --admin-border-strong: color-mix(in oklch, var(--border-strong) 55%, var(--border));
+    --admin-shadow: 0 14px 28px color-mix(in oklch, var(--text) 8%, transparent);
+    --admin-radius: 14px;
+    gap: clamp(0.9rem, 1.8vw, 1.25rem);
+}
+
+.page-admin>*,
+.page-admin form>* {
+    min-width: 0;
+}
+
+.page-admin h1,
+.page-admin h2,
+.page-admin h3,
+.page-admin h4 {
+    margin: 0;
+    color: color-mix(in oklch, var(--text) 94%, var(--accent-berry));
+}
+
+/* Admin Shell Head */
+.admin-shell-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: clamp(1rem, 1.6vw, 1.2rem);
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius);
+    box-shadow: var(--admin-shadow);
+}
+
+.admin-shell-head p {
+    margin: 0.4rem 0 0;
+    color: color-mix(in oklch, var(--text-subtle) 86%, var(--text));
+}
+
+.admin-shell-head-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+}
+
+/* Admin Kicker */
+.admin-kicker {
+    margin: 0;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: color-mix(in oklch, var(--text-subtle) 80%, var(--accent-secondary));
+    font-weight: 700;
+}
+
+/* Admin Runtime */
+.admin-runtime-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+}
+
+.admin-runtime-status {
+    margin: 0;
+    flex: 1 1 320px;
+    padding: 0.68rem 0.86rem;
+    border-radius: 10px;
+    background: color-mix(in oklch, var(--admin-surface-muted) 88%, transparent);
+    border: 1px solid color-mix(in oklch, var(--admin-border) 66%, transparent);
+    color: color-mix(in oklch, var(--text-subtle) 88%, var(--text));
+    font-size: 0.9rem;
+}
+
+.admin-runtime-status:empty {
+    display: none;
+}
+
+.admin-runtime-status.is-error {
+    color: color-mix(in oklch, var(--accent-berry) 76%, var(--text));
+    border-color: color-mix(in oklch, var(--accent-berry) 40%, var(--admin-border));
+    background: color-mix(in oklch, var(--accent-berry) 8%, var(--admin-surface-muted));
+}
+
+.admin-runtime-retry {
+    min-width: 108px;
+}
+
+/* Unsaved Status */
+.admin-unsaved-status {
+    margin: 0;
+    padding: 0.58rem 0.8rem;
+    border-radius: 10px;
+    border: 1px solid color-mix(in oklch, var(--accent-secondary) 36%, var(--admin-border));
+    background: color-mix(in oklch, var(--accent-secondary-soft) 38%, var(--admin-surface-muted));
+    color: color-mix(in oklch, var(--accent-secondary) 66%, var(--text));
+    font-size: 0.86rem;
+}
+
+/* Admin Workbench */
+.admin-workbench {
+    display: grid;
+    grid-template-columns: minmax(220px, 260px) minmax(0, 1fr);
+    gap: var(--space-3);
+    align-items: start;
+}
+
+/* Admin Module Nav */
+.admin-module-nav {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius);
+    box-shadow: var(--admin-shadow);
+    padding: 0.88rem;
+    position: sticky;
+    top: 1rem;
+    display: grid;
+    gap: var(--space-2);
+}
+
+.admin-module-nav h2 {
+    font-size: 0.92rem;
+    letter-spacing: 0.02em;
+    color: color-mix(in oklch, var(--text-subtle) 86%, var(--text));
+}
+
+.admin-module-nav-list {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.admin-module-nav-list a {
+    display: grid;
+    gap: 0.08rem;
+    min-height: 44px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    text-decoration: none;
+    color: inherit;
+    background: transparent;
+    padding: 0.52rem 0.65rem;
+    transition:
+        background var(--motion-transition-feedback),
+        border-color var(--motion-transition-feedback),
+        box-shadow var(--motion-transition-feedback),
+        transform var(--motion-transition-feedback);
+}
+
+.admin-module-nav-list a strong {
+    font-size: 0.92rem;
+    font-weight: 640;
+    line-height: 1.35;
+}
+
+.admin-module-nav-list a small {
+    color: var(--text-subtle);
+    font-size: 0.75rem;
+    line-height: 1.2;
+}
+
+.admin-module-nav-list a.is-active {
+    border-color: color-mix(in oklch, var(--accent-secondary) 42%, var(--admin-border));
+    background: color-mix(in oklch, var(--accent-secondary-soft) 44%, var(--admin-surface-muted));
+    box-shadow: 0 3px 8px color-mix(in oklch, var(--accent-secondary) 12%, transparent);
+}
+
+.admin-module-nav-list a:focus-visible {
+    outline: var(--focus-ring-outline-strong);
+    outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .admin-module-nav-list a:hover {
+        border-color: color-mix(in oklch, var(--accent-secondary) 26%, var(--admin-border));
+        background: color-mix(in oklch, var(--accent-secondary-soft) 30%, var(--admin-surface-muted));
+        transform: translateY(-1px);
+    }
+}
+
+/* Admin Panel */
+.admin-panel-wrap {
+    display: grid;
+    gap: var(--space-3);
+}
+
+.admin-panel {
+    display: grid;
+    gap: var(--space-3);
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius);
+    box-shadow: var(--admin-shadow);
+    padding: clamp(0.82rem, 1.6vw, 1.1rem);
+    position: relative;
+}
+
+.admin-panel.is-loading {
+    opacity: 0.68;
+    pointer-events: none;
+}
+
+.admin-panel.is-loading::after {
+    content: '正在同步数据…';
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: color-mix(in oklch, var(--admin-surface) 84%, transparent);
+    font-size: 0.9rem;
+    color: var(--text-subtle);
+}
+
+/* Admin Posts Workspace */
+.admin-posts-workspace {
+    display: grid;
+    gap: var(--space-3);
+}
+
+/* Admin Subhead */
+.admin-subhead {
+    display: grid;
+    gap: 0.42rem;
+}
+
+.admin-subhead p {
+    margin: 0;
+    color: var(--text-subtle);
+}
+
+/* Admin Two Column Layout */
+.admin-two-col {
+    display: grid;
+    grid-template-columns: minmax(260px, 380px) minmax(0, 1fr);
+    gap: var(--space-3);
+    align-items: start;
+}
+
+.admin-list-col,
+.admin-form-col {
+    min-width: 0;
+}
+
+.admin-list-col {
+    background: var(--admin-surface-muted);
+    border-radius: 12px;
+    border: 1px solid color-mix(in oklch, var(--admin-border) 88%, transparent);
+    padding: 0.88rem;
+    display: grid;
+    gap: 0.75rem;
+}
+
+/* Admin List Head */
+.admin-list-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+}

@@ -1,0 +1,90 @@
+/* Forms layer: reusable form patterns */
+
+/* Form base */
+.form-base {
+    display: grid;
+    gap: 0.75rem;
+}
+
+/* Form section */
+.form-section {
+    display: grid;
+    gap: 0.62rem;
+    border: 1px solid color-mix(in oklch, var(--admin-border) 70%, transparent);
+    border-radius: 10px;
+    padding: 0.72rem;
+    background: color-mix(in oklch, var(--admin-surface) 92%, var(--surface-soft));
+}
+
+.form-section h3 {
+    font-size: 0.92rem;
+    letter-spacing: 0.02em;
+    color: color-mix(in oklch, var(--text-subtle) 85%, var(--text));
+}
+
+/* Form labels */
+.form-label {
+    display: grid;
+    gap: 0.32rem;
+}
+
+.form-label>span {
+    font-size: 0.84rem;
+    color: color-mix(in oklch, var(--text-subtle) 84%, var(--text));
+}
+
+/* Form inputs */
+.form-input,
+.form-textarea,
+.form-select {
+    width: 100%;
+    border: 1px solid var(--admin-border);
+    background: color-mix(in oklch, var(--admin-surface) 92%, var(--surface));
+    border-radius: 10px;
+    color: var(--text);
+    padding: 0.62rem 0.74rem;
+    min-height: 44px;
+    font: inherit;
+}
+
+.form-textarea {
+    resize: vertical;
+}
+
+/* Admin form variants - specific to admin context */
+.admin-form {
+    display: grid;
+    gap: 0.75rem;
+    background: var(--admin-surface-muted);
+    border: 1px solid color-mix(in oklch, var(--admin-border) 88%, transparent);
+    border-radius: 12px;
+    padding: 0.95rem;
+}
+
+/* Filter form */
+.filter-form {
+    display: grid;
+    gap: 0.62rem;
+    padding: 0.62rem;
+    border: 1px solid var(--admin-border);
+    border-radius: 10px;
+    background: color-mix(in oklch, var(--admin-surface) 88%, var(--surface-soft));
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.62rem;
+}
+
+/* Form head */
+.form-head {
+    display: grid;
+    gap: 0.3rem;
+}
+
+.form-head p {
+    margin: 0;
+    color: var(--text-subtle);
+    font-size: 0.88rem;
+}

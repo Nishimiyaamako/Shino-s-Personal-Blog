@@ -1,0 +1,140 @@
+/* Buttons layer: reusable button patterns */
+
+/* Base copy button - unified from friend-link-copy-button and post-code-copy-button */
+.copy-button {
+    position: absolute;
+    border: 1px solid color-mix(in srgb, var(--accent-interactive) 24%, var(--border));
+    background: var(--control-surface-interactive);
+    color: var(--accent-info-text);
+    border-radius: 999px;
+    font-size: 0.58rem;
+    line-height: 1;
+    padding: 0.22rem 0.42rem;
+    cursor: pointer;
+    transition:
+        color var(--motion-transition-feedback),
+        border-color var(--motion-transition-feedback),
+        background-color var(--motion-transition-feedback),
+        box-shadow var(--motion-transition-feedback),
+        transform var(--motion-transition-feedback);
+}
+
+.copy-button:hover {
+    color: var(--accent-interactive-text);
+    border-color: color-mix(in srgb, var(--accent-interactive) 40%, var(--border));
+    box-shadow: var(--control-halo-interactive);
+    transform: translateY(calc(var(--motion-distance-hover) * -0.45));
+}
+
+.copy-button:focus-visible {
+    outline: var(--focus-ring-outline-soft);
+    outline-offset: 2px;
+}
+
+.copy-button.is-copied {
+    color: var(--accent-highlight-text);
+    border-color: color-mix(in srgb, var(--accent-highlight) 44%, var(--border));
+    background: var(--control-surface-highlight);
+    box-shadow: var(--control-halo-highlight);
+}
+
+.copy-button.is-error {
+    color: color-mix(in srgb, var(--rose-500) 82%, var(--accent-highlight-text));
+    border-color: color-mix(in srgb, var(--rose-500) 52%, var(--border));
+}
+
+/* Copy button variants */
+.copy-button--friend-link {
+    top: 0.5rem;
+    right: 0.5rem;
+}
+
+.copy-button--code-block {
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 1;
+}
+
+/* Post detail code copy button variant */
+.page-post-detail .copy-button--code-block {
+    top: auto;
+    right: 0.72rem;
+    bottom: 0.62rem;
+    padding: 0.16rem 0.56rem;
+    font-size: 0.62rem;
+    background: color-mix(in srgb, var(--control-surface-interactive) 90%, transparent);
+    border-color: color-mix(in srgb, var(--accent-secondary) 24%, var(--border));
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+/* Control button base - for interactive controls */
+.control-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.34rem;
+    min-height: 1.9rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid color-mix(in srgb, var(--accent-info) 22%, var(--border));
+    border-radius: 999px;
+    background: var(--control-surface-interactive);
+    color: var(--accent-info-text);
+    font: inherit;
+    font-size: 0.78rem;
+    line-height: 1.35;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition:
+        border-color var(--motion-transition-state),
+        background-color var(--motion-transition-state),
+        color var(--motion-transition-state),
+        transform var(--motion-transition-state),
+        box-shadow var(--motion-transition-state);
+}
+
+.control-button:hover {
+    border-color: color-mix(in srgb, var(--accent-interactive) 34%, var(--border));
+    background: color-mix(in srgb, var(--accent-interactive-soft) 78%, var(--control-surface-soft));
+    color: var(--accent-interactive-text);
+    transform: translateY(calc(var(--motion-distance-hover) * -1));
+    box-shadow: var(--card-shadow-cool-hover);
+}
+
+.control-button:focus-visible {
+    outline: var(--focus-ring-outline-soft);
+    outline-offset: 2px;
+}
+
+.control-button[aria-pressed='true'] {
+    border-color: color-mix(in srgb, var(--accent-highlight) 38%, var(--border));
+    background: var(--control-surface-highlight);
+    color: var(--accent-highlight-text);
+    box-shadow: var(--control-halo-highlight);
+}
+
+/* Back button pattern */
+.back-button {
+    width: fit-content;
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tag-hit-size);
+    padding-inline: 0.25rem;
+    color: var(--brand);
+    text-decoration: none;
+    font-weight: 600;
+    transition:
+        transform var(--motion-transition-feedback),
+        color var(--motion-transition-feedback);
+}
+
+.back-button:hover {
+    color: color-mix(in oklch, var(--accent-berry) 76%, var(--brand));
+    transform: translateX(calc(var(--motion-distance-hover) * -0.5));
+}
+
+.back-button:focus-visible {
+    outline: 2px solid var(--tag-focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--tag-radius);
+}
