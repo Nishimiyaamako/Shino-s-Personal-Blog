@@ -72,7 +72,17 @@ export function applyRemotePublishedPostSummaries(summaries: PostSummary[]): boo
     .map((summary) => normalizeRemoteSummary(summary))
     .filter((summary) => summary.title && summary.slug && summary.date && summary.summary);
   const localPostMap = new Map(getAllPosts().map((post) => [post.slug, post] as const));
+  const currentRemotePostMap = new Map((remotePublishedPostCache ?? []).map((post) => [post.slug, post] as const));
   const nextRemotePosts: PostDetail[] = normalizedSummaries.map((summary) => {
+    const currentRemotePost = currentRemotePostMap.get(summary.slug);
+
+    if (currentRemotePost) {
+      return {
+        ...currentRemotePost,
+        ...summary
+      };
+    }
+
     const localPost = localPostMap.get(summary.slug);
 
     if (localPost) {
