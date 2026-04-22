@@ -235,7 +235,9 @@ function syncSearchIndexForPost(context: DatabaseContext, postId: number): void 
   upsertPostSearchIndex(context.sqlite, {
     postId,
     title: post.title,
-    summary: post.summary
+    summary: post.summary,
+    tags: tags.join(' '),
+    content: post.contentMarkdown
   });
 }
 

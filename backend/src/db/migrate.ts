@@ -98,7 +98,9 @@ CREATE INDEX IF NOT EXISTS friend_links_enabled_order_idx ON friend_links(enable
 CREATE VIRTUAL TABLE IF NOT EXISTS posts_search USING fts5(
   post_id UNINDEXED,
   title,
-  summary
+  summary,
+  tags,
+  content
 );
 `;
 

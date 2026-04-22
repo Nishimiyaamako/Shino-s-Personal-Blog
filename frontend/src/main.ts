@@ -822,7 +822,7 @@ function setupPageEnhancements(pathname: string, options: { enableProfileCardRou
         cleanupAboutContentMotion?.();
         cleanupAboutContentMotion = setupAboutContentMotion({
           root: aboutPageElement,
-          animateInitialVisibleItems: false
+          animateInitialVisibleItems: true
         });
       }
     });
@@ -2560,7 +2560,7 @@ function setupPostDetailCodeBlockCopy(): (() => void) | null {
 
     const control: PostCodeCopyControl = {
       buttonElement: copyButtonElement,
-      handleClick: () => {},
+      handleClick: () => { },
       resetTimer: 0,
       isCopying: false,
       copyValue

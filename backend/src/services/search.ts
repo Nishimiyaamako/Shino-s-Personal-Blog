@@ -134,7 +134,27 @@ export function searchPublishedPosts(
   const normalizedLimit = Math.max(1, Math.min(30, Number(limit) || 10));
 
   try {
-    // 首先获取所有匹配的文章及其统计数据
+    // 首先获取 FTS 匹配结果（snippet 和 bm25 必须在直接查询 FTS 表时使用）
+    const ftsRows = context.sqlite
+      .query(`
+        SELECT
+          post_id,
+          snippet(posts_search, 1, '<mark>', '</mark>', ' ... ', 18) AS snippet,
+          bm25(posts_search) AS bm25Score
+        FROM posts_search
+        WHERE posts_search MATCH ?
+      `)
+      .all(ftsQuery) as Array<{ post_id: number; snippet: string | null; bm25Score: number }>;
+
+    if (ftsRows.length === 0) {
+      return [];
+    }
+
+    // 获取匹配的 post_id 列表
+    const postIds = ftsRows.map(r => r.post_id);
+    const placeholders = postIds.map(() => '?').join(',');
+
+    // 再关联 posts 表和其他数据
     const rows = context.sqlite
       .query(`
         SELECT
@@ -143,32 +163,38 @@ export function searchPublishedPosts(
           p.summary,
           p.published_at AS publishedAt,
           COALESCE(group_concat(t.name), '') AS tags,
-          snippet(posts_search, 0, '<mark>', '</mark>', ' ... ', 18) AS snippet,
-          bm25(posts_search) AS bm25Score,
           p.view_count AS viewCount,
           p.like_count AS likeCount,
           p.comment_count AS commentCount,
-          p.is_featured AS isFeatured
-        FROM posts_search
-        INNER JOIN posts p ON p.id = posts_search.post_id
+          p.is_featured AS isFeatured,
+          p.id AS postId
+        FROM posts p
         LEFT JOIN post_tags pt ON pt.post_id = p.id
         LEFT JOIN tags t ON t.id = pt.tag_id
-        WHERE posts_search MATCH ? AND p.status = 'published'
+        WHERE p.id IN (${placeholders}) AND p.status = 'published'
         GROUP BY p.id
       `)
-      .all(ftsQuery) as SearchRow[];
+      .all(...postIds) as Array<SearchRow & { postId: number }>;
 
-    if (rows.length === 0) {
+    // 合并 FTS 结果
+    const snippetMap = new Map(ftsRows.map(r => [r.post_id, { snippet: r.snippet, bm25Score: r.bm25Score }]));
+    const rowsWithSnippet = rows.map(row => ({
+      ...row,
+      snippet: snippetMap.get(row.postId)?.snippet ?? null,
+      bm25Score: snippetMap.get(row.postId)?.bm25Score ?? 0
+    }));
+
+    if (rowsWithSnippet.length === 0) {
       return [];
     }
 
     // 计算统计数据的最大值用于归一化
-    const maxViewCount = Math.max(...rows.map((r) => r.viewCount), 1);
-    const maxLikeCount = Math.max(...rows.map((r) => r.likeCount), 1);
-    const maxCommentCount = Math.max(...rows.map((r) => r.commentCount), 1);
+    const maxViewCount = Math.max(...rowsWithSnippet.map((r) => r.viewCount), 1);
+    const maxLikeCount = Math.max(...rowsWithSnippet.map((r) => r.likeCount), 1);
+    const maxCommentCount = Math.max(...rowsWithSnippet.map((r) => r.commentCount), 1);
 
     // 计算每篇文章的最终得分并排序
-    const scoredRows = rows.map((row) => {
+    const scoredRows = rowsWithSnippet.map((row) => {
       const timeDecayScore = calculateTimeDecayScore(row.publishedAt);
       const qualityScore = calculateQualityScore(
         row.viewCount,
@@ -203,7 +229,9 @@ export function searchPublishedPosts(
       snippet: row.snippet || row.summary,
       publishedAt: row.publishedAt ?? ''
     }));
-  } catch {
+  } catch (error) {
+    // 记录错误日志以便调试
+    console.error('FTS search failed, falling back to LIKE query:', error);
     // 降级到简单的 LIKE 查询
     const likeQuery = `%${normalizedQuery}%`;
     const rows = context.sqlite

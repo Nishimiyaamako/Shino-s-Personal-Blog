@@ -4,6 +4,8 @@ export interface SearchIndexInput {
   postId: number;
   title: string;
   summary: string;
+  tags: string;
+  content: string;
 }
 
 export function removePostSearchIndex(sqlite: Database, postId: number): void {
@@ -14,8 +16,8 @@ export function upsertPostSearchIndex(sqlite: Database, entry: SearchIndexInput)
   removePostSearchIndex(sqlite, entry.postId);
 
   sqlite
-    .query('INSERT INTO posts_search (post_id, title, summary) VALUES (?, ?, ?)')
-    .run(entry.postId, entry.title, entry.summary);
+    .query('INSERT INTO posts_search (post_id, title, summary, tags, content) VALUES (?, ?, ?, ?, ?)')
+    .run(entry.postId, entry.title, entry.summary, entry.tags, entry.content);
 }
 
 export function clearAllPostSearchIndex(sqlite: Database): void {
