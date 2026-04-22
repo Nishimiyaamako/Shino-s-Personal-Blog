@@ -18,7 +18,7 @@ url: 'https://nagashino.top/'`;
   <section class="friend-link-add-card" aria-label="添加我的链接">
     <button
       type="button"
-      class="friend-link-copy-button"
+      class="copy-button copy-button--friend-link"
       data-role="friend-link-copy"
       aria-label="复制友链模板"
     >

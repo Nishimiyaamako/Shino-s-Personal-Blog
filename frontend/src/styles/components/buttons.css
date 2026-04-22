@@ -45,8 +45,39 @@
 
 /* Copy button variants */
 .copy-button--friend-link {
-    top: 0.5rem;
-    right: 0.5rem;
+    top: 0.38rem;
+    right: 0.46rem;
+    /* Ghost button style - 幽灵按钮风格 */
+    background: transparent;
+    border: 1px solid color-mix(in srgb, var(--text-subtle) 22%, var(--border));
+    color: var(--text-subtle);
+    border-radius: 6px;
+    font-size: 0.6rem;
+    padding: 0.24rem 0.5rem;
+    opacity: 0.7;
+    transition:
+        opacity var(--motion-transition-feedback),
+        color var(--motion-transition-feedback),
+        border-color var(--motion-transition-feedback),
+        background-color var(--motion-transition-feedback),
+        transform var(--motion-transition-feedback);
+}
+
+.copy-button--friend-link:hover {
+    opacity: 1;
+    background: color-mix(in srgb, var(--accent-secondary) 8%, transparent);
+    border-color: color-mix(in srgb, var(--accent-secondary) 45%, var(--border));
+    color: var(--accent-secondary);
+    transform: translateY(-1px);
+    box-shadow: none;
+}
+
+.copy-button--friend-link.is-copied {
+    opacity: 1;
+    background: color-mix(in srgb, var(--success) 12%, transparent);
+    border-color: color-mix(in srgb, var(--success) 55%, var(--border));
+    color: var(--success);
+    box-shadow: none;
 }
 
 .copy-button--code-block {

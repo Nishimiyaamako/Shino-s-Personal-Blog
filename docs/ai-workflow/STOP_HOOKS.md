@@ -1,6 +1,6 @@
 # STOP_HOOKS.md（Shino's Bolg）
 
-> Updated on 2026-04-02.
+> Updated on 2026-04-21.
 > 说明：这是 Codex 工作流约定，不是 Claude 原生 hooks 配置。
 
 ## 0) 全局策略

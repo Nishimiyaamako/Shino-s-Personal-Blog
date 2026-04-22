@@ -1,6 +1,6 @@
 # AI Workflow（Shino's Bolg）
 
-> Updated on 2026-04-02.
+> Updated on 2026-04-21.
 
 ## 1) 文件说明
 
