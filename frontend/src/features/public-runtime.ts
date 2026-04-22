@@ -1,5 +1,7 @@
 import DOMPurify from 'dompurify';
 import { fetchFriendLinks, fetchPostDetail, fetchProfileCard, fetchPublicPosts, searchPosts } from '../data/api';
+import { loadPosts } from '../data/posts';
+import { searchPosts as localSearchPosts } from '../utils/search';
 import { applyRemoteFriendLinks } from '../data/friends';
 import { applyRemotePostDetail, applyRemotePublishedPostSummaries } from '../data/posts';
 import { applyRemoteProfileCard } from '../data/profile-card';
@@ -48,6 +50,42 @@ function sanitizeSearchSnippet(rawSnippet: string): string {
   });
 
   return sanitized.trim();
+}
+
+/**
+ * 转义正则表达式特殊字符
+ */
+function escapeRegExp(string: string): string {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * 高亮文本中的搜索关键词
+ * @param text 原始文本
+ * @param query 搜索查询
+ * @returns 带高亮标记的 HTML 字符串
+ */
+function highlightText(text: string, query: string): string {
+  if (!query.trim()) return escapeHtml(text);
+
+  // 将查询拆分为多个关键词（与后端 FTS 分词逻辑保持一致）
+  const keywords = query
+    .split(/[^\p{L}\p{N}_-]+/u)
+    .filter(k => k.trim().length > 0);
+
+  if (keywords.length === 0) return escapeHtml(text);
+
+  // 构建正则表达式，匹配所有关键词（不区分大小写）
+  const pattern = new RegExp(
+    `(${keywords.map(k => escapeRegExp(k)).join('|')})`,
+    'gi'
+  );
+
+  // 先转义 HTML，然后替换匹配项为带 mark 标签的版本
+  return escapeHtml(text).replace(
+    pattern,
+    '<mark>$1</mark>'
+  );
 }
 
 function formatSearchPublishedLabel(publishedAt: string): string {
@@ -186,9 +224,9 @@ export function setupHeaderSearchModal(): (() => void) | null {
     <section class="site-search-state">
       <p>输入关键词开始搜索</p>
       <div class="site-search-shortcuts" aria-hidden="true">
-        <span><kbd>↑</kbd><kbd>↓</kbd> 选择</span>
+        <span><kbd>↑</kbd><kbd>↓</kbd> 导航</span>
         <span><kbd>Enter</kbd> 打开</span>
-        <span><kbd>Esc</kbd> 关闭</span>
+        <span><kbd>ESC</kbd> 关闭</span>
       </div>
     </section>
   </div>
@@ -222,9 +260,9 @@ export function setupHeaderSearchModal(): (() => void) | null {
 
   const renderSearchShortcuts = (): string => `
 <div class="site-search-shortcuts" aria-hidden="true">
-  <span><kbd>↑</kbd><kbd>↓</kbd> 选择</span>
+  <span><kbd>↑</kbd><kbd>↓</kbd> 导航</span>
   <span><kbd>Enter</kbd> 打开</span>
-  <span><kbd>Esc</kbd> 关闭</span>
+  <span><kbd>ESC</kbd> 关闭</span>
 </div>`;
 
   const setActiveDescendant = (optionId: string): void => {
@@ -314,8 +352,8 @@ export function setupHeaderSearchModal(): (() => void) | null {
             const hiddenTagCount = Math.max(0, item.tags.length - visibleTags.length);
             const tagsHtml = visibleTags.length
               ? `<ul class="site-search-result-tags" aria-label="标签">${visibleTags
-                  .map((tag) => `<li class="site-search-tag">#${escapeHtml(tag)}</li>`)
-                  .join('')}${hiddenTagCount > 0 ? `<li class="site-search-tag site-search-tag--more">+${hiddenTagCount}</li>` : ''}</ul>`
+                .map((tag) => `<li class="site-search-tag">#${highlightText(tag, latestQueryText)}</li>`)
+                .join('')}${hiddenTagCount > 0 ? `<li class="site-search-tag site-search-tag--more">+${hiddenTagCount}</li>` : ''}</ul>`
               : '';
             const metaHtml = (publishedLabel || tagsHtml)
               ? `<div class="site-search-result-meta${tagsHtml ? ' has-tags' : ''}">
@@ -340,7 +378,7 @@ export function setupHeaderSearchModal(): (() => void) | null {
     data-role="site-search-result-link"
     data-result-index="${index}"
   >
-    <h3 class="site-search-result-title">${escapeHtml(item.title)}</h3>
+    <h3 class="site-search-result-title">${highlightText(item.title, latestQueryText)}</h3>
     <p class="site-search-result-snippet">${normalizedSnippetHtml}</p>
     ${metaHtml}
   </a>

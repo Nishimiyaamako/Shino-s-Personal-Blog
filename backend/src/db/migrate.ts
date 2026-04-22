@@ -23,6 +23,9 @@ CREATE TABLE IF NOT EXISTS posts (
   status TEXT NOT NULL CHECK(status IN ('draft', 'published')),
   is_featured INTEGER NOT NULL DEFAULT 0,
   featured_order INTEGER,
+  view_count INTEGER NOT NULL DEFAULT 0,
+  like_count INTEGER NOT NULL DEFAULT 0,
+  comment_count INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
   published_at TEXT
@@ -95,9 +98,7 @@ CREATE INDEX IF NOT EXISTS friend_links_enabled_order_idx ON friend_links(enable
 CREATE VIRTUAL TABLE IF NOT EXISTS posts_search USING fts5(
   post_id UNINDEXED,
   title,
-  summary,
-  tags,
-  content
+  summary
 );
 `;
 

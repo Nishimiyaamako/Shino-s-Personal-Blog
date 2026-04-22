@@ -22,6 +22,7 @@
 @import './components/markdown.css';
 @import './components/post-toc.css';
 @import './components/theme-filter.css';
+@import './components/search-modal.css';
 
 /* Page Layer - Page-specific Styles */
 @import './pages/about.css';
