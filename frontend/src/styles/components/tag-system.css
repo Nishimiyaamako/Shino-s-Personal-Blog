@@ -563,6 +563,10 @@
     font-weight: 600;
 }
 
+.tag-detail-back-link {
+    justify-self: end;
+}
+
 .tag-detail-subtitle {
     margin: 0;
     color: var(--text-subtle);
@@ -626,5 +630,170 @@
 
     .tag-detail-header {
         padding: var(--space-4);
+    }
+}
+
+/* Dark mode for tag buttons - Dark Reader style */
+@media (prefers-color-scheme: dark) {
+
+    /* Tag white theme variables - Dark Reader adaptation */
+    .tag-list,
+    .tag-bubble {
+        --tag-white-surface: color-mix(in oklch, var(--surface-soft) 92%, var(--p-wisteria));
+        --tag-white-surface-hover: color-mix(in oklch, var(--surface-soft) 88%, var(--p-wisteria));
+        --tag-white-surface-active: color-mix(in oklch, var(--surface-soft) 84%, var(--p-wisteria));
+        --tag-white-surface-selected: color-mix(in oklch, var(--surface-soft) 78%, var(--p-wisteria));
+        --tag-white-border: color-mix(in oklch, var(--p-wisteria) 28%, var(--border));
+        --tag-white-border-hover: color-mix(in oklch, var(--p-wisteria) 36%, var(--border));
+        --tag-white-border-selected: color-mix(in oklch, var(--p-wisteria) 44%, var(--border));
+        --tag-white-text: color-mix(in oklch, var(--p-wisteria) 72%, var(--text-subtle));
+        --tag-white-text-hover: color-mix(in oklch, var(--p-wisteria) 84%, var(--text));
+        --tag-white-text-selected: color-mix(in oklch, var(--p-wisteria) 92%, var(--text));
+        --tag-white-count-surface-selected: color-mix(in oklch, var(--surface-soft) 82%, var(--p-wisteria));
+        --tag-white-shadow: 0 1px 2px color-mix(in oklch, black 40%, transparent);
+    }
+
+    /* Strawberry variant - Dark Reader: deep magenta with soft pink glow */
+    .tag-list.tag-list--card [data-tag-color='strawberry'] {
+        background: color-mix(in srgb, #db2777 18%, var(--surface-soft));
+        color: color-mix(in srgb, #fda4c6 85%, white);
+        border: 1px solid color-mix(in srgb, #db2777 32%, transparent);
+    }
+
+    .tag-list.tag-list--card [data-tag-color='strawberry']:is(:hover, :focus-visible) {
+        background: color-mix(in srgb, #db2777 26%, var(--surface-soft));
+        color: color-mix(in srgb, #fbcfe8 92%, white);
+        border-color: color-mix(in srgb, #db2777 48%, transparent);
+    }
+
+    /* Bubble variant - Dark Reader: deep cyan with soft blue glow */
+    .tag-list.tag-list--card [data-tag-color='bubble'] {
+        background: color-mix(in srgb, #0284c7 18%, var(--surface-soft));
+        color: color-mix(in srgb, #7dd3fc 85%, white);
+        border: 1px solid color-mix(in srgb, #0284c7 32%, transparent);
+    }
+
+    .tag-list.tag-list--card [data-tag-color='bubble']:is(:hover, :focus-visible) {
+        background: color-mix(in srgb, #0284c7 26%, var(--surface-soft));
+        color: color-mix(in srgb, #bae6fd 92%, white);
+        border-color: color-mix(in srgb, #0284c7 48%, transparent);
+    }
+
+    /* White variant - Dark Reader: subtle lavender-gray with soft glow */
+    .tag-list.tag-list--card [data-tag-color='white'] {
+        background: var(--tag-white-surface);
+        color: var(--tag-white-text);
+        border: 1px solid var(--tag-white-border);
+        box-shadow: var(--tag-white-shadow);
+    }
+
+    .tag-list.tag-list--card [data-tag-color='white']:is(:hover, :focus-visible) {
+        background: var(--tag-white-surface-hover);
+        color: var(--tag-white-text-hover);
+        border-color: var(--tag-white-border-hover);
+        box-shadow: var(--tag-white-shadow);
+    }
+
+    /* Wisteria variant - Dark Reader: deep purple with soft lavender glow */
+    .tag-list.tag-list--card [data-tag-color='wisteria'] {
+        background: color-mix(in oklch, var(--p-wisteria) 24%, var(--surface-soft));
+        color: color-mix(in oklch, var(--p-wisteria) 85%, var(--text));
+        border: 1px solid color-mix(in oklch, var(--p-wisteria) 42%, transparent);
+    }
+
+    .tag-list.tag-list--card [data-tag-color='wisteria']:is(:hover, :focus-visible) {
+        background: color-mix(in oklch, var(--p-wisteria) 34%, var(--surface-soft));
+        color: color-mix(in oklch, var(--p-wisteria) 94%, var(--text));
+        border-color: color-mix(in oklch, var(--p-wisteria) 56%, transparent);
+    }
+
+    /* Tag bubble color variants - Dark Reader adaptation */
+    .tag-bubble[data-color='strawberry'] {
+        --tag-layer-surface: color-mix(in srgb, #db2777 15%, var(--surface-soft));
+        --tag-layer-border: color-mix(in srgb, #db2777 42%, transparent);
+        --tag-layer-text: color-mix(in srgb, #fda4c6 88%, white);
+        --tag-layer-count-surface: color-mix(in srgb, #db2777 22%, var(--surface-soft));
+    }
+
+    .tag-bubble[data-color='strawberry']:is(:hover, :focus-visible) {
+        --tag-layer-surface: color-mix(in srgb, #db2777 24%, var(--surface-soft));
+        --tag-layer-border: color-mix(in srgb, #db2777 56%, transparent);
+        --tag-layer-text: color-mix(in srgb, #fbcfe8 94%, white);
+        --tag-layer-count-surface: color-mix(in srgb, #db2777 32%, var(--surface-soft));
+    }
+
+    .tag-bubble[data-color='strawberry'].is-active {
+        --tag-layer-surface: color-mix(in srgb, #db2777 32%, var(--surface-soft));
+        --tag-layer-border: color-mix(in srgb, #db2777 68%, transparent);
+        --tag-layer-text: white;
+        --tag-layer-count-surface: color-mix(in srgb, #db2777 42%, var(--surface-soft));
+    }
+
+    .tag-bubble[data-color='bubble'] {
+        --tag-layer-surface: color-mix(in srgb, #0284c7 15%, var(--surface-soft));
+        --tag-layer-border: color-mix(in srgb, #0284c7 42%, transparent);
+        --tag-layer-text: color-mix(in srgb, #7dd3fc 88%, white);
+        --tag-layer-count-surface: color-mix(in srgb, #0284c7 22%, var(--surface-soft));
+    }
+
+    .tag-bubble[data-color='bubble']:is(:hover, :focus-visible) {
+        --tag-layer-surface: color-mix(in srgb, #0284c7 24%, var(--surface-soft));
+        --tag-layer-border: color-mix(in srgb, #0284c7 56%, transparent);
+        --tag-layer-text: color-mix(in srgb, #bae6fd 94%, white);
+        --tag-layer-count-surface: color-mix(in srgb, #0284c7 32%, var(--surface-soft));
+    }
+
+    .tag-bubble[data-color='bubble'].is-active {
+        --tag-layer-surface: color-mix(in srgb, #0284c7 32%, var(--surface-soft));
+        --tag-layer-border: color-mix(in srgb, #0284c7 68%, transparent);
+        --tag-layer-text: white;
+        --tag-layer-count-surface: color-mix(in srgb, #0284c7 42%, var(--surface-soft));
+    }
+
+    .tag-bubble[data-color='mauve'] {
+        --tag-layer-surface: var(--tag-white-surface);
+        --tag-layer-border: var(--tag-white-border);
+        --tag-layer-text: var(--tag-white-text);
+        --tag-layer-count-surface: var(--tag-white-surface-active);
+    }
+
+    .tag-bubble[data-color='mauve']:is(:hover, :focus-visible) {
+        --tag-layer-surface: var(--tag-white-surface-hover);
+        --tag-layer-border: var(--tag-white-border-hover);
+        --tag-layer-text: var(--tag-white-text-hover);
+        --tag-layer-count-surface: var(--tag-white-surface-active);
+    }
+
+    .tag-bubble[data-color='mauve'].is-active {
+        --tag-layer-surface: var(--tag-white-surface-selected);
+        --tag-layer-border: var(--tag-white-border-selected);
+        --tag-layer-text: var(--tag-white-text-selected);
+        --tag-layer-count-surface: var(--tag-white-count-surface-selected);
+    }
+
+    /* Default tag chip theme in dark mode */
+    .tag-chip--theme:not([data-tag-color]) {
+        background: color-mix(in srgb, var(--accent-secondary) 18%, var(--surface-soft));
+        color: color-mix(in srgb, var(--accent-secondary) 82%, var(--text));
+        border: 1px solid color-mix(in srgb, var(--accent-secondary) 32%, transparent);
+    }
+
+    .tag-chip--theme:not([data-tag-color]):hover {
+        background: color-mix(in srgb, var(--accent-secondary) 28%, var(--surface-soft));
+        color: color-mix(in srgb, var(--accent-secondary) 92%, var(--text));
+        border-color: color-mix(in srgb, var(--accent-secondary) 48%, transparent);
+    }
+
+    /* Tag detail badge dark mode */
+    .tag-detail-badge {
+        border-color: color-mix(in srgb, var(--tag-border-color) 52%, var(--border));
+        background: color-mix(in srgb, var(--tag-surface) 62%, var(--surface-soft));
+        color: var(--tag-text-color);
+    }
+
+    /* Tag detail count dark mode */
+    .tag-detail-count {
+        background: color-mix(in srgb, var(--accent-info) 32%, var(--surface-soft));
+        color: color-mix(in srgb, var(--accent-info) 92%, var(--text));
     }
 }

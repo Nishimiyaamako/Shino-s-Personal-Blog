@@ -155,12 +155,14 @@ function renderApp(): void {
         <strong>${SITE_TITLE}</strong>
         <span>${SITE_SUBTITLE}</span>
       </a>
-      <nav class="site-nav site-nav--desktop" aria-label="主导航">
-        ${navigationMarkup}
-      </nav>
-      <div class="site-header-actions">
+      <div class="site-header-right">
+        <nav class="site-nav site-nav--desktop" aria-label="主导航">
+          ${navigationMarkup}
+        </nav>
         ${renderHeaderSearchTrigger()}
-        ${renderHeaderDrawerTrigger()}
+        <div class="site-header-actions">
+          ${renderHeaderDrawerTrigger()}
+        </div>
       </div>
     </div>
     <div class="header-drawer-panel" id="${HEADER_DRAWER_PANEL_ID}" data-role="header-drawer-panel" hidden>
@@ -248,7 +250,6 @@ function renderHeaderSearchTrigger(): string {
         <path d="m16 16 4 4" />
       </svg>
     </span>
-    <span class="header-search-trigger-label">搜索</span>
   </button>`;
 }
 

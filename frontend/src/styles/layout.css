@@ -44,7 +44,7 @@
   justify-content: space-between;
   gap: clamp(0.75rem, 1.5vw, 1.25rem);
   min-height: 62px;
-  padding-inline: clamp(0.5rem, 1.2vw, 1.25rem);
+  padding-inline: clamp(0.75rem, 1.5vw, 1.5rem);
   background: var(--card-surface-main);
   border-bottom: 1px solid color-mix(in oklch, var(--border) 90%, transparent);
   box-shadow: var(--card-shadow-cool-hover);
@@ -78,12 +78,12 @@
 }
 
 .site-nav {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   min-width: 0;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  flex-wrap: nowrap;
+  justify-content: center;
   gap: clamp(0.2rem, 0.8vw, 0.6rem);
   padding-inline: 0;
 }
@@ -169,6 +169,20 @@
   line-height: 1;
 }
 
+.site-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.site-header-right .site-nav--desktop {
+  flex: 1 1 auto;
+  justify-content: space-evenly;
+  gap: 0;
+}
+
 .site-header-actions {
   display: inline-flex;
   align-items: center;
@@ -179,6 +193,14 @@
 
 .header-search-trigger {
   flex: 0 0 auto;
+}
+
+.header-search-trigger-label {
+  display: none;
+}
+
+.header-search-trigger::after {
+  display: none;
 }
 
 .header-drawer-trigger {
@@ -224,6 +246,7 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
+
   .site-nav a:hover,
   .header-search-trigger:hover,
   .header-drawer-trigger:hover {
@@ -467,8 +490,8 @@
 @media (max-width: 1024px) {
   .site-header-inner {
     width: min(var(--layout-narrow), calc(100% - 1.5rem));
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
     align-items: center;
     gap: var(--space-3);
     padding-inline: clamp(0.15rem, 1vw, 0.55rem);
@@ -484,7 +507,7 @@
     flex: 1 1 auto;
     width: auto;
     max-width: none;
-    justify-content: flex-end;
+    justify-content: space-evenly;
   }
 
   .site-header-actions {
@@ -525,7 +548,7 @@
   .site-header-inner {
     width: min(var(--layout-narrow), calc(100% - 1rem));
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: auto 1fr auto auto;
     align-items: center;
     gap: var(--space-2);
     padding: var(--space-2);
@@ -542,6 +565,13 @@
 
   .site-nav--desktop {
     display: none;
+  }
+
+  .site-header-right {
+    flex: 0 0 auto;
+    justify-content: flex-end;
+    gap: 0.4rem;
+    margin-left: 0;
   }
 
   .site-header-actions {
