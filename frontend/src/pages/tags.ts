@@ -17,8 +17,6 @@ export const renderTagsPage: PageRenderer = () => {
   ${tagStats.length
       ? `<section class="tag-filter-shell">
           <header class="tag-filter-head">
-            <h1>标签总览</h1>
-            <p>点击标签可在本页展开对应文章列表。</p>
           </header>
           <section class="tag-cloud-section" aria-label="标签云">
             <ul class="tag-cloud">
