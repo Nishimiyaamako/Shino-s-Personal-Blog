@@ -182,17 +182,161 @@
 
 /* Code blocks in post detail */
 .page-post-detail .markdown-content pre {
+    position: relative;
     margin: 1.25rem 0;
-    border-radius: var(--radius-sm);
-    border: 1px solid color-mix(in srgb, var(--accent-secondary) 18%, var(--border));
-    background: var(--card-surface-main);
-    box-shadow: 0 1px 3px color-mix(in srgb, var(--accent-secondary) 10%, transparent);
+    padding: 2.2rem 1.1rem 1.1rem;
+    border-radius: 12px;
+    border: 1px solid color-mix(in srgb, var(--accent-secondary) 14%, var(--border));
+    background: transparent;
+    box-shadow: none;
+    overflow-x: auto;
 }
 
 .page-post-detail .markdown-content pre code {
     display: block;
-    line-height: 1.7;
+    line-height: 1.72;
     font-size: 0.86rem;
+    background: transparent;
+    padding: 0;
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow-wrap: break-word;
+}
+
+/* Highlight.js custom soft palette (light mode) */
+.page-post-detail .markdown-content pre code.hljs {
+    color: #383a42;
+}
+
+.page-post-detail .markdown-content pre code.hljs .hljs-keyword,
+.page-post-detail .markdown-content pre code.hljs .hljs-selector-tag,
+.page-post-detail .markdown-content pre code.hljs .hljs-subst {
+    color: #a626a4;
+    font-weight: 600;
+}
+
+.page-post-detail .markdown-content pre code.hljs .hljs-string,
+.page-post-detail .markdown-content pre code.hljs .hljs-regexp,
+.page-post-detail .markdown-content pre code.hljs .hljs-addition,
+.page-post-detail .markdown-content pre code.hljs .hljs-attribute,
+.page-post-detail .markdown-content pre code.hljs .hljs-meta-string {
+    color: #50a14f;
+}
+
+.page-post-detail .markdown-content pre code.hljs .hljs-number,
+.page-post-detail .markdown-content pre code.hljs .hljs-literal,
+.page-post-detail .markdown-content pre code.hljs .hljs-variable,
+.page-post-detail .markdown-content pre code.hljs .hljs-template-variable,
+.page-post-detail .markdown-content pre code.hljs .hljs-tag .hljs-attr {
+    color: #986801;
+}
+
+.page-post-detail .markdown-content pre code.hljs .hljs-title,
+.page-post-detail .markdown-content pre code.hljs .hljs-section,
+.page-post-detail .markdown-content pre code.hljs .hljs-selector-id,
+.page-post-detail .markdown-content pre code.hljs .hljs-name {
+    color: #e45649;
+    font-weight: 600;
+}
+
+.page-post-detail .markdown-content pre code.hljs .hljs-comment,
+.page-post-detail .markdown-content pre code.hljs .hljs-quote,
+.page-post-detail .markdown-content pre code.hljs .hljs-deletion {
+    color: #a0a1a7;
+    font-style: italic;
+}
+
+.page-post-detail .markdown-content pre code.hljs .hljs-built_in,
+.page-post-detail .markdown-content pre code.hljs .hljs-class .hljs-title {
+    color: #c18401;
+}
+
+.page-post-detail .markdown-content pre code.hljs .hljs-function .hljs-title {
+    color: #4078f2;
+}
+
+.page-post-detail .markdown-content pre code.hljs .hljs-params {
+    color: #383a42;
+}
+
+.page-post-detail .markdown-content pre code.hljs .hljs-symbol,
+.page-post-detail .markdown-content pre code.hljs .hljs-bullet,
+.page-post-detail .markdown-content pre code.hljs .hljs-link {
+    color: #4078f2;
+}
+
+.page-post-detail .markdown-content pre code.hljs .hljs-emphasis {
+    font-style: italic;
+}
+
+.page-post-detail .markdown-content pre code.hljs .hljs-strong {
+    font-weight: 700;
+}
+
+/* Dark mode code block & highlight */
+@media (prefers-color-scheme: dark) {
+    .page-post-detail .markdown-content pre {
+        background: transparent;
+        border-color: color-mix(in srgb, var(--accent-secondary) 22%, var(--border));
+    }
+
+    .page-post-detail .markdown-content pre code.hljs {
+        color: #cdd6f4;
+    }
+
+    .page-post-detail .markdown-content pre code.hljs .hljs-keyword,
+    .page-post-detail .markdown-content pre code.hljs .hljs-selector-tag,
+    .page-post-detail .markdown-content pre code.hljs .hljs-subst {
+        color: #f38ba8;
+    }
+
+    .page-post-detail .markdown-content pre code.hljs .hljs-string,
+    .page-post-detail .markdown-content pre code.hljs .hljs-regexp,
+    .page-post-detail .markdown-content pre code.hljs .hljs-addition,
+    .page-post-detail .markdown-content pre code.hljs .hljs-attribute,
+    .page-post-detail .markdown-content pre code.hljs .hljs-meta-string {
+        color: #a6e3a1;
+    }
+
+    .page-post-detail .markdown-content pre code.hljs .hljs-number,
+    .page-post-detail .markdown-content pre code.hljs .hljs-literal,
+    .page-post-detail .markdown-content pre code.hljs .hljs-variable,
+    .page-post-detail .markdown-content pre code.hljs .hljs-template-variable,
+    .page-post-detail .markdown-content pre code.hljs .hljs-tag .hljs-attr {
+        color: #fab387;
+    }
+
+    .page-post-detail .markdown-content pre code.hljs .hljs-title,
+    .page-post-detail .markdown-content pre code.hljs .hljs-section,
+    .page-post-detail .markdown-content pre code.hljs .hljs-selector-id,
+    .page-post-detail .markdown-content pre code.hljs .hljs-name {
+        color: #f38ba8;
+    }
+
+    .page-post-detail .markdown-content pre code.hljs .hljs-comment,
+    .page-post-detail .markdown-content pre code.hljs .hljs-quote,
+    .page-post-detail .markdown-content pre code.hljs .hljs-deletion {
+        color: #6c7086;
+    }
+
+    .page-post-detail .markdown-content pre code.hljs .hljs-built_in,
+    .page-post-detail .markdown-content pre code.hljs .hljs-class .hljs-title {
+        color: #f9e2af;
+    }
+
+    .page-post-detail .markdown-content pre code.hljs .hljs-function .hljs-title {
+        color: #89b4fa;
+    }
+
+    .page-post-detail .markdown-content pre code.hljs .hljs-params {
+        color: #cdd6f4;
+    }
+
+    .page-post-detail .markdown-content pre code.hljs .hljs-symbol,
+    .page-post-detail .markdown-content pre code.hljs .hljs-bullet,
+    .page-post-detail .markdown-content pre code.hljs .hljs-link {
+        color: #89b4fa;
+    }
 }
 
 /* Blockquotes in post detail */

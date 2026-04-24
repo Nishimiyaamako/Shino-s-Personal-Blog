@@ -2553,7 +2553,7 @@ function setupPostDetailCodeBlockCopy(): (() => void) | null {
 
     const copyButtonElement = document.createElement('button');
     copyButtonElement.type = 'button';
-    copyButtonElement.className = 'post-code-copy-button';
+    copyButtonElement.className = 'copy-button copy-button--code-block';
     copyButtonElement.setAttribute('data-role', 'post-code-copy');
     copyButtonElement.setAttribute('aria-label', '复制代码块');
     copyButtonElement.textContent = '复制';

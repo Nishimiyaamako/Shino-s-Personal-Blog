@@ -81,9 +81,16 @@
 }
 
 .copy-button--code-block {
-    top: 0.5rem;
-    right: 0.5rem;
+    top: auto;
+    right: 0.72rem;
+    bottom: 0.62rem;
     z-index: 1;
+    padding: 0.18rem 0.58rem;
+    font-size: 0.62rem;
+    background: color-mix(in srgb, var(--control-surface-interactive) 90%, transparent);
+    border-color: color-mix(in srgb, var(--accent-secondary) 24%, var(--border));
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
 }
 
 /* Post detail code copy button variant */
@@ -91,12 +98,6 @@
     top: auto;
     right: 0.72rem;
     bottom: 0.62rem;
-    padding: 0.16rem 0.56rem;
-    font-size: 0.62rem;
-    background: color-mix(in srgb, var(--control-surface-interactive) 90%, transparent);
-    border-color: color-mix(in srgb, var(--accent-secondary) 24%, var(--border));
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
 }
 
 /* Control button base - for interactive controls */
@@ -168,4 +169,28 @@
     outline: 2px solid var(--tag-focus-ring);
     outline-offset: 2px;
     border-radius: var(--tag-radius);
+}
+
+/* Post detail back button - matches tag-detail-back-link style */
+.post-detail-back-row {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.post-detail-back-button {
+    display: inline-flex;
+    align-items: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--brand);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color var(--motion-transition-feedback);
+}
+
+.post-detail-back-button:hover {
+    color: color-mix(in oklch, var(--accent-berry) 76%, var(--brand));
 }

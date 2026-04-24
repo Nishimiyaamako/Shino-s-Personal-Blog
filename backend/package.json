@@ -19,8 +19,10 @@
     "drizzle-orm": "^0.44.7",
     "elysia": "^1.4.12",
     "gray-matter": "^4.0.3",
+    "highlight.js": "^11.11.1",
     "jose": "^6.1.0",
     "marked": "^17.0.4",
+    "marked-highlight": "^2.2.4",
     "sanitize-html": "^2.17.0"
   },
   "devDependencies": {
