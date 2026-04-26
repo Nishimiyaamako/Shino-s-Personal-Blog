@@ -65,7 +65,6 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
   const postSuccessElement = rootElement.querySelector<HTMLElement>('[data-role="admin-post-success"]');
   const postContentTextarea = rootElement.querySelector<HTMLTextAreaElement>('[data-role="admin-post-content"]');
   const postPreviewElement = rootElement.querySelector<HTMLElement>('[data-role="admin-post-preview"]');
-  const postFormTitleElement = rootElement.querySelector<HTMLElement>('[data-role="admin-post-form-title"]');
   const postFormMetaElement = rootElement.querySelector<HTMLElement>('[data-role="admin-post-form-meta"]');
   const coverUploadInput = rootElement.querySelector<HTMLInputElement>('[data-role="admin-cover-upload"]');
   const coverUploadButton = rootElement.querySelector<HTMLButtonElement>('[data-role="admin-cover-upload-btn"]');
@@ -96,7 +95,6 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
     || !postDeleteButton
     || !postContentTextarea
     || !postPreviewElement
-    || !postFormTitleElement
     || !postFormMetaElement
     || !coverUploadInput
     || !coverUploadButton
@@ -209,13 +207,11 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
   const updatePostFormHead = (): void => {
     const selectedPost = getSelectedPost();
     if (!selectedPost) {
-      postFormTitleElement.textContent = '新建文章';
-      postFormMetaElement.textContent = '当前为新建模式。建议先保存草稿，再执行发布。';
+      postFormMetaElement.textContent = '新建文章 · 先保存草稿，再按需发布';
       return;
     }
 
     const statusLabel = selectedPost.status === 'published' ? '已发布' : '草稿';
-    postFormTitleElement.textContent = `编辑文章：${selectedPost.title}`;
     postFormMetaElement.textContent = `Slug：${selectedPost.slug} · 状态：${statusLabel}`;
   };
 
@@ -287,6 +283,9 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
     setMessage(postErrorElement, '');
     setMessage(postSuccessElement, '');
     renderPostCollections();
+    // Focus title input for quick creation
+    const titleInput = postForm.querySelector<HTMLInputElement>('input[name="title"]');
+    titleInput?.focus();
   };
 
   const runPostAction = async (

@@ -26,7 +26,7 @@ function getRuntimeStatusText(module: AdminModuleRoute): string {
 }
 
 export function setupAdminDashboard(options: AdminFeatureOptions): (() => void) | null {
-  const rootElement = document.querySelector<HTMLElement>('.page-admin-dashboard');
+  const rootElement = document.querySelector<HTMLElement>('.admin-app');
   if (!rootElement) {
     return null;
   }

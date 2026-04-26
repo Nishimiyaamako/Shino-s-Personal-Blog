@@ -78,7 +78,7 @@ export function renderMarkdownPreviewHtml(markdownText: string): string {
 
 export function formatPostStatus(post: AdminPost): string {
   const statusLabel = post.status === 'published' ? '已发布' : '草稿';
-  return `${statusLabel}${post.isFeatured ? ' · 首页精选' : ''}`;
+  return `${statusLabel}${post.isFeatured ? ' · 精选' : ''}`;
 }
 
 export function readPostFormPayload(form: HTMLFormElement): Partial<AdminPost> {
@@ -129,7 +129,7 @@ export function fillPostForm(form: HTMLFormElement, post: AdminPost | null): voi
 
 export function renderAdminPostList(posts: AdminPost[], selectedPostId: number): string {
   if (!posts.length) {
-    return '<li class="admin-state-hint">当前筛选条件下暂无文章。你可以点击“新建文章”开始创建。</li>';
+    return '<li class="admin-state-hint">当前筛选条件下暂无文章。点击「新建」开始创建。</li>';
   }
 
   return posts
@@ -194,8 +194,8 @@ export function renderFriendList(links: AdminFriendLink[]): string {
         <small>${link.enabled ? '已启用' : '已停用'} · 排序 ${link.displayOrder}</small>
       </div>
       <div class="admin-inline-actions">
-        <button type="button" class="admin-btn admin-btn-secondary" data-role="admin-friend-edit" data-friend-id="${link.id}">编辑</button>
-        <button type="button" class="admin-btn admin-btn-danger" data-role="admin-friend-delete" data-friend-id="${link.id}">删除</button>
+        <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-role="admin-friend-edit" data-friend-id="${link.id}">编辑</button>
+        <button type="button" class="admin-btn admin-btn-danger admin-btn-sm" data-role="admin-friend-delete" data-friend-id="${link.id}">删除</button>
       </div>
     </li>`
     )

@@ -1,128 +1,138 @@
-/* Admin Forms Styles */
+/* Admin Forms Styles — Notion-inspired form patterns */
 
-/* Admin Form Variants */
-.admin-login-form,
+/* ─── Base Form Styles ─── */
 .admin-post-form,
 .admin-friend-form,
 .admin-about-form,
 .admin-profile-form {
-    display: grid;
-    gap: 0.75rem;
-    background: var(--admin-surface-muted);
-    border: 1px solid color-mix(in oklch, var(--admin-border) 88%, transparent);
-    border-radius: 12px;
-    padding: 0.95rem;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Form Section */
-.admin-form-section {
-    display: grid;
-    gap: 0.62rem;
-    border: 1px solid color-mix(in oklch, var(--admin-border) 70%, transparent);
-    border-radius: 10px;
-    padding: 0.72rem;
-    background: color-mix(in oklch, var(--admin-surface) 92%, var(--surface-soft));
-}
-
-.admin-form-section h3 {
-    font-size: 0.92rem;
-    letter-spacing: 0.02em;
-    color: color-mix(in oklch, var(--text-subtle) 85%, var(--text));
-}
-
-/* Friend Import */
-.admin-friend-import {
-    gap: 0.55rem;
-}
-
-.admin-friend-import h3 {
-    margin: 0;
-}
-
-.admin-friend-import textarea {
-    min-height: 136px;
-    font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-}
-
-.admin-friend-import-hint {
-    margin: 0;
-    font-size: 0.82rem;
-    line-height: 1.48;
-    color: color-mix(in oklch, var(--text-subtle) 92%, var(--text));
-}
-
-/* Form Head */
-.admin-form-head {
-    display: grid;
-    gap: 0.3rem;
-}
-
-.admin-form-head p {
-    margin: 0;
-    color: var(--text-subtle);
-    font-size: 0.88rem;
-}
-
-/* Form Labels */
-.admin-login-form label,
+/* ─── Form Labels ─── */
 .admin-post-form label,
 .admin-friend-form label,
 .admin-about-form label,
 .admin-profile-form label {
-    display: grid;
-    gap: 0.32rem;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
-.admin-login-form label>span,
 .admin-post-form label>span,
 .admin-friend-form label>span,
 .admin-about-form label>span,
 .admin-profile-form label>span {
-    font-size: 0.84rem;
-    color: color-mix(in oklch, var(--text-subtle) 84%, var(--text));
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--admin-text-subtle, #6b6b6b);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
 }
 
-/* Form Inputs */
-.admin-login-form input,
-.admin-login-form textarea,
-.admin-post-form input,
-.admin-post-form textarea,
+/* ─── Form Inputs ─── */
+.admin-post-form input[type="text"],
+.admin-post-form input[type="date"],
+.admin-post-form input[type="number"],
 .admin-post-form select,
-.admin-friend-form input,
+.admin-friend-form input[type="text"],
+.admin-friend-form input[type="number"],
+.admin-friend-form select,
+.admin-about-form input,
+.admin-profile-form input,
+.admin-profile-form select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--admin-border, #e8e8e8);
+    border-radius: 6px;
+    background: var(--admin-surface, #ffffff);
+    font: inherit;
+    font-size: 14px;
+    color: var(--admin-text, #1a1a1a);
+    outline: none;
+    transition: border-color 200ms ease, box-shadow 200ms ease;
+    min-height: 38px;
+}
+
+.admin-post-form input:focus,
+.admin-post-form select:focus,
+.admin-friend-form input:focus,
+.admin-friend-form select:focus,
+.admin-about-form input:focus,
+.admin-profile-form input:focus,
+.admin-profile-form select:focus {
+    border-color: var(--admin-accent, var(--rose-500));
+    box-shadow: 0 0 0 3px var(--admin-accent-soft, color-mix(in oklch, var(--rose-500) 10%, transparent));
+}
+
+.admin-post-form input::placeholder,
+.admin-friend-form input::placeholder,
+.admin-profile-form input::placeholder {
+    color: var(--admin-text-muted, #c0c0c0);
+}
+
+/* ─── Form Textareas ─── */
 .admin-friend-form textarea,
 .admin-about-form textarea,
-.admin-profile-form input,
 .admin-profile-form textarea {
     width: 100%;
-    border: 1px solid var(--admin-border);
-    background: color-mix(in oklch, var(--admin-surface) 92%, var(--surface));
-    border-radius: 10px;
-    color: var(--text);
-    padding: 0.62rem 0.74rem;
-    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid var(--admin-border, #e8e8e8);
+    border-radius: 6px;
+    background: var(--admin-surface, #ffffff);
     font: inherit;
-}
-
-.admin-login-form textarea,
-.admin-post-form textarea,
-.admin-friend-form textarea,
-.admin-about-form textarea,
-.admin-profile-form textarea {
+    font-size: 14px;
+    color: var(--admin-text, #1a1a1a);
     resize: vertical;
+    outline: none;
+    transition: border-color 200ms ease, box-shadow 200ms ease;
+    line-height: 1.6;
 }
 
-/* Admin Filter Form */
-.admin-filter-form {
-    display: grid;
-    gap: 0.62rem;
-    padding: 0.62rem;
-    border: 1px solid var(--admin-border);
-    border-radius: 10px;
-    background: color-mix(in oklch, var(--admin-surface) 88%, var(--surface-soft));
+.admin-friend-form textarea:focus,
+.admin-about-form textarea:focus,
+.admin-profile-form textarea:focus {
+    border-color: var(--admin-accent, var(--rose-500));
+    box-shadow: 0 0 0 3px var(--admin-accent-soft, color-mix(in oklch, var(--rose-500) 10%, transparent));
 }
 
-.admin-filter-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.62rem;
+/* ─── Friend Import Section ─── */
+.admin-friend-form details.admin-meta-drawer textarea {
+    font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* ─── Select Styling ─── */
+.admin-post-form select,
+.admin-friend-form select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6b6b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px;
+}
+
+/* ─── Dark Mode Form Overrides ─── */
+@media (prefers-color-scheme: dark) {
+
+    .admin-post-form input,
+    .admin-post-form select,
+    .admin-friend-form input,
+    .admin-friend-form select,
+    .admin-about-form input,
+    .admin-profile-form input,
+    .admin-profile-form select,
+    .admin-friend-form textarea,
+    .admin-about-form textarea,
+    .admin-profile-form textarea {
+        background: var(--admin-surface, #171a20);
+        color: var(--admin-text, #eceff4);
+    }
+
+    .admin-post-form input::placeholder,
+    .admin-friend-form input::placeholder,
+    .admin-profile-form input::placeholder {
+        color: var(--admin-text-muted, #556170);
+    }
 }
