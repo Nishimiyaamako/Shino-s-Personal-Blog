@@ -34,12 +34,12 @@ function toApiUrl(path: string): string {
 }
 
 async function fetchJson<T>(url: string, init: RequestInit = {}): Promise<T> {
+  const headers = new Headers(init.headers);
+  headers.set('accept', 'application/json');
+
   const response = await fetch(toApiUrl(url), {
     ...init,
-    headers: {
-      accept: 'application/json',
-      ...(init.headers ?? {})
-    }
+    headers
   });
 
   const text = await response.text();

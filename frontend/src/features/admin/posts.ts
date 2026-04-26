@@ -498,6 +498,31 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
     }, '图片已插入正文，记得保存文章。', { refreshAfter: false });
   };
 
+  const handleContentPaste = (event: ClipboardEvent): void => {
+    const items = event.clipboardData?.items;
+    if (!items) {
+      return;
+    }
+
+    for (const item of items) {
+      if (item.kind === 'file' && item.type.startsWith('image/')) {
+        event.preventDefault();
+        const file = item.getAsFile();
+        if (!file) {
+          continue;
+        }
+
+        runPostAction(async () => {
+          const uploaded = await adminUploadImage(token, file);
+          const imageAlt = file.name ? file.name.replace(/\.[^./\\]+$/, '') : 'image';
+          insertMarkdownAtCursor(`\n![${imageAlt}](${uploaded.url})\n`);
+          setPostFormDirty(true);
+        }, '图片已粘贴并插入正文，记得保存文章。', { refreshAfter: false });
+        return;
+      }
+    }
+  };
+
   const handleFeaturedSave = async (event: Event): Promise<void> => {
     const target = event.target;
     if (!(target instanceof HTMLElement)) {
@@ -634,6 +659,7 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
   postDeleteButton.addEventListener('click', handlePostDelete);
   coverUploadButton.addEventListener('click', handleCoverUpload);
   contentUploadButton.addEventListener('click', handleContentUpload);
+  postContentTextarea.addEventListener('paste', handleContentPaste);
   featuredListElement.addEventListener('click', handleFeaturedSave);
   filterForm.addEventListener('submit', handleFilterSubmit);
   resetFilterButton.addEventListener('click', handleFilterReset);

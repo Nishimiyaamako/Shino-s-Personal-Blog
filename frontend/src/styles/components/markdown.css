@@ -398,6 +398,9 @@
 
 /* Images */
 .page-post-detail .markdown-content img {
+    display: block;
+    max-width: 100%;
+    height: auto;
     margin: 1rem auto;
     border-radius: var(--radius-sm);
     border: 1px solid color-mix(in srgb, var(--accent-secondary) 18%, var(--border));

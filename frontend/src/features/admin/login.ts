@@ -13,7 +13,8 @@ const ALLOWED_NEXT_PATHS = new Set([
   '/admin/featured',
   '/admin/friends',
   '/admin/about',
-  '/admin/profile'
+  '/admin/profile',
+  '/admin/settings'
 ]);
 
 function resolveNextPath(pathname: string, search: string): string {
