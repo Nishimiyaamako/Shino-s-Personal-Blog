@@ -6,6 +6,7 @@ import type {
   AdminPostListQuery,
   AdminPostListResponse,
   AdminProfileCard,
+  AdminSiteConfig,
   ApiListResponse,
   PublicPostsResponse,
   SearchResultItem,
@@ -507,6 +508,27 @@ export async function adminUpdateProfileCard(
   payload: AdminProfileCard
 ): Promise<AdminProfileCard> {
   return adminFetchJson<AdminProfileCard>('/api/admin/profile-card', token, {
+    method: 'PATCH',
+    headers: {
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function fetchSiteConfig(signal?: AbortSignal): Promise<AdminSiteConfig> {
+  return fetchJson<AdminSiteConfig>('/api/site-config', { signal });
+}
+
+export async function adminFetchSiteConfig(token: string): Promise<AdminSiteConfig> {
+  return adminFetchJson<AdminSiteConfig>('/api/admin/site-config', token);
+}
+
+export async function adminUpdateSiteConfig(
+  token: string,
+  payload: Partial<AdminSiteConfig>
+): Promise<AdminSiteConfig> {
+  return adminFetchJson<AdminSiteConfig>('/api/admin/site-config', token, {
     method: 'PATCH',
     headers: {
       'content-type': 'application/json'

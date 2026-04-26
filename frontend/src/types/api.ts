@@ -68,6 +68,18 @@ export interface AdminProfileCard extends ProfileCardConfig {
   }>;
 }
 
+export interface AdminSiteConfig {
+  siteTitle: string;
+  siteSubtitle: string;
+  copyrightOwner: string;
+  poweredBy: string;
+  icpRecordText: string;
+  icpRecordUrl: string;
+  publicSecurityRecordText: string;
+  publicSecurityRecordUrl: string;
+  friendLinkTemplate: string;
+}
+
 export interface UploadImageResponse {
   item: {
     url: string;

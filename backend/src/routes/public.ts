@@ -4,6 +4,7 @@ import { getAboutMarkdown } from '../services/about';
 import { listPublicFriendLinks } from '../services/friends';
 import { listFeaturedPosts, listPublishedPosts, getPublishedPostBySlug } from '../services/posts';
 import { getProfileCard } from '../services/profile';
+import { getSiteConfig } from '../services/site-config';
 import { searchPublishedPosts } from '../services/search';
 
 export function createPublicRoutes(context: DatabaseContext) {
@@ -41,6 +42,7 @@ export function createPublicRoutes(context: DatabaseContext) {
     }))
     .get('/about', () => ({ markdown: getAboutMarkdown(context) }))
     .get('/profile-card', () => getProfileCard(context))
+    .get('/site-config', () => getSiteConfig(context))
     .get('/search', ({ query }) => {
       const q = typeof query.q === 'string' ? query.q : '';
       const limit = Number(query.limit ?? 10);

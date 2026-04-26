@@ -21,6 +21,7 @@ import {
   type UpsertPostInput
 } from '../services/posts';
 import { getProfileCard, updateProfileCard } from '../services/profile';
+import { getSiteConfig, updateSiteConfig } from '../services/site-config';
 import { asPositiveInt, parseJsonBody, requireAdmin, toErrorPayload } from './helpers';
 
 export function createAdminRoutes(context: DatabaseContext) {
@@ -381,6 +382,39 @@ export function createAdminRoutes(context: DatabaseContext) {
           avatar: body.avatar ?? '',
           contacts: body.contacts ?? []
         });
+      } catch (error) {
+        set.status = 400;
+        return toErrorPayload(error);
+      }
+    })
+    .get('/site-config', async ({ request, set }) => {
+      const admin = await requireAdmin(request, set);
+      if (!admin) {
+        return { error: 'Unauthorized' };
+      }
+
+      return getSiteConfig(context);
+    })
+    .patch('/site-config', async ({ request, set }) => {
+      const admin = await requireAdmin(request, set);
+      if (!admin) {
+        return { error: 'Unauthorized' };
+      }
+
+      try {
+        const body = await parseJsonBody<{
+          siteTitle?: string;
+          siteSubtitle?: string;
+          copyrightOwner?: string;
+          poweredBy?: string;
+          icpRecordText?: string;
+          icpRecordUrl?: string;
+          publicSecurityRecordText?: string;
+          publicSecurityRecordUrl?: string;
+          friendLinkTemplate?: string;
+        }>(request);
+
+        return updateSiteConfig(context, body);
       } catch (error) {
         set.status = 400;
         return toErrorPayload(error);

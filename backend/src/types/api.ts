@@ -44,6 +44,18 @@ export interface ApiProfileCard {
   contacts: ApiProfileContact[];
 }
 
+export interface ApiSiteConfig {
+  siteTitle: string;
+  siteSubtitle: string;
+  copyrightOwner: string;
+  poweredBy: string;
+  icpRecordText: string;
+  icpRecordUrl: string;
+  publicSecurityRecordText: string;
+  publicSecurityRecordUrl: string;
+  friendLinkTemplate: string;
+}
+
 export interface ApiSearchItem {
   slug: string;
   title: string;

@@ -7,6 +7,7 @@ const MODULE_ICONS: Record<string, string> = {
   friends: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
   about: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
   profile: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+  settings: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
 };
 
 function renderSidebarNav(pathname: string): string {
@@ -264,6 +265,49 @@ export const renderAdminPage: PageRenderer = (context) => {
         </form>
       </section>
 
+      <section class="admin-panel" data-role="admin-panel" data-panel="settings"${renderPanelHidden(context.pathname, 'settings')}>
+        <header class="admin-panel-header">
+          <h2>站点设置</h2>
+          <p>修改顶栏标题、页脚备案号、友链模板等全局信息。</p>
+        </header>
+        <form class="admin-settings-form" data-role="admin-settings-form">
+          <fieldset>
+            <legend>顶栏</legend>
+            <div class="admin-form-grid">
+              <label><span>站点标题（Logo 文字）</span><input type="text" name="siteTitle" required /></label>
+              <label><span>副标题</span><input type="text" name="siteSubtitle" placeholder="留空则不显示" /></label>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>页脚</legend>
+            <div class="admin-form-grid">
+              <label><span>版权所有者</span><input type="text" name="copyrightOwner" required /></label>
+              <label><span>Powered by 文案</span><input type="text" name="poweredBy" /></label>
+            </div>
+            <div class="admin-form-grid">
+              <label><span>ICP 备案文案</span><input type="text" name="icpRecordText" placeholder="蜀ICP备xxxx号" /></label>
+              <label><span>ICP 备案链接</span><input type="text" name="icpRecordUrl" placeholder="https://beian.miit.gov.cn/" /></label>
+            </div>
+            <div class="admin-form-grid">
+              <label><span>公安备案文案</span><input type="text" name="publicSecurityRecordText" placeholder="川公网安备xxxx号" /></label>
+              <label><span>公安备案链接</span><input type="text" name="publicSecurityRecordUrl" placeholder="https://beian.mps.gov.cn/..." /></label>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>友链模板</legend>
+            <label>
+              <span>"添加我" 模板（访客复制后用于交换友链）</span>
+              <textarea name="friendLinkTemplate" rows="6" required></textarea>
+            </label>
+          </fieldset>
+          <div class="admin-editor-actions">
+            <button type="submit" class="admin-btn admin-btn-primary">保存站点设置</button>
+          </div>
+          <p class="admin-form-error" data-role="admin-settings-error" hidden></p>
+          <p class="admin-form-success" data-role="admin-settings-success" hidden></p>
+        </form>
+      </section>
+
       <section class="admin-panel" data-role="admin-panel" data-panel="profile"${renderPanelHidden(context.pathname, 'profile')}>
         <header class="admin-panel-header">
           <h2>名片卡设置</h2>
@@ -300,6 +344,7 @@ function getPageTitle(module: string): string {
     case 'friends': return '友链管理';
     case 'about': return '关于页';
     case 'profile': return '名片卡';
+    case 'settings': return '站点设置';
     default: return '后台管理';
   }
 }

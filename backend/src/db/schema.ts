@@ -103,6 +103,20 @@ export const profileCardTable = sqliteTable('profile_card', {
   updatedAt: text('updated_at').notNull()
 });
 
+export const siteConfigTable = sqliteTable('site_config', {
+  id: integer('id').primaryKey(),
+  siteTitle: text('site_title').notNull().default('ShinoLog'),
+  siteSubtitle: text('site_subtitle').notNull().default(''),
+  copyrightOwner: text('copyright_owner').notNull().default('NagaShino'),
+  poweredBy: text('powered_by').notNull().default('Powered by Vite + TypeScript.'),
+  icpRecordText: text('icp_record_text').notNull().default(''),
+  icpRecordUrl: text('icp_record_url').notNull().default(''),
+  publicSecurityRecordText: text('public_security_record_text').notNull().default(''),
+  publicSecurityRecordUrl: text('public_security_record_url').notNull().default(''),
+  friendLinkTemplate: text('friend_link_template').notNull().default("name: 'ShinoLog',\ndescription: '某个状态混沌家伙的Blog',\navatar: 'https://example.com/avatar.png',\nurl: 'https://nagashino.top/'"),
+  updatedAt: text('updated_at').notNull()
+});
+
 export const profileContactsTable = sqliteTable('profile_contacts', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   profileCardId: integer('profile_card_id').notNull().default(1),

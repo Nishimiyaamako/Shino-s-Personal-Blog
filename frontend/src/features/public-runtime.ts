@@ -1,10 +1,11 @@
 import DOMPurify from 'dompurify';
-import { fetchFriendLinks, fetchPostDetail, fetchProfileCard, fetchPublicPosts, searchPosts } from '../data/api';
+import { fetchFriendLinks, fetchPostDetail, fetchProfileCard, fetchPublicPosts, fetchSiteConfig, searchPosts } from '../data/api';
 import { loadPosts } from '../data/posts';
 import { searchPosts as localSearchPosts } from '../utils/search';
 import { applyRemoteFriendLinks } from '../data/friends';
 import { applyRemotePostDetail, applyRemotePublishedPostSummaries } from '../data/posts';
 import { applyRemoteProfileCard } from '../data/profile-card';
+import { applyRemoteSiteConfig } from '../data/site-config';
 import type { SearchResultItem } from '../types/api';
 import { escapeHtml } from '../utils/escape-html';
 
@@ -160,6 +161,18 @@ export function setupPublicDataHydration(
 
         if (!disposed) {
           shouldRerender = applyRemoteProfileCard(profileCard) || shouldRerender;
+        }
+      }
+
+      try {
+        const siteConfig = await fetchSiteConfig(abortController.signal);
+
+        if (!disposed) {
+          shouldRerender = applyRemoteSiteConfig(siteConfig) || shouldRerender;
+        }
+      } catch (error) {
+        if (!isAbortError(error)) {
+          console.debug('[hydrate] site config hydration skipped:', error);
         }
       }
 

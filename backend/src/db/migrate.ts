@@ -89,6 +89,23 @@ CREATE TABLE IF NOT EXISTS profile_contacts (
   FOREIGN KEY (profile_card_id) REFERENCES profile_card(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS site_config (
+  id INTEGER PRIMARY KEY,
+  site_title TEXT NOT NULL DEFAULT 'ShinoLog',
+  site_subtitle TEXT NOT NULL DEFAULT '',
+  copyright_owner TEXT NOT NULL DEFAULT 'NagaShino',
+  powered_by TEXT NOT NULL DEFAULT 'Powered by Vite + TypeScript.',
+  icp_record_text TEXT NOT NULL DEFAULT '',
+  icp_record_url TEXT NOT NULL DEFAULT '',
+  public_security_record_text TEXT NOT NULL DEFAULT '',
+  public_security_record_url TEXT NOT NULL DEFAULT '',
+  friend_link_template TEXT NOT NULL DEFAULT 'name: ''ShinoLog'',
+description: ''某个状态混沌家伙的Blog'',
+avatar: ''https://example.com/avatar.png'',
+url: ''https://nagashino.top/''',
+  updated_at TEXT NOT NULL
+);
+
 CREATE INDEX IF NOT EXISTS posts_status_idx ON posts(status);
 CREATE INDEX IF NOT EXISTS posts_featured_idx ON posts(is_featured, featured_order);
 CREATE INDEX IF NOT EXISTS post_tags_post_idx ON post_tags(post_id);

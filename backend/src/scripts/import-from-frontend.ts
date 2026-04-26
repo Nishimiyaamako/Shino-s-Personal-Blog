@@ -35,6 +35,7 @@ function clearContentTables(databasePath?: string): void {
       DELETE FROM about_page;
       DELETE FROM profile_contacts;
       DELETE FROM profile_card;
+      DELETE FROM site_config;
     `);
   } finally {
     context.sqlite.close();
@@ -95,6 +96,20 @@ async function importFrontendData(databasePath?: string): Promise<ImportResult> 
     }
 
     rebuildSearchIndex(context);
+
+    const now = new Date().toISOString();
+    context.sqlite
+      .query(`
+        INSERT INTO site_config (id, site_title, site_subtitle, copyright_owner, powered_by,
+          icp_record_text, icp_record_url, public_security_record_text, public_security_record_url,
+          friend_link_template, updated_at)
+        VALUES (1, 'ShinoLog', '', 'NagaShino', 'Powered by Vite + TypeScript.',
+          '', '', '', '',
+          'name: ''ShinoLog'',\ndescription: ''某个状态混沌家伙的Blog'',\navatar: ''https://example.com/avatar.png'',\nurl: ''https://nagashino.top/''',
+          ?)
+        ON CONFLICT(id) DO NOTHING
+      `)
+      .run(now);
 
     return {
       posts: postFiles.length,

@@ -2,7 +2,7 @@ import './styles/global.css';
 
 import { renderPostList } from './components/post-list';
 import { renderProfileCard } from './components/profile-card';
-import { SITE_CONFIG } from './config/site';
+import { loadSiteConfig } from './data/site-config';
 import { fetchAboutViewModel } from './data/about';
 import { getPostsByTag, getThemeStats } from './data/posts';
 import { setupAdminDashboard, setupAdminLogin } from './features/admin';
@@ -12,8 +12,6 @@ import { PRIMARY_NAV_LINKS, isAdminPathname, resolveRoute, type PrimaryNavIcon }
 import { clearCssVar, readCssLengthPx, setCssPxVar, setCssVar } from './utils/dom-style';
 import { escapeHtml } from './utils/escape-html';
 import { normalizeThemeKey } from './utils/theme';
-
-const { title: SITE_TITLE, subtitle: SITE_SUBTITLE, footer: SITE_FOOTER } = SITE_CONFIG;
 
 const appRoot = document.querySelector<HTMLDivElement>('#app');
 
@@ -113,7 +111,7 @@ function renderApp(): void {
   const pageTitle = isFallback ? `404 (${context.pathname})` : route.title;
   const pageContent = route.render(context);
 
-  document.title = `${pageTitle} | ${SITE_TITLE}`;
+  document.title = `${pageTitle} | ${loadSiteConfig().siteTitle}`;
 
   if (isAdminRoute) {
     appElement.innerHTML = renderAdminShell(pageContent);
@@ -152,8 +150,8 @@ function renderApp(): void {
   <header class="${headerClassName}">
     <div class="site-header-inner">
       <a href="/" class="brand" data-link>
-        <strong>${SITE_TITLE}</strong>
-        <span>${SITE_SUBTITLE}</span>
+        <strong>${loadSiteConfig().siteTitle}</strong>
+        <span>${loadSiteConfig().siteSubtitle}</span>
       </a>
       <div class="site-header-right">
         <nav class="site-nav site-nav--desktop" aria-label="主导航">
@@ -179,8 +177,8 @@ function renderApp(): void {
   ${hasFloatingScrollTopButton ? renderFloatingScrollTopButton() : ''}
 
   <footer class="site-footer" aria-label="站点备案信息">
-    <p>© ${new Date().getFullYear()} ${SITE_FOOTER.copyrightOwner}. All rights reserved.</p>
-    <p>${SITE_FOOTER.poweredBy}</p>
+    <p>© ${new Date().getFullYear()} ${loadSiteConfig().copyrightOwner}. All rights reserved.</p>
+    <p>${loadSiteConfig().poweredBy}</p>
     ${renderFooterRecords()}
   </footer>
 </div>
@@ -330,18 +328,19 @@ function isNavActive(currentPath: string, navHref: string): boolean {
 }
 
 function renderFooterRecords(): string {
-  const hasPublicSecurityRecord = Boolean(SITE_FOOTER.publicSecurityRecordText && SITE_FOOTER.publicSecurityRecordUrl);
+  const siteConfig = loadSiteConfig();
+  const hasPublicSecurityRecord = Boolean(siteConfig.publicSecurityRecordText && siteConfig.publicSecurityRecordUrl);
 
   if (!hasPublicSecurityRecord) {
     return `<p class="site-footer-records">
-      <a href="${SITE_FOOTER.icpRecordUrl}" rel="noreferrer" target="_blank">${SITE_FOOTER.icpRecordText}</a>
+      <a href="${siteConfig.icpRecordUrl}" rel="noreferrer" target="_blank">${siteConfig.icpRecordText}</a>
     </p>`;
   }
 
   return `<p class="site-footer-records">
-    <a href="${SITE_FOOTER.icpRecordUrl}" rel="noreferrer" target="_blank">${SITE_FOOTER.icpRecordText}</a>
+    <a href="${siteConfig.icpRecordUrl}" rel="noreferrer" target="_blank">${siteConfig.icpRecordText}</a>
     <span class="site-footer-divider" aria-hidden="true">|</span>
-    <a href="${SITE_FOOTER.publicSecurityRecordUrl}" rel="noreferrer" target="_blank">${SITE_FOOTER.publicSecurityRecordText}</a>
+    <a href="${siteConfig.publicSecurityRecordUrl}" rel="noreferrer" target="_blank">${siteConfig.publicSecurityRecordText}</a>
   </p>`;
 }
 

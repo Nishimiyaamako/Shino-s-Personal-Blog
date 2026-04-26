@@ -1,14 +1,12 @@
 import { loadFriendLinks } from '../data/friends';
+import { loadSiteConfig } from '../data/site-config';
 import type { FriendLink } from '../types/friend-link';
 import type { PageRenderer } from '../types/router';
 import { escapeHtml } from '../utils/escape-html';
 
 export const renderFriendsPage: PageRenderer = () => {
   const friendLinks = loadFriendLinks();
-  const friendLinkTemplate = `name: 'ShinoLog',
-description: '某个状态混沌家伙的Blog',
-avatar: 'https://example.com/avatar.png',
-url: 'https://nagashino.top/'`;
+  const friendLinkTemplate = loadSiteConfig().friendLinkTemplate;
 
   return `
 <section class="page page-friends">

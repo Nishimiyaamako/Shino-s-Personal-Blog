@@ -4,9 +4,10 @@ import { setupAdminContentSettingsModule, type AdminContentSettingsModule } from
 import { setupAdminFriendsModule, type AdminFriendsModule } from './friends';
 import type { AdminFeatureOptions } from './login';
 import { setupAdminPostsModule, type AdminPostsModule } from './posts';
+import { setupAdminSiteSettingsModule, type AdminSiteSettingsModule } from './site-settings';
 
 const POSTS_WORKSPACE_MODULES: ReadonlySet<AdminModuleRoute> = new Set(['posts', 'featured']);
-type DirtyScope = 'posts-form' | 'friends-form' | 'about-form' | 'profile-form';
+type DirtyScope = 'posts-form' | 'friends-form' | 'about-form' | 'profile-form' | 'settings-form';
 
 function getRuntimeStatusText(module: AdminModuleRoute): string {
   switch (module) {
@@ -20,6 +21,8 @@ function getRuntimeStatusText(module: AdminModuleRoute): string {
       return '已进入关于页管理。';
     case 'profile':
       return '已进入名片卡管理。';
+    case 'settings':
+      return '已进入站点设置。';
     default:
       return '后台已就绪。';
   }
@@ -59,6 +62,7 @@ export function setupAdminDashboard(options: AdminFeatureOptions): (() => void) 
   let postsModule: AdminPostsModule | null = null;
   let friendsModule: AdminFriendsModule | null = null;
   let contentSettingsModule: AdminContentSettingsModule | null = null;
+  let siteSettingsModule: AdminSiteSettingsModule | null = null;
   let refreshInFlight = false;
   let destroyed = false;
   const dirtyScopes = new Set<DirtyScope>();
@@ -177,6 +181,24 @@ export function setupAdminDashboard(options: AdminFeatureOptions): (() => void) 
     return contentSettingsModule;
   };
 
+  const ensureSiteSettingsModule = (): AdminSiteSettingsModule => {
+    if (!siteSettingsModule) {
+      const created = setupAdminSiteSettingsModule({
+        rootElement,
+        token,
+        onDirtyChange: (scope, dirty) => {
+          setDirtyScope(scope, dirty);
+        }
+      });
+      if (!created) {
+        throw new Error('站点设置模块初始化失败，请刷新后重试。');
+      }
+      siteSettingsModule = created;
+    }
+
+    return siteSettingsModule;
+  };
+
   const refreshActiveModule = async (): Promise<void> => {
     if (refreshInFlight || destroyed) {
       return;
@@ -194,6 +216,8 @@ export function setupAdminDashboard(options: AdminFeatureOptions): (() => void) 
         await ensurePostsModule().refresh();
       } else if (activeModule === 'friends') {
         await ensureFriendsModule().refresh();
+      } else if (activeModule === 'settings') {
+        await ensureSiteSettingsModule().refresh();
       } else {
         await ensureContentSettingsModule().refresh();
       }
@@ -236,6 +260,7 @@ export function setupAdminDashboard(options: AdminFeatureOptions): (() => void) 
     postsModule?.destroy();
     friendsModule?.destroy();
     contentSettingsModule?.destroy();
+    siteSettingsModule?.destroy();
     dirtyScopes.clear();
     delete rootElement.dataset.adminDirty;
     if (unsavedStatusElement) {
