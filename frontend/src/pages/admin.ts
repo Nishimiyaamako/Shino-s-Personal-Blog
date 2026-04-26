@@ -79,40 +79,17 @@ function renderPostsWorkspace(pathname: string): string {
         <div class="admin-editor-panel">
           <form class="admin-post-form" data-role="admin-post-form">
             <input type="hidden" name="id" />
+            <input type="hidden" name="slug" data-role="admin-post-slug" />
 
             <div class="admin-editor-head">
               <input type="text" name="title" class="admin-editor-title" placeholder="输入文章标题..." required />
-              <p class="admin-editor-meta" data-role="admin-post-form-meta">新建文章 · 先保存草稿，再按需发布</p>
+              <p class="admin-editor-meta" data-role="admin-post-form-meta">新建文章 · Slug 将自动从标题生成</p>
             </div>
-
-            <details class="admin-meta-drawer">
-              <summary>元信息设置</summary>
-              <div class="admin-meta-grid">
-                <label><span>Slug</span><input type="text" name="slug" placeholder="url-identifier" required /></label>
-                <label><span>发布日期</span><input type="date" name="date" required /></label>
-                <label><span>主题</span><input type="text" name="theme" placeholder="例如：DevOps" /></label>
-                <label><span>标签</span><input type="text" name="tags" placeholder="typescript, web" required /></label>
-                <label><span>封面地址</span><input type="text" name="coverImageUrl" placeholder="/uploads/images/xxx.webp" /></label>
-                <label><span>发布状态</span>
-                  <select name="status">
-                    <option value="draft">草稿</option>
-                    <option value="published">已发布</option>
-                  </select>
-                </label>
-                <label class="admin-checkbox-label"><input type="checkbox" name="isFeatured" /> <span>设为首页精选</span></label>
-                <label><span>精选排序</span><input type="number" name="featuredOrder" min="1" placeholder="1" /></label>
-              </div>
-            </details>
-
-            <label class="admin-summary-field">
-              <span>摘要</span>
-              <textarea name="summary" rows="2" placeholder="文章摘要，会显示在列表和卡片中..." required></textarea>
-            </label>
 
             <div class="admin-markdown-workspace">
               <div class="admin-markdown-editor">
                 <label><span>Markdown 正文</span>
-                  <textarea name="contentMarkdown" rows="16" required data-role="admin-post-content" placeholder="在此输入 Markdown 正文..."></textarea>
+                  <textarea name="contentMarkdown" rows="18" required data-role="admin-post-content" placeholder="从 Obsidian 粘贴 Markdown 正文..."></textarea>
                 </label>
               </div>
               <div class="admin-markdown-preview" aria-label="实时预览">
@@ -122,6 +99,18 @@ function renderPostsWorkspace(pathname: string): string {
                 </article>
               </div>
             </div>
+
+            <div class="admin-quick-meta">
+              <label><span>主题</span><input type="text" name="theme" placeholder="例如：DevOps" /></label>
+              <label><span>标签</span><input type="text" name="tags" placeholder="typescript, web" required /></label>
+              <label><span>发布日期</span><input type="date" name="date" required /></label>
+              <label><span>封面地址</span><input type="text" name="coverImageUrl" placeholder="/uploads/images/xxx.webp" /></label>
+            </div>
+
+            <label class="admin-summary-field">
+              <span>摘要</span>
+              <textarea name="summary" rows="2" placeholder="文章摘要，会显示在列表和卡片中..." required></textarea>
+            </label>
 
             <div class="admin-upload-bar">
               <div class="admin-upload-group">
@@ -133,6 +122,21 @@ function renderPostsWorkspace(pathname: string): string {
                 <button type="button" class="admin-btn admin-btn-ghost" data-role="admin-content-upload-btn">插入图片</button>
               </div>
             </div>
+
+            <details class="admin-meta-drawer">
+              <summary>高级设置</summary>
+              <div class="admin-meta-grid">
+                <label><span>Slug</span><input type="text" name="slugManual" data-role="admin-post-slug-override" placeholder="留空则自动生成" /></label>
+                <label><span>发布状态</span>
+                  <select name="status">
+                    <option value="draft">草稿</option>
+                    <option value="published">已发布</option>
+                  </select>
+                </label>
+                <label class="admin-checkbox-label"><input type="checkbox" name="isFeatured" /> <span>设为首页精选</span></label>
+                <label><span>精选排序</span><input type="number" name="featuredOrder" min="1" placeholder="1" /></label>
+              </div>
+            </details>
 
             <div class="admin-editor-actions">
               <button type="submit" class="admin-btn admin-btn-primary" data-role="admin-post-save">保存草稿</button>

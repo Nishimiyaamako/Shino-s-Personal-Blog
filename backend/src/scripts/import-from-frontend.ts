@@ -1,13 +1,9 @@
-import { copyFileSync, existsSync, readFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import matter from 'gray-matter';
 import { ENV } from '../config/env';
 import { createDatabaseContext } from '../db/client';
-import { updateAboutMarkdown } from '../services/about';
-import { createFriendLink } from '../services/friends';
 import { createPost, rebuildSearchIndex, type UpsertPostInput } from '../services/posts';
-import { updateProfileCard } from '../services/profile';
 
 interface FrontmatterRecord {
   title?: string;
@@ -45,122 +41,66 @@ function clearContentTables(databasePath?: string): void {
   }
 }
 
-function parsePostMarkdownFile(markdownPath: string): UpsertPostInput {
-  const raw = readFileSync(markdownPath, 'utf-8');
-  const parsed = matter(raw);
-  const frontmatter = parsed.data as FrontmatterRecord;
+async function importFrontendData(databasePath?: string): Promise<ImportResult> {
+  const frontendRoot = resolve(ENV.backendRoot, '../frontend');
+  const postsDir = resolve(frontendRoot, 'src/content/posts');
 
-  const tags = Array.isArray(frontmatter.tags) ? frontmatter.tags.map((tag) => String(tag)) : [];
-  const normalizedDate =
-    frontmatter.date instanceof Date
-      ? frontmatter.date.toISOString().slice(0, 10)
-      : String(frontmatter.date ?? '').trim();
+  const hasMarkdownFiles =
+    existsSync(postsDir) && Array.from(new Bun.Glob('*.md').scanSync(postsDir)).length > 0;
 
-  if (!frontmatter.title || !frontmatter.slug || !frontmatter.date || !frontmatter.summary || !frontmatter.status) {
-    throw new Error(`文章 frontmatter 缺少必要字段: ${markdownPath}`);
+  if (!hasMarkdownFiles) {
+    console.warn(
+      '[seed] No markdown files found in frontend/src/content/posts/, skipping seed to preserve existing data.'
+    );
+    return { posts: 0, friends: 0, about: false, profile: false };
   }
 
-  return {
-    title: String(frontmatter.title),
-    slug: String(frontmatter.slug),
-    date: normalizedDate,
-    summary: String(frontmatter.summary),
-    theme: frontmatter.theme ? String(frontmatter.theme) : undefined,
-    status: frontmatter.status,
-    tags,
-    contentMarkdown: parsed.content.trim()
-  };
-}
-
-async function importFrontendData(databasePath?: string): Promise<ImportResult> {
   clearContentTables(databasePath);
 
   const context = createDatabaseContext({ databasePath });
   try {
-    const frontendRoot = resolve(ENV.backendRoot, '../frontend');
-    const postsDir = resolve(frontendRoot, 'src/content/posts');
-    const coversDir = resolve(frontendRoot, 'public/images/covers');
-    const aboutMarkdownPath = resolve(frontendRoot, 'src/content/about.md');
-    const friendsModulePath = resolve(frontendRoot, 'src/data/friends.ts');
-    const profileModulePath = resolve(frontendRoot, 'src/data/profile-card.ts');
-
     const postFiles = Array.from(new Bun.Glob('*.md').scanSync(postsDir)).sort((a, b) => a.localeCompare(b, 'en'));
-    const postInputs = postFiles.map((fileName) => parsePostMarkdownFile(resolve(postsDir, fileName)));
 
-    const featuredSlugs = postInputs
-      .filter((post) => post.status === 'published')
-      .sort((left, right) => right.date.localeCompare(left.date, 'en'))
-      .slice(0, 5)
-      .map((post) => post.slug);
+    for (const fileName of postFiles) {
+      const raw = Bun.file(resolve(postsDir, fileName));
+      const parsed = matter(await raw.text());
+      const fm = parsed.data as FrontmatterRecord;
 
-    const featuredOrderMap = new Map<string, number>();
-    featuredSlugs.forEach((slug, index) => {
-      featuredOrderMap.set(slug, index + 1);
-    });
+      const tags = Array.isArray(fm.tags) ? fm.tags.map((tag) => String(tag)) : [];
+      const normalizedDate =
+        fm.date instanceof Date
+          ? fm.date.toISOString().slice(0, 10)
+          : String(fm.date ?? '').trim();
 
-    for (const input of postInputs) {
-      const coverPath = resolve(coversDir, `${input.slug}.webp`);
-
-      if (existsSync(coverPath)) {
-        const targetCoverPath = resolve(ENV.uploadsRoot, 'images', `${input.slug}.webp`);
-        copyFileSync(coverPath, targetCoverPath);
-        input.coverImageUrl = `/uploads/images/${input.slug}.webp`;
+      if (!fm.title || !fm.slug || !fm.date || !fm.summary || !fm.status) {
+        throw new Error(`文章 frontmatter 缺少必要字段: ${fileName}`);
       }
 
-      const featuredOrder = featuredOrderMap.get(input.slug);
+      const input: UpsertPostInput = {
+        title: String(fm.title),
+        slug: String(fm.slug),
+        date: normalizedDate,
+        summary: String(fm.summary),
+        theme: fm.theme ? String(fm.theme) : undefined,
+        status: fm.status,
+        tags,
+        contentMarkdown: parsed.content.trim()
+      };
 
       createPost(context, {
         ...input,
-        isFeatured: featuredOrder !== undefined,
-        featuredOrder
+        isFeatured: false,
+        featuredOrder: undefined
       });
     }
-
-    const aboutMarkdown = readFileSync(aboutMarkdownPath, 'utf-8');
-    updateAboutMarkdown(context, aboutMarkdown);
-
-    const friendsModule = await import(pathToFileURL(friendsModulePath).href);
-    const profileModule = await import(pathToFileURL(profileModulePath).href);
-
-    const friendLinks = (friendsModule as { FRIEND_LINKS?: Array<Record<string, unknown>> }).FRIEND_LINKS ?? [];
-
-    friendLinks.forEach((item, index) => {
-      createFriendLink(context, {
-        name: String(item.name ?? ''),
-        description: String(item.description ?? ''),
-        avatar: String(item.avatar ?? ''),
-        url: String(item.url ?? ''),
-        enabled: true,
-        displayOrder: index
-      });
-    });
-
-    const profileConfig = (profileModule as { PROFILE_CARD_CONFIG?: Record<string, unknown> }).PROFILE_CARD_CONFIG;
-
-    updateProfileCard(context, {
-      name: String(profileConfig?.name ?? 'Shino'),
-      bio: String(profileConfig?.bio ?? 'Luna say maybe'),
-      avatar: String(profileConfig?.avatar ?? 'https://placehold.co/120x120/png?text=ME'),
-      contacts: Array.isArray(profileConfig?.contacts)
-        ? profileConfig.contacts.map((item, index) => {
-            const contact = item as Record<string, unknown>;
-            return {
-              platform: String(contact.platform ?? ''),
-              label: String(contact.label ?? ''),
-              href: String(contact.href ?? ''),
-              displayOrder: index
-            };
-          })
-        : []
-    });
 
     rebuildSearchIndex(context);
 
     return {
-      posts: postInputs.length,
-      friends: friendLinks.length,
-      about: true,
-      profile: true
+      posts: postFiles.length,
+      friends: 0,
+      about: false,
+      profile: false
     };
   } finally {
     context.sqlite.close();

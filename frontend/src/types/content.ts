@@ -62,14 +62,3 @@ export interface ArchiveTimelineData {
   totalPosts: number;
   years: ArchiveTimelineYear[];
 }
-
-export class ContentValidationError extends Error {
-  constructor(
-    message: string,
-    public readonly sourcePath: string,
-    public readonly field?: string
-  ) {
-    super(message);
-    this.name = 'ContentValidationError';
-  }
-}

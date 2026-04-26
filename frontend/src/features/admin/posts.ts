@@ -11,6 +11,7 @@ import {
 import type { AdminPost, AdminPostListQuery, AdminPostListResponse } from '../../types/api';
 import {
   fillPostForm,
+  generateSlug,
   readPostFormPayload,
   renderAdminPostList,
   renderFeaturedList,
@@ -66,6 +67,10 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
   const postContentTextarea = rootElement.querySelector<HTMLTextAreaElement>('[data-role="admin-post-content"]');
   const postPreviewElement = rootElement.querySelector<HTMLElement>('[data-role="admin-post-preview"]');
   const postFormMetaElement = rootElement.querySelector<HTMLElement>('[data-role="admin-post-form-meta"]');
+  const slugInput = rootElement.querySelector<HTMLInputElement>('[data-role="admin-post-slug"]');
+  const slugOverrideInput = rootElement.querySelector<HTMLInputElement>('[data-role="admin-post-slug-override"]');
+  const titleInput = rootElement.querySelector<HTMLInputElement>('input[name="title"]');
+  const dateInput = rootElement.querySelector<HTMLInputElement>('input[name="date"]');
   const coverUploadInput = rootElement.querySelector<HTMLInputElement>('[data-role="admin-cover-upload"]');
   const coverUploadButton = rootElement.querySelector<HTMLButtonElement>('[data-role="admin-cover-upload-btn"]');
   const contentUploadInput = rootElement.querySelector<HTMLInputElement>('[data-role="admin-content-upload"]');
@@ -96,6 +101,9 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
     || !postContentTextarea
     || !postPreviewElement
     || !postFormMetaElement
+    || !slugInput
+    || !titleInput
+    || !dateInput
     || !coverUploadInput
     || !coverUploadButton
     || !contentUploadInput
@@ -283,9 +291,19 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
     setMessage(postErrorElement, '');
     setMessage(postSuccessElement, '');
     renderPostCollections();
-    // Focus title input for quick creation
-    const titleInput = postForm.querySelector<HTMLInputElement>('input[name="title"]');
+    // Set default date to today
+    if (dateInput) {
+      dateInput.value = new Date().toISOString().slice(0, 10);
+    }
     titleInput?.focus();
+  };
+
+  const handleTitleInput = (): void => {
+    const title = titleInput.value.trim();
+    if (title && !slugOverrideInput?.value.trim()) {
+      slugInput.value = generateSlug(title);
+    }
+    setPostFormDirty(true);
   };
 
   const runPostAction = async (
@@ -609,6 +627,7 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
   postForm.addEventListener('submit', handlePostSave);
   postForm.addEventListener('input', handlePostFormInput);
   postForm.addEventListener('change', handlePostFormInput);
+  titleInput.addEventListener('input', handleTitleInput);
   postContentTextarea.addEventListener('input', handlePostContentInput);
   postPublishButton.addEventListener('click', handlePostPublish);
   postUnpublishButton.addEventListener('click', handlePostUnpublish);
@@ -633,6 +652,7 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
       postForm.removeEventListener('submit', handlePostSave);
       postForm.removeEventListener('input', handlePostFormInput);
       postForm.removeEventListener('change', handlePostFormInput);
+      titleInput.removeEventListener('input', handleTitleInput);
       postContentTextarea.removeEventListener('input', handlePostContentInput);
       postPublishButton.removeEventListener('click', handlePostPublish);
       postUnpublishButton.removeEventListener('click', handlePostUnpublish);

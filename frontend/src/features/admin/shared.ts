@@ -86,10 +86,12 @@ export function readPostFormPayload(form: HTMLFormElement): Partial<AdminPost> {
 
   const status = String(formData.get('status') ?? 'draft');
   const featuredOrderText = String(formData.get('featuredOrder') ?? '').trim();
+  const manualSlug = String(formData.get('slugManual') ?? '').trim();
+  const autoSlug = String(formData.get('slug') ?? '').trim();
 
   return {
     title: String(formData.get('title') ?? '').trim(),
-    slug: String(formData.get('slug') ?? '').trim(),
+    slug: manualSlug || autoSlug,
     date: String(formData.get('date') ?? '').trim(),
     summary: String(formData.get('summary') ?? '').trim(),
     theme: String(formData.get('theme') ?? '').trim() || undefined,
@@ -125,6 +127,21 @@ export function fillPostForm(form: HTMLFormElement, post: AdminPost | null): voi
   (form.elements.namedItem('featuredOrder') as HTMLInputElement).value =
     typeof post.featuredOrder === 'number' ? String(post.featuredOrder) : '';
   (form.elements.namedItem('contentMarkdown') as HTMLTextAreaElement).value = post.contentMarkdown;
+  // Clear manual slug override when loading existing post
+  const slugOverride = form.elements.namedItem('slugManual');
+  if (slugOverride instanceof HTMLInputElement) {
+    slugOverride.value = '';
+  }
+}
+
+export function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 80);
 }
 
 export function renderAdminPostList(posts: AdminPost[], selectedPostId: number): string {

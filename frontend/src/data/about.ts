@@ -6,7 +6,7 @@ import type {
 } from '../types/about';
 
 const ABOUT_API_ENDPOINT = '/api/about';
-const ABOUT_FALLBACK_MARKDOWN = '# 关于\n\n## 关于我\n- 内容加载中。\n\n## 事件表\n- TBD | 暂无事件记录。';
+const ABOUT_FALLBACK_MARKDOWN = '';
 
 const FRONTMATTER_REGEXP = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/;
 const SECTION_HEADING_REGEXP = /^##\s+(.+)$/;
@@ -94,33 +94,13 @@ function buildAboutViewModel(rawMarkdown: string): AboutViewModel {
 
   return {
     fingerprint: createFingerprint(normalizedMarkdown || JSON.stringify(parsedMarkdown)),
-    heroTitle: parsedMarkdown.metadata.heroTitle ?? '你好，我是 Shino',
-    heroSubtitle: parsedMarkdown.metadata.heroSubtitle ?? 'About · NagaShino',
-    introParagraphs: introParagraphs.length
-      ? introParagraphs
-      : [],
-    narrativeSections: narrativeSections.length
-      ? narrativeSections
-      : [
-        {
-          id: 'about-default',
-          title: '关于我',
-          label: 'Overview',
-          side: 'left',
-          items: ['内容整理中。']
-        }
-      ],
-    timelineTitle: timelineSection?.heading ?? '事件表',
-    timelineLabel: sectionLabel(timelineSection?.heading ?? '事件表', 0),
-    timelineEvents: timelineEvents.length
-      ? timelineEvents
-      : [
-        {
-          id: 'event-1',
-          date: 'TBD',
-          detail: '暂无事件记录。'
-        }
-      ]
+    heroTitle: parsedMarkdown.metadata.heroTitle ?? '',
+    heroSubtitle: parsedMarkdown.metadata.heroSubtitle ?? '',
+    introParagraphs,
+    narrativeSections,
+    timelineTitle: timelineSection?.heading ?? '',
+    timelineLabel: sectionLabel(timelineSection?.heading ?? '', 0),
+    timelineEvents
   };
 }
 

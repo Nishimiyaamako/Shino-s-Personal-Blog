@@ -1,5 +1,65 @@
 /* Admin Core Styles — Notion-inspired lightweight editor dashboard */
 
+/* ─── Quick Meta Row ─── */
+.admin-quick-meta {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.admin-quick-meta label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.admin-quick-meta label>span {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--admin-text-subtle, #6b6b6b);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.admin-quick-meta input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--admin-border, #e8e8e8);
+    border-radius: 6px;
+    background: var(--admin-surface, #ffffff);
+    font: inherit;
+    font-size: 14px;
+    color: var(--admin-text, #1a1a1a);
+    outline: none;
+    transition: border-color 200ms ease, box-shadow 200ms ease;
+    min-height: 38px;
+}
+
+.admin-quick-meta input:focus {
+    border-color: var(--admin-accent, var(--rose-500));
+    box-shadow: 0 0 0 3px var(--admin-accent-soft, color-mix(in oklch, var(--rose-500) 10%, transparent));
+}
+
+@media (max-width: 1024px) {
+    .admin-quick-meta {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .admin-quick-meta {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .admin-quick-meta input {
+        background: var(--admin-surface, #171a20);
+        color: var(--admin-text, #eceff4);
+    }
+}
+
 /* Login page specific */
 .admin-app-login {
     align-items: center;
