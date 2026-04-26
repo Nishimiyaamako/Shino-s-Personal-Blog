@@ -1,22 +1,25 @@
-# 1Panel 后端部署指南（容器常驻）
+# 1Panel 后端部署指南（PM2 进程常驻）
 
-> 目标：让 `backend` 在服务器以容器方式稳定常驻，并与单域名静态前端站点通过 `/api`、`/uploads` 正常联通。  
+> 目标：让 `backend` 在服务器以 PM2 进程方式稳定常驻，并与单域名静态前端站点通过 `/api`、`/uploads` 正常联通。  
 > 适用：你已使用 1Panel 管理网站，前端为静态站点，后端为 Elysia + SQLite。
+> 注意：本指南已移除 Docker 容器方案，后端采用 PM2 进程管理。
 
 ## 1) 服务器目录规范（建议固定）
 
 ```text
 /opt/shino-blog/
+  |- backend/        # 后端代码（由 PM2 运行）
   |- data/           # SQLite 数据库（读写）
   |- uploads/        # 上传资源目录（读写）
   |- env/            # 环境变量文件（仅运维可读）
+  |- logs/           # PM2 日志目录
   |- backups/        # 备份归档
 ```
 
 快速创建：
 
 ```bash
-sudo mkdir -p /opt/shino-blog/{data,uploads,env,backups}
+sudo mkdir -p /opt/shino-blog/{backend,data,uploads,env,logs,backups}
 sudo mkdir -p /opt/shino-blog/uploads/images
 sudo chown -R 1000:1000 /opt/shino-blog
 ```
@@ -55,31 +58,51 @@ cp backend/.env.example /opt/shino-blog/env/backend.env
 cp /opt/shino-blog/data/blog.sqlite /opt/shino-blog/backups/blog.sqlite.$(date +%F-%H%M%S).bak
 ```
 
-## 4) 构建后端镜像
+## 4) 部署后端代码
 
-在仓库根目录执行：
+在服务器上准备后端运行目录：
 
 ```bash
-docker pull oven/bun:1.3.11-alpine
-docker build -t shino-blog-backend:latest ./backend
+cd /opt/shino-blog/backend
 ```
 
-若 `docker pull` 超时（例如 `i/o timeout`），先处理服务器到 Docker Hub 的出网或镜像代理，再继续构建。
+将本地 `backend/` 目录的代码上传到服务器该目录（可通过 git clone、rsync、或 1Panel 文件管理器上传）。
 
-## 5) 在 1Panel 创建后端容器
+确保目录结构包含：
+- `package.json`
+- `bun.lock`
+- `tsconfig.json`
+- `src/` 目录
+- `ecosystem.config.js`（PM2 配置文件）
 
-1. 进入 **容器** -> **创建容器**。
-2. 镜像：`shino-blog-backend:latest`。
-3. 端口映射：`127.0.0.1:3001:3001`（仅本机可访问，由 Nginx 反代暴露）。
-4. 挂载：
-- `/opt/shino-blog/data` -> `/app/data`（读写）
-- `/opt/shino-blog/uploads` -> `/app/uploads`（读写）
-- `/opt/shino-blog/env/backend.env` -> `/app/.env`（只读）
-5. 环境变量加载方式（二选一）：
-- 直接在 1Panel 填写与 `backend.env` 同值；
-- 或启用 env-file（按 1Panel 版本支持情况）。
-6. 重启策略：`always`。
-7. 启动命令：默认 `bun src/index.ts`（沿用 Dockerfile CMD）。
+安装依赖：
+
+```bash
+cd /opt/shino-blog/backend
+bun install --frozen-lockfile --production
+```
+
+## 5) 安装 PM2 并启动后端
+
+```bash
+# 安装 PM2（如未安装）
+npm install -g pm2
+
+# 首次启动
+cd /opt/shino-blog/backend
+pm2 start ecosystem.config.js
+
+# 保存 PM2 进程列表，确保开机自启
+pm2 save
+pm2 startup
+```
+
+验证运行状态：
+
+```bash
+pm2 status
+pm2 logs shino-blog-backend --lines 50
+```
 
 ## 6) 运行后验证
 
@@ -90,12 +113,6 @@ curl -sS http://127.0.0.1:3001/api/health
 ```
 
 应返回 `{"ok":true,...}`。
-
-查看容器日志：
-
-```bash
-docker logs --tail=200 shino-blog-backend
-```
 
 ## 7) 与前端站点联动（单域名）
 
@@ -108,11 +125,33 @@ docker logs --tail=200 shino-blog-backend
 - `deploy/1panel-static-deploy.md`
 - `deploy/nginx/1panel-static-spa-snippet.conf`
 
-## 8) 回滚方案（最小可行）
+## 8) 日常运维命令
 
-1. **镜像回滚**：改回上一个稳定 tag 并重启容器。
+```bash
+# 查看状态
+pm2 status
+
+# 查看日志
+pm2 logs shino-blog-backend
+
+# 重启
+pm2 restart shino-blog-backend
+
+# 零停机重载（推荐用于代码更新）
+pm2 reload shino-blog-backend
+
+# 停止
+pm2 stop shino-blog-backend
+
+# 删除进程
+pm2 delete shino-blog-backend
+```
+
+## 9) 回滚方案（最小可行）
+
+1. **代码回滚**：回退到上一个稳定 git commit，执行 `pm2 reload shino-blog-backend`。
 2. **前端回滚**：解压上一个 `frontend-dist-*.tar.gz` 覆盖站点目录。
 3. **数据回滚**：
-- 停后端容器
-- 用 `/opt/shino-blog/backups/*.bak` 恢复 `blog.sqlite`
-- 再启动容器
+   - `pm2 stop shino-blog-backend`
+   - 用 `/opt/shino-blog/backups/*.bak` 恢复 `blog.sqlite`
+   - `pm2 start ecosystem.config.js`

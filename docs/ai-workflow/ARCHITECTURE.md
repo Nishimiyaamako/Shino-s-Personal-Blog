@@ -1,7 +1,7 @@
 # ARCHITECTURE.md（Shino's Bolg）
 
-> Updated on 2026-04-02.
-> 目的：统一“单域名同源 + 本机端口隐藏”心智，让开发与生产链路可一眼定位。
+> Updated on 2026-04-26.
+> 目的：统一"单域名同源 + 本机端口隐藏"心智，让开发与生产链路可一眼定位。
 
 ## 1) 当前真实结构
 
@@ -10,6 +10,7 @@
 - 后端：单一 API 服务（Elysia），默认端口 `3001`。
 - 后台登录接口：`POST /api/admin/auth/login`。
 - 部署契约：单域名入口 `https://<domain>`，后台从同域路径进入（`/admin/login`）。
+- 后端运行方式：直接进程常驻（非 Docker 容器），由进程管理器负责自动重启。
 
 ## 2) 本机开发拓扑（推荐）
 
@@ -48,7 +49,7 @@ Nginx / 1Panel
 Backend API (Elysia :3001)
 ```
 
-核心心智：前台与后台页面都由同一 SPA 提供；`/api` 与 `/uploads` 统一反代到同一后端容器。
+核心心智：前台与后台页面都由同一 SPA 提供；`/api` 与 `/uploads` 统一反代到同一后端进程。
 
 ## 4) 域名到端口映射表
 
@@ -105,9 +106,9 @@ curl -sS http://127.0.0.1:3001/api/health
 - 脚本路径：`deploy/scripts/local-verify.sh`
 - 默认行为：
   - 拉起后端 `:3001` 与前端 `:5173`（已存在则复用）
-  - 以 Docker Nginx `--network host` 建立 `blog.localhost` 反代
+  - 以本地 Nginx 建立 `blog.localhost` 反代
   - 执行链路检查、功能验收、质量闸门
-  - 自动清理临时反代容器
+  - 自动清理临时反代进程
 - 运行命令：
 
 ```bash
@@ -116,8 +117,8 @@ curl -sS http://127.0.0.1:3001/api/health
 
 ## 9) 生产部署相关资产
 
-- 后端容器部署：`deploy/1panel-backend-deploy.md`
 - 前端单域名发布：`deploy/1panel-static-deploy.md`
 - 单域名 Nginx 模板：`deploy/nginx/1panel-single-domain-template.conf`
 - 生产 env 安全检查：`deploy/scripts/check-backend-prod-env.sh`
 - 线上 smoke 检查：`deploy/scripts/online-smoke.sh`
+- 备份恢复 Runbook：`deploy/backup-restore-runbook.md`

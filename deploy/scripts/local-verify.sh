@@ -11,13 +11,13 @@ FRONTEND_LOG="${FRONTEND_LOG:-/tmp/pb-frontend-dev.log}"
 NGINX_CONF="${NGINX_CONF:-/tmp/pb-local-nginx.conf}"
 
 BLOG_HOST="${BLOG_HOST:-blog.localhost}"
-PROXY_NAME="${PROXY_NAME:-pb-local-proxy}"
-PROXY_IMAGE="${PROXY_IMAGE:-nginx:1.27-alpine}"
 
 BACKEND_PID=""
 FRONTEND_PID=""
+NGINX_PID=""
 STARTED_BACKEND=0
 STARTED_FRONTEND=0
+STARTED_NGINX=0
 
 need_cmd() {
   if ! command -v "$1" >/dev/null 2>&1; then
@@ -27,7 +27,9 @@ need_cmd() {
 }
 
 cleanup() {
-  docker rm -f "$PROXY_NAME" >/dev/null 2>&1 || true
+  if [ "$STARTED_NGINX" -eq 1 ] && [ -n "$NGINX_PID" ]; then
+    kill "$NGINX_PID" >/dev/null 2>&1 || true
+  fi
 
   if [ "$STARTED_BACKEND" -eq 1 ] && [ -n "$BACKEND_PID" ]; then
     kill "$BACKEND_PID" >/dev/null 2>&1 || true
@@ -86,7 +88,6 @@ need_cmd bun
 need_cmd node
 need_cmd npm
 need_cmd curl
-need_cmd docker
 need_cmd git
 
 trap cleanup EXIT
@@ -129,40 +130,61 @@ else
 fi
 
 echo "[4/7] Local Proxy"
-cat >"$NGINX_CONF" <<EOF2
-server {
-  listen 80;
-  server_name $BLOG_HOST;
+USE_PROXY=0
+TEST_BASE="http://127.0.0.1:5173"
 
-  location / {
-    proxy_pass http://127.0.0.1:5173;
-    proxy_http_version 1.1;
-    proxy_set_header Host \$host;
-    proxy_set_header X-Real-IP \$remote_addr;
-    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto \$scheme;
+if command -v nginx >/dev/null 2>&1; then
+  cat >"$NGINX_CONF" <<EOF2
+daemon off;
+events { worker_connections 1024; }
+http {
+  server {
+    listen 80;
+    server_name $BLOG_HOST;
+
+    location / {
+      proxy_pass http://127.0.0.1:5173;
+      proxy_http_version 1.1;
+      proxy_set_header Host \$host;
+      proxy_set_header X-Real-IP \$remote_addr;
+      proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto \$scheme;
+    }
   }
 }
 EOF2
 
-docker rm -f "$PROXY_NAME" >/dev/null 2>&1 || true
-docker run -d \
-  --name "$PROXY_NAME" \
-  --network host \
-  -v "$NGINX_CONF:/etc/nginx/conf.d/default.conf:ro" \
-  "$PROXY_IMAGE" >/dev/null
+  if nginx -c "$NGINX_CONF" -t >/dev/null 2>&1; then
+    nginx -c "$NGINX_CONF" &
+    NGINX_PID=$!
+    STARTED_NGINX=1
 
-docker ps --filter "name=$PROXY_NAME" --format "proxy={{.Names}} status={{.Status}} net={{.Networks}}"
+    if wait_http "http://$BLOG_HOST/" 30; then
+      USE_PROXY=1
+      TEST_BASE="http://$BLOG_HOST"
+      echo "Local Nginx proxy started on $BLOG_HOST"
+    else
+      echo "WARN: Nginx proxy failed to respond, falling back to direct localhost:5173" >&2
+      kill "$NGINX_PID" >/dev/null 2>&1 || true
+      STARTED_NGINX=0
+    fi
+  else
+    echo "WARN: Nginx config test failed, falling back to direct localhost:5173" >&2
+  fi
+else
+  echo "WARN: nginx not found, skipping local proxy. Tests will run against localhost:5173 directly." >&2
+  echo "To enable domain-based testing, install nginx or add '127.0.0.1 $BLOG_HOST' to /etc/hosts and use a local proxy." >&2
+fi
 
 echo "[5/7] Route Chain"
-root_headers="$(curl -sSI "http://$BLOG_HOST/" | tr -d '\r')"
-admin_login_headers="$(curl -sSI "http://$BLOG_HOST/admin/login" | tr -d '\r')"
+root_headers="$(curl -sSI "$TEST_BASE/" | tr -d '\r')"
+admin_login_headers="$(curl -sSI "$TEST_BASE/admin/login" | tr -d '\r')"
 
 # Show root and admin route status lines for quick diagnosis
 echo "$root_headers" | sed -n '1p'
 echo "$admin_login_headers" | sed -n '1p'
 
-site_health="$(curl -sS "http://$BLOG_HOST/api/health")"
+site_health="$(curl -sS "$TEST_BASE/api/health")"
 direct_health="$(curl -sS "http://127.0.0.1:3001/api/health")"
 
 echo "$site_health"
@@ -172,14 +194,14 @@ echo "$site_health" | grep -q '"ok":true'
 echo "$direct_health" | grep -q '"ok":true'
 
 echo "[6/7] Functional Acceptance"
-assert_status_200 "/posts" "http://$BLOG_HOST/posts"
-assert_status_200 "/tags" "http://$BLOG_HOST/tags"
-assert_status_200 "/archive" "http://$BLOG_HOST/archive"
-assert_status_200 "/admin/login" "http://$BLOG_HOST/admin/login"
-assert_status_200 "/uploads/images/steam-bugs-linux.webp" "http://$BLOG_HOST/uploads/images/steam-bugs-linux.webp"
+assert_status_200 "/posts" "$TEST_BASE/posts"
+assert_status_200 "/tags" "$TEST_BASE/tags"
+assert_status_200 "/archive" "$TEST_BASE/archive"
+assert_status_200 "/admin/login" "$TEST_BASE/admin/login"
+assert_status_200 "/uploads/images/steam-bugs-linux.webp" "$TEST_BASE/uploads/images/steam-bugs-linux.webp"
 
 login_response="$(
-  curl -sS -X POST "http://$BLOG_HOST/api/admin/auth/login" \
+  curl -sS -X POST "$TEST_BASE/api/admin/auth/login" \
     -H 'content-type: application/json' \
     -d '{"username":"admin","password":"admin123"}'
 )"

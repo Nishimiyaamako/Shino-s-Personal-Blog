@@ -378,24 +378,24 @@
 }
 
 .tag-bubble[data-color='mauve'] {
-    --tag-layer-surface: var(--tag-white-surface);
-    --tag-layer-border: var(--tag-white-border);
-    --tag-layer-text: var(--tag-white-text);
-    --tag-layer-count-surface: var(--tag-white-surface-active);
+    --tag-layer-surface: #faf5ff;
+    --tag-layer-border: color-mix(in srgb, #a855f7 12%, transparent);
+    --tag-layer-text: color-mix(in srgb, #7e22ce 50%, transparent);
+    --tag-layer-count-surface: color-mix(in srgb, #a855f7 10%, #faf5ff);
 }
 
 .tag-bubble[data-color='mauve']:is(:hover, :focus-visible) {
-    --tag-layer-surface: var(--tag-white-surface-hover);
-    --tag-layer-border: var(--tag-white-border-hover);
-    --tag-layer-text: var(--tag-white-text-hover);
-    --tag-layer-count-surface: var(--tag-white-surface-active);
+    --tag-layer-surface: #f3e8ff;
+    --tag-layer-border: color-mix(in srgb, #a855f7 18%, transparent);
+    --tag-layer-text: color-mix(in srgb, #7e22ce 60%, transparent);
+    --tag-layer-count-surface: color-mix(in srgb, #a855f7 15%, #f3e8ff);
 }
 
 .tag-bubble[data-color='mauve'].is-active {
-    --tag-layer-surface: var(--tag-white-surface-selected);
-    --tag-layer-border: var(--tag-white-border-selected);
-    --tag-layer-text: var(--tag-white-text-selected);
-    --tag-layer-count-surface: var(--tag-white-count-surface-selected);
+    --tag-layer-surface: #e9d5ff;
+    --tag-layer-border: color-mix(in srgb, #a855f7 25%, transparent);
+    --tag-layer-text: color-mix(in srgb, #7e22ce 70%, transparent);
+    --tag-layer-count-surface: color-mix(in srgb, #a855f7 20%, #e9d5ff);
 }
 
 /* Tag bubble states */
@@ -751,24 +751,24 @@
     }
 
     .tag-bubble[data-color='mauve'] {
-        --tag-layer-surface: var(--tag-white-surface);
-        --tag-layer-border: var(--tag-white-border);
-        --tag-layer-text: var(--tag-white-text);
-        --tag-layer-count-surface: var(--tag-white-surface-active);
+        --tag-layer-surface: color-mix(in srgb, #7e22ce 15%, var(--surface-soft));
+        --tag-layer-border: color-mix(in srgb, #a855f7 42%, transparent);
+        --tag-layer-text: color-mix(in srgb, #d8b4fe 88%, white);
+        --tag-layer-count-surface: color-mix(in srgb, #7e22ce 22%, var(--surface-soft));
     }
 
     .tag-bubble[data-color='mauve']:is(:hover, :focus-visible) {
-        --tag-layer-surface: var(--tag-white-surface-hover);
-        --tag-layer-border: var(--tag-white-border-hover);
-        --tag-layer-text: var(--tag-white-text-hover);
-        --tag-layer-count-surface: var(--tag-white-surface-active);
+        --tag-layer-surface: color-mix(in srgb, #7e22ce 24%, var(--surface-soft));
+        --tag-layer-border: color-mix(in srgb, #a855f7 56%, transparent);
+        --tag-layer-text: color-mix(in srgb, #e9d5ff 94%, white);
+        --tag-layer-count-surface: color-mix(in srgb, #7e22ce 32%, var(--surface-soft));
     }
 
     .tag-bubble[data-color='mauve'].is-active {
-        --tag-layer-surface: var(--tag-white-surface-selected);
-        --tag-layer-border: var(--tag-white-border-selected);
-        --tag-layer-text: var(--tag-white-text-selected);
-        --tag-layer-count-surface: var(--tag-white-count-surface-selected);
+        --tag-layer-surface: color-mix(in srgb, #7e22ce 32%, var(--surface-soft));
+        --tag-layer-border: color-mix(in srgb, #a855f7 68%, transparent);
+        --tag-layer-text: white;
+        --tag-layer-count-surface: color-mix(in srgb, #7e22ce 42%, var(--surface-soft));
     }
 
     /* Default tag chip theme in dark mode */

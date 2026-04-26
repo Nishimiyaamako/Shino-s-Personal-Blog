@@ -1,6 +1,7 @@
-# 1Panel 单域名上线（静态前端卷挂载 + 后端容器）
+# 1Panel 单域名上线（静态前端卷挂载 + 后端进程）
 
 > 目标：稳定上线 `https://<domain>`（前台 + 后台路径），并确保 `/api`、`/uploads` 正常可用。
+> 注意：后端不再使用 Docker 容器，改为直接进程常驻。
 
 ## 1) 上线前准备（本地）
 
@@ -22,7 +23,7 @@
 ./deploy/scripts/check-backend-prod-env.sh /opt/shino-blog/env/backend.env
 ```
 
-## 2) 后端先上线（1Panel 容器）
+## 2) 后端先上线（1Panel 进程常驻）
 
 后端部署请按：
 
@@ -95,9 +96,8 @@ curl -I https://<domain>/uploads/images/steam-bugs-linux.webp
 ## 7) 回滚流程（前端 + 后端 + 数据）
 
 1. 前端回滚：解压上一个 `frontend-dist-*.tar.gz` 覆盖 `/opt/shino-blog/frontend-dist`。
-2. 后端回滚：容器切回上一个稳定镜像 tag 并重启。
+2. 后端回滚：回退代码并重启进程（PM2: `pm2 restart` / Systemd: `systemctl restart`）。
 3. 数据回滚：
-
-- 停后端容器
-- 恢复 `/opt/shino-blog/data/blog.sqlite` 备份
-- 启动容器并重新 smoke test
+   - 停后端进程
+   - 恢复 `/opt/shino-blog/data/blog.sqlite` 备份
+   - 启动进程并重新 smoke test

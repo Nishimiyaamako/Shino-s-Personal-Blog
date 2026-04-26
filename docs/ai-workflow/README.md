@@ -1,6 +1,6 @@
 # AI Workflow（Shino's Bolg）
 
-> Updated on 2026-04-21.
+> Updated on 2026-04-26.
 
 ## 1) 文件说明
 
@@ -14,6 +14,7 @@
 - 真实结构是：`一个前端 SPA（含 /admin/login 与 /admin/{module}） + 一个后端 API 服务`。
 - 用户入口契约是：单域名 `https://<domain>`，后台入口路径 `https://<domain>/admin/login`。
 - 后台登录接口固定：`POST /api/admin/auth/login`。
+- 后端部署方式：直接进程常驻（非 Docker 容器），具体方案（PM2 / Systemd / 1Panel 运行环境）待后续确定。
 
 ## 3) 一页式运行手册
 
@@ -28,7 +29,6 @@
    - `VITE_API_BASE_URL=`（空值，走同源请求）
 6. 可直接执行一键验收脚本（自动拉起服务、反代、链路检查、质量闸门）：
    - `./deploy/scripts/local-verify.sh`
-   - 默认脚本使用 Docker Nginx `--network host`，避免前端绑定 `127.0.0.1` 时出现 `502 Bad Gateway`
 
 开发态链路心智模型：
 
@@ -42,6 +42,7 @@
 2. 同一域名下把 `/api/*`、`/uploads/*` 反代到后端（默认 `127.0.0.1:3001`）。
 3. 后台入口固定为同域路径 `/admin/login`。
 4. 前端默认同源请求，不强制设置 `VITE_API_BASE_URL`。
+5. 后端以进程方式常驻（非容器），由进程管理器（PM2 / Systemd / 1Panel 运行环境）负责自动重启与健康检查。
 
 ## 4) 常见误解（重点）
 
@@ -53,8 +54,6 @@
   - 现实：还要配 `/uploads`，否则图片预览会断。
 - 误解：本机用域名后不需要关心 Vite 代理。
   - 现实：当前默认开发链路仍依赖 Vite 的 `/api` 与 `/uploads` 代理。
-- 误解：Docker bridge 反代一定能访问前端 `127.0.0.1:5173`。
-  - 现实：在 Linux 下 bridge 容器无法直连宿主 `127.0.0.1`，推荐用 host network 或改前端监听地址。
 
 ## 5) 标准工作回路
 
@@ -66,12 +65,11 @@
 
 - `cd backend && bun run typecheck && bun run test && bun run build && cd ../frontend && bun run typecheck && bun run build`
 
-## 7) 部署与巡检脚本（新增）
+## 7) 部署与巡检脚本
 
 - 本机链路验收：`./deploy/scripts/local-verify.sh`
 - 生产 env 检查：`./deploy/scripts/check-backend-prod-env.sh /path/to/backend.env`
 - 线上 smoke：`./deploy/scripts/online-smoke.sh <domain>`
-- 后端容器部署：`deploy/1panel-backend-deploy.md`
 - 发布后巡检：`deploy/post-release-checklist.md`
 - 备份恢复 Runbook：`deploy/backup-restore-runbook.md`
 

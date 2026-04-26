@@ -28,17 +28,17 @@ tar -C /opt/shino-blog -czf \
 
 ## 4) 恢复演练步骤
 
-1. 停后端容器（避免写入）  
-2. 恢复数据库文件  
-3. 恢复 uploads 目录  
-4. 启动后端容器  
+1. 停后端进程（避免写入）
+2. 恢复数据库文件
+3. 恢复 uploads 目录
+4. 启动后端进程
 5. 执行 smoke test 与后台抽检
 
 示例：
 
 ```bash
 # 1) stop
-docker stop shino-blog-backend
+pm2 stop shino-blog-backend
 
 # 2) restore db
 cp /opt/shino-blog/backups/blog.sqlite.<timestamp>.bak \
@@ -48,7 +48,7 @@ cp /opt/shino-blog/backups/blog.sqlite.<timestamp>.bak \
 tar -C /opt/shino-blog -xzf /opt/shino-blog/backups/uploads.<timestamp>.tar.gz
 
 # 4) start
-docker start shino-blog-backend
+pm2 start /opt/shino-blog/backend/ecosystem.config.js
 
 # 5) smoke
 curl -sS http://127.0.0.1:3001/api/health

@@ -1,6 +1,6 @@
 # STOP_HOOKS.md（Shino's Bolg）
 
-> Updated on 2026-04-21.
+> Updated on 2026-04-26.
 > 说明：这是 Codex 工作流约定，不是 Claude 原生 hooks 配置。
 
 ## 0) 全局策略
@@ -91,5 +91,5 @@
 - <host/path> -> <proxy> -> <upstream service:port>
 
 ### Conclusion
-- [PASS|FAIL] 能否明确回答“请求从哪个域名进、被谁代理到哪里”
+- [PASS|FAIL] 能否明确回答"请求从哪个域名进、被谁代理到哪里"
 ```
