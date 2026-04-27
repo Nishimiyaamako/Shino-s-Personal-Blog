@@ -1,4 +1,5 @@
 import './styles/global.css';
+import '@iconify/iconify';
 
 import { renderPostList } from './components/post-list';
 import { renderProfileCard } from './components/profile-card';

@@ -136,3 +136,370 @@
         color: var(--admin-text-muted, #556170);
     }
 }
+
+/* Profile avatar upload */
+.admin-avatar-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.admin-avatar-field>label>span {
+    display: block;
+    font-size: 0.84rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    color: var(--admin-text-muted, #6b7a8d);
+}
+
+.admin-avatar-preview-wrap {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid var(--admin-border, #3a4152);
+    background: var(--admin-surface-hover, #20252e);
+}
+
+.admin-avatar-preview-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.admin-avatar-preview-wrap img[src=""] {
+    display: none;
+}
+
+/* Profile contacts structured editor */
+.admin-contacts-section {
+    margin-bottom: 1rem;
+}
+
+.admin-contacts-section>label>span {
+    display: block;
+    font-size: 0.84rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    color: var(--admin-text-muted, #6b7a8d);
+}
+
+.admin-contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 0.6rem;
+    min-height: 0;
+}
+
+.admin-contact-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.6rem;
+    background: var(--admin-surface, #1b1e27);
+    border: 1px solid var(--admin-border, #3a4152);
+    border-radius: 6px;
+    font-size: 0.86rem;
+}
+
+.admin-contact-row-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+    color: var(--admin-accent, #80a0c0);
+}
+
+.admin-contact-row-platform {
+    font-weight: 600;
+    min-width: 4rem;
+    color: var(--admin-text, #eceff4);
+}
+
+.admin-contact-row-href {
+    flex: 1;
+    color: var(--admin-text-muted, #6b7a8d);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-contact-add-row {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+}
+
+.admin-contact-add-row select {
+    flex-shrink: 0;
+    min-width: 8rem;
+    height: 2.2rem;
+    padding: 0 0.5rem;
+    border: 1px solid var(--admin-border, #3a4152);
+    border-radius: 6px;
+    background: var(--admin-surface, #1b1e27);
+    color: var(--admin-text, #eceff4);
+    font-size: 0.84rem;
+}
+
+.admin-contact-add-row input {
+    flex: 1;
+    height: 2.2rem;
+    padding: 0 0.55rem;
+    border: 1px solid var(--admin-border, #3a4152);
+    border-radius: 6px;
+    background: var(--admin-surface, #1b1e27);
+    color: var(--admin-text, #eceff4);
+    font-size: 0.84rem;
+}
+
+.admin-contact-add-row input:focus,
+.admin-contact-add-row select:focus {
+    outline: none;
+    border-color: var(--admin-accent, #80a0c0);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--admin-accent, #80a0c0) 22%, transparent);
+}
+
+/* Media management panel */
+.admin-media-stats {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.admin-media-stat {
+    font-size: 0.84rem;
+    color: var(--admin-text-muted, #6b7a8d);
+}
+
+.admin-media-stat strong {
+    color: var(--admin-text, #eceff4);
+}
+
+.admin-media-stat--warn {
+    color: var(--admin-warn, #d08770);
+}
+
+.admin-media-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.admin-media-filter-btn.is-active {
+    background: var(--admin-accent, #80a0c0) !important;
+    color: #fff !important;
+}
+
+.admin-media-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.admin-media-card {
+    border: 1px solid var(--admin-border, #3a4152);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--admin-surface, #1b1e27);
+}
+
+.admin-media-card.is-orphaned {
+    border-color: color-mix(in srgb, var(--admin-warn, #d08770) 40%, var(--admin-border, #3a4152));
+}
+
+.admin-media-card-preview {
+    aspect-ratio: 4/3;
+    background: var(--admin-surface-hover, #20252e);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.admin-media-card-preview img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.admin-media-card-info {
+    padding: 0.55rem 0.65rem;
+}
+
+.admin-media-card-name {
+    font-size: 0.78rem;
+    color: var(--admin-text, #eceff4);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin: 0 0 0.2rem;
+}
+
+.admin-media-card-meta {
+    display: flex;
+    gap: 0.6rem;
+    font-size: 0.74rem;
+    color: var(--admin-text-muted, #6b7a8d);
+    margin: 0 0 0.35rem;
+}
+
+.admin-media-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    margin-right: 0.4rem;
+}
+
+.admin-media-badge--ref {
+    background: color-mix(in srgb, var(--admin-accent, #80a0c0) 22%, transparent);
+    color: var(--admin-accent, #80a0c0);
+}
+
+.admin-media-badge--orphan {
+    background: color-mix(in srgb, var(--admin-warn, #d08770) 22%, transparent);
+    color: var(--admin-warn, #d08770);
+}
+
+.admin-media-delete-btn {
+    margin-top: 0.35rem;
+}
+
+.admin-media-ref-link {
+    color: var(--admin-accent, #80a0c0);
+    text-decoration: none;
+}
+
+.admin-media-ref-link:hover {
+    text-decoration: underline;
+}
+
+.admin-media-empty {
+    text-align: center;
+    color: var(--admin-text-muted, #6b7a8d);
+    padding: 2rem 0;
+}
+
+/* About structured form */
+.admin-about-fieldset {
+    border: 1px solid var(--admin-border, #3a4152);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.admin-about-fieldset legend {
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--admin-accent, #80a0c0);
+    padding: 0 0.4rem;
+}
+
+.admin-about-intro-row {
+    display: flex;
+    gap: 0.4rem;
+    align-items: flex-start;
+    margin-bottom: 0.4rem;
+}
+
+.admin-about-intro-row textarea {
+    flex: 1;
+    min-height: 2.6rem;
+    padding: 0.4rem 0.5rem;
+    border: 1px solid var(--admin-border, #3a4152);
+    border-radius: 6px;
+    background: var(--admin-surface, #1b1e27);
+    color: var(--admin-text, #eceff4);
+    font-size: 0.84rem;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.admin-about-intro-row textarea:focus {
+    outline: none;
+    border-color: var(--admin-accent, #80a0c0);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--admin-accent, #80a0c0) 22%, transparent);
+}
+
+.admin-about-narrative-block {
+    border: 1px solid var(--admin-border, #3a4152);
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    background: var(--admin-surface, #1b1e27);
+}
+
+.admin-about-narrative-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin: 0.5rem 0;
+}
+
+.admin-about-narrative-item-row {
+    display: flex;
+    gap: 0.3rem;
+    align-items: center;
+}
+
+.admin-about-narrative-item-row input {
+    flex: 1;
+    height: 2.2rem;
+    padding: 0 0.5rem;
+    border: 1px solid var(--admin-border, #3a4152);
+    border-radius: 6px;
+    background: var(--admin-surface, #1b1e27);
+    color: var(--admin-text, #eceff4);
+    font-size: 0.84rem;
+}
+
+.admin-about-narrative-item-row input:focus {
+    outline: none;
+    border-color: var(--admin-accent, #80a0c0);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--admin-accent, #80a0c0) 22%, transparent);
+}
+
+.admin-about-block-actions {
+    display: flex;
+    gap: 0.4rem;
+    margin-top: 0.4rem;
+}
+
+.admin-about-timeline-row {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+    margin-bottom: 0.4rem;
+}
+
+.admin-about-timeline-row input {
+    height: 2.2rem;
+    padding: 0 0.5rem;
+    border: 1px solid var(--admin-border, #3a4152);
+    border-radius: 6px;
+    background: var(--admin-surface, #1b1e27);
+    color: var(--admin-text, #eceff4);
+    font-size: 0.84rem;
+}
+
+.admin-about-timeline-row input[data-role="admin-about-timeline-date"] {
+    width: 8rem;
+    flex-shrink: 0;
+}
+
+.admin-about-timeline-row input[data-role="admin-about-timeline-detail"] {
+    flex: 1;
+}
+
+.admin-about-timeline-row input:focus {
+    outline: none;
+    border-color: var(--admin-accent, #80a0c0);
+}

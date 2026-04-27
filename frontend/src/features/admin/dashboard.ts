@@ -3,11 +3,12 @@ import { resolveAdminModule, type AdminModuleRoute } from '../../router';
 import { setupAdminContentSettingsModule, type AdminContentSettingsModule } from './content-settings';
 import { setupAdminFriendsModule, type AdminFriendsModule } from './friends';
 import type { AdminFeatureOptions } from './login';
+import { setupAdminMediaModule, type AdminMediaModule } from './media';
 import { setupAdminPostsModule, type AdminPostsModule } from './posts';
 import { setupAdminSiteSettingsModule, type AdminSiteSettingsModule } from './site-settings';
 
 const POSTS_WORKSPACE_MODULES: ReadonlySet<AdminModuleRoute> = new Set(['posts', 'featured']);
-type DirtyScope = 'posts-form' | 'friends-form' | 'about-form' | 'profile-form' | 'settings-form';
+type DirtyScope = 'posts-form' | 'friends-form' | 'about-form' | 'profile-form' | 'media-form' | 'settings-form';
 
 function getRuntimeStatusText(module: AdminModuleRoute): string {
   switch (module) {
@@ -21,6 +22,8 @@ function getRuntimeStatusText(module: AdminModuleRoute): string {
       return '已进入关于页管理。';
     case 'profile':
       return '已进入名片卡管理。';
+    case 'media':
+      return '已进入媒体管理。';
     case 'settings':
       return '已进入站点设置。';
     default:
@@ -62,6 +65,7 @@ export function setupAdminDashboard(options: AdminFeatureOptions): (() => void) 
   let postsModule: AdminPostsModule | null = null;
   let friendsModule: AdminFriendsModule | null = null;
   let contentSettingsModule: AdminContentSettingsModule | null = null;
+  let mediaModule: AdminMediaModule | null = null;
   let siteSettingsModule: AdminSiteSettingsModule | null = null;
   let refreshInFlight = false;
   let destroyed = false;
@@ -199,6 +203,18 @@ export function setupAdminDashboard(options: AdminFeatureOptions): (() => void) 
     return siteSettingsModule;
   };
 
+  const ensureMediaModule = (): AdminMediaModule => {
+    if (!mediaModule) {
+      const created = setupAdminMediaModule({ rootElement, token });
+      if (!created) {
+        throw new Error('媒体管理模块初始化失败，请刷新后重试。');
+      }
+      mediaModule = created;
+    }
+
+    return mediaModule;
+  };
+
   const refreshActiveModule = async (): Promise<void> => {
     if (refreshInFlight || destroyed) {
       return;
@@ -216,6 +232,8 @@ export function setupAdminDashboard(options: AdminFeatureOptions): (() => void) 
         await ensurePostsModule().refresh();
       } else if (activeModule === 'friends') {
         await ensureFriendsModule().refresh();
+      } else if (activeModule === 'media') {
+        await ensureMediaModule().refresh();
       } else if (activeModule === 'settings') {
         await ensureSiteSettingsModule().refresh();
       } else {
@@ -260,6 +278,7 @@ export function setupAdminDashboard(options: AdminFeatureOptions): (() => void) 
     postsModule?.destroy();
     friendsModule?.destroy();
     contentSettingsModule?.destroy();
+    mediaModule?.destroy();
     siteSettingsModule?.destroy();
     dirtyScopes.clear();
     delete rootElement.dataset.adminDirty;

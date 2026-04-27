@@ -119,8 +119,35 @@ CREATE VIRTUAL TABLE IF NOT EXISTS posts_search USING fts5(
   tags,
   content
 );
+
 `;
 
 export function runMigrations(sqlite: Database): void {
   sqlite.exec(MIGRATIONS_SQL);
+  runPostMigrations(sqlite);
+}
+
+function runPostMigrations(sqlite: Database): void {
+  const existing = new Set(
+    (sqlite.query(`SELECT name FROM pragma_table_info('about_page')`).all() as Array<{ name: string }>).map((r) => r.name)
+  );
+
+  if (!existing.has('hero_title')) {
+    sqlite.run(`ALTER TABLE about_page ADD COLUMN hero_title TEXT NOT NULL DEFAULT ''`);
+  }
+  if (!existing.has('hero_subtitle')) {
+    sqlite.run(`ALTER TABLE about_page ADD COLUMN hero_subtitle TEXT NOT NULL DEFAULT ''`);
+  }
+  if (!existing.has('intro_paragraphs')) {
+    sqlite.run(`ALTER TABLE about_page ADD COLUMN intro_paragraphs TEXT NOT NULL DEFAULT '[]'`);
+  }
+  if (!existing.has('narrative_sections')) {
+    sqlite.run(`ALTER TABLE about_page ADD COLUMN narrative_sections TEXT NOT NULL DEFAULT '[]'`);
+  }
+  if (!existing.has('timeline_title')) {
+    sqlite.run(`ALTER TABLE about_page ADD COLUMN timeline_title TEXT NOT NULL DEFAULT ''`);
+  }
+  if (!existing.has('timeline_events')) {
+    sqlite.run(`ALTER TABLE about_page ADD COLUMN timeline_events TEXT NOT NULL DEFAULT '[]'`);
+  }
 }

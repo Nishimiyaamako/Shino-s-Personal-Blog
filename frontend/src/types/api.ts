@@ -88,3 +88,34 @@ export interface UploadImageResponse {
     mimeType: string;
   };
 }
+
+export interface AdminMediaAsset {
+  id: number;
+  fileName: string;
+  mimeType: string;
+  size: number;
+  url: string;
+  createdAt: string;
+  references: Array<{ postId: number; postTitle: string }>;
+  isOrphaned: boolean;
+}
+
+export interface AdminMediaListResponse {
+  items: AdminMediaAsset[];
+  total: number;
+  page: number;
+  pageSize: number;
+  stats: {
+    totalCount: number;
+    totalSize: number;
+    orphanedCount: number;
+  };
+}
+
+export interface AdminMediaListQuery {
+  page?: number;
+  pageSize?: number;
+  sort?: 'created_at' | 'size';
+  order?: 'asc' | 'desc';
+  filter?: 'all' | 'referenced' | 'orphaned';
+}

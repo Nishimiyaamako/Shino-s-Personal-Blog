@@ -1,4 +1,4 @@
-import type { AboutApiResponse } from '../types/about';
+import type { AboutStructuredPayload } from '../types/about';
 import type {
   AdminFriendLink,
   AdminLoginResponse,
@@ -485,17 +485,17 @@ export async function adminDeleteFriendLink(token: string, friendId: number): Pr
   });
 }
 
-export async function adminFetchAbout(token: string): Promise<AboutApiResponse> {
-  return adminFetchJson<AboutApiResponse>('/api/admin/about', token);
+export async function adminFetchAbout(token: string): Promise<AboutStructuredPayload> {
+  return adminFetchJson<AboutStructuredPayload>('/api/admin/about', token);
 }
 
-export async function adminUpdateAbout(token: string, markdown: string): Promise<AboutApiResponse> {
-  return adminFetchJson<AboutApiResponse>('/api/admin/about', token, {
+export async function adminUpdateAbout(token: string, payload: AboutStructuredPayload): Promise<AboutStructuredPayload> {
+  return adminFetchJson<AboutStructuredPayload>('/api/admin/about', token, {
     method: 'PATCH',
     headers: {
       'content-type': 'application/json'
     },
-    body: JSON.stringify({ markdown })
+    body: JSON.stringify(payload)
   });
 }
 
@@ -535,4 +535,24 @@ export async function adminUpdateSiteConfig(
     },
     body: JSON.stringify(payload)
   });
+}
+
+export async function adminListMedia(
+  token: string,
+  query: import('../types/api').AdminMediaListQuery = {}
+): Promise<import('../types/api').AdminMediaListResponse> {
+  const params = new URLSearchParams();
+  if (query.page) params.set('page', String(query.page));
+  if (query.pageSize) params.set('pageSize', String(query.pageSize));
+  if (query.sort) params.set('sort', query.sort);
+  if (query.order) params.set('order', query.order);
+  if (query.filter && query.filter !== 'all') params.set('filter', query.filter);
+
+  const qs = params.toString();
+  const url = `/api/admin/media${qs ? `?${qs}` : ''}`;
+  return adminFetchJson<import('../types/api').AdminMediaListResponse>(url, token);
+}
+
+export async function adminDeleteMedia(token: string, id: number): Promise<void> {
+  await adminFetchJson<{ ok: boolean }>(`/api/admin/media/${id}`, token, { method: 'DELETE' });
 }

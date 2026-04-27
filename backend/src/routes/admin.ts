@@ -2,14 +2,14 @@ import { Elysia } from 'elysia';
 import type { DatabaseContext } from '../db/client';
 import { verifyAdminCredentials } from '../auth/admin';
 import { signAdminToken } from '../auth/jwt';
-import { getAboutMarkdown, updateAboutMarkdown } from '../services/about';
+import { getAbout, getAboutMarkdown, updateAbout, updateAboutMarkdown } from '../services/about';
 import {
   createFriendLink,
   deleteFriendLink,
   listAdminFriendLinks,
   updateFriendLink
 } from '../services/friends';
-import { saveImageAsset } from '../services/media';
+import { deleteMediaAsset, listMediaAssets, saveImageAsset } from '../services/media';
 import {
   createPost,
   deletePost,
@@ -238,6 +238,42 @@ export function createAdminRoutes(context: DatabaseContext) {
         return toErrorPayload(error);
       }
     })
+    .get('/media', async ({ request, set }) => {
+      const admin = await requireAdmin(request, set);
+      if (!admin) {
+        return { error: 'Unauthorized' };
+      }
+
+      const searchParams = new URL(request.url).searchParams;
+      const page = Math.max(1, Number(searchParams.get('page') || 1));
+      const pageSize = Math.min(100, Math.max(1, Number(searchParams.get('pageSize') || 20)));
+      const sort = searchParams.get('sort') === 'size' ? 'size' : 'created_at';
+      const order = searchParams.get('order') === 'asc' ? 'ASC' : 'DESC';
+      const filterParam = searchParams.get('filter') || 'all';
+      const filter = (filterParam === 'orphaned' || filterParam === 'referenced') ? filterParam : 'all';
+
+      return listMediaAssets(context, { page, pageSize, sort, order, filter });
+    })
+    .delete('/media/:id', async ({ request, params, set }) => {
+      const admin = await requireAdmin(request, set);
+      if (!admin) {
+        return { error: 'Unauthorized' };
+      }
+
+      const id = Number(params.id);
+      if (!Number.isFinite(id) || id < 1) {
+        set.status = 400;
+        return { error: '无效的 ID' };
+      }
+
+      try {
+        deleteMediaAsset(context, id);
+        return { ok: true };
+      } catch (error) {
+        set.status = 400;
+        return toErrorPayload(error);
+      }
+    })
     .get('/friend-links', async ({ request, set }) => {
       const admin = await requireAdmin(request, set);
       if (!admin) {
@@ -336,9 +372,7 @@ export function createAdminRoutes(context: DatabaseContext) {
         return { error: 'Unauthorized' };
       }
 
-      return {
-        markdown: getAboutMarkdown(context)
-      };
+      return getAbout(context);
     })
     .patch('/about', async ({ request, set }) => {
       const admin = await requireAdmin(request, set);
@@ -347,8 +381,8 @@ export function createAdminRoutes(context: DatabaseContext) {
       }
 
       try {
-        const body = await parseJsonBody<{ markdown?: string }>(request);
-        return updateAboutMarkdown(context, body.markdown ?? '');
+        const body = await parseJsonBody(request);
+        return updateAbout(context, body as Parameters<typeof updateAbout>[1]);
       } catch (error) {
         set.status = 400;
         return toErrorPayload(error);

@@ -1,6 +1,6 @@
 import { Elysia } from 'elysia';
 import type { DatabaseContext } from '../db/client';
-import { getAboutMarkdown } from '../services/about';
+import { getAbout } from '../services/about';
 import { listPublicFriendLinks } from '../services/friends';
 import { listFeaturedPosts, listPublishedPosts, getPublishedPostBySlug } from '../services/posts';
 import { getProfileCard } from '../services/profile';
@@ -40,7 +40,7 @@ export function createPublicRoutes(context: DatabaseContext) {
     .get('/friend-links', () => ({
       items: listPublicFriendLinks(context)
     }))
-    .get('/about', () => ({ markdown: getAboutMarkdown(context) }))
+    .get('/about', () => getAbout(context))
     .get('/profile-card', () => getProfileCard(context))
     .get('/site-config', () => getSiteConfig(context))
     .get('/search', ({ query }) => {

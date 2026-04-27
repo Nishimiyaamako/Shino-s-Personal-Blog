@@ -8,6 +8,7 @@ const MODULE_ICONS: Record<string, string> = {
   about: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
   profile: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
   settings: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+  media: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
 };
 
 function renderSidebarNav(pathname: string): string {
@@ -253,10 +254,33 @@ export const renderAdminPage: PageRenderer = (context) => {
           <p>保存后前台会立即刷新显示。</p>
         </header>
         <form class="admin-about-form" data-role="admin-about-form">
-          <label class="admin-markdown-full">
-            <span>Markdown 内容</span>
-            <textarea name="markdown" rows="24" required placeholder="在此输入关于页的 Markdown 内容..."></textarea>
-          </label>
+          <fieldset class="admin-about-fieldset">
+            <legend>Hero 区域</legend>
+            <div class="admin-form-grid">
+              <label><span>标题</span><input type="text" name="heroTitle" required placeholder="关于" /></label>
+              <label><span>副标题</span><input type="text" name="heroSubtitle" placeholder="例如：Welcome to my blog" /></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="admin-about-fieldset">
+            <legend>开场说明</legend>
+            <div data-role="admin-about-intro-list"><!-- dynamic --></div>
+            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-role="admin-about-add-intro">添加段落</button>
+          </fieldset>
+
+          <fieldset class="admin-about-fieldset">
+            <legend>左右叙事区</legend>
+            <div data-role="admin-about-narrative-list"><!-- dynamic --></div>
+            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-role="admin-about-add-narrative">添加叙事区</button>
+          </fieldset>
+
+          <fieldset class="admin-about-fieldset">
+            <legend>事件时间线</legend>
+            <label><span>时间线标题</span><input type="text" name="timelineTitle" placeholder="例如：事件表" /></label>
+            <div data-role="admin-about-timeline-list" style="margin-top:0.75rem"><!-- dynamic --></div>
+            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-role="admin-about-add-timeline">添加事件</button>
+          </fieldset>
+
           <div class="admin-editor-actions">
             <button type="submit" class="admin-btn admin-btn-primary">保存关于页</button>
           </div>
@@ -308,6 +332,28 @@ export const renderAdminPage: PageRenderer = (context) => {
         </form>
       </section>
 
+      <section class="admin-panel" data-role="admin-panel" data-panel="media"${renderPanelHidden(context.pathname, 'media')}>
+        <header class="admin-panel-header">
+          <h2>媒体管理</h2>
+          <p>管理上传的图片，查看存储使用情况与引用关系。</p>
+        </header>
+        <div class="admin-media-stats" data-role="admin-media-stats" aria-live="polite"></div>
+        <div class="admin-media-toolbar">
+          <div>
+            <button type="button" class="admin-btn admin-btn-ghost admin-media-filter-btn" data-role="admin-media-filter-btn" data-filter="all">全部</button>
+            <button type="button" class="admin-btn admin-btn-ghost admin-media-filter-btn" data-role="admin-media-filter-btn" data-filter="referenced">已引用</button>
+            <button type="button" class="admin-btn admin-btn-ghost admin-media-filter-btn" data-role="admin-media-filter-btn" data-filter="orphaned">未引用</button>
+          </div>
+        </div>
+        <div class="admin-media-grid" data-role="admin-media-grid" aria-live="polite"></div>
+        <div class="admin-pagination">
+          <button type="button" class="admin-btn admin-btn-ghost" data-role="admin-media-prev-page">上一页</button>
+          <span data-role="admin-media-page-summary"></span>
+          <button type="button" class="admin-btn admin-btn-ghost" data-role="admin-media-next-page">下一页</button>
+        </div>
+        <p class="admin-form-error" data-role="admin-media-error" hidden></p>
+      </section>
+
       <section class="admin-panel" data-role="admin-panel" data-panel="profile"${renderPanelHidden(context.pathname, 'profile')}>
         <header class="admin-panel-header">
           <h2>名片卡设置</h2>
@@ -316,14 +362,31 @@ export const renderAdminPage: PageRenderer = (context) => {
         <form class="admin-profile-form" data-role="admin-profile-form">
           <div class="admin-form-grid">
             <label><span>昵称</span><input type="text" name="name" required /></label>
-            <label><span>头像链接</span><input type="text" name="avatar" required /></label>
+          </div>
+          <div class="admin-avatar-field">
+            <label><span>头像</span></label>
+            <div class="admin-avatar-preview-wrap">
+              <img data-role="admin-avatar-preview" src="" alt="头像预览" />
+            </div>
+            <input type="file" name="avatarFile" accept="image/*" data-role="admin-avatar-upload" hidden />
+            <input type="hidden" name="avatar" data-role="admin-avatar-url" />
+            <button type="button" class="admin-btn admin-btn-ghost" data-role="admin-avatar-upload-btn">上传头像</button>
           </div>
           <label><span>简介</span><textarea name="bio" rows="2" required></textarea></label>
-          <label>
-            <span>联系方式（每行 1 条：平台|显示名|链接）</span>
-            <textarea name="contacts" rows="8" placeholder="github|Shino|https://github.com/...
-email|联系邮箱|mailto:me@example.com"></textarea>
-          </label>
+          <div class="admin-contacts-section">
+            <label><span>联系方式</span></label>
+            <div class="admin-contact-list" data-role="admin-contact-list" aria-live="polite">
+              <!-- dynamically rendered -->
+            </div>
+            <div class="admin-contact-add-row">
+              <select data-role="admin-contact-platform">
+                <option value="">选择平台...</option>
+                <option value="__custom__">自定义...</option>
+              </select>
+              <input type="text" data-role="admin-contact-href" placeholder="链接地址" />
+              <button type="button" class="admin-btn admin-btn-secondary" data-role="admin-contact-add">添加</button>
+            </div>
+          </div>
           <div class="admin-editor-actions">
             <button type="submit" class="admin-btn admin-btn-primary">保存名片卡</button>
           </div>
@@ -344,6 +407,7 @@ function getPageTitle(module: string): string {
     case 'friends': return '友链管理';
     case 'about': return '关于页';
     case 'profile': return '名片卡';
+    case 'media': return '媒体管理';
     case 'settings': return '站点设置';
     default: return '后台管理';
   }

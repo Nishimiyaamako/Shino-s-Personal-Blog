@@ -64,3 +64,50 @@ export interface ApiSearchItem {
   snippet: string;
   publishedAt: string;
 }
+
+export interface ApiAboutNarrativeSection {
+  id: string;
+  title: string;
+  label: string;
+  side: 'left' | 'right';
+  items: string[];
+}
+
+export interface ApiAboutTimelineEvent {
+  id: string;
+  date: string;
+  detail: string;
+}
+
+export interface ApiAboutPayload {
+  heroTitle: string;
+  heroSubtitle: string;
+  introParagraphs: string[];
+  narrativeSections: ApiAboutNarrativeSection[];
+  timelineTitle: string;
+  timelineLabel: string;
+  timelineEvents: ApiAboutTimelineEvent[];
+}
+
+export interface ApiMediaAsset {
+  id: number;
+  fileName: string;
+  mimeType: string;
+  size: number;
+  url: string;
+  createdAt: string;
+  references: Array<{ postId: number; postTitle: string }>;
+  isOrphaned: boolean;
+}
+
+export interface ApiMediaListResponse {
+  items: ApiMediaAsset[];
+  total: number;
+  page: number;
+  pageSize: number;
+  stats: {
+    totalCount: number;
+    totalSize: number;
+    orphanedCount: number;
+  };
+}

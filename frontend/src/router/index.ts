@@ -13,7 +13,7 @@ import type { PageRenderContext, RouteParams, RouteRecord } from '../types/route
 
 const NOT_FOUND_PATH = '/404';
 export type PrimaryNavIcon = 'home' | 'posts' | 'tags' | 'archive' | 'friends' | 'about';
-export type AdminModuleRoute = 'posts' | 'featured' | 'friends' | 'about' | 'profile' | 'settings';
+export type AdminModuleRoute = 'posts' | 'featured' | 'friends' | 'about' | 'profile' | 'media' | 'settings';
 
 export const ADMIN_MODULE_LINKS: Array<{ href: `/admin/${AdminModuleRoute}`; label: string; module: AdminModuleRoute }> = [
   { href: '/admin/posts', label: '文章管理', module: 'posts' },
@@ -21,6 +21,7 @@ export const ADMIN_MODULE_LINKS: Array<{ href: `/admin/${AdminModuleRoute}`; lab
   { href: '/admin/friends', label: '友链管理', module: 'friends' },
   { href: '/admin/about', label: '关于页', module: 'about' },
   { href: '/admin/profile', label: '名片卡', module: 'profile' },
+  { href: '/admin/media', label: '媒体管理', module: 'media' },
   { href: '/admin/settings', label: '站点设置', module: 'settings' }
 ];
 
@@ -39,6 +40,7 @@ export const ROUTE_RECORDS: RouteRecord[] = [
   { path: '/admin/friends', title: '后台 · 友链管理', render: renderAdminPage },
   { path: '/admin/about', title: '后台 · 关于页', render: renderAdminPage },
   { path: '/admin/profile', title: '后台 · 名片卡', render: renderAdminPage },
+  { path: '/admin/media', title: '后台 · 媒体管理', render: renderAdminPage },
   { path: '/admin/settings', title: '后台 · 站点设置', render: renderAdminPage },
   { path: '/admin', title: '内容管理', render: renderAdminPage },
   { path: NOT_FOUND_PATH, title: '404', render: renderNotFoundPage }
@@ -72,7 +74,7 @@ export function resolveAdminModule(pathname: string): AdminModuleRoute {
 
   const module = normalized.slice('/admin/'.length);
 
-  if (module === 'featured' || module === 'friends' || module === 'about' || module === 'profile' || module === 'settings') {
+  if (module === 'featured' || module === 'friends' || module === 'about' || module === 'profile' || module === 'media' || module === 'settings') {
     return module;
   }
 

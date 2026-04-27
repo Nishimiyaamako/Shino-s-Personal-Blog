@@ -26,3 +26,13 @@ export interface AboutViewModel {
   timelineLabel: string;
   timelineEvents: AboutTimelineEvent[];
 }
+
+export interface AboutStructuredPayload {
+  heroTitle: string;
+  heroSubtitle: string;
+  introParagraphs: string[];
+  narrativeSections: AboutNarrativeSection[];
+  timelineTitle: string;
+  timelineLabel: string;
+  timelineEvents: AboutTimelineEvent[];
+}
