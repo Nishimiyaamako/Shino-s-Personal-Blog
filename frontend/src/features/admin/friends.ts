@@ -39,7 +39,10 @@ function parseFriendImportValue(rawValue: string): string | null {
     .replace(/\\\\/g, '\\');
 }
 
-function parseFriendSnippet(rawSnippet: string): Partial<Record<FriendImportField, string>> {
+function parseFriendSnippet(rawSnippet: string): {
+  parsed: Partial<Record<FriendImportField, string>>;
+  skipped: string[];
+} {
   const snippetBody = extractCodeBlockContent(rawSnippet)
     .replace(/;\s*$/, '')
     .trim()
@@ -51,6 +54,7 @@ function parseFriendSnippet(rawSnippet: string): Partial<Record<FriendImportFiel
     : snippetBody;
 
   const parsed: Partial<Record<FriendImportField, string>> = {};
+  const skipped: string[] = [];
 
   for (const rawLine of unwrappedSnippet.split(/\r?\n/)) {
     const normalizedLine = rawLine.trim();
@@ -62,6 +66,7 @@ function parseFriendSnippet(rawSnippet: string): Partial<Record<FriendImportFiel
     const cleanedLine = normalizedLine.replace(/,\s*$/, '');
     const separatorIndex = cleanedLine.indexOf(':');
     if (separatorIndex <= 0) {
+      skipped.push(normalizedLine.slice(0, 40));
       continue;
     }
 
@@ -71,18 +76,20 @@ function parseFriendSnippet(rawSnippet: string): Partial<Record<FriendImportFiel
       .replace(/^['"`]/, '')
       .replace(/['"`]$/, '');
     if (!isFriendImportField(rawField)) {
+      skipped.push(rawField);
       continue;
     }
 
     const parsedValue = parseFriendImportValue(cleanedLine.slice(separatorIndex + 1));
     if (parsedValue === null) {
+      skipped.push(rawField);
       continue;
     }
 
     parsed[rawField] = parsedValue;
   }
 
-  return parsed;
+  return { parsed, skipped };
 }
 
 interface AdminFriendsModuleOptions {
@@ -100,6 +107,7 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
   const { rootElement, token, onDirtyChange } = options;
 
   const friendListElement = rootElement.querySelector<HTMLElement>('[data-role="admin-friend-list"]');
+  const friendSearchInput = rootElement.querySelector<HTMLInputElement>('[data-role="admin-friend-search"]');
   const friendForm = rootElement.querySelector<HTMLFormElement>('[data-role="admin-friend-form"]');
   const friendErrorElement = rootElement.querySelector<HTMLElement>('[data-role="admin-friend-error"]');
   const friendSuccessElement = rootElement.querySelector<HTMLElement>('[data-role="admin-friend-success"]');
@@ -127,6 +135,17 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
   let selectedFriendId = 0;
   let busy = false;
   let formDirty = false;
+  let searchQuery = '';
+  let searchTimer: ReturnType<typeof setTimeout> | undefined;  const filterBySearch = (links: AdminFriendLink[]): AdminFriendLink[] => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return links;
+    return links.filter(
+      (link) =>
+        link.name.toLowerCase().includes(q) ||
+        link.url.toLowerCase().includes(q) ||
+        link.description.toLowerCase().includes(q)
+    );
+  };
 
   const setFormDirty = (nextDirty: boolean): void => {
     if (formDirty === nextDirty) {
@@ -198,6 +217,10 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
     setFormDirty(false);
   };
 
+  const renderFilteredList = (): void => {
+    friendListElement.innerHTML = renderFriendList(filterBySearch(friendLinks));
+  };
+
   const refresh = async (): Promise<void> => {
     friendLinks = await adminListFriendLinks(token);
 
@@ -205,8 +228,16 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
       selectedFriendId = 0;
     }
 
-    friendListElement.innerHTML = renderFriendList(friendLinks);
+    renderFilteredList();
     fillFriendForm(getFriendById(selectedFriendId));
+  };
+
+  const handleFriendSearchInput = (): void => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      searchQuery = friendSearchInput?.value ?? '';
+      renderFilteredList();
+    }, 250);
   };
 
   const handleFriendFormSubmit = async (event: SubmitEvent): Promise<void> => {
@@ -266,7 +297,7 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
     setMessage(friendErrorElement, '');
     setMessage(friendSuccessElement, '');
 
-    const parsed = parseFriendSnippet(friendImportInput.value);
+    const { parsed, skipped } = parseFriendSnippet(friendImportInput.value);
     const parsedFields = FRIEND_IMPORT_FIELDS.filter((field) => Object.hasOwn(parsed, field));
 
     if (!parsedFields.length) {
@@ -288,7 +319,12 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
     }
 
     setFormDirty(true);
-    setMessage(friendSuccessElement, `已填充 ${parsedFields.length} 个字段，请确认后保存。`);
+    let statusMsg = `已填充 ${parsedFields.length} 个字段，请确认后保存。`;
+    if (skipped.length > 0) {
+      statusMsg += ` ${skipped.length} 个字段被跳过: ${skipped.join(', ')}`;
+      setMessage(friendErrorElement, `${skipped.length} 个字段被跳过: ${skipped.join(', ')}`, { error: true });
+    }
+    setMessage(friendSuccessElement, statusMsg);
   };
 
   const handleFriendFormInput = (event: Event): void => {
@@ -366,6 +402,7 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
   friendImportParseButton.addEventListener('click', handleFriendImportParse);
   friendCancelButton.addEventListener('click', handleFriendCancel);
   friendListElement.addEventListener('click', handleFriendListClick);
+  friendSearchInput?.addEventListener('input', handleFriendSearchInput);
   fillFriendForm(null);
 
   return {
@@ -377,6 +414,8 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
       friendImportParseButton.removeEventListener('click', handleFriendImportParse);
       friendCancelButton.removeEventListener('click', handleFriendCancel);
       friendListElement.removeEventListener('click', handleFriendListClick);
+      friendSearchInput?.removeEventListener('input', handleFriendSearchInput);
+      clearTimeout(searchTimer);
       setFormDirty(false);
     }
   };

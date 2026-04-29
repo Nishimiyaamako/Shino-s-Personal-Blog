@@ -1,4 +1,4 @@
-import { adminDeleteMedia, adminListMedia } from '../../data/api';
+import { adminDeleteMedia, adminListMedia, adminUploadImage } from '../../data/api';
 import type { AdminMediaAsset, AdminMediaListQuery, AdminMediaListResponse } from '../../types/api';
 import { escapeHtml } from '../../utils/escape-html';
 
@@ -35,6 +35,10 @@ export function setupAdminMediaModule(options: AdminMediaModuleOptions): AdminMe
   const filterButtons = Array.from(
     rootElement.querySelectorAll<HTMLButtonElement>('[data-role="admin-media-filter-btn"]')
   );
+  const sortSelect = rootElement.querySelector<HTMLSelectElement>('[data-role="admin-media-sort"]');
+  const uploadBtn = rootElement.querySelector<HTMLButtonElement>('[data-role="admin-media-upload-btn"]');
+  const uploadInput = rootElement.querySelector<HTMLInputElement>('[data-role="admin-media-upload-input"]');
+  const bulkDeleteBtn = rootElement.querySelector<HTMLButtonElement>('[data-role="admin-media-bulk-delete"]');
 
   if (!statsElement || !gridElement || !prevPageButton || !nextPageButton || !pageSummaryElement) {
     return null;
@@ -43,11 +47,16 @@ export function setupAdminMediaModule(options: AdminMediaModuleOptions): AdminMe
   let busy = false;
   let currentFilter: AdminMediaListQuery['filter'] = 'all';
   let currentPage = 1;
+  let currentSort = 'created_at';
+  let currentOrder: 'ASC' | 'DESC' = 'DESC';
   let lastResponse: AdminMediaListResponse | null = null;
+  let selectedIds = new Set<number>();
 
   const setBusy = (v: boolean): void => {
     busy = v;
     const buttons = [prevPageButton, nextPageButton, ...filterButtons];
+    if (uploadBtn) buttons.push(uploadBtn);
+    if (bulkDeleteBtn) buttons.push(bulkDeleteBtn);
     for (const btn of buttons) {
       if (v) btn.setAttribute('disabled', 'true');
       else btn.removeAttribute('disabled');
@@ -58,6 +67,12 @@ export function setupAdminMediaModule(options: AdminMediaModuleOptions): AdminMe
     for (const btn of filterButtons) {
       btn.classList.toggle('is-active', (btn.dataset.filter || 'all') === currentFilter);
     }
+  };
+
+  const updateBulkDeleteVisibility = (): void => {
+    if (!bulkDeleteBtn) return;
+    bulkDeleteBtn.textContent = `删除选中 (${selectedIds.size})`;
+    bulkDeleteBtn.hidden = selectedIds.size === 0;
   };
 
   const renderStats = (): void => {
@@ -110,6 +125,9 @@ export function setupAdminMediaModule(options: AdminMediaModuleOptions): AdminMe
 
     return `
       <div class="admin-media-card${asset.isOrphaned ? ' is-orphaned' : ''}">
+        <label class="admin-media-card-select">
+          <input type="checkbox" data-role="admin-media-select" data-media-id="${asset.id}" ${selectedIds.has(asset.id) ? 'checked' : ''} />
+        </label>
         <div class="admin-media-card-preview">
           <img src="${escapeHtml(asset.url)}" alt="${escapeHtml(asset.fileName)}" loading="lazy" />
         </div>
@@ -138,6 +156,8 @@ export function setupAdminMediaModule(options: AdminMediaModuleOptions): AdminMe
       lastResponse = await adminListMedia(token, {
         page: currentPage,
         pageSize: 20,
+        sort: currentSort as AdminMediaListQuery['sort'],
+        order: currentOrder === 'ASC' ? 'asc' : 'desc',
         filter: currentFilter
       });
       syncActiveFilter();
@@ -202,6 +222,93 @@ export function setupAdminMediaModule(options: AdminMediaModuleOptions): AdminMe
     }
   };
 
+  const handleSortChange = (): void => {
+    if (!sortSelect) return;
+    const [sort, order] = sortSelect.value.split('-');
+    currentSort = sort;
+    currentOrder = order === 'asc' ? 'ASC' : 'DESC';
+    currentPage = 1;
+    refresh();
+  };
+
+  const handleUploadClick = (): void => {
+    uploadInput?.click();
+  };
+
+  const handleUploadInputChange = async (): Promise<void> => {
+    const file = uploadInput?.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      if (errorElement) {
+        errorElement.textContent = '仅支持图片文件';
+        errorElement.hidden = false;
+      }
+      return;
+    }
+
+    try {
+      setBusy(true);
+      await adminUploadImage(token, file);
+      if (uploadInput) uploadInput.value = '';
+      currentPage = 1;
+      await refresh();
+    } catch (e) {
+      if (errorElement) {
+        errorElement.textContent = e instanceof Error ? e.message : '上传失败';
+        errorElement.hidden = false;
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleSelectionChange = (event: Event): void => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    if (target.dataset.role !== 'admin-media-select') return;
+
+    const id = Number(target.dataset.mediaId);
+    if (target.checked) {
+      selectedIds.add(id);
+    } else {
+      selectedIds.delete(id);
+    }
+    updateBulkDeleteVisibility();
+  };
+
+  const handleBulkDelete = async (): Promise<void> => {
+    if (selectedIds.size === 0) return;
+
+    if (!window.confirm(`确认删除选中的 ${selectedIds.size} 个文件？\n此操作不可撤销。`)) return;
+
+    try {
+      setBusy(true);
+
+      const ids = Array.from(selectedIds);
+      const results = await Promise.allSettled(ids.map((id) => adminDeleteMedia(token, id)));
+
+      const failed = results.filter((r) => r.status === 'rejected').length;
+
+      selectedIds.clear();
+      updateBulkDeleteVisibility();
+      currentPage = 1;
+      await refresh();
+
+      if (failed > 0 && errorElement) {
+        errorElement.textContent = `${ids.length - failed} 个成功，${failed} 个失败`;
+        errorElement.hidden = false;
+      }
+    } catch (e) {
+      if (errorElement) {
+        errorElement.textContent = e instanceof Error ? e.message : '批量删除失败';
+        errorElement.hidden = false;
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const filterBar = rootElement.querySelector<HTMLElement>('.admin-media-toolbar');
   const paginationBar = rootElement.querySelector<HTMLElement>('[data-role="admin-media-pagination"]')?.parentElement;
 
@@ -209,6 +316,11 @@ export function setupAdminMediaModule(options: AdminMediaModuleOptions): AdminMe
   prevPageButton.addEventListener('click', handlePrevPage);
   nextPageButton.addEventListener('click', handleNextPage);
   gridElement.addEventListener('click', handleDelete);
+  gridElement.addEventListener('change', handleSelectionChange);
+  sortSelect?.addEventListener('change', handleSortChange);
+  uploadBtn?.addEventListener('click', handleUploadClick);
+  uploadInput?.addEventListener('change', handleUploadInputChange);
+  bulkDeleteBtn?.addEventListener('click', handleBulkDelete);
 
   return {
     refresh,
@@ -217,6 +329,11 @@ export function setupAdminMediaModule(options: AdminMediaModuleOptions): AdminMe
       prevPageButton.removeEventListener('click', handlePrevPage);
       nextPageButton.removeEventListener('click', handleNextPage);
       gridElement.removeEventListener('click', handleDelete);
+      gridElement.removeEventListener('change', handleSelectionChange);
+      sortSelect?.removeEventListener('change', handleSortChange);
+      uploadBtn?.removeEventListener('click', handleUploadClick);
+      uploadInput?.removeEventListener('change', handleUploadInputChange);
+      bulkDeleteBtn?.removeEventListener('click', handleBulkDelete);
     }
   };
 }

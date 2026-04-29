@@ -309,6 +309,34 @@
     border-radius: 8px;
     overflow: hidden;
     background: var(--admin-surface, #1b1e27);
+    position: relative;
+}
+
+.admin-media-card-select {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    background: var(--admin-surface, #1b1e27);
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.admin-media-card:hover .admin-media-card-select,
+.admin-media-card-select:has(input:checked) {
+    opacity: 1;
+}
+
+.admin-media-card-select input {
+    cursor: pointer;
+    accent-color: var(--admin-accent, #80a0c0);
 }
 
 .admin-media-card.is-orphaned {
@@ -497,6 +525,21 @@
 
 .admin-about-timeline-row input[data-role="admin-about-timeline-detail"] {
     flex: 1;
+}
+
+.admin-upload-indicator {
+    margin-top: 8px;
+    padding: 6px 12px;
+    font-size: 0.8125rem;
+    color: var(--admin-accent, #80a0c0);
+    background: var(--admin-accent-soft, rgba(128, 160, 192, 0.08));
+    border-radius: 6px;
+    animation: admin-pulse-fade 1.8s ease-in-out infinite;
+}
+
+@keyframes admin-pulse-fade {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
 }
 
 .admin-about-timeline-row input:focus {

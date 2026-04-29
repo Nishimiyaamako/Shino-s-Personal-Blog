@@ -2,7 +2,7 @@ import { Elysia } from 'elysia';
 import type { DatabaseContext } from '../db/client';
 import { verifyAdminCredentials } from '../auth/admin';
 import { signAdminToken } from '../auth/jwt';
-import { getAbout, getAboutMarkdown, updateAbout, updateAboutMarkdown } from '../services/about';
+import { getAbout, updateAbout } from '../services/about';
 import {
   createFriendLink,
   deleteFriendLink,
@@ -13,8 +13,10 @@ import { deleteMediaAsset, listMediaAssets, saveImageAsset } from '../services/m
 import {
   createPost,
   deletePost,
+  getAdminPostById,
   listAdminPosts,
   publishPost,
+  rebuildSearchIndex,
   setPostFeatured,
   unpublishPost,
   updatePost,
@@ -22,7 +24,7 @@ import {
 } from '../services/posts';
 import { getProfileCard, updateProfileCard } from '../services/profile';
 import { getSiteConfig, updateSiteConfig } from '../services/site-config';
-import { asPositiveInt, parseJsonBody, requireAdmin, toErrorPayload } from './helpers';
+import { asPositiveInt, parseJsonBody, requireAdmin, toErrorPayload, validateUrl } from './helpers';
 
 export function createAdminRoutes(context: DatabaseContext) {
   return new Elysia({ prefix: '/api/admin' })
@@ -68,16 +70,45 @@ export function createAdminRoutes(context: DatabaseContext) {
         return { error: 'Unauthorized' };
       }
 
-      const searchParams = new URL(request.url).searchParams;
-      const queryStatus = searchParams.get('status');
+      try {
+        const searchParams = new URL(request.url).searchParams;
+        const queryStatus = searchParams.get('status');
 
-      return listAdminPosts(context, {
-        q: searchParams.get('q') ?? undefined,
-        status: queryStatus === 'draft' || queryStatus === 'published' ? queryStatus : 'all',
-        tag: searchParams.get('tag') ?? undefined,
-        page: Number(searchParams.get('page') ?? ''),
-        pageSize: Number(searchParams.get('pageSize') ?? '')
-      });
+        return listAdminPosts(context, {
+          q: searchParams.get('q') ?? undefined,
+          status: queryStatus === 'draft' || queryStatus === 'published' ? queryStatus : 'all',
+          tag: searchParams.get('tag') ?? undefined,
+          page: Number(searchParams.get('page') ?? ''),
+          pageSize: Number(searchParams.get('pageSize') ?? '')
+        });
+      } catch (error) {
+        set.status = 400;
+        return toErrorPayload(error);
+      }
+    })
+    .get('/posts/:id', async ({ request, params, set }) => {
+      const admin = await requireAdmin(request, set);
+      if (!admin) {
+        return { error: 'Unauthorized' };
+      }
+
+      const postId = asPositiveInt(params.id);
+      if (!postId) {
+        set.status = 400;
+        return { error: '无效文章 id' };
+      }
+
+      try {
+        const post = getAdminPostById(context, postId);
+        if (!post) {
+          set.status = 404;
+          return { error: '文章不存在' };
+        }
+        return { item: post };
+      } catch (error) {
+        set.status = 400;
+        return toErrorPayload(error);
+      }
     })
     .post('/posts', async ({ request, set }) => {
       const admin = await requireAdmin(request, set);
@@ -133,14 +164,19 @@ export function createAdminRoutes(context: DatabaseContext) {
         return { error: '无效文章 id' };
       }
 
-      const ok = deletePost(context, postId);
+      try {
+        const ok = deletePost(context, postId);
 
-      if (!ok) {
-        set.status = 404;
-        return { error: '文章不存在' };
+        if (!ok) {
+          set.status = 404;
+          return { error: '文章不存在' };
+        }
+
+        return { ok: true };
+      } catch (error) {
+        set.status = 400;
+        return toErrorPayload(error);
       }
-
-      return { ok: true };
     })
     .post('/posts/:id/publish', async ({ request, params, set }) => {
       const admin = await requireAdmin(request, set);
@@ -154,14 +190,19 @@ export function createAdminRoutes(context: DatabaseContext) {
         return { error: '无效文章 id' };
       }
 
-      const item = publishPost(context, postId);
+      try {
+        const item = publishPost(context, postId);
 
-      if (!item) {
-        set.status = 404;
-        return { error: '文章不存在' };
+        if (!item) {
+          set.status = 404;
+          return { error: '文章不存在' };
+        }
+
+        return { item };
+      } catch (error) {
+        set.status = 400;
+        return toErrorPayload(error);
       }
-
-      return { item };
     })
     .post('/posts/:id/unpublish', async ({ request, params, set }) => {
       const admin = await requireAdmin(request, set);
@@ -175,14 +216,33 @@ export function createAdminRoutes(context: DatabaseContext) {
         return { error: '无效文章 id' };
       }
 
-      const item = unpublishPost(context, postId);
+      try {
+        const item = unpublishPost(context, postId);
 
-      if (!item) {
-        set.status = 404;
-        return { error: '文章不存在' };
+        if (!item) {
+          set.status = 404;
+          return { error: '文章不存在' };
+        }
+
+        return { item };
+      } catch (error) {
+        set.status = 400;
+        return toErrorPayload(error);
+      }
+    })
+    .post('/posts/rebuild-search-index', async ({ request, set }) => {
+      const admin = await requireAdmin(request, set);
+      if (!admin) {
+        return { error: 'Unauthorized' };
       }
 
-      return { item };
+      try {
+        rebuildSearchIndex(context);
+        return { ok: true };
+      } catch (error) {
+        set.status = 400;
+        return toErrorPayload(error);
+      }
     })
     .patch('/posts/:id/featured', async ({ request, params, set }) => {
       const admin = await requireAdmin(request, set);
@@ -244,15 +304,20 @@ export function createAdminRoutes(context: DatabaseContext) {
         return { error: 'Unauthorized' };
       }
 
-      const searchParams = new URL(request.url).searchParams;
-      const page = Math.max(1, Number(searchParams.get('page') || 1));
-      const pageSize = Math.min(100, Math.max(1, Number(searchParams.get('pageSize') || 20)));
-      const sort = searchParams.get('sort') === 'size' ? 'size' : 'created_at';
-      const order = searchParams.get('order') === 'asc' ? 'ASC' : 'DESC';
-      const filterParam = searchParams.get('filter') || 'all';
-      const filter = (filterParam === 'orphaned' || filterParam === 'referenced') ? filterParam : 'all';
+      try {
+        const searchParams = new URL(request.url).searchParams;
+        const page = Math.max(1, Number(searchParams.get('page') || 1));
+        const pageSize = Math.min(100, Math.max(1, Number(searchParams.get('pageSize') || 20)));
+        const sort = searchParams.get('sort') === 'size' ? 'size' : 'created_at';
+        const order = searchParams.get('order') === 'asc' ? 'ASC' : 'DESC';
+        const filterParam = searchParams.get('filter') || 'all';
+        const filter = (filterParam === 'orphaned' || filterParam === 'referenced') ? filterParam : 'all';
 
-      return listMediaAssets(context, { page, pageSize, sort, order, filter });
+        return listMediaAssets(context, { page, pageSize, sort, order, filter });
+      } catch (error) {
+        set.status = 400;
+        return toErrorPayload(error);
+      }
     })
     .delete('/media/:id', async ({ request, params, set }) => {
       const admin = await requireAdmin(request, set);
@@ -280,9 +345,14 @@ export function createAdminRoutes(context: DatabaseContext) {
         return { error: 'Unauthorized' };
       }
 
-      return {
-        items: listAdminFriendLinks(context)
-      };
+      try {
+        return {
+          items: listAdminFriendLinks(context)
+        };
+      } catch (error) {
+        set.status = 400;
+        return toErrorPayload(error);
+      }
     })
     .post('/friend-links', async ({ request, set }) => {
       const admin = await requireAdmin(request, set);
@@ -299,6 +369,9 @@ export function createAdminRoutes(context: DatabaseContext) {
           enabled?: boolean;
           displayOrder?: number;
         }>(request);
+
+        validateUrl(body.url, '友链 URL');
+        validateUrl(body.avatar, '友链头像 URL');
 
         return {
           item: createFriendLink(context, body)
@@ -331,6 +404,13 @@ export function createAdminRoutes(context: DatabaseContext) {
           displayOrder?: number;
         }>(request);
 
+        if (body.url !== undefined) {
+          validateUrl(body.url, '友链 URL');
+        }
+        if (body.avatar !== undefined) {
+          validateUrl(body.avatar, '友链头像 URL');
+        }
+
         const item = updateFriendLink(context, friendId, body);
 
         if (!item) {
@@ -357,14 +437,19 @@ export function createAdminRoutes(context: DatabaseContext) {
         return { error: '无效友链 id' };
       }
 
-      const ok = deleteFriendLink(context, friendId);
+      try {
+        const ok = deleteFriendLink(context, friendId);
 
-      if (!ok) {
-        set.status = 404;
-        return { error: '友链不存在' };
+        if (!ok) {
+          set.status = 404;
+          return { error: '友链不存在' };
+        }
+
+        return { ok: true };
+      } catch (error) {
+        set.status = 400;
+        return toErrorPayload(error);
       }
-
-      return { ok: true };
     })
     .get('/about', async ({ request, set }) => {
       const admin = await requireAdmin(request, set);
@@ -372,7 +457,12 @@ export function createAdminRoutes(context: DatabaseContext) {
         return { error: 'Unauthorized' };
       }
 
-      return getAbout(context);
+      try {
+        return getAbout(context);
+      } catch (error) {
+        set.status = 400;
+        return toErrorPayload(error);
+      }
     })
     .patch('/about', async ({ request, set }) => {
       const admin = await requireAdmin(request, set);
@@ -394,7 +484,12 @@ export function createAdminRoutes(context: DatabaseContext) {
         return { error: 'Unauthorized' };
       }
 
-      return getProfileCard(context);
+      try {
+        return getProfileCard(context);
+      } catch (error) {
+        set.status = 400;
+        return toErrorPayload(error);
+      }
     })
     .patch('/profile-card', async ({ request, set }) => {
       const admin = await requireAdmin(request, set);
@@ -427,7 +522,12 @@ export function createAdminRoutes(context: DatabaseContext) {
         return { error: 'Unauthorized' };
       }
 
-      return getSiteConfig(context);
+      try {
+        return getSiteConfig(context);
+      } catch (error) {
+        set.status = 400;
+        return toErrorPayload(error);
+      }
     })
     .patch('/site-config', async ({ request, set }) => {
       const admin = await requireAdmin(request, set);
@@ -447,6 +547,13 @@ export function createAdminRoutes(context: DatabaseContext) {
           publicSecurityRecordUrl?: string;
           friendLinkTemplate?: string;
         }>(request);
+
+        if (body.icpRecordUrl !== undefined) {
+          validateUrl(body.icpRecordUrl, 'ICP 备案 URL');
+        }
+        if (body.publicSecurityRecordUrl !== undefined) {
+          validateUrl(body.publicSecurityRecordUrl, '公安备案 URL');
+        }
 
         return updateSiteConfig(context, body);
       } catch (error) {

@@ -8,6 +8,7 @@ import {
 import { PLATFORM_PRESETS, getPresetLabel } from '../../data/platform-presets';
 import type { AboutNarrativeSection, AboutStructuredPayload, AboutTimelineEvent } from '../../types/about';
 import type { ProfileContact } from '../../types/profile-card';
+import { escapeHtml } from '../../utils/escape-html';
 import { cropImageToSquare } from './avatar-crop';
 import { setMessage } from './shared';
 
@@ -438,10 +439,3 @@ export function setupAdminContentSettingsModule(
   };
 }
 
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}

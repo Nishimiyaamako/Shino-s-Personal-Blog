@@ -404,7 +404,7 @@ export function listAdminPosts(
   options: ListAdminPostOptions = {}
 ): ListAdminPostResult {
   const page = Math.max(1, Number(options.page) || 1);
-  const pageSize = Math.min(100, Math.max(1, Number(options.pageSize) || 20));
+  const pageSize = Math.min(500, Math.max(1, Number(options.pageSize) || 20));
   const offset = (page - 1) * pageSize;
   const searchQuery = options.q?.trim() ?? '';
   const statusFilter = options.status === 'draft' || options.status === 'published' ? options.status : null;

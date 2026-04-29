@@ -59,6 +59,17 @@ export async function requireAdmin(
   };
 }
 
+const SAFE_URL_REGEXP = /^https?:\/\/.+/i;
+
+export function validateUrl(value: string, label: string): void {
+  if (!value) {
+    return;
+  }
+  if (!SAFE_URL_REGEXP.test(value.trim())) {
+    throw new Error(`${label} 格式不正确，必须以 http:// 或 https:// 开头`);
+  }
+}
+
 export function toErrorPayload(error: unknown): RouteErrorPayload {
   if (error instanceof Error) {
     return { error: error.message };

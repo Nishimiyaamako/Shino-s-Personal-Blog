@@ -101,11 +101,63 @@ export function listMediaAssets(context: DatabaseContext, options: MediaListOpti
 
   const refMap = buildPostReferenceMap(context);
 
-  const allRows = context.sqlite
-    .query(`SELECT id, file_name, mime_type, size, url, created_at FROM media_assets ORDER BY ${sort} ${order}`)
-    .all() as Array<{ id: number; file_name: string; mime_type: string; size: number; url: string; created_at: string }>;
+  const statsRow = context.sqlite
+    .query(`SELECT COUNT(*) AS total_count, COALESCE(SUM(size), 0) AS total_size FROM media_assets`)
+    .get() as { total_count: number; total_size: number };
 
-  const enriched: ApiMediaAsset[] = allRows.map((row) => {
+  const referencedUrls = new Set(refMap.keys());
+
+  let orphanedCount: number;
+  if (referencedUrls.size === 0) {
+    orphanedCount = statsRow.total_count;
+  } else {
+    const allUrls = context.sqlite
+      .query(`SELECT url FROM media_assets`)
+      .all() as Array<{ url: string }>;
+    orphanedCount = allUrls.filter((r) => !referencedUrls.has(r.url)).length;
+  }
+
+  let rows: Array<{
+    id: number;
+    file_name: string;
+    mime_type: string;
+    size: number;
+    url: string;
+    created_at: string;
+  }>;
+
+  const offset = (page - 1) * pageSize;
+  const sortCol = sort === 'size' ? 'size' : 'created_at';
+
+  if (filter === 'all') {
+    rows = context.sqlite
+      .query(`SELECT id, file_name, mime_type, size, url, created_at FROM media_assets ORDER BY ${sortCol} ${order} LIMIT ? OFFSET ?`)
+      .all(pageSize, offset) as typeof rows;
+  } else if (filter === 'orphaned') {
+    const orphanedUrls = (context.sqlite.query(`SELECT url FROM media_assets`).all() as Array<{ url: string }>)
+      .filter((r) => !referencedUrls.has(r.url))
+      .map((r) => r.url);
+
+    if (orphanedUrls.length === 0) {
+      rows = [];
+    } else {
+      const placeholders = orphanedUrls.map(() => '?').join(',');
+      rows = context.sqlite
+        .query(`SELECT id, file_name, mime_type, size, url, created_at FROM media_assets WHERE url IN (${placeholders}) ORDER BY ${sortCol} ${order} LIMIT ? OFFSET ?`)
+        .all(...orphanedUrls, pageSize, offset) as typeof rows;
+    }
+  } else {
+    if (referencedUrls.size === 0) {
+      rows = [];
+    } else {
+      const placeholders = Array.from(referencedUrls).map(() => '?').join(',');
+      rows = context.sqlite
+        .query(`SELECT id, file_name, mime_type, size, url, created_at FROM media_assets WHERE url IN (${placeholders}) ORDER BY ${sortCol} ${order} LIMIT ? OFFSET ?`)
+        .all(...Array.from(referencedUrls), pageSize, offset) as typeof rows;
+    }
+  }
+
+  const items: ApiMediaAsset[] = rows.map((row) => {
     const references = refMap.get(row.url) || [];
     return {
       id: row.id,
@@ -119,19 +171,7 @@ export function listMediaAssets(context: DatabaseContext, options: MediaListOpti
     };
   });
 
-  const orphanedAll = enriched.filter((a) => a.isOrphaned);
-  const totalSize = enriched.reduce((sum, a) => sum + a.size, 0);
-
-  let filtered = enriched;
-  if (filter === 'orphaned') {
-    filtered = orphanedAll;
-  } else if (filter === 'referenced') {
-    filtered = enriched.filter((a) => !a.isOrphaned);
-  }
-
-  const total = filtered.length;
-  const start = (page - 1) * pageSize;
-  const items = filtered.slice(start, start + pageSize);
+  const total = filter === 'all' ? statsRow.total_count : filter === 'orphaned' ? orphanedCount : statsRow.total_count - orphanedCount;
 
   return {
     items,
@@ -139,9 +179,9 @@ export function listMediaAssets(context: DatabaseContext, options: MediaListOpti
     page,
     pageSize,
     stats: {
-      totalCount: enriched.length,
-      totalSize,
-      orphanedCount: orphanedAll.length
+      totalCount: statsRow.total_count,
+      totalSize: statsRow.total_size,
+      orphanedCount
     }
   };
 }

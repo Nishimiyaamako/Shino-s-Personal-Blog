@@ -432,8 +432,8 @@ function renderFloatingScrollTopButton(): string {
 }
 
 function hasUnsavedAdminChanges(): boolean {
-  const adminDashboardElement = document.querySelector<HTMLElement>('.page-admin-dashboard');
-  return adminDashboardElement?.dataset.adminDirty === 'true';
+  const adminAppElement = document.querySelector<HTMLElement>('.admin-app');
+  return adminAppElement?.dataset.adminDirty === 'true';
 }
 
 function confirmAdminNavigation(nextLocation: string): boolean {
@@ -442,7 +442,7 @@ function confirmAdminNavigation(nextLocation: string): boolean {
   }
 
   const nextPathname = new URL(nextLocation, window.location.origin).pathname;
-  const isInAdminNow = document.querySelector<HTMLElement>('.page-admin-dashboard') !== null;
+  const isInAdminNow = document.querySelector<HTMLElement>('.admin-app') !== null;
   const isStayingInsideAdmin = isInAdminNow && isAdminPathname(nextPathname);
   const message = isStayingInsideAdmin
     ? '当前有未保存变更，确认切换模块并丢弃这些改动吗？'

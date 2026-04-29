@@ -79,7 +79,7 @@ export function getAbout(context: DatabaseContext): ApiAboutPayload {
     introParagraphs: parse(row?.intro_paragraphs ?? '[]', []) as string[],
     narrativeSections: parse(row?.narrative_sections ?? '[]', []) as ApiAboutPayload['narrativeSections'],
     timelineTitle: row?.timeline_title ?? '',
-    timelineLabel: 'Milestones',
+    timelineLabel: row?.timeline_title ?? '',
     timelineEvents: parse(row?.timeline_events ?? '[]', []) as ApiAboutPayload['timelineEvents']
   };
 }
@@ -99,8 +99,8 @@ export function updateAbout(context: DatabaseContext, payload: ApiAboutPayload):
 
   context.sqlite
     .query(`
-      INSERT INTO about_page (id, hero_title, hero_subtitle, intro_paragraphs, narrative_sections, timeline_title, timeline_events, markdown, updated_at)
-      VALUES (1, ?, ?, ?, ?, ?, ?, '', ?)
+      INSERT INTO about_page (id, hero_title, hero_subtitle, intro_paragraphs, narrative_sections, timeline_title, timeline_events, updated_at)
+      VALUES (1, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(id) DO UPDATE SET
         hero_title = excluded.hero_title,
         hero_subtitle = excluded.hero_subtitle,

@@ -264,7 +264,7 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
       adminListPosts(token, {
         status: 'published',
         page: 1,
-        pageSize: 200
+        pageSize: 1000
       })
     ]);
 
@@ -302,6 +302,9 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
     const title = titleInput.value.trim();
     if (title && !slugOverrideInput?.value.trim()) {
       slugInput.value = generateSlug(title);
+      postFormMetaElement.textContent = `新建文章 · Slug 预览：${slugInput.value}`;
+    } else if (!title) {
+      postFormMetaElement.textContent = '新建文章 · Slug 将自动从标题生成';
     }
     setPostFormDirty(true);
   };
@@ -498,6 +501,19 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
     }, '图片已插入正文，记得保存文章。', { refreshAfter: false });
   };
 
+  const showImageUploadIndicator = (visible: boolean): void => {
+    const existing = document.querySelector<HTMLElement>('[data-role="admin-image-upload-indicator"]');
+    if (visible && !existing && postContentTextarea?.parentElement) {
+      const indicator = document.createElement('div');
+      indicator.setAttribute('data-role', 'admin-image-upload-indicator');
+      indicator.className = 'admin-upload-indicator';
+      indicator.textContent = '正在上传图片…';
+      postContentTextarea.parentElement.insertBefore(indicator, postContentTextarea.nextSibling);
+    } else if (!visible && existing) {
+      existing.remove();
+    }
+  };
+
   const handleContentPaste = (event: ClipboardEvent): void => {
     const items = event.clipboardData?.items;
     if (!items) {
@@ -512,12 +528,15 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
           continue;
         }
 
+        showImageUploadIndicator(true);
         runPostAction(async () => {
           const uploaded = await adminUploadImage(token, file);
           const imageAlt = file.name ? file.name.replace(/\.[^./\\]+$/, '') : 'image';
           insertMarkdownAtCursor(`\n![${imageAlt}](${uploaded.url})\n`);
           setPostFormDirty(true);
-        }, '图片已粘贴并插入正文，记得保存文章。', { refreshAfter: false });
+        }, '图片已粘贴并插入正文，记得保存文章。', { refreshAfter: false }).finally(() => {
+          showImageUploadIndicator(false);
+        });
         return;
       }
     }

@@ -207,6 +207,7 @@ export const renderAdminPage: PageRenderer = (context) => {
           <aside class="admin-list-panel">
             <div class="admin-list-toolbar">
               <h2>友链列表</h2>
+              <input type="search" class="form-input" data-role="admin-friend-search" placeholder="搜索友链…" style="margin-top:6px;width:100%;" />
             </div>
             <ul class="admin-friend-list" data-role="admin-friend-list" aria-live="polite"></ul>
           </aside>
@@ -343,6 +344,17 @@ export const renderAdminPage: PageRenderer = (context) => {
             <button type="button" class="admin-btn admin-btn-ghost admin-media-filter-btn" data-role="admin-media-filter-btn" data-filter="all">全部</button>
             <button type="button" class="admin-btn admin-btn-ghost admin-media-filter-btn" data-role="admin-media-filter-btn" data-filter="referenced">已引用</button>
             <button type="button" class="admin-btn admin-btn-ghost admin-media-filter-btn" data-role="admin-media-filter-btn" data-filter="orphaned">未引用</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <select class="admin-select" data-role="admin-media-sort" style="height:32px;font-size:0.8125rem;">
+              <option value="created_at-desc">时间 ↓</option>
+              <option value="created_at-asc">时间 ↑</option>
+              <option value="size-desc">大小 ↓</option>
+              <option value="size-asc">大小 ↑</option>
+            </select>
+            <button type="button" class="admin-btn admin-btn-ghost" data-role="admin-media-upload-btn">上传图片</button>
+            <input type="file" accept="image/*" data-role="admin-media-upload-input" hidden />
+            <button type="button" class="admin-btn admin-btn-danger admin-btn-sm" data-role="admin-media-bulk-delete" hidden>删除选中</button>
           </div>
         </div>
         <div class="admin-media-grid" data-role="admin-media-grid" aria-live="polite"></div>
