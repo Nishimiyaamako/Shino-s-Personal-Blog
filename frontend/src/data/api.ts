@@ -32,7 +32,7 @@ function toApiUrl(path: string): string {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
   return `${API_BASE_URL}${normalizedPath}`;
 }
-
+#该无碍
 async function fetchJson<T>(url: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
   headers.set('accept', 'application/json');
@@ -150,15 +150,15 @@ export async function fetchFriendLinks(signal?: AbortSignal): Promise<FriendLink
 
   return Array.isArray(payload.items)
     ? payload.items.map((item) => {
-        const record = item as Record<string, unknown>;
+      const record = item as Record<string, unknown>;
 
-        return {
-          name: String(record.name ?? ''),
-          description: String(record.description ?? ''),
-          avatar: String(record.avatar ?? ''),
-          url: String(record.url ?? '')
-        } satisfies FriendLink;
-      })
+      return {
+        name: String(record.name ?? ''),
+        description: String(record.description ?? ''),
+        avatar: String(record.avatar ?? ''),
+        url: String(record.url ?? '')
+      } satisfies FriendLink;
+    })
     : [];
 }
 
@@ -167,13 +167,13 @@ export async function fetchProfileCard(signal?: AbortSignal): Promise<ProfileCar
 
   const contacts = Array.isArray(payload.contacts)
     ? payload.contacts.map((item) => {
-        const record = item as Record<string, unknown>;
-        return {
-          platform: String(record.platform ?? ''),
-          label: String(record.label ?? ''),
-          href: String(record.href ?? '')
-        };
-      })
+      const record = item as Record<string, unknown>;
+      return {
+        platform: String(record.platform ?? ''),
+        label: String(record.label ?? ''),
+        href: String(record.href ?? '')
+      };
+    })
     : [];
 
   return {
@@ -200,17 +200,17 @@ export async function searchPosts(queryText: string, limit = 10, signal?: AbortS
 
   return Array.isArray(payload.items)
     ? payload.items.map((item) => {
-        const record = item as Record<string, unknown>;
+      const record = item as Record<string, unknown>;
 
-        return {
-          slug: String(record.slug ?? ''),
-          title: String(record.title ?? ''),
-          summary: String(record.summary ?? ''),
-          tags: Array.isArray(record.tags) ? record.tags.map((tag) => String(tag)) : [],
-          snippet: String(record.snippet ?? ''),
-          publishedAt: String(record.publishedAt ?? '')
-        };
-      })
+      return {
+        slug: String(record.slug ?? ''),
+        title: String(record.title ?? ''),
+        summary: String(record.summary ?? ''),
+        tags: Array.isArray(record.tags) ? record.tags.map((tag) => String(tag)) : [],
+        snippet: String(record.snippet ?? ''),
+        publishedAt: String(record.publishedAt ?? '')
+      };
+    })
     : [];
 }
 
@@ -413,18 +413,18 @@ export async function adminListFriendLinks(token: string): Promise<AdminFriendLi
 
   return Array.isArray(payload.items)
     ? payload.items.map((item) => {
-        const record = item as Record<string, unknown>;
+      const record = item as Record<string, unknown>;
 
-        return {
-          id: Number(record.id ?? 0),
-          name: String(record.name ?? ''),
-          description: String(record.description ?? ''),
-          avatar: String(record.avatar ?? ''),
-          url: String(record.url ?? ''),
-          enabled: Boolean(record.enabled),
-          displayOrder: Number(record.displayOrder ?? 0)
-        };
-      })
+      return {
+        id: Number(record.id ?? 0),
+        name: String(record.name ?? ''),
+        description: String(record.description ?? ''),
+        avatar: String(record.avatar ?? ''),
+        url: String(record.url ?? ''),
+        enabled: Boolean(record.enabled),
+        displayOrder: Number(record.displayOrder ?? 0)
+      };
+    })
     : [];
 }
 
