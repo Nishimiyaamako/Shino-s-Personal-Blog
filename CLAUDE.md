@@ -54,7 +54,7 @@ Recommended local mental model:
 
 For detailed domain/port topology, use:
 
-- `docs/ai-workflow/ARCHITECTURE.md`
+- `.planning/codebase/ARCHITECTURE.md`
 
 ## Frontend Architecture
 
@@ -92,14 +92,17 @@ Main public/admin API groups:
 - Admin token is stored in browser localStorage key `shino.admin.token`.
 - Upload URLs are served via `/uploads/images/*` from backend.
 
-## AI Workflow Docs
+## Collaboration Docs (GSD)
 
-Use `docs/ai-workflow/` as the primary collaboration baseline:
+Use `.planning/codebase/` as the primary collaboration baseline:
 
-- `MEMORY.md` - Project long-term memory
-- `STOP_HOOKS.md` - Stop-point checks
-- `README.md` - Workflow usage
-- `ARCHITECTURE.md` - Domain/port routing topology
+- `ARCHITECTURE.md` - System architecture & domain/port topology
+- `STRUCTURE.md` - Project structure
+- `STACK.md` - Tech stack
+- `CONVENTIONS.md` - Coding conventions
+- `CONCERNS.md` - Concerns & risks
+- `INTEGRATIONS.md` - Integrations
+- `TESTING.md` - Testing guidelines
 
 ## Important Notes
 
