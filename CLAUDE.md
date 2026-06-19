@@ -39,9 +39,6 @@ cd backend && bun run typecheck && bun run test && bun run build && cd ../fronte
 ## Runtime Architecture
 
 - Current shape: **one SPA + one backend service**.
-- Frontend routes include admin entries:
-  - `/admin/login`
-  - `/admin`
 - Backend default port: `3001` (see `backend/src/config/env.ts`).
 - Vite dev proxy forwards `/api` and `/uploads` to backend target (default `http://127.0.0.1:3001`).
 - Admin login API: `POST /api/admin/auth/login`.
@@ -55,6 +52,62 @@ Recommended local mental model:
 For detailed domain/port topology, use:
 
 - `.planning/codebase/ARCHITECTURE.md`
+
+### Frontend Route Map
+
+| Route | Description |
+|---|---|
+| `/` | Home page |
+| `/posts` | Post listing |
+| `/posts/:slug` | Post detail |
+| `/tags` | Tag cloud |
+| `/tags/:tag` | Posts by tag |
+| `/archive` | Post archive |
+| `/friends` | Friend links |
+| `/about` | About page |
+| `/admin/login` | Admin login |
+| `/admin` | Admin dashboard |
+| `/admin/posts` | Post management |
+| `/admin/featured` | Featured post management |
+| `/admin/friends` | Friend link management |
+| `/admin/about` | About page editor |
+| `/admin/profile` | Profile card editor |
+| `/404` | Not found |
+
+### Backend API Map
+
+**Public API (`/api/*`):**
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/health` | Health check |
+| `GET` | `/api/posts` | List published posts |
+| `GET` | `/api/posts/:slug` | Post detail |
+| `GET` | `/api/home/featured` | Featured posts |
+| `GET` | `/api/friend-links` | Public friend links |
+| `GET` | `/api/about` | About page content |
+| `GET` | `/api/profile-card` | Profile card data |
+| `GET` | `/api/search` | Full-text search |
+
+**Admin API (`/api/admin/*`):**
+
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/api/admin/auth/login` | Admin login |
+| `GET/POST/PATCH/DELETE` | `/api/admin/posts` | Post CRUD |
+| `POST` | `/api/admin/posts/:id/publish` | Publish post |
+| `POST` | `/api/admin/posts/:id/unpublish` | Unpublish post |
+| `PATCH` | `/api/admin/posts/:id/featured` | Toggle featured |
+| `POST` | `/api/admin/uploads/image` | Upload image |
+| `GET/POST/PATCH/DELETE` | `/api/admin/friend-links` | Friend link CRUD |
+| `GET/PATCH` | `/api/admin/about` | Read/update about |
+| `GET/PATCH` | `/api/admin/profile-card` | Read/update profile card |
+
+**Static files:**
+
+| Path | Description |
+|---|---|
+| `GET /uploads/images/:fileName` | Uploaded images |
 
 ## Frontend Architecture
 
@@ -80,10 +133,7 @@ Backend code is organized as:
 - Scripts: `backend/src/scripts/*.ts`
 - Tests: `backend/src/__tests__/api.test.ts`
 
-Main public/admin API groups:
-
-- Public: `/api/health`, `/api/posts`, `/api/home/featured`, `/api/friend-links`, `/api/about`, `/api/profile-card`, `/api/search`
-- Admin: `/api/admin/auth/login`, `/api/admin/posts`, `/api/admin/friend-links`, `/api/admin/about`, `/api/admin/profile-card`, `/api/admin/uploads/image`
+See [Backend API Map](#backend-api-map) above for the full endpoint reference.
 
 ## Content & Security Notes
 
