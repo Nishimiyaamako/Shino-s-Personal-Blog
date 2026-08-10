@@ -1,0 +1,41 @@
+# Quality Guidelines
+
+> 前端代码质量规范与质量门。
+
+## Overview
+
+无 ESLint/Prettier/Biome 配置，格式约定靠纪律。质量门为 `cd frontend && bun run typecheck && bun run build`。无前端测试框架（已知缺口）。
+
+## Forbidden Patterns
+
+- **渲染函数内做事件绑定/副作用**：页面必须纯渲染，交互走 Features 层 hydration
+- **组件内直接 fetch API**：数据通过 `data/` 层包装，组件只接收 typed 数据
+- **引入前端框架或状态库**（React/Vue/Svelte、Redux 等）：保持 Vanilla 模式
+- **新增 `window.prompt()`/`window.confirm()` 破坏性确认**（已知 UX 债务）：用样式化的 dialog 方案
+- **手动改 `global.css` 级联顺序之外新增样式入口**：样式必须从 manifest 级联导入
+- **路由表外挂页面**：新页面必须在 `router/index.ts` 的 `ROUTE_RECORDS` 注册
+
+## Required Patterns
+
+- **strict 模式**：所有新代码通过 `tsc --noEmit`
+- **PageRenderer 签名**：`(context: PageRenderContext) => string`
+- **setup 函数返回 teardown**：`(() => void) | null`，页面切换时清理
+- **API 统一走 `data/api.ts`**：typed `fetchJson<T>` + Bearer 头（`getAdminAuthHeaders()`）
+- **token 存储**：`localStorage['shino.admin.token']`（勿改动键名）
+- **导入顺序**：types → config/constants → data → components → features；样式只在入口导入
+- **格式**：无分号、单引号、2 空格缩进
+- **样式命名**：公开 kebab-case；admin 加 `admin-` 前缀
+
+## Testing Requirements
+
+- 前端暂无测试框架；改动后至少手动验证：页面渲染、hydration 行为、admin 关键流程（登录/保存/发布）
+- 若添加测试：优先 admin 关键流冒烟测试
+
+## Code Review Checklist
+
+- [ ] 页面/行为分离正确（无渲染函数副作用）
+- [ ] API 调用走 data 层，类型镜像同步
+- [ ] 未引入新框架/库
+- [ ] 样式遵循 manifest 级联
+- [ ] admin 破坏性操作有确认交互
+- [ ] 通过 typecheck 与 build

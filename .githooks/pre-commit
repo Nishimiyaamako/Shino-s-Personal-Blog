@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# pre-commit — 提交前自动重生成根 llms.txt 索引。
+#
+# 1. cd 到仓库根；
+# 2. 运行 tools/gen-file-index.sh（幂等）重生成 llms.txt；
+# 3. 若 llms.txt 有变更则 git add，保持最新索引进入本次提交；
+# 4. 任一环节失败则以非零退出阻止提交。
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$REPO_ROOT"
+
+if ! tools/gen-file-index.sh; then
+  echo "pre-commit: tools/gen-file-index.sh 执行失败，中止提交" >&2
+  exit 1
+fi
+
+# 索引有变更则纳入本次提交（llms.txt 由脚本生成，禁止手改）
+if ! git diff --quiet -- llms.txt; then
+  git add llms.txt
+fi
+
+exit 0

@@ -3,3 +3,5 @@ opencode.json
 .claude
 .planning
 .codex
+# Runtime / tooling state (never commit)
+.omo/
