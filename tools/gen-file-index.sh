@@ -8,6 +8,7 @@
 # 无 frontmatter 的文件降级用标题行。
 # 输出：根 llms.txt（# <仓库名> + 一行简介 + ## 文档目录 + 逐行条目，按路径排序）。
 # 注意：llms.txt 为生成产物，禁止手改；由 .githooks/pre-commit 钩子自动调用。
+# 提示：llms.txt 首次生成（未跟踪）时钩子的 git diff 不报未跟踪文件变更，需手动 git add llms.txt 一次。
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

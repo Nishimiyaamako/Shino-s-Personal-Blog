@@ -53,6 +53,7 @@ Managed by Trellis. Edits outside this block are preserved; edits inside may be 
 ## 维护纪律
 
 - `llms.txt` 由 pre-commit 钩子自动重生成，禁止手改。
+- `llms.txt` 首次生成（未跟踪）时钩子不会自动 add，需手动 `git add llms.txt` 一次。
 - 提交前在仓库根运行自检三命令（见文末自检清单）。
 - 克隆后需执行 `git config core.hooksPath .githooks`，否则钩子不生效。
 - 后端 `.env`、`backend/data/`、`backend/uploads/` 均不入库（各自 .gitignore 兜底）。
@@ -66,6 +67,7 @@ Managed by Trellis. Edits outside this block are preserved; edits inside may be 
 - 环境事实与操作手册归 `docs/`；计划与任务归 `.trellis/tasks/`；一次性内容不落 `docs/`，同一内容不得两处并存。
 - 部署手册正文集中在 `docs/kb/deploy-ops.md`；`deploy/` 只保留脚本/模板等可执行资产与指向手册的链接。
 - 旧协作文档（CLAUDE.md、.planning/、plans/）已拆分归纳进 `.trellis/spec/` 与 `docs/`，不得重新引入。
+- `.opencode/` 不维护：Trellis 平台适配已全局化于 `~/.config/opencode/`，`trellis init` 生成的项目副本会覆盖全局自定义，init 后立即删除。
 
 ## 待核验标记
 

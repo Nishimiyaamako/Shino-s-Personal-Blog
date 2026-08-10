@@ -2,7 +2,6 @@
 type: conventions
 updated: 2026-08-10
 ---
-
 # Shino's Bolg 仓库约定
 
 本文档定义本仓库的文档组织、frontmatter schema、命名规则、边界规则、凭据红线、待核验标记约定、文件查询机制与自检清单。本仓库是 Shino's Bolg 个人博客全栈代码项目，采用 Trellis harness 驱动任务。所有新增或修改的文档必须遵守本文档；本文档是 AGENTS.md 的约定依据。
@@ -47,6 +46,7 @@ docs/ 下的 Markdown 文档必须以 `---` 开头并携带 YAML frontmatter。�
 - 环境事实与操作手册归 `docs/kb/`；计划与任务归 `.trellis/tasks/`；一次性内容不落 `docs/`，同一内容不得两处并存。
 - 部署手册正文集中在 `docs/kb/deploy-ops.md`；`deploy/` 只保留脚本/模板等可执行资产与指向手册的链接。
 - 旧协作文档（CLAUDE.md、.planning/、plans/、docs/ARCHITECTURE.zh-CN.md）已拆分归纳进 `.trellis/spec/` 与 `docs/`，不得重新引入。
+- **`.opencode/` 不维护**：Trellis OpenCode 平台适配已全局化于 `~/.config/opencode/`（agents/commands/lib/plugins/skills）。`trellis init` 生成的项目 `.opencode/` 副本会**覆盖**全局同名文件（丢失 model/variant 自定义、缺全局插件），init 后应立即删除（.gitignore 已忽略 `.opencode`）。
 
 ## ⑤ 凭据红线
 
@@ -60,7 +60,13 @@ docs/ 下的 Markdown 文档必须以 `---` 开头并携带 YAML frontmatter。�
 
 未决的待核验标记不得随文档提交入库。
 
-## ⑦ 自检清单
+## ⑦ 索引纪律
+
+- `llms.txt` 由 pre-commit 钩子自动重生成，禁止手改。
+- **首次入库需手动 add**：钩子用 `git diff --quiet -- llms.txt` 判断变更，对**未跟踪**文件不报差异，导致新生成的 llms.txt 不会被自动加入首个提交——首次出现该文件时手动 `git add llms.txt` 一次，之后钩子正常维护。
+- 钩子脚本 `tools/gen-file-index.sh` 遍历 `git ls-files '*.md'` 时跳过工作区不存在的文件（已删除未提交），勿移除该守卫。
+
+## ⑧ 自检清单
 
 提交前在仓库根运行：
 
