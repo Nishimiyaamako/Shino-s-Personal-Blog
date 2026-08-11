@@ -1,10 +1,13 @@
 use sqlx::postgres::PgPoolOptions;
 use sqlx::PgPool;
 
-/// 共享应用状态（连接池）
+use crate::config::Config;
+
+/// 共享应用状态（连接池 + 运行时配置）
 #[derive(Clone)]
 pub struct AppState {
     pub pool: PgPool,
+    pub config: Config,
 }
 
 /// 初始化连接池并执行 SQLx 迁移（内嵌 sql/migrations/）

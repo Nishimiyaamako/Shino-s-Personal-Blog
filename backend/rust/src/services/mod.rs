@@ -1,5 +1,6 @@
 pub mod about;
 pub mod friends;
+pub mod media;
 pub mod posts;
 pub mod profile;
 pub mod search;

@@ -1,6 +1,7 @@
 use sqlx::{FromRow, PgPool};
 
-use crate::models::ApiSiteConfig;
+use crate::error::ServiceError;
+use crate::models::{now_iso, ApiSiteConfig, SiteConfigPatch};
 
 #[derive(Debug, FromRow)]
 struct SiteConfigRow {
@@ -57,5 +58,125 @@ pub async fn get_site_config(pool: &PgPool) -> Result<ApiSiteConfig, sqlx::Error
             friend_link_template: r.friend_link_template,
         },
         None => default_site_config(),
+    })
+}
+
+// ---------- M2：管理 API ----------
+
+/// 更新站点配置：PATCH /api/admin/site-config（对齐 updateSiteConfig：与当前值合并 + trim + upsert）
+pub async fn update_site_config(
+    pool: &PgPool,
+    patch: SiteConfigPatch,
+) -> Result<ApiSiteConfig, ServiceError> {
+    let current = get_site_config(pool).await?;
+
+    let site_title = patch
+        .site_title
+        .as_deref()
+        .unwrap_or(&current.site_title)
+        .trim()
+        .to_string();
+    let site_subtitle = patch
+        .site_subtitle
+        .as_deref()
+        .unwrap_or(&current.site_subtitle)
+        .trim()
+        .to_string();
+    let slogan = patch
+        .slogan
+        .as_deref()
+        .unwrap_or(&current.slogan)
+        .trim()
+        .to_string();
+    let copyright_owner = patch
+        .copyright_owner
+        .as_deref()
+        .unwrap_or(&current.copyright_owner)
+        .trim()
+        .to_string();
+    let powered_by = patch
+        .powered_by
+        .as_deref()
+        .unwrap_or(&current.powered_by)
+        .trim()
+        .to_string();
+    let icp_record_text = patch
+        .icp_record_text
+        .as_deref()
+        .unwrap_or(&current.icp_record_text)
+        .trim()
+        .to_string();
+    let icp_record_url = patch
+        .icp_record_url
+        .as_deref()
+        .unwrap_or(&current.icp_record_url)
+        .trim()
+        .to_string();
+    let public_security_record_text = patch
+        .public_security_record_text
+        .as_deref()
+        .unwrap_or(&current.public_security_record_text)
+        .trim()
+        .to_string();
+    let public_security_record_url = patch
+        .public_security_record_url
+        .as_deref()
+        .unwrap_or(&current.public_security_record_url)
+        .trim()
+        .to_string();
+    let friend_link_template = patch
+        .friend_link_template
+        .as_deref()
+        .unwrap_or(&current.friend_link_template)
+        .trim()
+        .to_string();
+
+    if site_title.is_empty() {
+        return Err(ServiceError::BadRequest("站点标题不能为空".into()));
+    }
+
+    sqlx::query(
+        "INSERT INTO site_config (id, site_title, site_subtitle, slogan, copyright_owner, powered_by,
+                                  icp_record_text, icp_record_url, public_security_record_text,
+                                  public_security_record_url, friend_link_template, updated_at)
+         VALUES (1, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+         ON CONFLICT (id) DO UPDATE SET
+           site_title = EXCLUDED.site_title,
+           site_subtitle = EXCLUDED.site_subtitle,
+           slogan = EXCLUDED.slogan,
+           copyright_owner = EXCLUDED.copyright_owner,
+           powered_by = EXCLUDED.powered_by,
+           icp_record_text = EXCLUDED.icp_record_text,
+           icp_record_url = EXCLUDED.icp_record_url,
+           public_security_record_text = EXCLUDED.public_security_record_text,
+           public_security_record_url = EXCLUDED.public_security_record_url,
+           friend_link_template = EXCLUDED.friend_link_template,
+           updated_at = EXCLUDED.updated_at",
+    )
+    .bind(&site_title)
+    .bind(&site_subtitle)
+    .bind(&slogan)
+    .bind(&copyright_owner)
+    .bind(&powered_by)
+    .bind(&icp_record_text)
+    .bind(&icp_record_url)
+    .bind(&public_security_record_text)
+    .bind(&public_security_record_url)
+    .bind(&friend_link_template)
+    .bind(now_iso())
+    .execute(pool)
+    .await?;
+
+    Ok(ApiSiteConfig {
+        site_title,
+        site_subtitle,
+        slogan,
+        copyright_owner,
+        powered_by,
+        icp_record_text,
+        icp_record_url,
+        public_security_record_text,
+        public_security_record_url,
+        friend_link_template,
     })
 }

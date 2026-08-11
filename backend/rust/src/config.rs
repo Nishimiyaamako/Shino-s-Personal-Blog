@@ -10,17 +10,11 @@ pub struct Config {
     /// Postgres 连接串（新键名 DATABASE_URL）
     pub database_url: String,
     /// 上传根目录（旧键名 UPLOADS_ROOT）
-    #[allow(dead_code)] // M2 使用
     pub uploads_root: String,
-    #[allow(dead_code)] // M2 使用
     pub node_env: String,
-    #[allow(dead_code)] // M2 使用
     pub admin_username: String,
-    #[allow(dead_code)] // M2 使用
     pub admin_password: String,
-    #[allow(dead_code)] // M2 使用
     pub admin_jwt_secret: String,
-    #[allow(dead_code)] // M2 使用
     pub admin_jwt_expires_hours: u64,
 }
 
