@@ -79,7 +79,7 @@ psql 'postgres://shino_blog:<凭据位置>@127.0.0.1:5432/shino_blog' -c 'SELECT
 
 > 连接串示例：`postgres://user:pass@host:5432/shino_blog`（密码含特殊字符时 URL 编码）。
 
-**建表**：后端首次启动自动执行 SQLx 迁移（`backend/rust/sql/migrations/`），无需手动建表；也可 `cargo run --bin migrate` 预先执行（若提供该子命令）。
+**建表**：后端首次启动自动执行 SQLx 迁移（`backend/rust/sql/migrations/`），无需手动建表；迁移工具 `migrate-data` 启动时也会确保 schema 就绪（见 ⑤）。
 
 ## ④ 环境变量（/opt/shino-blog/env/backend.env）
 
@@ -120,14 +120,17 @@ mkdir -p /opt/shino-blog/backups
 TS="$(date +%F-%H%M%S)"
 cp /opt/shino-blog/data/blog.sqlite "/opt/shino-blog/backups/blog.sqlite.${TS}.bak"
 
-# 3. 执行迁移（读 SQLite 写 PG；需 DATABASE_URL 与 SQLite 路径可用）
+# 3. 执行迁移（位置参数：<SQLITE_PATH> <DATABASE_URL>；可选第 3 参数 VERIFY_PASSWORD）
 cd /opt/shino-blog/backend/rust
-DATABASE_URL='postgres://...' \
-SQLITE_PATH='/opt/shino-blog/data/blog.sqlite' \
-cargo run --release --bin migrate-data
+cargo run --release --bin migrate-data -- \
+  /opt/shino-blog/data/blog.sqlite \
+  'postgres://user:pass@host:5432/shino_blog'
+# 输出末尾「迁移完成，校验通过」即成功（exit 0）；「校验失败」→ exit 1，走回滚路径（⑨）
 ```
 
-**校验报告解读**：脚本输出逐表 count 对比（SQLite vs PG，期望一致）+ 抽样字段比对清单（每表 N 行）+ slogan 默认 `''` 确认 + 精选数据丢弃确认（旧 is_featured 数据不迁移）。**计数不一致或抽样内容不符时停止上线，走回滚路径（⑨）。**
+**校验报告解读**：脚本输出逐表 count 对比（SQLite vs PG，期望一致）+ 抽样字段比对清单（每表 N 行）+ slogan 默认 `''` 确认 + 精选数据丢弃确认（旧 is_featured 数据不迁移）+ 密码哈希格式校验（PHC 可解析 = 兼容 argon2 生态，无需重哈希）。**计数不一致或抽样内容不符时停止上线，走回滚路径（⑨）。**
+
+> 密码哈希真实验证：可选第 3 参数传密码做 argon2 验证（演练/测试用）；生产勿在命令行传真实密码（ps 可见），缺省格式校验足够，迁移后首次登录即可确证。
 
 ## ⑥ 部署（systemd + nginx）
 

@@ -1,7 +1,7 @@
 //! M3：SQLite → Postgres 数据迁移工具（一次性，幂等可重跑）
 //!
 //! 用法:
-//!   cargo run --bin migrate-data -- <SQLITE_PATH> <DATABASE_URL>
+//!   cargo run --bin migrate-data -- <SQLITE_PATH> <DATABASE_URL> [VERIFY_PASSWORD]
 //!
 //! 行为:
 //!   1. 备份快照：迁移前将 SQLite 文件复制为同目录 `<file>.<UTC时间戳>`（回滚用）
@@ -16,7 +16,12 @@
 //!      - 时间戳 TEXT ISO 8601 原样复制；media_assets.url 相对路径不变
 //!   5. 重建 posts_search 全文镜像（仅 published，tags 空格连接，对齐旧 rebuildSearchIndex）
 //!   6. 校验报告：逐表 count 对比 + 抽样字段级比对 + 专项断言
-//!      （featured 未迁移 / slogan=='' / enabled boolean / 密码哈希 argon2 可验证 / FTS 行数）
+//!      （featured 未迁移 / slogan=='' / enabled boolean / 密码哈希 argon2 兼容 / FTS 行数）
+//!
+//! 密码哈希校验：可选第 3 参数 <VERIFY_PASSWORD> 提供时做真实 argon2 验证（演练/测试用）；
+//! 缺省时仅校验 PHC 格式可解析（证明哈希兼容 argon2 生态，无需重哈希）。
+//! 生产迁移请勿在命令行传真实密码（ps 可见）——缺省格式校验已足够；
+//! 如确需真实验证，用一次性环境变量或迁移后首次登录验证。
 //!
 //! 退出码：0 校验通过；1 校验失败；2 用法错误
 
@@ -208,12 +213,13 @@ const CHECKS: &[TableCheck] = &[
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let args: Vec<String> = std::env::args().collect();
-    if args.len() != 3 {
-        eprintln!("用法: migrate-data <SQLITE_PATH> <DATABASE_URL>");
+    if !(3..=4).contains(&args.len()) {
+        eprintln!("用法: migrate-data <SQLITE_PATH> <DATABASE_URL> [VERIFY_PASSWORD]");
         std::process::exit(2);
     }
     let sqlite_path = &args[1];
     let database_url = &args[2];
+    let verify_password = args.get(3);
 
     // 1. 备份快照（先于打开源文件，保证副本为迁移前状态）
     let snapshot = backup_snapshot(sqlite_path)?;
@@ -360,23 +366,40 @@ async fn main() -> anyhow::Result<()> {
         fail_list.push("friend_links.enabled 非 boolean".into());
     }
 
-    // 7.4 密码哈希：argon2 可验证既有 argon2id 哈希（原样复制，无需重哈希）
+    // 7.4 密码哈希：argon2 兼容性校验（哈希原样复制，无需重哈希）
+    //  - 提供 VERIFY_PASSWORD 时做真实 argon2 验证（演练/测试用）
+    //  - 缺省时仅校验 PHC 格式可解析：$argon2id$... 可解析即证明兼容 argon2 生态
+    //    （bcrypt $2y$ / 明文等非 PHC 格式会解析失败 → FAIL）
     let hash: String = sqlx::query_scalar(
         "SELECT password_hash FROM admin_users WHERE username = 'admin' LIMIT 1",
     )
     .fetch_one(&pool)
     .await?;
-    let parsed = PasswordHash::new(&hash)
-        .map_err(|e| anyhow::anyhow!("password_hash 格式无法解析: {e:?}"))?;
-    let verify_ok = Argon2::default()
-        .verify_password(b"admin123", &parsed)
-        .is_ok();
-    if verify_ok {
-        println!("密码哈希验证: PASS（argon2id，'admin123' 可验证，哈希原样复制无需重哈希）");
-    } else {
-        ok = false;
-        println!("密码哈希验证: FAIL（现有哈希无法用 argon2 验证 'admin123'）");
-        fail_list.push("密码哈希验证失败".into());
+    match PasswordHash::new(&hash) {
+        Ok(parsed) => {
+            match verify_password {
+                Some(pw) => {
+                    let verify_ok = Argon2::default()
+                        .verify_password(pw.as_bytes(), &parsed)
+                        .is_ok();
+                    if verify_ok {
+                        println!("密码哈希验证: PASS（argon2id，提供的密码可验证，哈希原样复制无需重哈希）");
+                    } else {
+                        ok = false;
+                        println!("密码哈希验证: FAIL（提供的密码无法用 argon2 验证现有哈希）");
+                        fail_list.push("密码哈希验证失败".into());
+                    }
+                }
+                None => {
+                    println!("密码哈希格式: PASS（PHC 格式可解析，兼容 argon2 生态，无需重哈希）；未提供 VERIFY_PASSWORD，跳过实际密码验证");
+                }
+            }
+        }
+        Err(e) => {
+            ok = false;
+            println!("密码哈希格式: FAIL（无法解析为 argon2 PHC 哈希: {e:?}——迁移后登录将失败）");
+            fail_list.push("password_hash 非 argon2 PHC 格式".into());
+        }
     }
 
     // 7.5 posts_search 行数与旧 FTS5 一致（published 篇数）
