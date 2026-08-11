@@ -1,0 +1,40 @@
+# Shino's Bolg 后端 systemd 单元（Rust / Axum + Postgres）
+#
+# 安装步骤（服务器上执行）：
+#   sudo cp deploy/systemd/shino-blog-backend.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now shino-blog-backend
+#
+# 前置条件：
+#   - 二进制已构建：/opt/shino-blog/backend/rust/target/release/shino-blog-backend
+#   - 环境文件：/opt/shino-blog/env/backend.env（见 docs/kb/deploy-ops.md ②）
+#   - Postgres 已初始化并创建 shino_blog 库（见 docs/kb/deploy-ops.md ③）
+#   - User= 按服务器现状调整（本单元默认 shino-blog 系统用户，需先创建）
+#     sudo useradd --system --home /opt/shino-blog --shell /usr/sbin/nologin shino-blog
+#     sudo chown -R shino-blog:shino-blog /opt/shino-blog
+
+[Unit]
+Description=Shino's Bolg backend (Rust / Axum + Postgres)
+# postgresql.service 仅在服务器本机跑 PG 时生效；云 PG 无此单元，After= 自动忽略
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=shino-blog
+Group=shino-blog
+EnvironmentFile=/opt/shino-blog/env/backend.env
+WorkingDirectory=/opt/shino-blog/backend/rust
+ExecStart=/opt/shino-blog/backend/rust/target/release/shino-blog-backend
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+
+# 可选硬化（按服务器现状评估后逐项开启）：
+# ProtectSystem=strict
+# ReadWritePaths=/opt/shino-blog/uploads
+# PrivateTmp=true
+# ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

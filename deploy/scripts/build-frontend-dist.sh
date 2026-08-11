@@ -33,4 +33,4 @@ cp "$ARCHIVE_PATH" "$LATEST_ARCHIVE_PATH"
 
 echo "Build done: $ARCHIVE_PATH"
 echo "Latest alias: $LATEST_ARCHIVE_PATH"
-echo "Upload tip: 在 1Panel 站点根目录解压该归档，确保 index.html 位于网站根目录。"
+echo "Upload tip: 在服务器 /opt/shino-blog/frontend-dist 解压该归档（nginx root 指向该目录），确保 index.html 位于根目录。"

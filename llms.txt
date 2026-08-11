@@ -5,6 +5,6 @@ Shino s Blog 全栈个人博客项目文件系统索引，由 pre-commit 钩子�
 ## 文档目录
 
 [conventions|2026-08-10] docs/conventions.md — Shino's Bolg 仓库约定
-[kb-ops|2026-08-10] docs/kb/deploy-ops.md — 部署与运维手册（1Panel）
-[kb-ops|2026-08-10] docs/kb/integrations.md — 外部集成与运行时依赖
+[kb-ops|2026-08-11] docs/kb/deploy-ops.md — 部署与运维手册（Rust 后端版）
+[kb-ops|2026-08-11] docs/kb/integrations.md — 外部集成与运行时依赖
 frontend/src/styles/README.md — Styles README
