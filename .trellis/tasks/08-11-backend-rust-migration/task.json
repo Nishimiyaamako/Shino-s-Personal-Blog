@@ -3,7 +3,7 @@
   "name": "backend-rust-migration",
   "title": "后端：Rust(Axum+Postgres) 迁移",
   "description": "Axum + SQLx + Postgres API 兼容重写；SQLite→PG 数据迁移；systemd+nginx 部署",
-  "status": "planning",
+  "status": "in_progress",
   "dev_type": null,
   "scope": null,
   "package": null,
