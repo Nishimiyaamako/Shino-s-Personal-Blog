@@ -11,6 +11,12 @@ type FriendImportField = 'name' | 'description' | 'avatar' | 'url';
 
 const FRIEND_IMPORT_FIELDS: FriendImportField[] = ['name', 'description', 'avatar', 'url'];
 
+const FRIEND_REQUIRED_FIELDS: Array<{ name: string; label: string }> = [
+  { name: 'name', label: '名称' },
+  { name: 'avatar', label: '头像链接' },
+  { name: 'url', label: '跳转链接' }
+];
+
 function extractCodeBlockContent(rawSnippet: string): string {
   const normalized = rawSnippet.trim();
   const fencedBlock = normalized.match(/```[^\n]*\n([\s\S]*?)```/);
@@ -156,6 +162,30 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
     onDirtyChange?.(nextDirty);
   };
 
+  const validateFriendForm = (): boolean => {
+    let firstInvalidLabel = '';
+
+    for (const field of FRIEND_REQUIRED_FIELDS) {
+      const input = friendForm.elements.namedItem(field.name) as HTMLInputElement | null;
+      if (!input) {
+        continue;
+      }
+      const valid = input.value.trim().length > 0;
+      input.classList.toggle('is-invalid', !valid);
+      if (!valid && !firstInvalidLabel) {
+        firstInvalidLabel = field.label;
+        input.focus();
+      }
+    }
+
+    if (firstInvalidLabel) {
+      setMessage(friendErrorElement, `请填写「${firstInvalidLabel}」。`, { error: true });
+      return false;
+    }
+
+    return true;
+  };
+
   const confirmDiscardDraft = (actionLabel: string): boolean => {
     if (!formDirty) {
       return true;
@@ -246,6 +276,10 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
       return;
     }
 
+    if (!validateFriendForm()) {
+      return;
+    }
+
     setBusy(true);
     setMessage(friendErrorElement, '');
     setMessage(friendSuccessElement, '');
@@ -330,6 +364,10 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
   const handleFriendFormInput = (event: Event): void => {
     if (event.target === friendImportInput) {
       return;
+    }
+
+    if (event.target instanceof HTMLElement) {
+      event.target.classList.remove('is-invalid');
     }
 
     setFormDirty(true);

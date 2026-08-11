@@ -47,7 +47,8 @@
 .admin-post-form label>span,
 .admin-friend-form label>span,
 .admin-about-form label>span,
-.admin-profile-form label>span {
+.admin-profile-form label>span,
+.admin-settings-form label>span {
     font-size: 12px;
     font-weight: 500;
     color: var(--admin-text-subtle);
@@ -720,6 +721,40 @@
     display: flex;
     gap: 4px;
     flex-shrink: 0;
+}
+
+.admin-friend-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.admin-friend-status-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.4;
+    padding: 1px 8px;
+    border-radius: 999px;
+    flex-shrink: 0;
+}
+
+.admin-friend-status-badge.is-enabled {
+    color: var(--admin-success);
+    background: var(--admin-success-soft);
+}
+
+.admin-friend-status-badge.is-disabled {
+    color: var(--admin-text-subtle);
+    background: var(--admin-surface-muted);
+}
+
+/* ─── 表单校验失败（F2/S1 统一） ─── */
+.admin-friend-form input.is-invalid,
+.admin-settings-form input.is-invalid,
+.admin-settings-form textarea.is-invalid {
+    border-color: var(--admin-danger);
+    box-shadow: 0 0 0 2px var(--admin-danger-soft);
 }
 
 /* ─── Posts Workspace ─── */

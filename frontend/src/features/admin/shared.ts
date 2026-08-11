@@ -232,7 +232,10 @@ export function renderFriendList(links: AdminFriendLink[]): string {
       <div>
         <strong class="admin-truncate">${escapeHtml(link.name)}</strong>
         <small class="admin-truncate">${escapeHtml(link.url)}</small>
-        <small>${link.enabled ? '已启用' : '已停用'} · 排序 ${link.displayOrder}</small>
+        <span class="admin-friend-meta">
+          <span class="admin-friend-status-badge${link.enabled ? ' is-enabled' : ' is-disabled'}">${link.enabled ? '已启用' : '已停用'}</span>
+          <small>排序 ${link.displayOrder}</small>
+        </span>
       </div>
       <div class="admin-inline-actions">
         <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-role="admin-friend-edit" data-friend-id="${link.id}">编辑</button>

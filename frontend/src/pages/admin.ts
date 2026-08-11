@@ -198,7 +198,7 @@ export const renderAdminPage: PageRenderer = (context) => {
             <ul class="admin-friend-list" data-role="admin-friend-list" aria-live="polite"></ul>
           </aside>
           <div class="admin-editor-panel">
-            <form class="admin-friend-form" data-role="admin-friend-form">
+            <form class="admin-friend-form" data-role="admin-friend-form" novalidate>
               <div class="admin-editor-head">
                 <h2 data-role="admin-friend-form-title">新建友链</h2>
                 <p class="admin-editor-meta" data-role="admin-friend-form-meta">填写后保存即可在前台展示</p>
@@ -264,7 +264,7 @@ export const renderAdminPage: PageRenderer = (context) => {
           <fieldset class="admin-about-fieldset">
             <legend>事件时间线</legend>
             <label><span>时间线标题</span><input type="text" name="timelineTitle" placeholder="例如：事件表" /></label>
-            <div data-role="admin-about-timeline-list" style="margin-top:0.75rem"><!-- dynamic --></div>
+            <div class="admin-about-timeline-list" data-role="admin-about-timeline-list"><!-- dynamic --></div>
             <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-role="admin-about-add-timeline">添加事件</button>
           </fieldset>
 

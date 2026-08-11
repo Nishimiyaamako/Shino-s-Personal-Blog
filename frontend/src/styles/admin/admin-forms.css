@@ -13,22 +13,14 @@
 .admin-post-form label,
 .admin-friend-form label,
 .admin-about-form label,
-.admin-profile-form label {
+.admin-profile-form label,
+.admin-settings-form label {
     display: flex;
     flex-direction: column;
     gap: 5px;
 }
 
-.admin-post-form label>span,
-.admin-friend-form label>span,
-.admin-about-form label>span,
-.admin-profile-form label>span {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--admin-text-subtle, #6b6b6b);
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-}
+/* label>span 字体样式已归并至 admin-core.css 统一选择器组（G4） */
 
 /* ─── Form Inputs ─── */
 .admin-post-form input[type="text"],
@@ -40,15 +32,16 @@
 .admin-friend-form select,
 .admin-about-form input,
 .admin-profile-form input,
-.admin-profile-form select {
+.admin-profile-form select,
+.admin-settings-form input[type="text"] {
     width: 100%;
     padding: 8px 12px;
-    border: 1px solid var(--admin-border, #e8e8e8);
+    border: 1px solid var(--admin-border);
     border-radius: 6px;
-    background: var(--admin-surface, #ffffff);
+    background: var(--admin-surface);
     font: inherit;
     font-size: 14px;
-    color: var(--admin-text, #1a1a1a);
+    color: var(--admin-text);
     outline: none;
     transition: border-color 200ms ease, box-shadow 200ms ease;
     min-height: 38px;
@@ -60,29 +53,32 @@
 .admin-friend-form select:focus,
 .admin-about-form input:focus,
 .admin-profile-form input:focus,
-.admin-profile-form select:focus {
-    border-color: var(--admin-accent, var(--rose-500));
-    box-shadow: 0 0 0 3px var(--admin-accent-soft, color-mix(in oklch, var(--rose-500) 10%, transparent));
+.admin-profile-form select:focus,
+.admin-settings-form input:focus {
+    border-color: var(--admin-accent);
+    box-shadow: 0 0 0 3px var(--admin-accent-soft);
 }
 
 .admin-post-form input::placeholder,
 .admin-friend-form input::placeholder,
-.admin-profile-form input::placeholder {
-    color: var(--admin-text-muted, #c0c0c0);
+.admin-profile-form input::placeholder,
+.admin-settings-form input::placeholder {
+    color: var(--admin-text-muted);
 }
 
 /* ─── Form Textareas ─── */
 .admin-friend-form textarea,
 .admin-about-form textarea,
-.admin-profile-form textarea {
+.admin-profile-form textarea,
+.admin-settings-form textarea {
     width: 100%;
     padding: 10px 12px;
-    border: 1px solid var(--admin-border, #e8e8e8);
+    border: 1px solid var(--admin-border);
     border-radius: 6px;
-    background: var(--admin-surface, #ffffff);
+    background: var(--admin-surface);
     font: inherit;
     font-size: 14px;
-    color: var(--admin-text, #1a1a1a);
+    color: var(--admin-text);
     resize: vertical;
     outline: none;
     transition: border-color 200ms ease, box-shadow 200ms ease;
@@ -91,9 +87,17 @@
 
 .admin-friend-form textarea:focus,
 .admin-about-form textarea:focus,
-.admin-profile-form textarea:focus {
-    border-color: var(--admin-accent, var(--rose-500));
-    box-shadow: 0 0 0 3px var(--admin-accent-soft, color-mix(in oklch, var(--rose-500) 10%, transparent));
+.admin-profile-form textarea:focus,
+.admin-settings-form textarea:focus {
+    border-color: var(--admin-accent);
+    box-shadow: 0 0 0 3px var(--admin-accent-soft);
+}
+
+/* ─── 友链模板（settings）等宽字体 ─── */
+.admin-settings-form textarea[name="friendLinkTemplate"] {
+    font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
 }
 
 /* ─── Friend Import Section ─── */
@@ -142,17 +146,20 @@
     .admin-about-form input,
     .admin-profile-form input,
     .admin-profile-form select,
+    .admin-settings-form input,
     .admin-friend-form textarea,
     .admin-about-form textarea,
-    .admin-profile-form textarea {
-        background: var(--admin-surface, #171a20);
-        color: var(--admin-text, #eceff4);
+    .admin-profile-form textarea,
+    .admin-settings-form textarea {
+        background: var(--admin-surface);
+        color: var(--admin-text);
     }
 
     .admin-post-form input::placeholder,
     .admin-friend-form input::placeholder,
-    .admin-profile-form input::placeholder {
-        color: var(--admin-text-muted, #556170);
+    .admin-profile-form input::placeholder,
+    .admin-settings-form input::placeholder {
+        color: var(--admin-text-muted);
     }
 }
 
@@ -589,4 +596,19 @@
 .admin-about-timeline-row input:focus {
     outline: none;
     border-color: var(--admin-accent);
+}
+
+.admin-about-timeline-list {
+    margin-top: 0.75rem;
+}
+
+@media (max-width: 640px) {
+    .admin-about-timeline-row {
+        flex-wrap: wrap;
+    }
+
+    .admin-about-timeline-row input[data-role="admin-about-timeline-date"] {
+        width: 100%;
+        flex-shrink: 1;
+    }
 }
