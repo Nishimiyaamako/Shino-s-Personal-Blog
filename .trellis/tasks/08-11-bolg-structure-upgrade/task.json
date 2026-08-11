@@ -1,0 +1,30 @@
+{
+  "id": "bolg-structure-upgrade",
+  "name": "bolg-structure-upgrade",
+  "title": "Bolg 结构升级：landing + admin UI 重构 + 后端 Rust/Postgres 迁移",
+  "description": "父任务：三交付物（landing 博客路由 / admin UI 重构 / Rust 后端迁移）独立规划与验收",
+  "status": "planning",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P1",
+  "creator": "Nishimiyaamako",
+  "assignee": "Nishimiyaamako",
+  "createdAt": "2026-08-11",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "08-11-frontend-landing-blog-routing",
+    "08-11-admin-ui-polish",
+    "08-11-backend-rust-migration"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}

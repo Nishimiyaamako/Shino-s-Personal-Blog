@@ -2,3 +2,5 @@ node_modules
 dist
 data
 uploads/images
+.env
+rust/target
