@@ -26,6 +26,11 @@ pulldown-cmark = "0.13"
 ammonia = "4"
 uuid = { version = "1", features = ["v4"] }
 
+# M3 追加：rusqlite（bundled 免系统依赖）— 仅 migrate-data 工具读旧 SQLite 库
+# 注意：锁 0.31 而非 0.37 —— sqlx 0.8 的 migrate 特性依赖 libsqlite3-sys ^0.28，
+# 0.37 需要 ^0.35，两个 libsqlite3-sys 链接同一原生库会冲突（links = "sqlite3"）
+rusqlite = { version = "0.31", features = ["bundled"] }
+
 [dev-dependencies]
 http-body-util = "0.1"
 tower = { version = "0.5", features = ["util"] }
