@@ -91,6 +91,7 @@ CREATE TABLE IF NOT EXISTS site_config (
   id INTEGER PRIMARY KEY,
   site_title TEXT NOT NULL DEFAULT 'ShinoLog',
   site_subtitle TEXT NOT NULL DEFAULT '',
+  slogan TEXT NOT NULL DEFAULT '',
   copyright_owner TEXT NOT NULL DEFAULT 'NagaShino',
   powered_by TEXT NOT NULL DEFAULT 'Powered by Vite + TypeScript.',
   icp_record_text TEXT NOT NULL DEFAULT '',
@@ -160,5 +161,14 @@ function runPostMigrations(sqlite: Database): void {
   }
   if (postColumns.has('featured_order')) {
     sqlite.run(`ALTER TABLE posts DROP COLUMN featured_order`);
+  }
+
+  // slogan 站点配置字段（存量库 ALTER）
+  const siteConfigColumns = new Set(
+    (sqlite.query(`SELECT name FROM pragma_table_info('site_config')`).all() as Array<{ name: string }>).map((r) => r.name)
+  );
+
+  if (!siteConfigColumns.has('slogan')) {
+    sqlite.run(`ALTER TABLE site_config ADD COLUMN slogan TEXT NOT NULL DEFAULT ''`);
   }
 }

@@ -46,6 +46,7 @@ export interface ApiProfileCard {
 export interface ApiSiteConfig {
   siteTitle: string;
   siteSubtitle: string;
+  slogan: string;
   copyrightOwner: string;
   poweredBy: string;
   icpRecordText: string;

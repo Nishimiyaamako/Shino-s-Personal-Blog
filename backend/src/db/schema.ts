@@ -105,6 +105,7 @@ export const siteConfigTable = sqliteTable('site_config', {
   id: integer('id').primaryKey(),
   siteTitle: text('site_title').notNull().default('ShinoLog'),
   siteSubtitle: text('site_subtitle').notNull().default(''),
+  slogan: text('slogan').notNull().default(''),
   copyrightOwner: text('copyright_owner').notNull().default('NagaShino'),
   poweredBy: text('powered_by').notNull().default('Powered by Vite + TypeScript.'),
   icpRecordText: text('icp_record_text').notNull().default(''),

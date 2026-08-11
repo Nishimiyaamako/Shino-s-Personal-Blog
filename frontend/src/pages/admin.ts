@@ -284,6 +284,7 @@ export const renderAdminPage: PageRenderer = (context) => {
             <div class="admin-form-grid">
               <label><span>站点标题（Logo 文字）</span><input type="text" name="siteTitle" required /></label>
               <label><span>副标题</span><input type="text" name="siteSubtitle" placeholder="留空则不显示" /></label>
+              <label><span>Slogan（首页 Hero 标语）</span><input type="text" name="slogan" placeholder="一句话介绍你的博客，留空则用名片卡简介" /></label>
             </div>
           </fieldset>
           <fieldset>

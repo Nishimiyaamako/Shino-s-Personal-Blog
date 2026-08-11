@@ -4,6 +4,7 @@ import type { ApiSiteConfig } from '../types/api';
 const DEFAULT_SITE_CONFIG: ApiSiteConfig = {
   siteTitle: 'ShinoLog',
   siteSubtitle: '',
+  slogan: '',
   copyrightOwner: 'NagaShino',
   poweredBy: 'Powered by Vite + TypeScript.',
   icpRecordText: '',
@@ -19,6 +20,7 @@ url: 'https://nagashino.top/'`
 interface SiteConfigRow {
   siteTitle: string;
   siteSubtitle: string;
+  slogan: string;
   copyrightOwner: string;
   poweredBy: string;
   icpRecordText: string;
@@ -31,7 +33,7 @@ interface SiteConfigRow {
 export function getSiteConfig(context: DatabaseContext): ApiSiteConfig {
   const row = context.sqlite
     .query(`
-      SELECT site_title AS siteTitle, site_subtitle AS siteSubtitle,
+      SELECT site_title AS siteTitle, site_subtitle AS siteSubtitle, slogan,
              copyright_owner AS copyrightOwner, powered_by AS poweredBy,
              icp_record_text AS icpRecordText, icp_record_url AS icpRecordUrl,
              public_security_record_text AS publicSecurityRecordText,
@@ -56,6 +58,7 @@ export function updateSiteConfig(
 
   const siteTitle = (patch.siteTitle ?? current.siteTitle).trim();
   const siteSubtitle = (patch.siteSubtitle ?? current.siteSubtitle).trim();
+  const slogan = (patch.slogan ?? current.slogan).trim();
   const copyrightOwner = (patch.copyrightOwner ?? current.copyrightOwner).trim();
   const poweredBy = (patch.poweredBy ?? current.poweredBy).trim();
   const icpRecordText = (patch.icpRecordText ?? current.icpRecordText).trim();
@@ -72,13 +75,14 @@ export function updateSiteConfig(
 
   context.sqlite
     .query(`
-      INSERT INTO site_config (id, site_title, site_subtitle, copyright_owner, powered_by,
+      INSERT INTO site_config (id, site_title, site_subtitle, slogan, copyright_owner, powered_by,
         icp_record_text, icp_record_url, public_security_record_text, public_security_record_url,
         friend_link_template, updated_at)
-      VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(id) DO UPDATE SET
         site_title = excluded.site_title,
         site_subtitle = excluded.site_subtitle,
+        slogan = excluded.slogan,
         copyright_owner = excluded.copyright_owner,
         powered_by = excluded.powered_by,
         icp_record_text = excluded.icp_record_text,
@@ -89,7 +93,7 @@ export function updateSiteConfig(
         updated_at = excluded.updated_at
     `)
     .run(
-      siteTitle, siteSubtitle, copyrightOwner, poweredBy,
+      siteTitle, siteSubtitle, slogan, copyrightOwner, poweredBy,
       icpRecordText, icpRecordUrl, publicSecurityRecordText, publicSecurityRecordUrl,
       friendLinkTemplate, now
     );
@@ -97,6 +101,7 @@ export function updateSiteConfig(
   return {
     siteTitle,
     siteSubtitle,
+    slogan,
     copyrightOwner,
     poweredBy,
     icpRecordText,

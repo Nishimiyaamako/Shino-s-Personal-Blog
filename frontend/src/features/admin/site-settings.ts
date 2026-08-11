@@ -53,6 +53,7 @@ export function setupAdminSiteSettingsModule(
 
     (settingsForm.elements.namedItem('siteTitle') as HTMLInputElement).value = config.siteTitle;
     (settingsForm.elements.namedItem('siteSubtitle') as HTMLInputElement).value = config.siteSubtitle;
+    (settingsForm.elements.namedItem('slogan') as HTMLInputElement).value = config.slogan ?? '';
     (settingsForm.elements.namedItem('copyrightOwner') as HTMLInputElement).value = config.copyrightOwner;
     (settingsForm.elements.namedItem('poweredBy') as HTMLInputElement).value = config.poweredBy;
     (settingsForm.elements.namedItem('icpRecordText') as HTMLInputElement).value = config.icpRecordText;
@@ -79,6 +80,7 @@ export function setupAdminSiteSettingsModule(
       await adminUpdateSiteConfig(token, {
         siteTitle: String(formData.get('siteTitle') ?? ''),
         siteSubtitle: String(formData.get('siteSubtitle') ?? ''),
+        slogan: String(formData.get('slogan') ?? ''),
         copyrightOwner: String(formData.get('copyrightOwner') ?? ''),
         poweredBy: String(formData.get('poweredBy') ?? ''),
         icpRecordText: String(formData.get('icpRecordText') ?? ''),

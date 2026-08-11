@@ -508,6 +508,7 @@ export function createAdminRoutes(context: DatabaseContext) {
         const body = await parseJsonBody<{
           siteTitle?: string;
           siteSubtitle?: string;
+          slogan?: string;
           copyrightOwner?: string;
           poweredBy?: string;
           icpRecordText?: string;
