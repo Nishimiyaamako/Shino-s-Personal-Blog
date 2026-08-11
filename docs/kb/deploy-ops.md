@@ -70,11 +70,13 @@ curl -sS http://127.0.0.1:3001/api/health   # 期望 {"ok":true,...}
 curl -I https://<domain>/
 curl -I https://<domain>/admin/login
 curl -sS https://<domain>/api/health
+curl -I https://<domain>/blog
+curl -I https://<domain>/blog/tags
 curl -I https://<domain>/posts
 curl -I https://<domain>/uploads/images/<sample-file>
 ```
 
-期望：首页/admin-login/posts/uploads 均 200，`/api/health` 返回 `ok: true`。
+期望：首页/admin-login/blog/blog/tags/uploads 均 200，`/api/health` 返回 `ok: true`；旧路径 `/posts`、`/tags`、`/archive` 应返回 301 跳转到 `/blog` 前缀。
 
 ## ⑥ 备份与恢复 Runbook
 
@@ -102,9 +104,9 @@ curl -sS http://127.0.0.1:3001/api/health
 
 ## ⑦ 发布后巡检清单（上线后 15 分钟内）
 
-- [ ] 首页 `/`、`/admin/login`、`/posts`、`/tags` 刷新不 404
+- [ ] 首页 `/`、`/admin/login`、`/blog`、`/blog/tags`、`/blog/archive` 刷新不 404；旧书签 `/posts/xxx` 301 到 `/blog/xxx`
 - [ ] `/api/health` 返回 `ok: true`；抽查上传图 200
-- [ ] 管理员登录成功；草稿保存、发布后前台可见、下线后不可见、精选排序生效
+- [ ] 管理员登录成功；草稿保存、发布后前台可见、下线后不可见
 - [ ] 友链增删改、关于页更新、名片卡修改前台即时可见
 - [ ] PM2 进程正常（非重启循环）；日志无持续 500/DB 锁/权限错误；SSL 正常（HTTP 自动跳 HTTPS）
 
