@@ -193,6 +193,19 @@ export function setupAdminContentSettingsModule(
   const handleAvatarFileChange = async (): Promise<void> => {
     const file = avatarUploadInput.files?.[0];
     if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setMessage(profileErrorElement, '仅支持图片文件，请重新选择。', { error: true });
+      avatarUploadInput.value = '';
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setMessage(profileErrorElement, '图片超过 10MB，请压缩后再上传。', { error: true });
+      avatarUploadInput.value = '';
+      return;
+    }
+
     try {
       const cropped = await cropImageToSquare(file);
       const uploaded = await adminUploadImage(token, new File([cropped], file.name || 'avatar.webp', { type: 'image/webp' }));

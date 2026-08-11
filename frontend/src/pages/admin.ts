@@ -332,8 +332,8 @@ export const renderAdminPage: PageRenderer = (context) => {
             <button type="button" class="admin-btn admin-btn-ghost admin-media-filter-btn" data-role="admin-media-filter-btn" data-filter="referenced">已引用</button>
             <button type="button" class="admin-btn admin-btn-ghost admin-media-filter-btn" data-role="admin-media-filter-btn" data-filter="orphaned">未引用</button>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <select class="admin-select" data-role="admin-media-sort" style="height:32px;font-size:0.8125rem;">
+          <div class="admin-media-toolbar-actions">
+            <select class="admin-select" data-role="admin-media-sort">
               <option value="created_at-desc">时间 ↓</option>
               <option value="created_at-asc">时间 ↑</option>
               <option value="size-desc">大小 ↓</option>
@@ -341,6 +341,7 @@ export const renderAdminPage: PageRenderer = (context) => {
             </select>
             <button type="button" class="admin-btn admin-btn-ghost" data-role="admin-media-upload-btn">上传图片</button>
             <input type="file" accept="image/*" data-role="admin-media-upload-input" hidden />
+            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-role="admin-media-select-all">全选本页</button>
             <button type="button" class="admin-btn admin-btn-danger admin-btn-sm" data-role="admin-media-bulk-delete" hidden>删除选中</button>
           </div>
         </div>
