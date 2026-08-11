@@ -9,6 +9,7 @@ import {
 } from '../../data/api';
 import type { AdminPost, AdminPostListQuery, AdminPostListResponse } from '../../types/api';
 import {
+  confirmAdminAction,
   fillPostForm,
   generateSlug,
   readPostFormPayload,
@@ -34,20 +35,6 @@ interface PostFilters {
   tag: string;
   page: number;
   pageSize: number;
-}
-
-function confirmByExactTitle(options: {
-  actionLabel: string;
-  postTitle: string;
-  hint: string;
-}): boolean {
-  const input = window.prompt(`${options.actionLabel}\n${options.hint}\n请输入文章标题确认：\n${options.postTitle}`);
-
-  if (input === null) {
-    return false;
-  }
-
-  return input.trim() === options.postTitle.trim();
 }
 
 export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPostsModule | null {
@@ -169,7 +156,7 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
     return false;
   };
 
-  const setBusy = (nextBusy: boolean): void => {
+  const setBusy = (nextBusy: boolean, pendingButton: 'save' | 'publish' | null = null): void => {
     busy = nextBusy;
     const allActionButtons = [
       postNewButton,
@@ -194,6 +181,13 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
       } else {
         button.removeAttribute('disabled');
       }
+    }
+
+    if (pendingButton === 'save') {
+      postSaveButton.textContent = nextBusy ? '保存中…' : '保存草稿';
+    }
+    if (pendingButton === 'publish') {
+      postPublishButton.textContent = nextBusy ? '发布中…' : '发布';
     }
   };
 
@@ -295,13 +289,14 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
   const runPostAction = async (
     action: () => Promise<void>,
     successMessage: string,
-    optionsForRefresh: { resetPage?: boolean; refreshAfter?: boolean } = {}
+    optionsForRefresh: { resetPage?: boolean; refreshAfter?: boolean } = {},
+    pendingButton: 'save' | 'publish' | null = null
   ): Promise<void> => {
     if (busy) {
       return;
     }
 
-    setBusy(true);
+    setBusy(true, pendingButton);
     setMessage(postErrorElement, '');
     setMessage(postSuccessElement, '');
 
@@ -372,7 +367,7 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
         selectedPostId = created.id;
         filters.page = 1;
       }
-    }, '文章已保存。');
+    }, '文章已保存。', {}, 'save');
   };
 
   const handlePostPublish = async (): Promise<void> => {
@@ -383,7 +378,7 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
 
     await runPostAction(async () => {
       await adminPublishPost(token, selectedPostId);
-    }, '文章已发布。');
+    }, '文章已发布。', {}, 'publish');
   };
 
   const handlePostUnpublish = async (): Promise<void> => {
@@ -400,12 +395,13 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
       return;
     }
 
-    if (!confirmByExactTitle({
-      actionLabel: '下线文章',
-      postTitle,
-      hint: '下线后前台将不再显示该文章。'
-    })) {
-      setMessage(postErrorElement, '标题不匹配，已取消下线操作。', { error: true });
+    const confirmed = await confirmAdminAction({
+      title: '下线文章',
+      message: `确定下线「${postTitle}」吗？下线后前台将不再显示该文章。`,
+      confirmText: '下线',
+      danger: true
+    });
+    if (!confirmed) {
       return;
     }
 
@@ -428,12 +424,13 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
       return;
     }
 
-    if (!confirmByExactTitle({
-      actionLabel: '删除文章（不可恢复）',
-      postTitle,
-      hint: '删除后将移除正文、状态和精选信息。'
-    })) {
-      setMessage(postErrorElement, '标题不匹配，已取消删除操作。', { error: true });
+    const confirmed = await confirmAdminAction({
+      title: '删除文章（不可恢复）',
+      message: `确定删除「${postTitle}」吗？删除后将移除正文、状态和精选信息。`,
+      confirmText: '删除',
+      danger: true
+    });
+    if (!confirmed) {
       return;
     }
 

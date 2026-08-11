@@ -1088,6 +1088,55 @@
     font-size: 12px;
 }
 
+/* ─── Confirm Dialog（样式化二次确认，替代原生 confirm） ─── */
+.admin-dialog-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: admin-fade-in 150ms ease-out;
+}
+
+.admin-dialog {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    padding: 20px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+}
+
+.admin-dialog-title {
+    margin: 0 0 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--admin-text);
+}
+
+.admin-dialog-message {
+    margin: 0 0 16px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--admin-text-subtle);
+    word-break: break-word;
+}
+
+.admin-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+@keyframes admin-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
 /* ─── Truncate ─── */
 .admin-truncate {
     white-space: nowrap;
@@ -1152,6 +1201,16 @@
     .admin-content {
         padding: 16px 14px 32px;
     }
+
+    .admin-filter-bar {
+        gap: 8px;
+    }
+
+    .admin-pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
 }
 
 /* ─── Dark Mode ─── */
@@ -1193,5 +1252,9 @@
     .admin-markdown-editor textarea,
     .admin-markdown-full textarea {
         background: var(--admin-surface);
+    }
+
+    .admin-markdown-editor textarea {
+        background: var(--admin-surface-muted);
     }
 }

@@ -31,6 +31,73 @@ export function setMessage(
   element.classList.toggle('is-error', options.error === true);
 }
 
+export interface AdminConfirmOptions {
+  title: string;
+  message: string;
+  confirmText?: string;
+  cancelText?: string;
+  danger?: boolean;
+}
+
+/** 样式化二次确认（替代原生 window.confirm 的破坏性操作确认）。 */
+export function confirmAdminAction(options: AdminConfirmOptions): Promise<boolean> {
+  return new Promise((resolve) => {
+    let settled = false;
+
+    const settle = (result: boolean): void => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      overlay.removeEventListener('click', handleOverlayClick);
+      document.removeEventListener('keydown', handleKeydown);
+      overlay.remove();
+      resolve(result);
+    };
+
+    const handleKeydown = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape') {
+        settle(false);
+      }
+    };
+
+    const handleOverlayClick = (event: Event): void => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) {
+        return;
+      }
+      if (target.closest('[data-role="admin-dialog-confirm"]')) {
+        settle(true);
+        return;
+      }
+      if (target.closest('[data-role="admin-dialog-cancel"]') || target === overlay) {
+        settle(false);
+      }
+    };
+
+    const overlay = document.createElement('div');
+    overlay.className = 'admin-dialog-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.innerHTML = `
+      <div class="admin-dialog">
+        <h3 class="admin-dialog-title">${escapeHtml(options.title)}</h3>
+        <p class="admin-dialog-message">${escapeHtml(options.message)}</p>
+        <div class="admin-dialog-actions">
+          <button type="button" class="admin-btn admin-btn-ghost" data-role="admin-dialog-cancel">${escapeHtml(options.cancelText ?? '取消')}</button>
+          <button type="button" class="admin-btn ${options.danger === false ? 'admin-btn-primary' : 'admin-btn-danger'}" data-role="admin-dialog-confirm">${escapeHtml(options.confirmText ?? '确认')}</button>
+        </div>
+      </div>
+    `;
+
+    overlay.addEventListener('click', handleOverlayClick);
+    document.addEventListener('keydown', handleKeydown);
+    document.body.appendChild(overlay);
+    const confirmButton = overlay.querySelector<HTMLButtonElement>('[data-role="admin-dialog-confirm"]');
+    confirmButton?.focus();
+  });
+}
+
 export function splitTags(rawTags: string): string[] {
   return rawTags
     .split(',')
