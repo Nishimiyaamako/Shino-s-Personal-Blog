@@ -658,74 +658,6 @@
     flex-shrink: 0;
 }
 
-/* ─── Featured List ─── */
-.admin-featured-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 12px;
-}
-
-.admin-featured-item {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 14px;
-    background: var(--admin-surface, #ffffff);
-    border: 1px solid var(--admin-border, #e8e8e8);
-    border-radius: 8px;
-    transition: box-shadow 200ms ease, border-color 200ms ease;
-}
-
-.admin-featured-item:hover {
-    border-color: var(--admin-accent, var(--rose-500));
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.admin-featured-item>div:first-child {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-}
-
-.admin-featured-item strong {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--admin-text, #1a1a1a);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.admin-featured-item small {
-    font-size: 12px;
-    color: var(--admin-text-subtle, #6b6b6b);
-}
-
-.admin-featured-item label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    cursor: pointer;
-}
-
-.admin-featured-item input[type="number"] {
-    width: 70px;
-    padding: 4px 8px;
-    border: 1px solid var(--admin-border, #e8e8e8);
-    border-radius: 5px;
-    font: inherit;
-    font-size: 13px;
-}
-
-.admin-featured-item .admin-btn {
-    align-self: flex-start;
-}
-
 /* ─── Posts Workspace ─── */
 .admin-posts-workspace {
     display: flex;
@@ -734,15 +666,6 @@
 
 .admin-posts-primary.is-collapsed {
     display: none;
-}
-
-.admin-featured-workspace {
-    display: none;
-}
-
-.admin-featured-workspace.is-active {
-    display: block;
-    animation: admin-panel-enter 220ms ease-out;
 }
 
 /* ─── Editor Panel ─── */
@@ -1176,10 +1099,6 @@
 
     .admin-form-grid,
     .admin-meta-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .admin-featured-list {
         grid-template-columns: 1fr;
     }
 }

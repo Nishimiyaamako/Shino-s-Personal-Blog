@@ -13,7 +13,8 @@ function shouldHydratePostCollection(pathname: string): boolean {
 }
 
 function shouldHydrateProfileCard(pathname: string): boolean {
-  return pathname === '/blog' || pathname.startsWith('/blog/');
+  // landing（/）复用名片卡数据（头像/昵称/简介/contact），需一并水合
+  return pathname === '/' || pathname === '/blog' || pathname.startsWith('/blog/');
 }
 
 function readSlugFromPathname(pathname: string): string {
