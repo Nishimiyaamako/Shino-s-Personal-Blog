@@ -3,7 +3,7 @@ import { renderAdminLoginPage } from '../pages/admin-login';
 import { renderAdminPage } from '../pages/admin';
 import { renderAboutPage } from '../pages/about';
 import { renderFriendsPage } from '../pages/friends';
-import { renderHomePage } from '../pages/home';
+import { renderLandingPage } from '../pages/landing';
 import { renderNotFoundPage } from '../pages/not-found';
 import { renderPostDetailPage } from '../pages/post-detail';
 import { renderPostsPage } from '../pages/posts';
@@ -13,11 +13,11 @@ import type { PageRenderContext, RouteParams, RouteRecord } from '../types/route
 
 const NOT_FOUND_PATH = '/404';
 export type PrimaryNavIcon = 'home' | 'posts' | 'tags' | 'archive' | 'friends' | 'about';
+// 'featured' 为精选管理遗留模块，路由与导航已移除，块 2 精选废弃时一并删除该类型成员
 export type AdminModuleRoute = 'posts' | 'featured' | 'friends' | 'about' | 'profile' | 'media' | 'settings';
 
 export const ADMIN_MODULE_LINKS: Array<{ href: `/admin/${AdminModuleRoute}`; label: string; module: AdminModuleRoute }> = [
   { href: '/admin/posts', label: '文章管理', module: 'posts' },
-  { href: '/admin/featured', label: '精选管理', module: 'featured' },
   { href: '/admin/friends', label: '友链管理', module: 'friends' },
   { href: '/admin/about', label: '关于页', module: 'about' },
   { href: '/admin/profile', label: '名片卡', module: 'profile' },
@@ -26,17 +26,16 @@ export const ADMIN_MODULE_LINKS: Array<{ href: `/admin/${AdminModuleRoute}`; lab
 ];
 
 export const ROUTE_RECORDS: RouteRecord[] = [
-  { path: '/', title: '首页', render: renderHomePage },
-  { path: '/posts', title: '文章列表', render: renderPostsPage },
-  { path: '/posts/:slug', title: '文章详情', render: renderPostDetailPage },
-  { path: '/tags', title: '标签总览', render: renderTagsPage },
-  { path: '/tags/:tag', title: '标签详情', render: renderTagDetailPage },
-  { path: '/archive', title: '归档', render: renderArchivePage },
+  { path: '/', title: '首页', render: renderLandingPage },
+  { path: '/blog', title: '文章列表', render: renderPostsPage },
+  { path: '/blog/:slug', title: '文章详情', render: renderPostDetailPage },
+  { path: '/blog/tags', title: '标签总览', render: renderTagsPage },
+  { path: '/blog/tags/:tag', title: '标签详情', render: renderTagDetailPage },
+  { path: '/blog/archive', title: '归档', render: renderArchivePage },
   { path: '/friends', title: '友链', render: renderFriendsPage },
   { path: '/about', title: '关于', render: renderAboutPage },
   { path: '/admin/login', title: '后台登录', render: renderAdminLoginPage },
   { path: '/admin/posts', title: '后台 · 文章管理', render: renderAdminPage },
-  { path: '/admin/featured', title: '后台 · 精选管理', render: renderAdminPage },
   { path: '/admin/friends', title: '后台 · 友链管理', render: renderAdminPage },
   { path: '/admin/about', title: '后台 · 关于页', render: renderAdminPage },
   { path: '/admin/profile', title: '后台 · 名片卡', render: renderAdminPage },
@@ -48,11 +47,9 @@ export const ROUTE_RECORDS: RouteRecord[] = [
 
 export const PRIMARY_NAV_LINKS = [
   { href: '/', label: '首页', icon: 'home' },
-  { href: '/posts', label: '文章', icon: 'posts' },
-  { href: '/tags', label: '标签', icon: 'tags' },
-  { href: '/archive', label: '归档', icon: 'archive' },
-  { href: '/friends', label: '友链', icon: 'friends' },
-  { href: '/about', label: '关于', icon: 'about' }
+  { href: '/blog', label: '博客', icon: 'posts' },
+  { href: '/blog/tags', label: '标签', icon: 'tags' },
+  { href: '/blog/archive', label: '归档', icon: 'archive' }
 ] as const;
 
 export interface RouteResolution {
@@ -74,7 +71,7 @@ export function resolveAdminModule(pathname: string): AdminModuleRoute {
 
   const module = normalized.slice('/admin/'.length);
 
-  if (module === 'featured' || module === 'friends' || module === 'about' || module === 'profile' || module === 'media' || module === 'settings') {
+  if (module === 'friends' || module === 'about' || module === 'profile' || module === 'media' || module === 'settings') {
     return module;
   }
 

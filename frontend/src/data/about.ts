@@ -27,13 +27,29 @@ const FALLBACK_VIEW_MODEL: AboutViewModel = {
 };
 
 let fallbackAboutViewModelCache: AboutViewModel | null = null;
+let remoteAboutViewModelOverride: AboutViewModel | null = null;
 
 export function loadAboutViewModel(): AboutViewModel {
+  if (remoteAboutViewModelOverride) {
+    return { ...remoteAboutViewModelOverride };
+  }
+
   if (!fallbackAboutViewModelCache) {
     fallbackAboutViewModelCache = { ...FALLBACK_VIEW_MODEL };
   }
 
   return fallbackAboutViewModelCache;
+}
+
+export function applyRemoteAboutViewModel(viewModel: AboutViewModel): boolean {
+  const current = remoteAboutViewModelOverride ?? FALLBACK_VIEW_MODEL;
+
+  if (current.fingerprint === viewModel.fingerprint) {
+    return false;
+  }
+
+  remoteAboutViewModelOverride = { ...viewModel };
+  return true;
 }
 
 function isAboutStructuredPayload(payload: unknown): payload is AboutStructuredPayload {

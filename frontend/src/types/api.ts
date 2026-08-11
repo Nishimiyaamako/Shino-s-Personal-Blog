@@ -71,6 +71,7 @@ export interface AdminProfileCard extends ProfileCardConfig {
 export interface AdminSiteConfig {
   siteTitle: string;
   siteSubtitle: string;
+  slogan: string;
   copyrightOwner: string;
   poweredBy: string;
   icpRecordText: string;

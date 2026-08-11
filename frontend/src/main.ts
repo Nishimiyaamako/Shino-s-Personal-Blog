@@ -125,8 +125,8 @@ function renderApp(): void {
 
   const hasProfileCard = shouldRenderProfileCard(route.path);
   const shouldEnableProfileCardRouteMotion = shouldEnableProfileCardRouteMotionForRoute(route.path);
-  const hasPostTocRail = route.path === '/posts/:slug';
-  const hasPostThemeRail = route.path === '/posts';
+  const hasPostTocRail = route.path === '/blog/:slug';
+  const hasPostThemeRail = route.path === '/blog';
   const isFriendsPage = route.path === '/friends';
   const isAboutPage = route.path === '/about';
   const hasFloatingScrollTopButton = shouldRenderFloatingScrollTopButton(route.path);
@@ -203,7 +203,7 @@ function renderAdminShell(pageContent: string): string {
 }
 
 function shouldRenderProfileCard(routePath: string): boolean {
-  return routePath === '/' || routePath === '/posts' || routePath === '/posts/:slug';
+  return routePath === '/blog' || routePath === '/blog/:slug';
 }
 
 function shouldEnableProfileCardRouteMotionForRoute(nextRoutePath: string): boolean {
@@ -217,10 +217,10 @@ function shouldEnableProfileCardRouteMotionForRoute(nextRoutePath: string): bool
 function shouldRenderFloatingScrollTopButton(routePath: string): boolean {
   return (
     routePath === '/' ||
-    routePath === '/posts' ||
-    routePath === '/tags' ||
-    routePath === '/tags/:tag' ||
-    routePath === '/archive'
+    routePath === '/blog' ||
+    routePath === '/blog/tags' ||
+    routePath === '/blog/tags/:tag' ||
+    routePath === '/blog/archive'
   );
 }
 
@@ -759,14 +759,14 @@ function setupPageEnhancements(pathname: string, options: { enableProfileCardRou
     cleanups.push(cleanupScrollTopButton);
   }
 
-  if (pathname === '/tags') {
+  if (pathname === '/blog/tags') {
     const cleanupTagCloudInteractions = setupTagCloudInteractions();
     if (cleanupTagCloudInteractions) {
       cleanups.push(cleanupTagCloudInteractions);
     }
   }
 
-  if (pathname === '/posts') {
+  if (pathname === '/blog') {
     const cleanupPostDateSortToggle = setupPostDateSortToggle();
     if (cleanupPostDateSortToggle) {
       cleanups.push(cleanupPostDateSortToggle);
@@ -778,7 +778,7 @@ function setupPageEnhancements(pathname: string, options: { enableProfileCardRou
     }
   }
 
-  if (pathname.startsWith('/posts/')) {
+  if (pathname.startsWith('/blog/')) {
     const cleanupPostDetailBackButton = setupPostDetailBackButton();
     if (cleanupPostDetailBackButton) {
       cleanups.push(cleanupPostDetailBackButton);
@@ -795,7 +795,7 @@ function setupPageEnhancements(pathname: string, options: { enableProfileCardRou
     }
   }
 
-  if (pathname === '/archive') {
+  if (pathname === '/blog/archive') {
     const cleanupArchiveTimeline = setupArchiveTimelineReveal();
     if (cleanupArchiveTimeline) {
       cleanups.push(cleanupArchiveTimeline);
@@ -852,6 +852,10 @@ const PAGE_STAGGER_SELECTORS = [
   ':scope > .about-dialogue',
   ':scope > .about-timeline',
   ':scope > .hero-card',
+  ':scope > .landing-hero',
+  ':scope > .landing-sections',
+  ':scope > .landing-about-preview',
+  ':scope > .landing-social',
   ':scope > .page-not-found',
   ':scope > .tag-filter-shell',
   ':scope > .tag-result-shell',
@@ -866,7 +870,6 @@ const PAGE_SCROLL_REVEAL_SELECTORS = [
 ] as const;
 
 const POST_CARD_MOTION_SELECTORS = [
-  '.post-list--home > .post-card[data-motion-card]',
   '.post-list--posts > .post-card[data-motion-card]',
   '.post-list--tag-panel > .post-card[data-motion-card]',
   '.friend-link-list > .friend-link-card[data-motion-card]'
@@ -880,7 +883,6 @@ const POST_DETAIL_READING_MOTION_SELECTORS = {
   markdown: '.post-detail-layout > .markdown-content'
 } as const;
 const POST_LIST_SELECTOR = '.post-list, .friend-link-list';
-const HOME_POST_LIST_CLASS = 'post-list--home';
 const POST_CARD_ROW_TOLERANCE_PX = 10;
 const POST_CARD_STAGGER_CAP = 10;
 const MOBILE_SIDE_PANEL_MEDIA_QUERY = '(max-width: 1024px)';
@@ -949,8 +951,8 @@ function resolveContentRhythmGroup(targetElement: HTMLElement): ContentRhythmGro
 
 function setupMobileSidePanelPlacement(pathname: string): (() => void) | null {
   const mediaQuery = window.matchMedia(MOBILE_SIDE_PANEL_MEDIA_QUERY);
-  const shouldHandlePostsPage = pathname === '/posts';
-  const shouldHandlePostDetailPage = pathname.startsWith('/posts/');
+  const shouldHandlePostsPage = pathname === '/blog';
+  const shouldHandlePostDetailPage = pathname.startsWith('/blog/');
 
   const postThemeRailElement = shouldHandlePostsPage
     ? document.querySelector<HTMLElement>('.post-theme-rail')
@@ -1520,10 +1522,7 @@ function setupPostCardRiseMotion(): (() => void) | null {
     let globalOrder = 0;
 
     for (const { listElement, listCardElements } of listEntries) {
-      const isHomeList = listElement.classList.contains(HOME_POST_LIST_CLASS);
-      const orderedCardsInList = isHomeList
-        ? orderPostCardsTopToBottom(listCardElements)
-        : orderPostCardsByVisualFlow(listCardElements);
+      const orderedCardsInList = orderPostCardsByVisualFlow(listCardElements);
 
       for (const [index, cardElement] of orderedCardsInList.entries()) {
         cardElement.classList.add('motion-card-rise');
@@ -2063,7 +2062,7 @@ function setupPostDetailBackButton(): (() => void) | null {
       return;
     }
 
-    navigateTo('/posts', { replace: true });
+    navigateTo('/blog', { replace: true });
   };
 
   backButtonElement.addEventListener('click', handleBackButtonClick);

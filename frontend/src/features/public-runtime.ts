@@ -1,7 +1,6 @@
 import DOMPurify from 'dompurify';
 import { fetchFriendLinks, fetchPostDetail, fetchProfileCard, fetchPublicPosts, fetchSiteConfig, searchPosts } from '../data/api';
-import { loadPosts } from '../data/posts';
-import { searchPosts as localSearchPosts } from '../utils/search';
+import { applyRemoteAboutViewModel, fetchAboutViewModel } from '../data/about';
 import { applyRemoteFriendLinks } from '../data/friends';
 import { applyRemotePostDetail, applyRemotePublishedPostSummaries } from '../data/posts';
 import { applyRemoteProfileCard } from '../data/profile-card';
@@ -10,26 +9,25 @@ import type { SearchResultItem } from '../types/api';
 import { escapeHtml } from '../utils/escape-html';
 
 function shouldHydratePostCollection(pathname: string): boolean {
-  return (
-    pathname === '/'
-    || pathname === '/posts'
-    || pathname === '/tags'
-    || pathname === '/archive'
-    || pathname.startsWith('/tags/')
-    || pathname.startsWith('/posts/')
-  );
+  return pathname === '/blog' || pathname.startsWith('/blog/');
 }
 
 function shouldHydrateProfileCard(pathname: string): boolean {
-  return pathname === '/' || pathname === '/posts' || pathname.startsWith('/posts/');
+  return pathname === '/blog' || pathname.startsWith('/blog/');
 }
 
 function readSlugFromPathname(pathname: string): string {
-  if (!pathname.startsWith('/posts/')) {
+  if (!pathname.startsWith('/blog/')) {
     return '';
   }
 
-  return pathname.slice('/posts/'.length).trim();
+  const blogPath = pathname.slice('/blog/'.length).trim();
+
+  if (!blogPath || blogPath === 'tags' || blogPath.startsWith('tags/') || blogPath === 'archive') {
+    return '';
+  }
+
+  return blogPath;
 }
 
 function isAbortError(error: unknown): boolean {
@@ -153,6 +151,14 @@ export function setupPublicDataHydration(
 
         if (!disposed) {
           shouldRerender = applyRemoteFriendLinks(links) || shouldRerender;
+        }
+      }
+
+      if (pathname === '/') {
+        const about = await fetchAboutViewModel({ signal: abortController.signal });
+
+        if (!disposed && about) {
+          shouldRerender = applyRemoteAboutViewModel(about) || shouldRerender;
         }
       }
 
@@ -386,7 +392,7 @@ export function setupHeaderSearchModal(): (() => void) | null {
 >
   <a
     class="site-search-result-link"
-    href="/posts/${encodeURIComponent(item.slug)}"
+    href="/blog/${encodeURIComponent(item.slug)}"
     data-link
     data-role="site-search-result-link"
     data-result-index="${index}"

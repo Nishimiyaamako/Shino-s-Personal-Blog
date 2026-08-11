@@ -24,7 +24,7 @@ export const renderArchivePage: PageRenderer = () => {
               <article class="archive-post-item ${sideClass}" style="--pi: ${postIndex}">
                 <div class="archive-post-card">
                   <time class="archive-post-date" datetime="${post.date}">${monthText}-${dayText}</time>
-                  <a class="archive-post-link" href="/posts/${escapeHtml(post.slug)}" data-link>${escapeHtml(post.title)}</a>
+                  <a class="archive-post-link" href="/blog/${escapeHtml(post.slug)}" data-link>${escapeHtml(post.title)}</a>
                 </div>
                 <span class="archive-post-dot" aria-hidden="true"></span>
               </article>`;

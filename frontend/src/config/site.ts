@@ -1,6 +1,7 @@
 export const SITE_CONFIG = {
   title: 'ShinoLog',
   subtitle: '',
+  slogan: '',
   footer: {
     copyrightOwner: 'NagaShino',
     poweredBy: 'Powered by Vite + TypeScript.',

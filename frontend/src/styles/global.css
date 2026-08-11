@@ -28,6 +28,7 @@
 @import './pages/about.css';
 @import './pages/archive.css';
 @import './pages/friends.css';
+@import './pages/landing.css';
 
 /* Admin Layer - Admin Dashboard Styles */
 @import './admin/admin-core.css';

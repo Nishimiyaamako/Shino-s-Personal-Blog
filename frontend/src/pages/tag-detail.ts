@@ -17,7 +17,7 @@ export const renderTagDetailPage: PageRenderer = ({ params }) => {
       <h1 class="tag-detail-badge">#${escapeHtml(displayTag)}</h1>
       <p class="tag-detail-count">${posts.length} 篇</p>
     </div>
-    <a href="/tags" data-link class="tag-detail-back-link">← 返回标签页</a>
+    <a href="/blog/tags" data-link class="tag-detail-back-link">← 返回标签页</a>
   </header>
 
   ${renderPostList(posts, {

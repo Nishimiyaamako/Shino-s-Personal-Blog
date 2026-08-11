@@ -4,6 +4,7 @@ import type { AdminSiteConfig } from '../types/api';
 const DEFAULT_SITE_CONFIG: AdminSiteConfig = {
   siteTitle: SITE_CONFIG.title,
   siteSubtitle: SITE_CONFIG.subtitle,
+  slogan: SITE_CONFIG.slogan,
   copyrightOwner: SITE_CONFIG.footer.copyrightOwner,
   poweredBy: SITE_CONFIG.footer.poweredBy,
   icpRecordText: SITE_CONFIG.footer.icpRecordText,
@@ -26,6 +27,7 @@ export function applyRemoteSiteConfig(config: AdminSiteConfig): boolean {
   const normalized: AdminSiteConfig = {
     siteTitle: config.siteTitle.trim(),
     siteSubtitle: config.siteSubtitle.trim(),
+    slogan: (typeof config.slogan === 'string' ? config.slogan : '').trim(),
     copyrightOwner: config.copyrightOwner.trim(),
     poweredBy: config.poweredBy.trim(),
     icpRecordText: config.icpRecordText.trim(),

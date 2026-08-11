@@ -19,7 +19,28 @@ export function renderProfileCard(): string {
     </div>
   </div>
 
-  <ul class="profile-contact-list" data-role="profile-contact-list">
+  ${renderProfileContactList()}
+
+  <div class="profile-card-divider" aria-hidden="true"></div>
+
+  <section class="profile-stat-grid" aria-label="写作统计">
+    <div class="profile-stat-card">
+    <p class="profile-stat-label">文章数</p>
+    <p class="profile-stat-value">${writingStats.postCount} 篇</p>
+    </div>
+    <div class="profile-stat-card">
+      <p class="profile-stat-label">总字数</p>
+      <p class="profile-stat-value">${totalWordsInW}</p>
+    </div>
+  </section>
+</aside>
+`;
+}
+
+export function renderProfileContactList(): string {
+  const profile = loadProfileCardConfig();
+
+  return `<ul class="profile-contact-list" data-role="profile-contact-list">
     ${profile.contacts
       .map((contact) => {
         const attrs = getContactAnchorAttrs(contact.href);
@@ -36,22 +57,7 @@ export function renderProfileCard(): string {
     </li>`;
       })
       .join('')}
-  </ul>
-
-  <div class="profile-card-divider" aria-hidden="true"></div>
-
-  <section class="profile-stat-grid" aria-label="写作统计">
-    <div class="profile-stat-card">
-    <p class="profile-stat-label">文章数</p>
-    <p class="profile-stat-value">${writingStats.postCount} 篇</p>
-    </div>
-    <div class="profile-stat-card">
-      <p class="profile-stat-label">总字数</p>
-      <p class="profile-stat-value">${totalWordsInW}</p>
-    </div>
-  </section>
-</aside>
-`;
+  </ul>`;
 }
 
 function formatPlatform(platform: ProfilePlatform): string {

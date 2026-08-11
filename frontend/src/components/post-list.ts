@@ -3,7 +3,7 @@ import { escapeHtml } from '../utils/escape-html';
 import { formatDateLabel } from '../utils/date';
 import { normalizeThemeKey } from '../utils/theme';
 
-type PostListVariant = 'default' | 'home' | 'posts' | 'tag-panel';
+type PostListVariant = 'default' | 'posts' | 'tag-panel';
 type PostCardTagColorVariant = 'strawberry' | 'bubble' | 'white' | 'wisteria';
 
 interface RenderPostListOptions {
@@ -122,60 +122,24 @@ export function renderPostList(posts: PostSummary[], options: RenderPostListOpti
 <ul class="${listClassName}">
   ${posts
       .map((post) => {
-        const isHomeVariant = variant === 'home';
         const coverUrl = post.coverImageUrl || `/images/covers/${post.slug}.webp`;
         const coverImage = renderCoverImage(coverUrl);
         const cardClassName = `post-card post-card--${variant}`;
         const visibleLabelItems = resolveVisibleLabelItems(post, options);
-        const homeOverflowCandidateIndex = isHomeVariant && visibleLabelItems.length > 1 ? visibleLabelItems.length - 1 : -1;
         const postThemeKey = post.theme ? normalizeThemeKey(post.theme) : '';
         const postThemeAttribute = postThemeKey ? ` data-post-theme-key="${escapeHtml(postThemeKey)}"` : '';
-
-        if (isHomeVariant) {
-          return `
-  <li class="${cardClassName}" data-motion-card${postThemeAttribute}>
-    <article class="post-card-article post-card-home-article">
-      <div class="post-card-body">
-        <header class="post-card-header">
-          <h3 class="post-card-title"><a href="/posts/${post.slug}" data-link>${escapeHtml(post.title)}</a></h3>
-        </header>
-        <p class="post-card-summary">${escapeHtml(post.summary)}</p>
-        <div class="post-card-meta-row">
-          <ul class="tag-list tag-list--card">
-            ${visibleLabelItems
-                .map((item, index) => {
-                  const overflowCandidateClass =
-                    index === homeOverflowCandidateIndex ? ' class="post-card-label-item--hide-on-home-cover"' : '';
-                  const tagColorAttribute = ` data-tag-color="${resolvePostCardTagColorVariant(post, index)}"`;
-
-                  return item.kind === 'theme'
-                    ? `<li${overflowCandidateClass} data-role="post-theme-label-item"${item.themeKey ? ` data-theme-key="${escapeHtml(item.themeKey)}"` : ''}><a class="tag-chip tag-chip--theme" href="/posts${item.themeKey ? `?theme=${encodeURIComponent(item.themeKey)}` : ''}" data-link${item.themeKey ? ` data-theme-key="${escapeHtml(item.themeKey)}"` : ''}${tagColorAttribute} aria-label="查看主题分类：${escapeHtml(item.label)}">${escapeHtml(item.label)}</a></li>`
-                    : `<li${overflowCandidateClass}><a href="/tags/${item.label}" data-link${tagColorAttribute}>#${escapeHtml(item.label)}</a></li>`;
-                })
-                .join('')}
-          </ul>
-          <time class="post-card-date post-card-date--home" datetime="${post.date}">${formatDateLabel(post.date)}</time>
-        </div>
-      </div>
-      <a class="post-card-home-cover" href="/posts/${post.slug}" data-link aria-label="阅读：${escapeHtml(post.title)}">
-        ${coverImage}
-      </a>
-    </article>
-  </li>`;
-        }
-
         const coverClassName = 'post-card-cover is-pending';
 
         return `
   <li class="${cardClassName}" data-motion-card${postThemeAttribute}>
     <article class="post-card-article">
-      <a class="${coverClassName}" href="/posts/${post.slug}" data-link aria-label="阅读：${escapeHtml(post.title)}">
+      <a class="${coverClassName}" href="/blog/${post.slug}" data-link aria-label="阅读：${escapeHtml(post.title)}">
         ${coverImage}
         <span class="post-card-cover-placeholder" aria-hidden="true">${escapeHtml((post.tags[0] ?? 'post').toUpperCase())}</span>
       </a>
       <div class="post-card-body">
       <header class="post-card-header">
-        <h3 class="post-card-title"><a href="/posts/${post.slug}" data-link>${escapeHtml(post.title)}</a></h3>
+        <h3 class="post-card-title"><a href="/blog/${post.slug}" data-link>${escapeHtml(post.title)}</a></h3>
         <time class="post-card-date" datetime="${post.date}">${formatDateLabel(post.date)}</time>
       </header>
       <p class="post-card-summary">${escapeHtml(post.summary)}</p>
@@ -185,8 +149,8 @@ export function renderPostList(posts: PostSummary[], options: RenderPostListOpti
               const tagColorAttribute = ` data-tag-color="${resolvePostCardTagColorVariant(post, index)}"`;
 
               return item.kind === 'theme'
-                ? `<li data-role="post-theme-label-item"${item.themeKey ? ` data-theme-key="${escapeHtml(item.themeKey)}"` : ''}><a class="tag-chip tag-chip--theme" href="/posts${item.themeKey ? `?theme=${encodeURIComponent(item.themeKey)}` : ''}" data-link${item.themeKey ? ` data-theme-key="${escapeHtml(item.themeKey)}"` : ''}${tagColorAttribute} aria-label="查看主题分类：${escapeHtml(item.label)}">${escapeHtml(item.label)}</a></li>`
-                : `<li><a href="/tags/${item.label}" data-link${tagColorAttribute}>#${escapeHtml(item.label)}</a></li>`;
+                ? `<li data-role="post-theme-label-item"${item.themeKey ? ` data-theme-key="${escapeHtml(item.themeKey)}"` : ''}><a class="tag-chip tag-chip--theme" href="/blog${item.themeKey ? `?theme=${encodeURIComponent(item.themeKey)}` : ''}" data-link${item.themeKey ? ` data-theme-key="${escapeHtml(item.themeKey)}"` : ''}${tagColorAttribute} aria-label="查看主题分类：${escapeHtml(item.label)}">${escapeHtml(item.label)}</a></li>`
+                : `<li><a href="/blog/tags/${item.label}" data-link${tagColorAttribute}>#${escapeHtml(item.label)}</a></li>`;
             })
             .join('')}
       </ul>
