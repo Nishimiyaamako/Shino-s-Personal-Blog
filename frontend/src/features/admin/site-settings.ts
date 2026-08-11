@@ -12,6 +12,14 @@ export interface AdminSiteSettingsModule {
   destroy: () => void;
 }
 
+const REQUIRED_SETTINGS_FIELDS: Array<{ name: string; label: string }> = [
+  { name: 'siteTitle', label: '站点标题（Logo 文字）' },
+  { name: 'copyrightOwner', label: '版权所有者' },
+  { name: 'friendLinkTemplate', label: '友链模板' }
+];
+
+const SUCCESS_AUTO_HIDE_MS = 4000;
+
 export function setupAdminSiteSettingsModule(
   options: AdminSiteSettingsModuleOptions
 ): AdminSiteSettingsModule | null {
@@ -27,6 +35,7 @@ export function setupAdminSiteSettingsModule(
 
   let busy = false;
   let formDirty = false;
+  let successTimer: ReturnType<typeof setTimeout> | undefined;
 
   const setFormDirty = (nextDirty: boolean): void => {
     if (formDirty === nextDirty) {
@@ -35,6 +44,38 @@ export function setupAdminSiteSettingsModule(
 
     formDirty = nextDirty;
     onDirtyChange?.('settings-form', nextDirty);
+  };
+
+  const validateSettingsForm = (): boolean => {
+    let firstInvalidLabel = '';
+
+    for (const field of REQUIRED_SETTINGS_FIELDS) {
+      const input = settingsForm.elements.namedItem(field.name) as HTMLInputElement | HTMLTextAreaElement | null;
+      if (!input) {
+        continue;
+      }
+      const valid = input.value.trim().length > 0;
+      input.classList.toggle('is-invalid', !valid);
+      if (!valid && !firstInvalidLabel) {
+        firstInvalidLabel = field.label;
+        input.focus();
+      }
+    }
+
+    if (firstInvalidLabel) {
+      setMessage(errorElement, `请填写「${firstInvalidLabel}」。`, { error: true });
+      return false;
+    }
+
+    return true;
+  };
+
+  const flashSuccess = (message: string): void => {
+    setMessage(successElement, message);
+    clearTimeout(successTimer);
+    successTimer = setTimeout(() => {
+      setMessage(successElement, '');
+    }, SUCCESS_AUTO_HIDE_MS);
   };
 
   const setBusy = (nextBusy: boolean): void => {
@@ -70,6 +111,10 @@ export function setupAdminSiteSettingsModule(
       return;
     }
 
+    if (!validateSettingsForm()) {
+      return;
+    }
+
     setBusy(true);
     setMessage(errorElement, '');
     setMessage(successElement, '');
@@ -90,7 +135,7 @@ export function setupAdminSiteSettingsModule(
         friendLinkTemplate: String(formData.get('friendLinkTemplate') ?? '')
       });
 
-      setMessage(successElement, '站点设置已保存并立即生效。');
+      flashSuccess('站点设置已保存并立即生效。');
       setFormDirty(false);
     } catch (error) {
       setMessage(errorElement, error instanceof Error ? error.message : '保存失败', { error: true });
@@ -99,7 +144,10 @@ export function setupAdminSiteSettingsModule(
     }
   };
 
-  const handleFormInput = (): void => {
+  const handleFormInput = (event: Event): void => {
+    if (event.target instanceof HTMLElement) {
+      event.target.classList.remove('is-invalid');
+    }
     setFormDirty(true);
   };
 
@@ -113,6 +161,7 @@ export function setupAdminSiteSettingsModule(
       settingsForm.removeEventListener('submit', handleSubmit);
       settingsForm.removeEventListener('input', handleFormInput);
       settingsForm.removeEventListener('change', handleFormInput);
+      clearTimeout(successTimer);
       setFormDirty(false);
     }
   };

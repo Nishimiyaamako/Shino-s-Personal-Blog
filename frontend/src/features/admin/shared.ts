@@ -215,6 +215,10 @@ export function renderAdminPostList(posts: AdminPost[], selectedPostId: number):
       <button type="button" class="admin-list-button${post.id === selectedPostId ? ' is-active' : ''}" data-role="admin-post-select" data-post-id="${post.id}">
         <strong class="admin-truncate">${escapeHtml(post.title)}</strong>
         <small>${escapeHtml(post.date)} · ${escapeHtml(formatPostStatus(post))}</small>
+        ${post.tags.length > 0
+          ? `<small class="admin-post-list-tags">${post.tags.slice(0, 3).map((tag) => escapeHtml(tag)).join(' · ')}</small>`
+          : ''
+        }
       </button>
     </li>`
     )

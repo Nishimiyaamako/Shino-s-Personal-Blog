@@ -205,7 +205,7 @@ export const renderAdminPage: PageRenderer = (context) => {
               </div>
 
               <details class="admin-meta-drawer">
-                <summary>代码块导入</summary>
+                <summary>代码块导入 <span class="admin-import-badge" data-role="admin-friend-import-badge" hidden>待解析</span></summary>
                 <label>
                   <span>粘贴友链对象代码</span>
                   <textarea name="friendSnippet" rows="5" data-role="admin-friend-import-input" placeholder="name: 'ShinoLog',&#10;description: '...',&#10;avatar: '...',&#10;url: '...'"></textarea>
@@ -281,7 +281,7 @@ export const renderAdminPage: PageRenderer = (context) => {
           <h2>站点设置</h2>
           <p>修改顶栏标题、页脚备案号、友链模板等全局信息。</p>
         </header>
-        <form class="admin-settings-form" data-role="admin-settings-form">
+        <form class="admin-settings-form" data-role="admin-settings-form" novalidate>
           <fieldset class="admin-fieldset">
             <legend>顶栏</legend>
             <div class="admin-form-grid">

@@ -5,7 +5,7 @@ import {
   adminUpdateFriendLink
 } from '../../data/api';
 import type { AdminFriendLink } from '../../types/api';
-import { renderFriendList, setMessage } from './shared';
+import { confirmAdminAction, renderFriendList, setMessage } from './shared';
 
 type FriendImportField = 'name' | 'description' | 'avatar' | 'url';
 
@@ -123,6 +123,7 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
   const friendFormMeta = rootElement.querySelector<HTMLElement>('[data-role="admin-friend-form-meta"]');
   const friendImportInput = rootElement.querySelector<HTMLTextAreaElement>('[data-role="admin-friend-import-input"]');
   const friendImportParseButton = rootElement.querySelector<HTMLButtonElement>('[data-role="admin-friend-parse"]');
+  const friendImportBadge = rootElement.querySelector<HTMLElement>('[data-role="admin-friend-import-badge"]');
 
   if (
     !friendListElement
@@ -141,8 +142,16 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
   let selectedFriendId = 0;
   let busy = false;
   let formDirty = false;
+  let importParsed = false;
   let searchQuery = '';
-  let searchTimer: ReturnType<typeof setTimeout> | undefined;  const filterBySearch = (links: AdminFriendLink[]): AdminFriendLink[] => {
+  let searchTimer: ReturnType<typeof setTimeout> | undefined;
+
+  const syncImportBadge = (): void => {
+    if (!friendImportBadge) {
+      return;
+    }
+    friendImportBadge.hidden = !(friendImportInput.value.trim().length > 0 && !importParsed);
+  };  const filterBySearch = (links: AdminFriendLink[]): AdminFriendLink[] => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return links;
     return links.filter(
@@ -226,6 +235,8 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
       friendFormTitle.textContent = '新建友链';
       friendFormMeta.textContent = '填写后保存即可在前台展示。';
       friendImportInput.value = '';
+      importParsed = false;
+      syncImportBadge();
       selectedFriendId = 0;
       setFormDirty(false);
       return;
@@ -244,6 +255,8 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
     friendFormTitle.textContent = `编辑友链：${friend.name}`;
     friendFormMeta.textContent = `当前地址：${friend.url}`;
     friendImportInput.value = '';
+    importParsed = false;
+    syncImportBadge();
     setFormDirty(false);
   };
 
@@ -352,6 +365,8 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
       (friendForm.elements.namedItem('url') as HTMLInputElement).value = parsed.url;
     }
 
+    importParsed = true;
+    syncImportBadge();
     setFormDirty(true);
     let statusMsg = `已填充 ${parsedFields.length} 个字段，请确认后保存。`;
     if (skipped.length > 0) {
@@ -410,7 +425,14 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
       return;
     }
 
-    if (!window.confirm('确认删除该友链吗？删除后前台将立即不可见。')) {
+    const friendName = getFriendById(friendId)?.name ?? '该友链';
+    const confirmed = await confirmAdminAction({
+      title: '删除友链',
+      message: `确定删除友链「${friendName}」吗？删除后前台将立即不可见。`,
+      confirmText: '删除',
+      danger: true
+    });
+    if (!confirmed) {
       return;
     }
 
@@ -434,6 +456,11 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
     }
   };
 
+  const handleFriendImportInput = (): void => {
+    importParsed = false;
+    syncImportBadge();
+  };
+
   friendForm.addEventListener('submit', handleFriendFormSubmit);
   friendForm.addEventListener('input', handleFriendFormInput);
   friendForm.addEventListener('change', handleFriendFormInput);
@@ -441,6 +468,7 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
   friendCancelButton.addEventListener('click', handleFriendCancel);
   friendListElement.addEventListener('click', handleFriendListClick);
   friendSearchInput?.addEventListener('input', handleFriendSearchInput);
+  friendImportInput.addEventListener('input', handleFriendImportInput);
   fillFriendForm(null);
 
   return {
@@ -453,6 +481,7 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
       friendCancelButton.removeEventListener('click', handleFriendCancel);
       friendListElement.removeEventListener('click', handleFriendListClick);
       friendSearchInput?.removeEventListener('input', handleFriendSearchInput);
+      friendImportInput.removeEventListener('input', handleFriendImportInput);
       clearTimeout(searchTimer);
       setFormDirty(false);
     }

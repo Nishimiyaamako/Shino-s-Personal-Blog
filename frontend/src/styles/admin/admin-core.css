@@ -170,7 +170,7 @@
     color: var(--admin-text, #1a1a1a);
     outline: none;
     transition: border-color 200ms ease, box-shadow 200ms ease;
-    min-height: 42px;
+    min-height: 38px;
 }
 
 .admin-login-form input:focus {
@@ -1046,9 +1046,33 @@
     background: var(--admin-danger-soft, #fef2f2);
 }
 
+.admin-form-error.is-error::before {
+    content: '⚠ ';
+}
+
 .admin-form-success {
     color: var(--admin-success, #16a34a);
     background: var(--admin-success-soft, #f0fdf4);
+}
+
+.admin-post-list-tags {
+    font-size: 11px;
+    color: var(--admin-accent);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+}
+
+.admin-import-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.4;
+    padding: 1px 6px;
+    border-radius: 999px;
+    color: var(--admin-accent);
+    background: var(--admin-accent-soft);
 }
 
 /* ─── Admin Buttons ─── */
@@ -1237,6 +1261,18 @@
         padding: 16px 14px 32px;
     }
 
+    .admin-topbar {
+        padding: 10px 14px;
+    }
+
+    .admin-editor-panel {
+        padding: 12px 14px;
+    }
+
+    .admin-list-toolbar {
+        flex-wrap: wrap;
+    }
+
     .admin-filter-bar {
         gap: 8px;
     }
@@ -1245,6 +1281,22 @@
         flex-wrap: wrap;
         justify-content: center;
         gap: 8px;
+    }
+
+    .admin-split-layout {
+        min-height: auto;
+    }
+
+    .admin-editor-actions .admin-btn {
+        flex: 1;
+    }
+
+    .admin-media-toolbar-actions {
+        justify-content: center;
+    }
+
+    .admin-upload-bar .admin-upload-group {
+        flex: 1 1 100%;
     }
 }
 

@@ -1,6 +1,7 @@
 import { adminDeleteMedia, adminListMedia, adminUploadImage } from '../../data/api';
 import type { AdminMediaAsset, AdminMediaListQuery, AdminMediaListResponse } from '../../types/api';
 import { escapeHtml } from '../../utils/escape-html';
+import { confirmAdminAction } from './shared';
 
 interface AdminMediaModuleOptions {
   rootElement: HTMLElement;
@@ -210,7 +211,13 @@ export function setupAdminMediaModule(options: AdminMediaModuleOptions): AdminMe
     if (!Number.isFinite(id)) return;
     const name = btn.dataset.mediaName || '该图片';
 
-    if (!window.confirm(`确认删除 ${name}？\n此操作不可撤销。`)) return;
+    const confirmed = await confirmAdminAction({
+      title: '删除图片',
+      message: `确定删除「${name}」吗？此操作不可撤销。`,
+      confirmText: '删除',
+      danger: true
+    });
+    if (!confirmed) return;
 
     try {
       await adminDeleteMedia(token, id);
@@ -298,7 +305,13 @@ export function setupAdminMediaModule(options: AdminMediaModuleOptions): AdminMe
   const handleBulkDelete = async (): Promise<void> => {
     if (selectedIds.size === 0) return;
 
-    if (!window.confirm(`确认删除选中的 ${selectedIds.size} 个文件？\n此操作不可撤销。`)) return;
+    const confirmed = await confirmAdminAction({
+      title: '批量删除',
+      message: `确定删除选中的 ${selectedIds.size} 个文件吗？此操作不可撤销。`,
+      confirmText: '删除',
+      danger: true
+    });
+    if (!confirmed) return;
 
     try {
       setBusy(true);
