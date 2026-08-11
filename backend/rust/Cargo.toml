@@ -1,0 +1,22 @@
+[package]
+name = "shino-blog-backend"
+version = "0.1.0"
+edition = "2021"
+description = "Shino's Bolg backend (Rust / Axum + Postgres) — API-compatible reimplementation"
+
+[dependencies]
+anyhow = "1"
+axum = "0.8"
+chrono = "0.4"
+dotenvy = "0.15"
+regex = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+# macros 特性仅为 sqlx::migrate!（内嵌迁移文件）启用；查询一律用运行时 query()，不引入 query! 编译期宏
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "postgres", "migrate", "derive", "macros", "chrono", "uuid"] }
+tokio = { version = "1", features = ["full"] }
+tower-http = { version = "0.6", features = ["cors"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# M2 追加：argon2 / password-hash / jsonwebtoken / pulldown-cmark / ammonia（管理 API + markdown 渲染）
