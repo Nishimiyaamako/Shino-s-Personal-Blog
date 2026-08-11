@@ -13,8 +13,7 @@ import type { PageRenderContext, RouteParams, RouteRecord } from '../types/route
 
 const NOT_FOUND_PATH = '/404';
 export type PrimaryNavIcon = 'home' | 'posts' | 'tags' | 'archive' | 'friends' | 'about';
-// 'featured' 为精选管理遗留模块，路由与导航已移除，块 2 精选废弃时一并删除该类型成员
-export type AdminModuleRoute = 'posts' | 'featured' | 'friends' | 'about' | 'profile' | 'media' | 'settings';
+export type AdminModuleRoute = 'posts' | 'friends' | 'about' | 'profile' | 'media' | 'settings';
 
 export const ADMIN_MODULE_LINKS: Array<{ href: `/admin/${AdminModuleRoute}`; label: string; module: AdminModuleRoute }> = [
   { href: '/admin/posts', label: '文章管理', module: 'posts' },

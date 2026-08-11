@@ -30,13 +30,9 @@ export interface UpsertPostInput {
   contentMarkdown: string;
   status: PostStatus;
   tags: string[];
-  isFeatured?: boolean;
-  featuredOrder?: number;
 }
 
-export interface AdminPostRecord extends ApiPostDetail {
-  isFeatured: boolean;
-}
+export interface AdminPostRecord extends ApiPostDetail {}
 
 export interface ListAdminPostOptions {
   page?: number;
@@ -64,8 +60,6 @@ interface PostRow {
   contentMarkdown: string;
   contentHtml: string;
   status: PostStatus;
-  isFeatured: number;
-  featuredOrder: number | null;
   publishedAt: string | null;
 }
 
@@ -126,8 +120,7 @@ function toSummary(row: PostRow, tags: string[]): ApiPostSummary {
     theme: row.theme ?? undefined,
     tags,
     summary: row.summary,
-    coverImageUrl: row.coverImageUrl ?? undefined,
-    featuredOrder: row.featuredOrder ?? undefined
+    coverImageUrl: row.coverImageUrl ?? undefined
   };
 }
 
@@ -137,7 +130,6 @@ function toDetail(row: PostRow, tags: string[]): AdminPostRecord {
     contentMarkdown: row.contentMarkdown,
     contentHtml: row.contentHtml,
     status: row.status,
-    isFeatured: Boolean(row.isFeatured),
     publishedAt: row.publishedAt ?? undefined
   };
 }
@@ -183,8 +175,6 @@ function readPostById(context: DatabaseContext, postId: number): PostRow | null 
         p.content_markdown AS contentMarkdown,
         p.content_html AS contentHtml,
         p.status,
-        p.is_featured AS isFeatured,
-        p.featured_order AS featuredOrder,
         p.published_at AS publishedAt
       FROM posts p
       WHERE p.id = ?
@@ -284,8 +274,6 @@ export function listPublishedPosts(
         p.content_markdown AS contentMarkdown,
         p.content_html AS contentHtml,
         p.status,
-        p.is_featured AS isFeatured,
-        p.featured_order AS featuredOrder,
         p.published_at AS publishedAt
       FROM posts p
       WHERE ${whereSql}
@@ -321,8 +309,6 @@ export function getPublishedPostBySlug(context: DatabaseContext, slug: string): 
         p.content_markdown AS contentMarkdown,
         p.content_html AS contentHtml,
         p.status,
-        p.is_featured AS isFeatured,
-        p.featured_order AS featuredOrder,
         p.published_at AS publishedAt
       FROM posts p
       WHERE p.slug = ? AND p.status = 'published'
@@ -336,67 +322,6 @@ export function getPublishedPostBySlug(context: DatabaseContext, slug: string): 
 
   const tags = readTagsByPostIds(context, [row.id]).get(row.id) ?? [];
   return toDetail(row, tags);
-}
-
-export function listFeaturedPosts(context: DatabaseContext, limit = 5): ApiPostSummary[] {
-  const normalizedLimit = Math.max(1, Math.min(20, Number(limit) || 5));
-
-  const featuredRows = context.sqlite
-    .query(`
-      SELECT
-        p.id,
-        p.title,
-        p.slug,
-        p.date,
-        p.summary,
-        p.theme,
-        p.cover_image_url AS coverImageUrl,
-        p.content_markdown AS contentMarkdown,
-        p.content_html AS contentHtml,
-        p.status,
-        p.is_featured AS isFeatured,
-        p.featured_order AS featuredOrder,
-        p.published_at AS publishedAt
-      FROM posts p
-      WHERE p.status = 'published' AND p.is_featured = 1
-      ORDER BY COALESCE(p.featured_order, 999999) ASC, p.date DESC
-      LIMIT ?
-    `)
-    .all(normalizedLimit) as PostRow[];
-
-  let rows = featuredRows;
-
-  if (!rows.length) {
-    rows = context.sqlite
-      .query(`
-        SELECT
-          p.id,
-          p.title,
-          p.slug,
-          p.date,
-          p.summary,
-          p.theme,
-          p.cover_image_url AS coverImageUrl,
-          p.content_markdown AS contentMarkdown,
-          p.content_html AS contentHtml,
-          p.status,
-          p.is_featured AS isFeatured,
-          p.featured_order AS featuredOrder,
-          p.published_at AS publishedAt
-        FROM posts p
-        WHERE p.status = 'published'
-        ORDER BY p.date DESC, p.id DESC
-        LIMIT ?
-      `)
-      .all(normalizedLimit) as PostRow[];
-  }
-
-  const tagMap = readTagsByPostIds(
-    context,
-    rows.map((row) => row.id)
-  );
-
-  return rows.map((row) => toSummary(row, tagMap.get(row.id) ?? []));
 }
 
 export function listAdminPosts(
@@ -470,8 +395,6 @@ export function listAdminPosts(
         p.content_markdown AS contentMarkdown,
         p.content_html AS contentHtml,
         p.status,
-        p.is_featured AS isFeatured,
-        p.featured_order AS featuredOrder,
         p.published_at AS publishedAt
       FROM posts p
       WHERE ${whereSql}
@@ -511,8 +434,6 @@ export function createPost(context: DatabaseContext, input: UpsertPostInput): Ad
   const normalizedTags = normalizeTags(input.tags);
   const contentHtml = renderMarkdownToSafeHtml(input.contentMarkdown);
   const normalizedTheme = input.theme?.trim() ? input.theme.trim().replace(/\s+/g, ' ') : null;
-  const isFeatured = input.status === 'published' ? Boolean(input.isFeatured) : false;
-  const featuredOrder = isFeatured ? Number(input.featuredOrder ?? 999999) : null;
   const publishedAt = input.status === 'published' ? now : null;
 
   const existingSlug = context.sqlite.query('SELECT id FROM posts WHERE slug = ? LIMIT 1').get(input.slug) as {
@@ -535,12 +456,10 @@ export function createPost(context: DatabaseContext, input: UpsertPostInput): Ad
         content_markdown,
         content_html,
         status,
-        is_featured,
-        featured_order,
         created_at,
         updated_at,
         published_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `)
     .run(
       input.title.trim(),
@@ -552,8 +471,6 @@ export function createPost(context: DatabaseContext, input: UpsertPostInput): Ad
       input.contentMarkdown,
       contentHtml,
       input.status,
-      isFeatured ? 1 : 0,
-      featuredOrder,
       now,
       now,
       publishedAt
@@ -609,15 +526,6 @@ export function updatePost(
   const existingTags = readTagsByPostIds(context, [postId]).get(postId) ?? [];
   const nextTags = input.tags ? normalizeTags(input.tags) : existingTags;
 
-  const isFeaturedInput = input.isFeatured;
-  const nextIsFeaturedBase =
-    isFeaturedInput === undefined ? Boolean(existing.isFeatured) : Boolean(isFeaturedInput);
-  const nextIsFeatured = nextStatus === 'published' ? nextIsFeaturedBase : false;
-
-  const nextFeaturedOrder = nextIsFeatured
-    ? Number(input.featuredOrder ?? existing.featuredOrder ?? 999999)
-    : null;
-
   const nextPublishedAt =
     nextStatus === 'published'
       ? existing.publishedAt ?? new Date().toISOString()
@@ -632,9 +540,7 @@ export function updatePost(
     coverImageUrl: nextCoverImageUrl ?? undefined,
     contentMarkdown: nextContentMarkdown,
     status: nextStatus,
-    tags: nextTags,
-    isFeatured: nextIsFeatured,
-    featuredOrder: nextFeaturedOrder ?? undefined
+    tags: nextTags
   };
 
   assertPostInput(validationInput);
@@ -660,8 +566,6 @@ export function updatePost(
         content_markdown = ?,
         content_html = ?,
         status = ?,
-        is_featured = ?,
-        featured_order = ?,
         updated_at = ?,
         published_at = ?
       WHERE id = ?
@@ -676,8 +580,6 @@ export function updatePost(
       nextContentMarkdown,
       nextContentHtml,
       nextStatus,
-      nextIsFeatured ? 1 : 0,
-      nextFeaturedOrder,
       new Date().toISOString(),
       nextPublishedAt,
       postId
@@ -702,22 +604,7 @@ export function publishPost(context: DatabaseContext, postId: number): AdminPost
 
 export function unpublishPost(context: DatabaseContext, postId: number): AdminPostRecord | null {
   const updated = updatePost(context, postId, {
-    status: 'draft',
-    isFeatured: false,
-    featuredOrder: undefined
-  });
-
-  return updated;
-}
-
-export function setPostFeatured(
-  context: DatabaseContext,
-  postId: number,
-  payload: { isFeatured: boolean; featuredOrder?: number }
-): AdminPostRecord | null {
-  const updated = updatePost(context, postId, {
-    isFeatured: payload.isFeatured,
-    featuredOrder: payload.featuredOrder
+    status: 'draft'
   });
 
   return updated;

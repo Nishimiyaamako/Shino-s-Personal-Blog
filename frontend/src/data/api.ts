@@ -71,8 +71,7 @@ function ensurePostSummary(record: unknown): PostSummary {
     theme: item.theme ? String(item.theme) : undefined,
     tags: Array.isArray(item.tags) ? item.tags.map((tag) => String(tag)) : [],
     summary: String(item.summary ?? ''),
-    coverImageUrl: item.coverImageUrl ? String(item.coverImageUrl) : undefined,
-    featuredOrder: typeof item.featuredOrder === 'number' ? item.featuredOrder : undefined
+    coverImageUrl: item.coverImageUrl ? String(item.coverImageUrl) : undefined
   };
 }
 
@@ -119,14 +118,6 @@ export async function fetchPublicPosts(options: {
     pageSize: Number(payload.pageSize ?? 20),
     items: Array.isArray(payload.items) ? payload.items.map((item) => ensurePostSummary(item)) : []
   };
-}
-
-export async function fetchFeaturedPosts(limit = 5, signal?: AbortSignal): Promise<PostSummary[]> {
-  const payload = await fetchJson<ApiListResponse<unknown>>(`/api/home/featured?limit=${encodeURIComponent(String(limit))}`, {
-    signal
-  });
-
-  return Array.isArray(payload.items) ? payload.items.map((item) => ensurePostSummary(item)) : [];
 }
 
 export async function fetchPostDetail(slug: string, signal?: AbortSignal): Promise<PostDetail | null> {
@@ -281,8 +272,7 @@ function toAdminPost(item: unknown): AdminPost {
 
   return {
     ...detail,
-    id: Number(record.id ?? 0),
-    isFeatured: Boolean(record.isFeatured)
+    id: Number(record.id ?? 0)
   } satisfies AdminPost;
 }
 
@@ -374,23 +364,6 @@ export async function adminPublishPost(token: string, postId: number): Promise<A
 export async function adminUnpublishPost(token: string, postId: number): Promise<AdminPost> {
   const response = await adminFetchJson<{ item: unknown }>(`/api/admin/posts/${postId}/unpublish`, token, {
     method: 'POST'
-  });
-
-  return toAdminPost(response.item);
-}
-
-export async function adminSetFeatured(
-  token: string,
-  postId: number,
-  isFeatured: boolean,
-  featuredOrder?: number
-): Promise<AdminPost> {
-  const response = await adminFetchJson<{ item: unknown }>(`/api/admin/posts/${postId}/featured`, token, {
-    method: 'PATCH',
-    headers: {
-      'content-type': 'application/json'
-    },
-    body: JSON.stringify({ isFeatured, featuredOrder })
   });
 
   return toAdminPost(response.item);

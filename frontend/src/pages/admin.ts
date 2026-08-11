@@ -3,7 +3,6 @@ import type { PageRenderer } from '../types/router';
 
 const MODULE_ICONS: Record<string, string> = {
   posts: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>',
-  featured: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
   friends: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
   about: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
   profile: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
@@ -28,18 +27,14 @@ function renderSidebarNav(pathname: string): string {
 
 function renderPanelHidden(currentPathname: string, panel: string): string {
   const activeModule = resolveAdminModule(currentPathname);
-  const isPostsWorkspace = panel === 'posts' && (activeModule === 'posts' || activeModule === 'featured');
-  const isActive = activeModule === panel || isPostsWorkspace;
+  const isActive = activeModule === panel;
   return isActive ? '' : ' hidden';
 }
 
 function renderPostsWorkspace(pathname: string): string {
-  const activeModule = resolveAdminModule(pathname);
-  const isFeaturedMode = activeModule === 'featured';
-
   return `
-  <div class="admin-posts-workspace${isFeaturedMode ? ' is-featured-focused' : ''}" data-role="admin-posts-workspace">
-    <div class="admin-posts-primary${isFeaturedMode ? ' is-collapsed' : ''}" data-role="admin-posts-primary" ${isFeaturedMode ? 'hidden' : ''}>
+  <div class="admin-posts-workspace" data-role="admin-posts-workspace">
+    <div class="admin-posts-primary" data-role="admin-posts-primary">
       <div class="admin-split-layout">
         <aside class="admin-list-panel">
           <div class="admin-list-toolbar">
@@ -135,8 +130,6 @@ function renderPostsWorkspace(pathname: string): string {
                     <option value="published">已发布</option>
                   </select>
                 </label>
-                <label class="admin-checkbox-label"><input type="checkbox" name="isFeatured" /> <span>设为首页精选</span></label>
-                <label><span>精选排序</span><input type="number" name="featuredOrder" min="1" placeholder="1" /></label>
               </div>
             </details>
 
@@ -152,16 +145,6 @@ function renderPostsWorkspace(pathname: string): string {
           </form>
         </div>
       </div>
-    </div>
-
-    <div class="admin-featured-workspace${isFeaturedMode ? ' is-active' : ''}" data-role="admin-featured-panel" ${isFeaturedMode ? '' : 'hidden'}>
-      <header class="admin-panel-header">
-        <h2>首页精选管理</h2>
-        <p>仅显示已发布文章。可批量开关精选并调整排序。</p>
-      </header>
-      <ul class="admin-featured-list" data-role="admin-featured-list" aria-live="polite"></ul>
-      <p class="admin-form-error" data-role="admin-featured-error" hidden></p>
-      <p class="admin-form-success" data-role="admin-featured-success" hidden></p>
     </div>
   </div>`;
 }
@@ -415,7 +398,6 @@ export const renderAdminPage: PageRenderer = (context) => {
 function getPageTitle(module: string): string {
   switch (module) {
     case 'posts': return '文章管理';
-    case 'featured': return '精选管理';
     case 'friends': return '友链管理';
     case 'about': return '关于页';
     case 'profile': return '名片卡';

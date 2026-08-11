@@ -7,15 +7,13 @@ import { setupAdminMediaModule, type AdminMediaModule } from './media';
 import { setupAdminPostsModule, type AdminPostsModule } from './posts';
 import { setupAdminSiteSettingsModule, type AdminSiteSettingsModule } from './site-settings';
 
-const POSTS_WORKSPACE_MODULES: ReadonlySet<AdminModuleRoute> = new Set(['posts', 'featured']);
+const POSTS_WORKSPACE_MODULES: ReadonlySet<AdminModuleRoute> = new Set(['posts']);
 type DirtyScope = 'posts-form' | 'friends-form' | 'about-form' | 'profile-form' | 'media-form' | 'settings-form';
 
 function getRuntimeStatusText(module: AdminModuleRoute): string {
   switch (module) {
     case 'posts':
       return '已进入文章管理。';
-    case 'featured':
-      return '已进入精选管理。';
     case 'friends':
       return '已进入友链管理。';
     case 'about':

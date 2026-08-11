@@ -18,7 +18,6 @@ export interface PostSummary {
   tags: string[];
   summary: string;
   coverImageUrl?: string;
-  featuredOrder?: number;
 }
 
 export interface PostDetail extends PostSummary {

@@ -26,8 +26,6 @@ export const postsTable = sqliteTable(
     contentMarkdown: text('content_markdown').notNull(),
     contentHtml: text('content_html').notNull(),
     status: text('status', { enum: ['draft', 'published'] }).notNull(),
-    isFeatured: integer('is_featured', { mode: 'boolean' }).notNull().default(false),
-    featuredOrder: integer('featured_order'),
     viewCount: integer('view_count').notNull().default(0),
     likeCount: integer('like_count').notNull().default(0),
     commentCount: integer('comment_count').notNull().default(0),

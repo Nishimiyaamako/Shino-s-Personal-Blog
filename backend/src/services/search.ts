@@ -29,7 +29,6 @@ interface SearchRow {
   viewCount: number;
   likeCount: number;
   commentCount: number;
-  isFeatured: number;
 }
 
 /**
@@ -74,20 +73,12 @@ function calculateQualityScore(
 }
 
 /**
- * 计算权威性/常青度得分 (0-1)
- * 置顶文章得1分，其他得0分
- */
-function calculateAuthorityScore(isFeatured: number): number {
-  return isFeatured ? 1 : 0;
-}
-
-/**
  * 计算最终排序得分
  * 权重分配:
  * - 文本相关性: 50%
  * - 时间衰减: 25%
  * - 内容质量: 15%
- * - 权威性: 10%
+ * - 权威性: 10%（精选字段废弃后恒为 0，保留权重占位）
  */
 function calculateFinalScore(
   bm25Score: number,
@@ -166,7 +157,6 @@ export function searchPublishedPosts(
           p.view_count AS viewCount,
           p.like_count AS likeCount,
           p.comment_count AS commentCount,
-          p.is_featured AS isFeatured,
           p.id AS postId
         FROM posts p
         LEFT JOIN post_tags pt ON pt.post_id = p.id
@@ -204,7 +194,7 @@ export function searchPublishedPosts(
         maxLikeCount,
         maxCommentCount
       );
-      const authorityScore = calculateAuthorityScore(row.isFeatured);
+      const authorityScore = 0;
       const finalScore = calculateFinalScore(
         row.bm25Score,
         timeDecayScore,
@@ -244,8 +234,7 @@ export function searchPublishedPosts(
           COALESCE(group_concat(t.name), '') AS tags,
           p.view_count AS viewCount,
           p.like_count AS likeCount,
-          p.comment_count AS commentCount,
-          p.is_featured AS isFeatured
+          p.comment_count AS commentCount
         FROM posts p
         LEFT JOIN post_tags pt ON pt.post_id = p.id
         LEFT JOIN tags t ON t.id = pt.tag_id
@@ -265,7 +254,6 @@ export function searchPublishedPosts(
         viewCount: number;
         likeCount: number;
         commentCount: number;
-        isFeatured: number;
       }>;
 
     if (rows.length === 0) {
@@ -288,7 +276,7 @@ export function searchPublishedPosts(
         maxLikeCount,
         maxCommentCount
       );
-      const authorityScore = calculateAuthorityScore(row.isFeatured);
+      const authorityScore = 0;
       // 降级模式：文本相关性权重降低，时间衰减和质量分权重提高
       const finalScore = 0.3 + timeDecayScore * 0.3 + qualityScore * 0.2 + authorityScore * 0.2;
 

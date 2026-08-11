@@ -34,7 +34,6 @@ export interface AdminLoginResponse {
 
 export interface AdminPost extends PostDetail {
   id: number;
-  isFeatured: boolean;
   status: PostStatus;
 }
 

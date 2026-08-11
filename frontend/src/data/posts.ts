@@ -26,29 +26,6 @@ export function loadPosts(): PostSummary[] {
   return getPublishedPosts().map((post) => toSummary(post));
 }
 
-export function loadHomeFeaturedPosts(limit = 5): PostSummary[] {
-  const normalizedLimit = Math.max(1, Number(limit) || 5);
-  const publishedPosts = getPublishedPosts();
-  const featuredPosts = publishedPosts
-    .filter((post) => typeof post.featuredOrder === 'number')
-    .sort((left, right) => {
-      const leftOrder = left.featuredOrder ?? Number.MAX_SAFE_INTEGER;
-      const rightOrder = right.featuredOrder ?? Number.MAX_SAFE_INTEGER;
-
-      if (leftOrder !== rightOrder) {
-        return leftOrder - rightOrder;
-      }
-
-      return right.date.localeCompare(left.date, 'en');
-    });
-
-  if (featuredPosts.length) {
-    return featuredPosts.slice(0, normalizedLimit).map((post) => toSummary(post));
-  }
-
-  return publishedPosts.slice(0, normalizedLimit).map((post) => toSummary(post));
-}
-
 export function applyRemotePublishedPostSummaries(summaries: PostSummary[]): boolean {
   const normalizedSummaries = summaries
     .map((summary) => normalizeRemoteSummary(summary))
@@ -352,8 +329,7 @@ function toSummary(post: PostDetail): PostSummary {
     theme: post.theme,
     tags: [...post.tags],
     summary: post.summary,
-    coverImageUrl: post.coverImageUrl,
-    featuredOrder: post.featuredOrder
+    coverImageUrl: post.coverImageUrl
   };
 }
 
@@ -365,8 +341,7 @@ function normalizeRemoteSummary(summary: PostSummary): PostSummary {
     theme: summary.theme?.trim() || undefined,
     tags: summary.tags.map((tag) => tag.trim()).filter(Boolean),
     summary: summary.summary.trim(),
-    coverImageUrl: summary.coverImageUrl?.trim() || undefined,
-    featuredOrder: typeof summary.featuredOrder === 'number' ? summary.featuredOrder : undefined
+    coverImageUrl: summary.coverImageUrl?.trim() || undefined
   };
 }
 
@@ -387,7 +362,6 @@ function buildPostFingerprint(posts: PostDetail[]): string {
         post.date,
         post.summary,
         post.coverImageUrl ?? '',
-        post.featuredOrder ?? '',
         post.status,
         post.contentHtml.length,
         post.contentMarkdown.length

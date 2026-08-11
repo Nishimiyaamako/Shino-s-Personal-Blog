@@ -21,8 +21,6 @@ CREATE TABLE IF NOT EXISTS posts (
   content_markdown TEXT NOT NULL,
   content_html TEXT NOT NULL,
   status TEXT NOT NULL CHECK(status IN ('draft', 'published')),
-  is_featured INTEGER NOT NULL DEFAULT 0,
-  featured_order INTEGER,
   view_count INTEGER NOT NULL DEFAULT 0,
   like_count INTEGER NOT NULL DEFAULT 0,
   comment_count INTEGER NOT NULL DEFAULT 0,
@@ -107,7 +105,6 @@ url: ''https://nagashino.top/''',
 );
 
 CREATE INDEX IF NOT EXISTS posts_status_idx ON posts(status);
-CREATE INDEX IF NOT EXISTS posts_featured_idx ON posts(is_featured, featured_order);
 CREATE INDEX IF NOT EXISTS post_tags_post_idx ON post_tags(post_id);
 CREATE INDEX IF NOT EXISTS post_tags_tag_idx ON post_tags(tag_id);
 CREATE INDEX IF NOT EXISTS friend_links_enabled_order_idx ON friend_links(enabled, display_order);
@@ -149,5 +146,19 @@ function runPostMigrations(sqlite: Database): void {
   }
   if (!existing.has('timeline_events')) {
     sqlite.run(`ALTER TABLE about_page ADD COLUMN timeline_events TEXT NOT NULL DEFAULT '[]'`);
+  }
+
+  // 精选功能废弃：先删索引（索引引用列，不删索引无法 DROP COLUMN），再删列
+  sqlite.run(`DROP INDEX IF EXISTS posts_featured_idx`);
+
+  const postColumns = new Set(
+    (sqlite.query(`SELECT name FROM pragma_table_info('posts')`).all() as Array<{ name: string }>).map((r) => r.name)
+  );
+
+  if (postColumns.has('is_featured')) {
+    sqlite.run(`ALTER TABLE posts DROP COLUMN is_featured`);
+  }
+  if (postColumns.has('featured_order')) {
+    sqlite.run(`ALTER TABLE posts DROP COLUMN featured_order`);
   }
 }

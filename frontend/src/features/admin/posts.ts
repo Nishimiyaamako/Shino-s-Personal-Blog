@@ -3,7 +3,6 @@ import {
   adminDeletePost,
   adminListPosts,
   adminPublishPost,
-  adminSetFeatured,
   adminUnpublishPost,
   adminUpdatePost,
   adminUploadImage
@@ -14,7 +13,6 @@ import {
   generateSlug,
   readPostFormPayload,
   renderAdminPostList,
-  renderFeaturedList,
   renderMarkdownPreviewHtml,
   setMessage
 } from './shared';
@@ -75,9 +73,6 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
   const coverUploadButton = rootElement.querySelector<HTMLButtonElement>('[data-role="admin-cover-upload-btn"]');
   const contentUploadInput = rootElement.querySelector<HTMLInputElement>('[data-role="admin-content-upload"]');
   const contentUploadButton = rootElement.querySelector<HTMLButtonElement>('[data-role="admin-content-upload-btn"]');
-  const featuredListElement = rootElement.querySelector<HTMLElement>('[data-role="admin-featured-list"]');
-  const featuredErrorElement = rootElement.querySelector<HTMLElement>('[data-role="admin-featured-error"]');
-  const featuredSuccessElement = rootElement.querySelector<HTMLElement>('[data-role="admin-featured-success"]');
 
   const filterForm = rootElement.querySelector<HTMLFormElement>('[data-role="admin-post-filter-form"]');
   const searchInput = rootElement.querySelector<HTMLInputElement>('[data-role="admin-post-search"]');
@@ -108,7 +103,6 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
     || !coverUploadButton
     || !contentUploadInput
     || !contentUploadButton
-    || !featuredListElement
     || !filterForm
     || !searchInput
     || !statusSelect
@@ -124,7 +118,6 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
 
   let selectedPostId = 0;
   let posts: AdminPost[] = [];
-  let featuredSourcePosts: AdminPost[] = [];
   let busy = false;
   let postFormDirty = false;
 
@@ -225,7 +218,6 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
 
   const renderPostCollections = (): void => {
     postListElement.innerHTML = renderAdminPostList(posts, selectedPostId);
-    featuredListElement.innerHTML = renderFeaturedList(featuredSourcePosts);
   };
 
   const renderPagination = (): void => {
@@ -249,7 +241,6 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
 
   const refresh = async (): Promise<void> => {
     postListElement.innerHTML = '<li class="admin-state-hint">正在加载文章列表…</li>';
-    featuredListElement.innerHTML = '<li class="admin-state-hint">正在加载精选列表…</li>';
 
     const query: AdminPostListQuery = {
       q: filters.q || undefined,
@@ -259,18 +250,10 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
       pageSize: filters.pageSize
     };
 
-    const [postResponse, featuredResponse] = await Promise.all([
-      adminListPosts(token, query),
-      adminListPosts(token, {
-        status: 'published',
-        page: 1,
-        pageSize: 1000
-      })
-    ]);
+    const postResponse = await adminListPosts(token, query);
 
     lastListResponse = postResponse;
     posts = postResponse.items;
-    featuredSourcePosts = featuredResponse.items;
     filters.page = postResponse.page;
     filters.pageSize = postResponse.pageSize;
 
@@ -331,8 +314,6 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
         await refresh();
       }
       setMessage(postSuccessElement, successMessage);
-      setMessage(featuredSuccessElement, '');
-      setMessage(featuredErrorElement, '');
     } catch (error) {
       const message = error instanceof Error ? error.message : '操作失败';
       setMessage(postErrorElement, message, { error: true });
@@ -542,59 +523,6 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
     }
   };
 
-  const handleFeaturedSave = async (event: Event): Promise<void> => {
-    const target = event.target;
-    if (!(target instanceof HTMLElement)) {
-      return;
-    }
-
-    const saveButton = target.closest<HTMLButtonElement>('[data-role="admin-featured-save"]');
-    if (!saveButton) {
-      return;
-    }
-
-    const itemElement = saveButton.closest<HTMLElement>('.admin-featured-item');
-    if (!itemElement) {
-      return;
-    }
-
-    const postId = Number(itemElement.dataset.featuredId ?? 0);
-    if (!postId) {
-      return;
-    }
-
-    const enabledElement = itemElement.querySelector<HTMLInputElement>('[data-role="admin-featured-enabled"]');
-    const orderElement = itemElement.querySelector<HTMLInputElement>('[data-role="admin-featured-order"]');
-
-    if (busy) {
-      return;
-    }
-
-    if (!guardBeforeCollectionRefresh('保存精选设置')) {
-      return;
-    }
-
-    setBusy(true);
-    setMessage(featuredErrorElement, '');
-    setMessage(featuredSuccessElement, '');
-
-    try {
-      await adminSetFeatured(
-        token,
-        postId,
-        Boolean(enabledElement?.checked),
-        orderElement?.value ? Number(orderElement.value) : undefined
-      );
-      await refresh();
-      setMessage(featuredSuccessElement, '精选状态已更新。');
-    } catch (error) {
-      setMessage(featuredErrorElement, error instanceof Error ? error.message : '更新精选失败', { error: true });
-    } finally {
-      setBusy(false);
-      renderPagination();
-    }
-  };
-
   const handleFilterSubmit = async (event: SubmitEvent): Promise<void> => {
     event.preventDefault();
 
@@ -679,7 +607,6 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
   coverUploadButton.addEventListener('click', handleCoverUpload);
   contentUploadButton.addEventListener('click', handleContentUpload);
   postContentTextarea.addEventListener('paste', handleContentPaste);
-  featuredListElement.addEventListener('click', handleFeaturedSave);
   filterForm.addEventListener('submit', handleFilterSubmit);
   resetFilterButton.addEventListener('click', handleFilterReset);
   prevPageButton.addEventListener('click', handlePrevPage);
@@ -704,7 +631,6 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
       postDeleteButton.removeEventListener('click', handlePostDelete);
       coverUploadButton.removeEventListener('click', handleCoverUpload);
       contentUploadButton.removeEventListener('click', handleContentUpload);
-      featuredListElement.removeEventListener('click', handleFeaturedSave);
       filterForm.removeEventListener('submit', handleFilterSubmit);
       resetFilterButton.removeEventListener('click', handleFilterReset);
       prevPageButton.removeEventListener('click', handlePrevPage);

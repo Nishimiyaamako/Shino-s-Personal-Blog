@@ -10,7 +10,6 @@ export interface AdminFeatureOptions {
 const ALLOWED_NEXT_PATHS = new Set([
   '/admin',
   '/admin/posts',
-  '/admin/featured',
   '/admin/friends',
   '/admin/about',
   '/admin/profile',

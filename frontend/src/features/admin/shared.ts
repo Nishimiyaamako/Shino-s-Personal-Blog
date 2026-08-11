@@ -77,15 +77,13 @@ export function renderMarkdownPreviewHtml(markdownText: string): string {
 }
 
 export function formatPostStatus(post: AdminPost): string {
-  const statusLabel = post.status === 'published' ? '已发布' : '草稿';
-  return `${statusLabel}${post.isFeatured ? ' · 精选' : ''}`;
+  return post.status === 'published' ? '已发布' : '草稿';
 }
 
 export function readPostFormPayload(form: HTMLFormElement): Partial<AdminPost> {
   const formData = new FormData(form);
 
   const status = String(formData.get('status') ?? 'draft');
-  const featuredOrderText = String(formData.get('featuredOrder') ?? '').trim();
   const manualSlug = String(formData.get('slugManual') ?? '').trim();
   const autoSlug = String(formData.get('slug') ?? '').trim();
 
@@ -98,9 +96,7 @@ export function readPostFormPayload(form: HTMLFormElement): Partial<AdminPost> {
     tags: splitTags(String(formData.get('tags') ?? '')),
     coverImageUrl: String(formData.get('coverImageUrl') ?? '').trim() || undefined,
     contentMarkdown: String(formData.get('contentMarkdown') ?? ''),
-    status: status === 'draft' ? 'draft' : 'published',
-    isFeatured: Boolean(formData.get('isFeatured')),
-    featuredOrder: featuredOrderText ? Number(featuredOrderText) : undefined
+    status: status === 'draft' ? 'draft' : 'published'
   };
 }
 
@@ -123,9 +119,6 @@ export function fillPostForm(form: HTMLFormElement, post: AdminPost | null): voi
   (form.elements.namedItem('tags') as HTMLInputElement).value = post.tags.join(', ');
   (form.elements.namedItem('coverImageUrl') as HTMLInputElement).value = post.coverImageUrl ?? '';
   (form.elements.namedItem('status') as HTMLSelectElement).value = post.status;
-  (form.elements.namedItem('isFeatured') as HTMLInputElement).checked = post.isFeatured;
-  (form.elements.namedItem('featuredOrder') as HTMLInputElement).value =
-    typeof post.featuredOrder === 'number' ? String(post.featuredOrder) : '';
   (form.elements.namedItem('contentMarkdown') as HTMLTextAreaElement).value = post.contentMarkdown;
   // Clear manual slug override when loading existing post
   const slugOverride = form.elements.namedItem('slugManual');
@@ -156,42 +149,6 @@ export function renderAdminPostList(posts: AdminPost[], selectedPostId: number):
         <strong class="admin-truncate">${escapeHtml(post.title)}</strong>
         <small>${escapeHtml(post.date)} · ${escapeHtml(formatPostStatus(post))}</small>
       </button>
-    </li>`
-    )
-    .join('');
-}
-
-export function renderFeaturedList(posts: AdminPost[]): string {
-  const featuredPosts = posts
-    .filter((post) => post.status === 'published')
-    .sort((left, right) => {
-      const leftOrder = typeof left.featuredOrder === 'number' ? left.featuredOrder : Number.MAX_SAFE_INTEGER;
-      const rightOrder = typeof right.featuredOrder === 'number' ? right.featuredOrder : Number.MAX_SAFE_INTEGER;
-
-      if (leftOrder !== rightOrder) {
-        return leftOrder - rightOrder;
-      }
-
-      return right.date.localeCompare(left.date, 'en');
-    });
-
-  if (!featuredPosts.length) {
-    return '<li class="admin-state-hint">暂无可管理的已发布文章。请先发布文章后再设置精选。</li>';
-  }
-
-  return featuredPosts
-    .map(
-      (post) => `<li class="admin-featured-item" data-featured-id="${post.id}">
-      <div>
-        <strong class="admin-truncate">${escapeHtml(post.title)}</strong>
-        <small class="admin-truncate">${escapeHtml(post.slug)}</small>
-      </div>
-      <label>
-        <input type="checkbox" data-role="admin-featured-enabled" ${post.isFeatured ? 'checked' : ''} />
-        <span>首页精选</span>
-      </label>
-      <input type="number" min="1" value="${typeof post.featuredOrder === 'number' ? post.featuredOrder : ''}" data-role="admin-featured-order" placeholder="排序值" />
-      <button type="button" class="admin-btn admin-btn-secondary" data-role="admin-featured-save">保存</button>
     </li>`
     )
     .join('');

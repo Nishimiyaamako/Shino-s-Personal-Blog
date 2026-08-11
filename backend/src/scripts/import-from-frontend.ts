@@ -88,11 +88,7 @@ async function importFrontendData(databasePath?: string): Promise<ImportResult> 
         contentMarkdown: parsed.content.trim()
       };
 
-      createPost(context, {
-        ...input,
-        isFeatured: false,
-        featuredOrder: undefined
-      });
+      createPost(context, input);
     }
 
     rebuildSearchIndex(context);

@@ -17,7 +17,6 @@ import {
   listAdminPosts,
   publishPost,
   rebuildSearchIndex,
-  setPostFeatured,
   unpublishPost,
   updatePost,
   type UpsertPostInput
@@ -239,36 +238,6 @@ export function createAdminRoutes(context: DatabaseContext) {
       try {
         rebuildSearchIndex(context);
         return { ok: true };
-      } catch (error) {
-        set.status = 400;
-        return toErrorPayload(error);
-      }
-    })
-    .patch('/posts/:id/featured', async ({ request, params, set }) => {
-      const admin = await requireAdmin(request, set);
-      if (!admin) {
-        return { error: 'Unauthorized' };
-      }
-
-      const postId = asPositiveInt(params.id);
-      if (!postId) {
-        set.status = 400;
-        return { error: '无效文章 id' };
-      }
-
-      try {
-        const body = await parseJsonBody<{ isFeatured: boolean; featuredOrder?: number }>(request);
-        const item = setPostFeatured(context, postId, {
-          isFeatured: Boolean(body.isFeatured),
-          featuredOrder: body.featuredOrder
-        });
-
-        if (!item) {
-          set.status = 404;
-          return { error: '文章不存在' };
-        }
-
-        return { item };
       } catch (error) {
         set.status = 400;
         return toErrorPayload(error);

@@ -9,7 +9,6 @@ export interface ApiPostSummary {
   tags: string[];
   summary: string;
   coverImageUrl?: string;
-  featuredOrder?: number;
 }
 
 export interface ApiPostDetail extends ApiPostSummary {

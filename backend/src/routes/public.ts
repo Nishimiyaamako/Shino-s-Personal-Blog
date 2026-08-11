@@ -2,7 +2,7 @@ import { Elysia } from 'elysia';
 import type { DatabaseContext } from '../db/client';
 import { getAbout } from '../services/about';
 import { listPublicFriendLinks } from '../services/friends';
-import { listFeaturedPosts, listPublishedPosts, getPublishedPostBySlug } from '../services/posts';
+import { listPublishedPosts, getPublishedPostBySlug } from '../services/posts';
 import { getProfileCard } from '../services/profile';
 import { getSiteConfig } from '../services/site-config';
 import { searchPublishedPosts } from '../services/search';
@@ -30,12 +30,6 @@ export function createPublicRoutes(context: DatabaseContext) {
       }
 
       return post;
-    })
-    .get('/home/featured', ({ query }) => {
-      const limit = Number(query.limit ?? 5);
-      return {
-        items: listFeaturedPosts(context, limit)
-      };
     })
     .get('/friend-links', () => ({
       items: listPublicFriendLinks(context)

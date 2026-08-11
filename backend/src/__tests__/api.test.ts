@@ -150,55 +150,6 @@ describe('post publish and search', () => {
     expect(payload.items.some((item) => item.slug === 'searchable-article')).toBeTrue();
   });
 
-  test('featured list uses manual featuredOrder asc', async () => {
-    const token = await login();
-
-    const postPayloads = [
-      {
-        title: 'Featured Later',
-        slug: 'featured-later',
-        date: '2026-04-01',
-        summary: 'featured order 20',
-        tags: ['featured'],
-        contentMarkdown: '# later',
-        status: 'published',
-        isFeatured: true,
-        featuredOrder: 20
-      },
-      {
-        title: 'Featured First',
-        slug: 'featured-first',
-        date: '2026-04-01',
-        summary: 'featured order 1',
-        tags: ['featured'],
-        contentMarkdown: '# first',
-        status: 'published',
-        isFeatured: true,
-        featuredOrder: 1
-      }
-    ] as const;
-
-    for (const payload of postPayloads) {
-      const createResponse = await requestJson('/api/admin/posts', {
-        method: 'POST',
-        token,
-        body: payload
-      });
-
-      expect(createResponse.status).toBe(200);
-    }
-
-    const featuredResponse = await requestJson('/api/home/featured?limit=2');
-    expect(featuredResponse.status).toBe(200);
-
-    const featuredPayload = (await featuredResponse.json()) as {
-      items: Array<{ slug: string }>;
-    };
-
-    expect(featuredPayload.items[0]?.slug).toBe('featured-first');
-    expect(featuredPayload.items[1]?.slug).toBe('featured-later');
-  });
-
   test('search supports title, tag and markdown hits including Chinese', async () => {
     const token = await login();
 

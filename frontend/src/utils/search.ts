@@ -5,8 +5,8 @@ import type { SearchResultItem } from '../types/api';
  * 搜索排序权重配置
  * - 文本相关性: 50% - 基于关键词匹配程度
  * - 发布时间衰减: 25% - 越新的文章得分越高
- * - 内容质量分: 15% - 基于阅读量、点赞数、评论数 (简化版：使用 featuredOrder 作为质量指标)
- * - 权威性/常青度: 10% - 置顶、精选标记
+ * - 内容质量分: 15% - 基于阅读量、点赞数、评论数 (简化版：统一基础质量分)
+ * - 权威性/常青度: 10% - 精选标记已废弃，恒为 0
  */
 
 // 时间衰减参数：1年（365天）半衰期
@@ -17,7 +17,6 @@ interface SearchablePost extends PostSummary {
     viewCount?: number;
     likeCount?: number;
     commentCount?: number;
-    isFeatured?: boolean;
 }
 
 interface ScoredPost {
@@ -109,23 +108,18 @@ function calculateTimeDecayScore(dateStr: string): number {
 
 /**
  * 计算内容质量分 (0-1)
- * 简化版：使用是否有 featuredOrder 作为质量指标
- * 实际项目中可以用 viewCount, likeCount, commentCount
+ * 精选字段废弃后无额外质量信号，统一返回基础文本质量分
  */
-function calculateQualityScore(post: SearchablePost): number {
-    // 如果有 featuredOrder，质量分更高
-    if (typeof post.featuredOrder === 'number') {
-        return 0.5 + (1 / post.featuredOrder) * 0.5;
-    }
+function calculateQualityScore(_post: SearchablePost): number {
     return 0.3;
 }
 
 /**
  * 计算权威性/常青度得分 (0-1)
- * 置顶文章得1分，其他得0分
+ * 精选标记已废弃，恒为 0
  */
-function calculateAuthorityScore(post: SearchablePost): number {
-    return typeof post.featuredOrder === 'number' ? 1 : 0;
+function calculateAuthorityScore(_post: SearchablePost): number {
+    return 0;
 }
 
 /**
