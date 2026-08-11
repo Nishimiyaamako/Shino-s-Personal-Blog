@@ -1,28 +1,28 @@
 # Logging Guidelines
 
-> 后端日志约定（现状 + 约束）。
+> 后端日志约定（tracing + systemd journal）。
 
 ## Overview
 
-无结构化日志库。使用 Bun/Node 原生 `console.info` / `console.error`。生产环境日志由 PM2 接管输出到文件。
+后端使用 `tracing` + `tracing-subscriber`（格式化输出到 stdout）。生产环境由 systemd 接管输出至 journal（`journalctl -u shino-blog-backend`）。
 
 ## Log Levels
 
-- `console.info`：服务启动信息（`index.ts`）
-- `console.error`：错误路径（如 FTS5 降级，`services/search.ts`）
+- `tracing::info`：服务启动/监听端口信息（`main.rs`）
+- `tracing::error`：错误路径（如搜索索引重建失败、迁移失败）
+- `tracing::debug`：可选调试细节（hydration 跳过等场景）
 
 ## Structured Logging
 
-- 无结构化日志格式（无 JSON 行、无请求日志中间件）
-- PM2 输出：
-  - 合并日志 `/opt/shino-blog/logs/combined.log`
-  - stdout `/opt/shino-blog/logs/out.log`
-  - stderr `/opt/shino-blog/logs/error.log`
+- `tracing-subscriber` 默认格式化（时间戳 + 级别 + 目标 + 消息）
+- 无请求日志中间件（个人博客体量不需要全量访问日志）
+- systemd journal：`journalctl -u shino-blog-backend -f` 实时查看，`--since today` 按天过滤
 
 ## What to Log
 
 - 服务启动/监听端口信息
-- 异常降级路径（FTS5 → LIKE）
+- 异常降级路径（搜索 LIKE 降级、迁移工具备份/校验步骤）
+- 关键错误（DB 连接失败、迁移失败）——含足够上下文但不含凭据
 
 ## What NOT to Log
 
@@ -31,5 +31,6 @@
 
 ## 约束
 
-- 保持现状即可：不引入日志框架，新增关键错误路径加 `console.error` 并包含足够上下文
-- 生产排查靠 `pm2 logs shino-blog-backend`
+- 不引入第三方日志框架（tracing 已是标准）
+- 新增关键错误路径加 `tracing::error!` 并包含足够上下文
+- 生产排查靠 `journalctl`，不写独立日志文件（systemd 已接管）

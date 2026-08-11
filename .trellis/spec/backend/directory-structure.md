@@ -1,68 +1,69 @@
 # Directory Structure
 
-> 后端代码组织方式（Elysia.js + Bun + SQLite）。
+> 后端代码组织方式（Rust + Axum + SQLx）。
 
 ## Overview
 
-后端为 Elysia HTTP 服务，按 **Routes → Services → DB/Auth** 三层组织。路由层只处理 HTTP 关注点，业务逻辑全部在 services 层，数据库访问统一走 `DatabaseContext`（闭包注入）。
+后端为 Rust 单一 crate（`backend/rust/`），按 **Routes → Services → 基础设施** 三层组织。路由层只处理 HTTP 关注点，业务逻辑全部在 services 层，数据库访问统一经 `AppState`（PgPool）注入。
 
 ## Directory Layout
 
 ```
 backend/
-├── package.json
-├── tsconfig.json           # strict, ES2022, Bundler resolution, types: ["bun"]
-├── bun.lock
-├── ecosystem.config.js     # PM2 生产配置
-├── ecosystem.config.local.cjs  # PM2 本地配置
-├── start.sh                # 生产启动脚本
-├── data/                   # SQLite 数据库文件（Git 忽略）
-├── uploads/images/         # 上传的图片（Git 忽略）
-└── src/
-    ├── index.ts            # 服务入口（监听端口）
-    ├── app.ts              # Elysia 应用装配（CORS → 路由 → 静态文件）
-    ├── routes/             # HTTP 路由（薄层，委托给 services）
-    │   ├── public.ts       # 公开 API (/api/*)
-    │   ├── admin.ts        # 管理 API (/api/admin/*)
-    │   └── helpers.ts      # 认证守卫 + JSON 解析 + 错误格式化
-    ├── services/           # 业务逻辑层（一个文件一个领域）
-    │   ├── posts.ts        # 文章 CRUD、发布/取消、精选切换
-    │   ├── search.ts       # FTS5 搜索 + 多因子排序
-    │   ├── markdown.ts     # marked 渲染 + highlight.js + sanitize
-    │   ├── about.ts        # 关于页 CRUD
-    │   ├── friends.ts      # 友链 CRUD
-    │   ├── profile.ts      # 名片卡 + 联系方式
-    │   ├── media.ts        # 图片上传 + 孤立文件检测
-    │   └── site-config.ts  # 站点全局配置 CRUD
-    ├── db/                 # 数据库层
-    │   ├── client.ts       # SQLite 连接（WAL / foreign_keys）
-    │   ├── schema.ts       # Drizzle ORM 表定义（10 张表）
-    │   ├── migrate.ts      # 原始 SQL 迁移脚本
-    │   └── search-index.ts # FTS5 搜索索引管理
-    ├── auth/               # 认证层
-    │   ├── jwt.ts          # JWT HS256 签发/验证
-    │   └── admin.ts        # 管理员密码验证 + 默认用户播种
-    ├── config/env.ts       # 环境变量读取与类型化
-    ├── scripts/            # CLI 脚本（seed / migrate / import-from-frontend）
-    ├── types/api.ts        # API 请求/响应类型
-    └── __tests__/api.test.ts  # API 集成测试（bun test）
+├── .env.example           # 环境变量模板（DATABASE_URL 版）
+├── rust/                  # Rust crate（唯一开发/构建目标）
+│   ├── Cargo.toml         # 依赖（axum/sqlx/jsonwebtoken/argon2/...）
+│   ├── Cargo.lock
+│   ├── sql/migrations/    # SQLx 迁移（0001_init.sql：10 表 + posts_search 镜像）
+│   ├── src/
+│   │   ├── main.rs        # 启动：env → pool → migrate → axum serve
+│   │   ├── lib.rs         # Router 装配（CORS + public + admin + uploads + 静态）
+│   │   ├── config.rs      # 环境变量读取（含 DATABASE_URL）
+│   │   ├── db.rs          # PgPool 初始化 + sqlx migrate
+│   │   ├── auth.rs        # login / JWT HS256 / require_admin 守卫 / 默认管理员播种
+│   │   ├── error.rs       # ServiceError → { error } 响应映射
+│   │   ├── models.rs      # API 请求/响应类型（camelCase）
+│   │   ├── markdown.rs    # pulldown-cmark GFM + ammonia 白名单
+│   │   ├── routes/        # HTTP 路由（薄层，委托给 services）
+│   │   │   ├── mod.rs
+│   │   │   ├── public.rs  # 公开 API (/api/*)
+│   │   │   ├── admin.rs   # 管理 API (/api/admin/*，AdminAuth 守卫)
+│   │   │   └── uploads.rs # GET /uploads/images/:fileName 静态服务
+│   │   └── services/      # 业务逻辑层（一个文件一个领域）
+│   │       ├── mod.rs
+│   │       ├── posts.rs   # 文章 CRUD、发布/取消、标签同步、搜索索引同步
+│   │       ├── search.rs  # tsvector 搜索 + 多因子排序
+│   │       ├── media.rs   # 图片上传校验、媒体列表、孤立检测
+│   │       ├── about.rs   # 关于页 CRUD
+│   │       ├── friends.rs # 友链 CRUD
+│   │       ├── profile.rs # 名片卡 + 联系方式
+│   │       └── site_config.rs  # 站点全局配置 CRUD
+│   ├── src/bin/
+│   │   └── migrate-data.rs   # SQLite→PG 数据迁移工具（一次性）
+│   └── tests/
+│       └── api_compat.rs     # 集成测试（tower::ServiceExt::oneshot，独立测试库）
+├── data/                  # （历史）SQLite 数据文件，已被 Postgres 替代
+├── uploads/images/        # 上传的图片（Git 忽略）
+└── src/                   # （历史）Elysia + Bun 旧后端，待删除
 ```
 
 ## Module Organization
 
-- **新增业务域**：在 `services/` 加一个文件，接收 `DatabaseContext` 作为第一参数，业务逻辑与原始 SQL 全部放这里
-- **新增端点**：在 `routes/public.ts`（公开）或 `routes/admin.ts`（管理）注册，handler 保持 10-30 行薄实现
-- **依赖方向**：routes → services → db/auth；禁止反向依赖
-- **API 类型**：统一放 `types/api.ts`，前端独立维护镜像类型（已知债务，见 architecture.md）
+- **新增业务域**：在 `services/` 加一个文件，接收 `&PgPool`（或 `&AppState`）作为参数，业务逻辑与 SQLx 查询全部放这里
+- **新增端点**：在 `routes/public.rs`（公开）或 `routes/admin.rs`（管理）注册，handler 保持 10-30 行薄实现
+- **依赖方向**：routes → services → db/auth/config；禁止反向依赖
+- **API 类型**：统一放 `models.rs`，前端独立维护镜像类型（已知债务，见 architecture.md）
 
 ## Naming Conventions
 
-- 文件/目录：kebab-case（`site-config.ts`、`search-index.ts`）
-- 函数：camelCase（`listPublishedPosts()`、`getBearerToken()`）
-- 类型/接口：PascalCase（`DatabaseContext`、`UpsertPostInput`）
-- 服务函数：接收 typed 输入对象（`UpsertPostInput`）而非位置参数
+- 文件/目录：snake_case（`site_config.rs`、`migrate-data.rs`）
+- 函数：snake_case（`list_published_posts()`、`require_admin()`）
+- 类型/结构体：PascalCase（`AppState`、`ApiPostDetail`）
+- 服务函数：接收 typed 输入结构体而非位置参数
+- bin 目标：cargo 按文件名派生目标名，`migrate-data.rs` → `migrate-data`
 
 ## Examples
 
-- 路由薄实现 + 服务注入模式：`backend/src/routes/admin.ts` + `backend/src/services/posts.ts`
-- 守卫 + 错误格式化：`backend/src/routes/helpers.ts`
+- 路由薄实现 + 服务注入模式：`src/routes/admin.rs` + `src/services/posts.rs`
+- 守卫 + 错误映射：`src/auth.rs`（AdminAuth 提取器）+ `src/error.rs`（ServiceError）
+- 迁移工具：`src/bin/migrate-data.rs`（rusqlite 只读 + sqlx 写 PG + 校验报告）

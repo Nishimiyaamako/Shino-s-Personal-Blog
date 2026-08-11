@@ -11,9 +11,10 @@
 - **渲染函数内做事件绑定/副作用**：页面必须纯渲染，交互走 Features 层 hydration
 - **组件内直接 fetch API**：数据通过 `data/` 层包装，组件只接收 typed 数据
 - **引入前端框架或状态库**（React/Vue/Svelte、Redux 等）：保持 Vanilla 模式
-- **新增 `window.prompt()`/`window.confirm()` 破坏性确认**（已知 UX 债务）：用样式化的 dialog 方案
+- **新增 `window.prompt()`/`window.confirm()` 破坏性确认**：破坏性操作（删除/下线）必须用样式化 dialog（`confirmAdminAction`，见 `features/admin/shared.ts`）；非破坏性丢弃提示可保留原生 confirm（defer）
 - **手动改 `global.css` 级联顺序之外新增样式入口**：样式必须从 manifest 级联导入
 - **路由表外挂页面**：新页面必须在 `router/index.ts` 的 `ROUTE_RECORDS` 注册
+- **新增旧路径硬编码链接**（`/posts`、`/tags`、`/archive`）：博客系链接一律 `/blog` 前缀
 
 ## Required Patterns
 

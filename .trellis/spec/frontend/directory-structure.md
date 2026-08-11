@@ -4,7 +4,7 @@
 
 ## Overview
 
-前端为无框架 SPA：手动路由 + DOM 渲染。核心分层：**Pages（纯渲染函数）→ Features（运行时行为）→ Data（API + 缓存）**，样式按关注点拆分 CSS。页面渲染与行为绑定严格分离（PageRenderer 模式 + hydration）。
+前端为无框架 SPA：手动路由 + DOM 渲染。核心分层：**Pages（纯渲染函数）→ Features（运行时行为）→ Data（API + 缓存）**，样式按关注点拆分 CSS。页面渲染与行为绑定严格分离（PageRenderer 模式 + hydration）。路由结构：`/` 为 landing 页，博客全家族在 `/blog` 前缀（`/blog`、`/blog/:slug`、`/blog/tags`、`/blog/tags/:tag`、`/blog/archive`），`/friends`、`/about` 独立，`/admin/*` 为后台。
 
 ## Directory Layout
 
@@ -19,7 +19,7 @@ frontend/
     ├── main.ts             # 应用入口：外壳渲染 + 路由 + 动效 + 事件代理 + hydration 编排
     ├── router/index.ts     # 路由表 (ROUTE_RECORDS) + 路由解析
     ├── pages/              # 页面模板（纯函数，返回 HTML 字符串）
-    │   ├── home.ts / posts.ts / post-detail.ts / tags.ts / tag-detail.ts
+    │   ├── landing.ts / posts.ts / post-detail.ts / tags.ts / tag-detail.ts
     │   ├── archive.ts / friends.ts / about.ts
     │   ├── admin.ts（后台壳）/ admin-login.ts / not-found.ts
     ├── features/           # 运行时行为绑定（渲染后挂载 DOM，返回 cleanup）
@@ -63,5 +63,5 @@ frontend/
 
 ## Examples
 
-- 页面纯函数 + feature 绑定分离：`frontend/src/pages/home.ts` + `frontend/src/features/public-runtime.ts`
+- 页面纯函数 + feature 绑定分离：`frontend/src/pages/landing.ts` + `frontend/src/features/public-runtime.ts`
 - 管理后台聚合：`frontend/src/features/admin/dashboard.ts`（模块懒初始化 + dirty tracking）

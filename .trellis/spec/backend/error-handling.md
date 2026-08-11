@@ -1,35 +1,43 @@
 # Error Handling
 
-> 后端错误处理约定。
+> 后端错误处理约定（Rust）。
 
 ## Overview
 
-后端无集中错误中间件（无 Elysia `onError` hook）。校验失败抛出 `Error` 实例，路由 handler 内 try/catch 捕获并格式化为 `{ error: string }` JSON 响应。
+后端通过 `ServiceError` 统一错误模型，路由层 `Result` 传播 + `IntoResponse` 映射为 `{ error: string }` JSON 响应。无全局 panic 兜底（axum 默认 500）。
 
 ## Error Types
 
-- 无自定义错误类。全部为普通 `Error` 实例
-- 校验失败消息为**中文**（如 `new Error('title 不能为空')`），直接透传给前端显示
+- `ServiceError::BadRequest(String)` — 业务校验失败，消息为**中文**（如 `title 不能为空`），直接透传给前端显示 → 400
+- `ServiceError::NotFound(String)` — 资源不存在 → 404
+- `ServiceError::Unauthorized` — 认证失败 → 401 `{ error: 'Unauthorized' }`
+- `ServiceError::Database(sqlx::Error)` — 数据库错误 → 500 `{ error: '服务器内部错误' }`（**不泄露内部消息**，比旧后端更安全）
 
 ## Error Handling Patterns
 
-```ts
-// 服务层：抛中文 Error
-assertPostInput(input);  // throws new Error('title 不能为空')
+```rust
+// 服务层：返回 Result<_, ServiceError>
+pub fn create_post(pool: &PgPool, input: UpsertPostInput) -> Result<AdminPostRecord, ServiceError> {
+    if input.title.trim().is_empty() {
+        return Err(ServiceError::BadRequest("title 不能为空".into()));
+    }
+    // ...
+}
 
-// 路由层：try/catch + toErrorPayload
-try {
-  const post = await updatePost(dbContext, id, body);
-  return post;
-} catch (error) {
-  set.status = 400;
-  return toErrorPayload(error);
+// 路由层：? 传播 + IntoResponse 自动映射
+pub async fn create_post(
+    State(state): State<Arc<AppState>>,
+    _auth: AdminAuth,
+    Json(input): Json<UpsertPostInput>,
+) -> Result<Json<AdminPostRecord>, ServiceError> {
+    let post = services::posts::create_post(&state.pool, input)?;
+    Ok(Json(post))
 }
 ```
 
-- `toErrorPayload(error: unknown): { error: string }`（`routes/helpers.ts`）规范化 Error 实例为 `{ error: error.message }`
-- 认证失败：`requireAdmin()` 置 `set.status = 401` 返回 null，调用方返回 `{ error: 'Unauthorized' }`
-- 未捕获异常无全局兜底，会返回未格式化 500（已知债务，见 architecture.md）
+- `ServiceError` 实现 `IntoResponse`（`src/error.rs`），状态码 + `{ error }` 体
+- 认证失败：`AdminAuth` 提取器返回 401（body 消费前）
+- DB 错误统一 500 通用文案，业务校验 400 中文消息
 
 ## API Error Responses
 
@@ -38,10 +46,10 @@ try {
 | 校验失败 | 400 | `{ error: '中文消息' }` |
 | 未认证/无效 token | 401 | `{ error: 'Unauthorized' }` |
 | 资源不存在 | 404 | `{ error: ... }` |
-| 未捕获异常 | 500 | 未格式化 |
+| 数据库错误 | 500 | `{ error: '服务器内部错误' }` |
 
 ## Common Mistakes
 
-- **路由层混入业务逻辑**：路由只做解析 + 调用 + 格式化，业务校验在服务层
-- **忘记设置 `set.status`**：返回错误体但不置状态码会让前端误判成功
-- **新增路由不包 try/catch**：会导致未格式化 500
+- **路由层混入业务逻辑**：路由只做解析 + 调用 + `?` 传播，业务校验在服务层返回 `ServiceError`
+- **DB 错误透传内部消息**：`sqlx::Error` 不得直接 `Display` 给客户端，映射为 500 通用文案
+- **忘记 `?` 传播**：服务返回 `Result` 未在路由层传播会导致未处理错误

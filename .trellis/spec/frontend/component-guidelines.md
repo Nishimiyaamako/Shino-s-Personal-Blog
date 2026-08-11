@@ -29,7 +29,7 @@ type PageRenderer = (context: PageRenderContext) => string
 ## Composition
 
 - 页面模板内嵌组件函数调用（模板字符串拼接）
-- 管理后台壳（`pages/admin.ts`）聚合 7 个管理面板模板（已知单体债务，见 architecture.md）
+- 管理后台壳（`pages/admin.ts`）聚合 6 个管理面板模板（posts/friends/about/profile/media/settings，已知单体债务，见 architecture.md）
 
 ## Accessibility / 交互
 
