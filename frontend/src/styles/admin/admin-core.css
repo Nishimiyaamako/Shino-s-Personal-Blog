@@ -1,5 +1,30 @@
 /* Admin Core Styles — Notion-inspired lightweight editor dashboard */
 
+/* ─── Design Tokens（亮色基线，dark 仅覆盖差异，见文件底部） ─── */
+.admin-app {
+    --admin-bg: #fafafa;
+    --admin-sidebar-bg: #f5f5f5;
+    --admin-surface: #ffffff;
+    --admin-surface-muted: #f0f0f0;
+    --admin-border: #e8e8e8;
+    --admin-text: #1a1a1a;
+    --admin-text-subtle: #6b6b6b;
+    --admin-text-muted: #a0a0a0;
+    --admin-accent: var(--rose-500);
+    --admin-accent-soft: color-mix(in oklch, var(--rose-500) 10%, transparent);
+    --admin-accent-hover: color-mix(in oklch, var(--rose-500) 88%, #000);
+    --admin-hover-bg: rgba(0, 0, 0, 0.04);
+    --admin-danger: #dc2626;
+    --admin-danger-soft: #fef2f2;
+    --admin-danger-border: #fecaca;
+    --admin-danger-hover: #fee2e2;
+    --admin-success: #16a34a;
+    --admin-success-soft: #f0fdf4;
+    --admin-warn: #d08770;
+    --admin-on-accent: #ffffff;
+    --admin-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6b6b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
 /* ─── Quick Meta Row ─── */
 .admin-quick-meta {
     display: grid;
@@ -14,10 +39,18 @@
     gap: 5px;
 }
 
-.admin-quick-meta label>span {
+/* ─── 表单标签（统一 label>span 体系，G4 归并；admin-forms.css 不再重复定义） ─── */
+.admin-quick-meta label>span,
+.admin-summary-field span,
+.admin-pane-header,
+.admin-markdown-full span,
+.admin-post-form label>span,
+.admin-friend-form label>span,
+.admin-about-form label>span,
+.admin-profile-form label>span {
     font-size: 12px;
     font-weight: 500;
-    color: var(--admin-text-subtle, #6b6b6b);
+    color: var(--admin-text-subtle);
     text-transform: uppercase;
     letter-spacing: 0.03em;
 }
@@ -310,6 +343,13 @@
     min-width: 0;
 }
 
+/* ─── Sidebar Toggle（G11：≤768px 抽屉开关，桌面隐藏） ─── */
+.admin-sidebar-toggle {
+    display: none;
+    padding: 6px 8px;
+    flex-shrink: 0;
+}
+
 .admin-page-title {
     font-size: 18px;
     font-weight: 600;
@@ -453,12 +493,12 @@
 }
 
 .admin-list-toolbar h2 {
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
     margin: 0;
-    color: var(--admin-text-subtle, #6b6b6b);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    color: var(--admin-text);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
 }
 
 .admin-search-box {
@@ -485,6 +525,30 @@
 
 .admin-search-box input::placeholder {
     color: var(--admin-text-muted, #a0a0a0);
+}
+
+/* ─── Friend Search（G7：友链搜索框 admin 化） ─── */
+.admin-friend-search {
+    flex: 1;
+    min-width: 0;
+    padding: 6px 10px;
+    border: 1px solid var(--admin-border);
+    border-radius: 6px;
+    background: var(--admin-surface-muted);
+    font: inherit;
+    font-size: 13px;
+    color: var(--admin-text);
+    outline: none;
+    transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.admin-friend-search:focus {
+    border-color: var(--admin-accent);
+    box-shadow: 0 0 0 3px var(--admin-accent-soft);
+}
+
+.admin-friend-search::placeholder {
+    color: var(--admin-text-muted);
 }
 
 /* ─── Filter Bar ─── */
@@ -761,14 +825,6 @@
     margin-bottom: 16px;
 }
 
-.admin-summary-field span {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--admin-text-subtle, #6b6b6b);
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-}
-
 .admin-summary-field textarea {
     width: 100%;
     padding: 10px 12px;
@@ -813,14 +869,9 @@
     height: 100%;
 }
 
-.admin-markdown-editor label>span {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--admin-text-subtle, #6b6b6b);
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
+.admin-pane-header {
     padding: 10px 14px;
-    border-bottom: 1px solid var(--admin-border, #e8e8e8);
+    border-bottom: 1px solid var(--admin-border);
     flex-shrink: 0;
 }
 
@@ -836,16 +887,6 @@
     color: var(--admin-text, #1a1a1a);
     resize: none;
     outline: none;
-}
-
-.admin-preview-header {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--admin-text-subtle, #6b6b6b);
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--admin-border, #e8e8e8);
 }
 
 .admin-markdown-preview-body {
@@ -1004,7 +1045,7 @@
 
 .admin-btn-primary {
     background: var(--admin-accent, var(--rose-500));
-    color: #fff;
+    color: var(--admin-on-accent);
     border-color: var(--admin-accent, var(--rose-500));
 }
 
@@ -1083,6 +1124,10 @@
         transform: translateX(0);
     }
 
+    .admin-sidebar-toggle {
+        display: inline-flex;
+    }
+
     .admin-main {
         margin-left: 0;
     }
@@ -1100,6 +1145,12 @@
     .admin-form-grid,
     .admin-meta-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .admin-content {
+        padding: 16px 14px 32px;
     }
 }
 
@@ -1123,6 +1174,8 @@
         --admin-danger-hover: rgba(248, 113, 113, 0.15);
         --admin-success: #4ade80;
         --admin-success-soft: rgba(74, 222, 128, 0.1);
+        --admin-on-accent: #ffffff;
+        --admin-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b949e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     }
 
     .admin-search-box {

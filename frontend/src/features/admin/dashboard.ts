@@ -55,6 +55,9 @@ export function setupAdminDashboard(options: AdminFeatureOptions): (() => void) 
   const runtimeRetryButton = rootElement.querySelector<HTMLButtonElement>('[data-role="admin-runtime-retry"]');
   const unsavedStatusElement = rootElement.querySelector<HTMLElement>('[data-role="admin-unsaved-status"]');
   const tabPanels = Array.from(rootElement.querySelectorAll<HTMLElement>('[data-role="admin-panel"]'));
+  const sidebarToggleButton = rootElement.querySelector<HTMLButtonElement>('[data-role="admin-sidebar-toggle"]');
+  const sidebarElement = rootElement.querySelector<HTMLElement>('.admin-sidebar');
+  const sidebarNav = rootElement.querySelector<HTMLElement>('.admin-sidebar-nav');
 
   if (!logoutButton || !runtimeStatusElement || !runtimeRetryButton || !tabPanels.length) {
     return null;
@@ -265,14 +268,38 @@ export function setupAdminDashboard(options: AdminFeatureOptions): (() => void) 
     options.onNavigate('/admin/login', { replace: true });
   };
 
+  const closeSidebar = (): void => {
+    sidebarElement?.classList.remove('is-open');
+    sidebarToggleButton?.setAttribute('aria-expanded', 'false');
+  };
+
+  const handleSidebarToggle = (): void => {
+    if (!sidebarElement) {
+      return;
+    }
+    const isOpen = sidebarElement.classList.toggle('is-open');
+    sidebarToggleButton?.setAttribute('aria-expanded', String(isOpen));
+  };
+
+  const handleSidebarNavClick = (event: Event): void => {
+    const target = event.target;
+    if (target instanceof HTMLElement && target.closest('[data-link]')) {
+      closeSidebar();
+    }
+  };
+
   syncDirtyState();
   logoutButton.addEventListener('click', handleLogout);
   runtimeRetryButton.addEventListener('click', handleRetry);
+  sidebarToggleButton?.addEventListener('click', handleSidebarToggle);
+  sidebarNav?.addEventListener('click', handleSidebarNavClick);
 
   return () => {
     destroyed = true;
     logoutButton.removeEventListener('click', handleLogout);
     runtimeRetryButton.removeEventListener('click', handleRetry);
+    sidebarToggleButton?.removeEventListener('click', handleSidebarToggle);
+    sidebarNav?.removeEventListener('click', handleSidebarNavClick);
     postsModule?.destroy();
     friendsModule?.destroy();
     contentSettingsModule?.destroy();

@@ -85,12 +85,12 @@ function renderPostsWorkspace(pathname: string): string {
 
             <div class="admin-markdown-workspace">
               <div class="admin-markdown-editor">
-                <label><span>Markdown 正文</span>
+                <label><span class="admin-pane-header">Markdown 正文</span>
                   <textarea name="contentMarkdown" rows="18" required data-role="admin-post-content" placeholder="从 Obsidian 粘贴 Markdown 正文..."></textarea>
                 </label>
               </div>
               <div class="admin-markdown-preview" aria-label="实时预览">
-                <div class="admin-preview-header">预览</div>
+                <div class="admin-pane-header">预览</div>
                 <article class="admin-markdown-preview-body markdown-content" data-role="admin-post-preview">
                   <p class="empty-hint">开始输入后，这里会同步显示预览。</p>
                 </article>
@@ -154,7 +154,7 @@ export const renderAdminPage: PageRenderer = (context) => {
 
   return `
 <div class="admin-app" data-admin-module="${activeModule}">
-  <aside class="admin-sidebar">
+  <aside class="admin-sidebar" id="admin-sidebar">
     <div class="admin-sidebar-brand">
       <span class="admin-brand-mark">🌸</span>
       <span class="admin-brand-name">ShinoLog</span>
@@ -171,6 +171,9 @@ export const renderAdminPage: PageRenderer = (context) => {
   <main class="admin-main">
     <header class="admin-topbar">
       <div class="admin-topbar-left">
+        <button type="button" class="admin-btn admin-btn-ghost admin-sidebar-toggle" data-role="admin-sidebar-toggle" aria-label="展开导航菜单" aria-expanded="false" aria-controls="admin-sidebar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
         <h1 class="admin-page-title">${getPageTitle(activeModule)}</h1>
         <p class="admin-runtime-status" data-role="admin-runtime-status" aria-live="polite"></p>
       </div>
@@ -190,7 +193,7 @@ export const renderAdminPage: PageRenderer = (context) => {
           <aside class="admin-list-panel">
             <div class="admin-list-toolbar">
               <h2>友链列表</h2>
-              <input type="search" class="form-input" data-role="admin-friend-search" placeholder="搜索友链…" style="margin-top:6px;width:100%;" />
+              <input type="search" class="admin-friend-search" data-role="admin-friend-search" placeholder="搜索友链…" />
             </div>
             <ul class="admin-friend-list" data-role="admin-friend-list" aria-live="polite"></ul>
           </aside>
@@ -279,7 +282,7 @@ export const renderAdminPage: PageRenderer = (context) => {
           <p>修改顶栏标题、页脚备案号、友链模板等全局信息。</p>
         </header>
         <form class="admin-settings-form" data-role="admin-settings-form">
-          <fieldset>
+          <fieldset class="admin-fieldset">
             <legend>顶栏</legend>
             <div class="admin-form-grid">
               <label><span>站点标题（Logo 文字）</span><input type="text" name="siteTitle" required /></label>
@@ -287,7 +290,7 @@ export const renderAdminPage: PageRenderer = (context) => {
               <label><span>Slogan（首页 Hero 标语）</span><input type="text" name="slogan" placeholder="一句话介绍你的博客，留空则用名片卡简介" /></label>
             </div>
           </fieldset>
-          <fieldset>
+          <fieldset class="admin-fieldset">
             <legend>页脚</legend>
             <div class="admin-form-grid">
               <label><span>版权所有者</span><input type="text" name="copyrightOwner" required /></label>
@@ -302,7 +305,7 @@ export const renderAdminPage: PageRenderer = (context) => {
               <label><span>公安备案链接</span><input type="text" name="publicSecurityRecordUrl" placeholder="https://beian.mps.gov.cn/..." /></label>
             </div>
           </fieldset>
-          <fieldset>
+          <fieldset class="admin-fieldset">
             <legend>友链模板</legend>
             <label>
               <span>"添加我" 模板（访客复制后用于交换友链）</span>
