@@ -23,7 +23,7 @@
 - 环境事实（已核验）：
   - 本机无 Rust 工具链（cargo/rustc 均不存在），无原生 postgres；有 docker 29.1.3、bun（~/.bun/bin/bun）、node。
   - 生产 SQLite 数据在服务器 `/opt/shino-blog/data/blog.sqlite`（本地 backend/data/ 为空，实施时需 ssh 核验服务器环境）。
-  - ⚠ 待核验：`backend/.env` 出现在 `git ls-files` 中（疑似被误提交入库，违反凭据红线；需在实施首步核验并清除 git 历史）。
+  - ✅ 已核验并解决：`backend/.env` 曾被误提交入库（初始提交含开发占位值 admin123/local-dev-secret，无真实凭据）；已 `git rm --cached` + .gitignore 补 `.env`/`rust/target`，当前 HEAD 树干净（2026-08-11 核验，git 历史 blob 仍存在，凭据轮换与否由用户决定）。
   - Git remote: origin = git@github.com:Nishimiyaamako/Shino-s-Personal-Blog.git，main 分支。
 
 ## Requirements

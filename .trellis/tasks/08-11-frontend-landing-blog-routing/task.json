@@ -3,7 +3,7 @@
   "name": "frontend-landing-blog-routing",
   "title": "前端：landing 页 + 博客路由迁移",
   "description": "变 landing；博客全家族移入 /blog；精选功能废弃；slogan 配置；旧链 301",
-  "status": "planning",
+  "status": "in_progress",
   "dev_type": null,
   "scope": null,
   "package": null,
