@@ -313,7 +313,7 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
       const message = error instanceof Error ? error.message : '操作失败';
       setMessage(postErrorElement, message, { error: true });
     } finally {
-      setBusy(false);
+      setBusy(false, pendingButton);
       renderPagination();
     }
   };

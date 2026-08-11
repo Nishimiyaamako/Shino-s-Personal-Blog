@@ -94,7 +94,7 @@ export function setupAdminContentSettingsModule(
         <iconify-icon icon="${icon}" class="admin-contact-row-icon" aria-hidden="true"></iconify-icon>
         <span class="admin-contact-row-platform">${escapeHtml(label)}</span>
         <span class="admin-contact-row-href">${escapeHtml(c.href)}</span>
-        <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-role="admin-contact-remove" data-contact-index="${i}">删除</button>
+        <button type="button" class="admin-btn admin-btn-danger admin-btn-sm" data-role="admin-contact-remove" data-contact-index="${i}">删除</button>
       </div>`;
     }).join('');
   };
