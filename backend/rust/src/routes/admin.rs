@@ -133,12 +133,10 @@ fn validate_url(value: Option<&str>, label: &str) -> Result<(), ApiError> {
     Ok(())
 }
 
-/// 查询参数解析：对齐 TS `Number(x) || default`（0/负数/非法 → default）
+/// 查询参数解析：对齐 TS `Number(x) || default`（非数值 → default）
+/// 0/负数透传，由服务层 Math.max/clamp 归一（对齐旧后端 Math.max(1, -5) = 1 语义）
 fn parse_query_number(value: Option<&str>, default: i64) -> i64 {
-    match value.and_then(|v| v.parse::<i64>().ok()) {
-        Some(n) if n > 0 => n,
-        _ => default,
-    }
+    value.and_then(|v| v.parse::<i64>().ok()).unwrap_or(default)
 }
 
 /// 错误映射：ServiceError → ApiError（400 业务 / 500 内部）

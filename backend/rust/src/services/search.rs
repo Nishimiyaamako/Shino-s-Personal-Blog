@@ -160,10 +160,12 @@ fn to_search_items(rows: Vec<SearchRow>, limit: usize) -> Vec<ApiSearchItem> {
                 .filter(|s| !s.is_empty())
                 .map(str::to_string)
                 .collect(),
-            snippet: if row.snippet.trim().is_empty() {
-                row.summary
-            } else {
+            // 对齐旧 `row.snippet || row.summary`：FTS5 snippet 在标题列无命中时返回 NULL →
+            // 摘要兜底；PG ts_headline 无命中时返回整段标题，故以 <mark> 是否出现判定标题命中
+            snippet: if row.snippet.contains("<mark>") {
                 row.snippet
+            } else {
+                row.summary
             },
             published_at: row.published_at.unwrap_or_default(),
         })
@@ -292,7 +294,13 @@ pub async fn search_published(
         return Ok(vec![]);
     }
 
-    let normalized_limit = parse_number(limit, 10).clamp(1, 30) as usize;
+    // 对齐旧 `Math.max(1, Math.min(30, Number(limit) || 10))`：0 → 10（|| 语义），负数 → 1
+    let raw_limit = parse_number(limit, 10);
+    let normalized_limit = if raw_limit == 0 {
+        10
+    } else {
+        raw_limit.clamp(1, 30)
+    } as usize;
     let ts_query = build_tsquery(&tokens);
 
     match search_fts(pool, &ts_query).await {

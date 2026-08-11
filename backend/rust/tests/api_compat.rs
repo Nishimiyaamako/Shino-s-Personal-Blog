@@ -387,11 +387,15 @@ async fn search_supports_title_tag_and_markdown_hits_including_chinese() {
     )
     .await;
     assert_eq!(status, StatusCode::OK);
-    assert!(body["items"]
-        .as_array()
-        .unwrap()
+    let title_items = body["items"].as_array().unwrap();
+    let title_item = title_items
         .iter()
-        .any(|i| i["slug"] == "search-title-hit"));
+        .find(|i| i["slug"] == "search-title-hit")
+        .expect("标题命中缺失");
+    assert!(
+        title_item["snippet"].as_str().unwrap().contains("<mark>"),
+        "标题命中 snippet 应含 <mark>: {title_item}"
+    );
 
     let (status, body) = send(&router, "GET", "/api/search?q=tag-hit-search", None, None).await;
     assert_eq!(status, StatusCode::OK);
@@ -410,11 +414,16 @@ async fn search_supports_title_tag_and_markdown_hits_including_chinese() {
     )
     .await;
     assert_eq!(status, StatusCode::OK);
-    assert!(body["items"]
-        .as_array()
-        .unwrap()
+    let content_items = body["items"].as_array().unwrap();
+    let content_item = content_items
         .iter()
-        .any(|i| i["slug"] == "search-content-hit"));
+        .find(|i| i["slug"] == "search-content-hit")
+        .expect("正文命中缺失");
+    // 仅正文命中：标题列无 <mark> → snippet 回退摘要（对齐旧 FTS5 语义）
+    assert_eq!(
+        content_item["snippet"], "content hit",
+        "got: {content_item}"
+    );
 }
 
 #[tokio::test]
