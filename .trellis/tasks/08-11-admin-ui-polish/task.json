@@ -3,7 +3,7 @@
   "name": "admin-ui-polish",
   "title": "前端：管理界面 UI 审计与系统性重构",
   "description": "先出逐模块 UI 审计清单再系统性重构（Vanilla TS，不引框架）",
-  "status": "planning",
+  "status": "in_progress",
   "dev_type": null,
   "scope": null,
   "package": null,
