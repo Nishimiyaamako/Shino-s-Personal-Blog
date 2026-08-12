@@ -99,6 +99,6 @@ cargo run --release --bin migrate-data -- <sqlite路径> <DATABASE_URL>
 
 ## 平台要求
 
-**开发**：Rust 工具链（rustup）、本地 Postgres（原生或 docker 临时实例）、端口 5173（前端）/ 3001（后端，dev 可用 3101 避开占用）。
+**开发**：Rust 工具链（rustup）、Postgres（本机由 1Panel 面板管理，`127.0.0.1:5432`，库 `blog-date`）、端口 5173（前端）/ 3001（后端，dev 可用 3101 避开占用）。
 
 **生产**：Linux 服务器 + systemd + Nginx 反代（`/api`、`/uploads` → 后端）；前端静态挂载 `/opt/shino-blog/frontend-dist`；Postgres（云或自建）经 `DATABASE_URL` 连接；上传于 `/opt/shino-blog/uploads/images`；env 于 `/opt/shino-blog/env/backend.env`。详见 docs/kb/deploy-ops.md。

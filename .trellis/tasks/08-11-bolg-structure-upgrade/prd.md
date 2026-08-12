@@ -56,10 +56,10 @@
 
 **本地验证全绿**：前端 typecheck/build ✓；后端 cargo fmt/clippy/test（37 用例）✓；API 契约逐端点对照 ✓；迁移演练（首次/幂等/完整性/回滚）✓；质量门 PASS ✓。
 
-**剩余事项（需用户环境）**：
-1. 生产 SQLite 副本迁移（`/tmp/opencode/prod-blog.sqlite` 到位后一条命令）
-2. 服务器上线（生产 DATABASE_URL + ssh：build → migrate → systemd → nginx → online-smoke）
-3. 上线后关闭本父任务（/trellis:finish-work）
+**剩余事项（已按用户决策变更，2026-08-12）**：
+1. ~~生产 SQLite 副本迁移~~ → **已取消**：用户决定 SQLite 数据直接删除不迁移（本地演练构造副本与全部 SQLite 文件已清除，仓库无数据资产）。`migrate-data` 工具与 rusqlite 依赖保留（未来如需数据迁移仍可用，无碍本地调试）。
+2. ~~服务器上线~~ → **已取消（暂缓）**：用户决定当前不上线，仅在本地运行与调试（Rust 服务 + 本地 PG + 前端 dev）。deploy 资产（systemd/nginx/手册）保留待未来使用。
+3. 父任务可关闭（/trellis:finish-work）。
 
 ## Out of Scope
 
