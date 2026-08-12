@@ -1,7 +1,7 @@
 [package]
 name = "shino-blog-backend"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 description = "Shino's Bolg backend (Rust / Axum + Postgres) — API-compatible reimplementation"
 
 [dependencies]

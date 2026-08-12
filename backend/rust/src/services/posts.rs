@@ -6,8 +6,8 @@ use sqlx::{FromRow, PgPool};
 use crate::error::ServiceError;
 use crate::markdown::render_markdown_to_safe_html;
 use crate::models::{
-    now_iso, ApiPostDetail, ApiPostSummary, ListAdminPostResult, ListPublishedPostResult,
-    PostStatus, UpdatePostInput, UpsertPostInput,
+    ApiPostDetail, ApiPostSummary, ListAdminPostResult, ListPublishedPostResult, PostStatus,
+    UpdatePostInput, UpsertPostInput, now_iso,
 };
 
 const SLUG_REGEXP: &str = r"^[a-z0-9]+(?:-[a-z0-9]+)*$";
@@ -628,10 +628,8 @@ pub async fn update(
             .fetch_optional(pool)
             .await?;
 
-    if let Some(owner) = slug_owner {
-        if owner != post_id {
-            return Err(ServiceError::BadRequest("slug 已存在".into()));
-        }
+    if slug_owner.is_some_and(|owner| owner != post_id) {
+        return Err(ServiceError::BadRequest("slug 已存在".into()));
     }
 
     sqlx::query(

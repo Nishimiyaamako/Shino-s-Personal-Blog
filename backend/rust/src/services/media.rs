@@ -13,7 +13,7 @@ use uuid::Uuid;
 
 use crate::error::ServiceError;
 use crate::models::{
-    now_iso, ApiMediaAsset, ApiMediaListResponse, MediaReference, MediaStats, MediaUploadResult,
+    ApiMediaAsset, ApiMediaListResponse, MediaReference, MediaStats, MediaUploadResult, now_iso,
 };
 
 const IMAGE_MIME_TO_EXT: [(&str, &str); 5] = [
@@ -100,13 +100,11 @@ fn build_post_reference_map(posts: Vec<PostRefRow>) -> HashMap<String, Vec<Media
     let mut map: HashMap<String, Vec<MediaReference>> = HashMap::new();
 
     for post in posts {
-        if let Some(cover) = post.cover_image_url {
-            if !cover.is_empty() {
-                map.entry(cover).or_default().push(MediaReference {
-                    post_id: post.id,
-                    post_title: post.title.clone(),
-                });
-            }
+        if let Some(cover) = post.cover_image_url.filter(|c| !c.is_empty()) {
+            map.entry(cover).or_default().push(MediaReference {
+                post_id: post.id,
+                post_title: post.title.clone(),
+            });
         }
 
         if !post.content_markdown.is_empty() {

@@ -4,7 +4,7 @@
 
 ## 语言
 
-- **Rust**：后端全部源码（edition 2021，P1 技术债清理后升级 2024），`cargo` 管理（rustup stable，非交互安装见 docs/kb/deploy-ops.md）
+- **Rust**：后端全部源码（edition 2024，rustup stable），`cargo` 管理（非交互安装见 docs/kb/deploy-ops.md）
 - **TypeScript 5.9**：前端源码（Vite + Vanilla TS SPA），目标 ES2022，ESNext modules，Bundler resolution
 - **Bash**：部署脚本（`deploy/scripts/`）
 - **SQL**：SQLx 迁移文件（`backend/rust/sql/migrations/`）中的原始 SQL
@@ -41,6 +41,18 @@
 - `rusqlite`（bundled，仅 `migrate-data` 工具读旧 SQLite）— 数据迁移
 - `tracing` + `tracing-subscriber` — 结构化日志
 - `anyhow` — 错误传播
+
+### 依赖版本锁定说明（2026-08-12 核验，技术债清理任务）
+
+| 依赖 | 当前 | crates.io 最新 | 维持理由 |
+|------|------|----------------|----------|
+| sqlx | 0.8.0 | 0.9.0 | 0.9 为破坏性大版本（查询 API/特性重组），迁移工具与运行时均稳定，升级风险>收益；0.8.0 是 0.8 系列最终版（无补丁），cargo 报 future-incompat 警告（已知） |
+| jsonwebtoken | 9.3.1 | 11.0.0 | 9→10/11 破坏性变更（Key/Header API 重设计），当前实现对齐旧 jose 契约，行为优先不升级 |
+| rusqlite | 0.31.0 | 0.40.2 | sqlx 0.8 的 migrate 特性传递依赖 libsqlite3-sys ^0.28，与 rusqlite 0.37+ 需要的 ^0.35 冲突（links = "sqlite3"）；升级需先升 sqlx 0.9 |
+| argon2 | 0.5.3 | 0.6.0-rc.8 | 最新稳定版即 0.5.x；0.6 仅 RC |
+| axum / ammonia / pulldown-cmark | — | 已最新 | — |
+
+升级路径（未来）：sqlx 0.9 发布稳定并验证 → 同步升级 rusqlite 解锁 + jsonwebtoken 11（一次完成，全量 api_compat 回归）。
 
 **前端**：
 - `dompurify` 3.3 — 客户端 HTML 净化
