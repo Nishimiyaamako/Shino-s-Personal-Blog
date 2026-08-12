@@ -1,1 +1,0 @@
-import './import-from-frontend';

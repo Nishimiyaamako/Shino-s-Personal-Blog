@@ -215,6 +215,8 @@ sudo systemctl restart shino-blog-backend
 
 **数据回滚（PG → SQLite 继续旧后端）**：
 
+> 旧 Bun 后端代码（`backend/src`）已随迁移完成删除，回滚旧后端需从 git 历史恢复。
+
 ```bash
 # 1. 停新后端
 sudo systemctl stop shino-blog-backend
@@ -222,9 +224,10 @@ sudo systemctl stop shino-blog-backend
 # 2. 用迁移前快照还原 SQLite
 cp /opt/shino-blog/backups/blog.sqlite.<timestamp>.bak /opt/shino-blog/data/blog.sqlite
 
-# 3. 旧后端（Bun 版）临时恢复：旧二进制/代码 + 旧进程管理（迁移窗口内保留旧 backend/src 与快照）
-cd /opt/shino-blog/backend && bun install --frozen-lockfile --production && bun src/index.ts &
-# 或按当时保留的旧部署资产重启
+# 3. 从 git 历史恢复旧后端（迁移完成前的提交）
+cd /opt/shino-blog/backend
+git checkout <迁移完成前提交> -- src package.json bun.lock tsconfig.json
+bun install --frozen-lockfile --production && bun src/index.ts &
 
 # 4. 验证
 curl -sS http://127.0.0.1:3001/api/health
