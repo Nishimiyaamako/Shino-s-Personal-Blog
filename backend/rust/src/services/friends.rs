@@ -1,7 +1,7 @@
 use sqlx::{FromRow, PgPool};
 
 use crate::error::ServiceError;
-use crate::models::{now_iso, ApiFriendLink, FriendLinkInput, FriendLinkPatch};
+use crate::models::{ApiFriendLink, FriendLinkInput, FriendLinkPatch, now_iso};
 
 #[derive(Debug, FromRow)]
 struct FriendLinkRow {

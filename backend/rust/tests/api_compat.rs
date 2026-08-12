@@ -1,11 +1,11 @@
 //! API 兼容集成测试：等价 backend/src/__tests__/api.test.ts + 全端点冒烟。
 //! 使用独立测试库 shino_blog_test（自行 CREATE DATABASE）；测试串行执行（共享库 + TRUNCATE 重置）。
 
-use axum::body::Body;
-use axum::http::{header, Request, StatusCode};
 use axum::Router;
+use axum::body::Body;
+use axum::http::{Request, StatusCode, header};
 use http_body_util::BodyExt;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use shino_blog_backend::{auth, build_router, config::Config, db};
 use tower::ServiceExt;
 
@@ -399,11 +399,13 @@ async fn search_supports_title_tag_and_markdown_hits_including_chinese() {
 
     let (status, body) = send(&router, "GET", "/api/search?q=tag-hit-search", None, None).await;
     assert_eq!(status, StatusCode::OK);
-    assert!(body["items"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .any(|i| i["slug"] == "search-tag-hit"));
+    assert!(
+        body["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|i| i["slug"] == "search-tag-hit")
+    );
 
     let (status, body) = send(
         &router,
@@ -586,10 +588,12 @@ async fn upload_image_returns_public_url() {
     let (status, body) = upload(&router, &token, "tiny.png", "image/png", tiny_png).await;
     assert_eq!(status, StatusCode::OK, "上传失败: {body}");
     let item = &body["item"];
-    assert!(item["url"]
-        .as_str()
-        .unwrap()
-        .starts_with("/uploads/images/"));
+    assert!(
+        item["url"]
+            .as_str()
+            .unwrap()
+            .starts_with("/uploads/images/")
+    );
     assert!(item["fileName"].as_str().unwrap().ends_with(".png"));
 
     // 清理上传文件
@@ -605,7 +609,9 @@ async fn upload_requires_file_field() {
 
     // 无 file 字段的 multipart
     let boundary = "----shino-blog-test-boundary";
-    let body = format!("--{boundary}\r\nContent-Disposition: form-data; name=\"other\"\r\n\r\nx\r\n--{boundary}--\r\n");
+    let body = format!(
+        "--{boundary}\r\nContent-Disposition: form-data; name=\"other\"\r\n\r\nx\r\n--{boundary}--\r\n"
+    );
     let req = Request::builder()
         .method("POST")
         .uri("http://localhost/api/admin/uploads/image")
@@ -663,10 +669,12 @@ async fn smoke_admin_post_lifecycle() {
     assert_eq!(status, StatusCode::OK);
     assert_eq!(body["item"]["slug"], "lifecycle-post");
     assert_eq!(body["item"]["status"], "draft");
-    assert!(body["item"]["contentHtml"]
-        .as_str()
-        .unwrap()
-        .contains("<p>"));
+    assert!(
+        body["item"]["contentHtml"]
+            .as_str()
+            .unwrap()
+            .contains("<p>")
+    );
 
     // GET 不存在 → 404
     let (status, _) = send(
@@ -801,11 +809,13 @@ async fn smoke_rebuild_search_index() {
 
     let (status, body) = send(&router, "GET", "/api/search?q=rebuild-me", None, None).await;
     assert_eq!(status, StatusCode::OK);
-    assert!(body["items"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .any(|i| i["slug"] == "rebuild-me"));
+    assert!(
+        body["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|i| i["slug"] == "rebuild-me")
+    );
 }
 
 #[tokio::test]
@@ -840,11 +850,13 @@ async fn smoke_media_list_and_delete() {
     )
     .await;
     assert_eq!(status, StatusCode::OK);
-    assert!(body["items"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .any(|i| i["url"] == url));
+    assert!(
+        body["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|i| i["url"] == url)
+    );
     assert_eq!(body["stats"]["orphanedCount"], 1);
 
     // 引用后 → referenced

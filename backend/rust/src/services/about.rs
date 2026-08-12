@@ -1,7 +1,7 @@
 use sqlx::{FromRow, PgPool};
 
 use crate::error::ServiceError;
-use crate::models::{now_iso, AboutUpdateInput, ApiAboutPayload};
+use crate::models::{AboutUpdateInput, ApiAboutPayload, now_iso};
 
 const DEFAULT_ABOUT_MARKDOWN: &str = "# 关于\n\n内容建设中。";
 

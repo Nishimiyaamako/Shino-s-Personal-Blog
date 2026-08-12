@@ -4,12 +4,12 @@
 //! - 验证走 PHC 字符串内嵌参数，故可验证既有 `$argon2id$` 哈希（参数无关）
 //! - JWT：HS256、sub=user.id、claim username、iat/exp（小时）
 
-use argon2::password_hash::rand_core::OsRng;
 use argon2::password_hash::SaltString;
+use argon2::password_hash::rand_core::OsRng;
 use argon2::{Algorithm, Argon2, Params, PasswordHash, PasswordHasher, PasswordVerifier, Version};
 use axum::http::HeaderMap;
 use jsonwebtoken::{
-    decode, encode, Algorithm as JwtAlgorithm, DecodingKey, EncodingKey, Header, Validation,
+    Algorithm as JwtAlgorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode,
 };
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;

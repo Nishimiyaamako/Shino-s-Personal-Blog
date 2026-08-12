@@ -10,9 +10,9 @@ pub mod models;
 pub mod routes;
 pub mod services;
 
-use axum::http::header::{AUTHORIZATION, CONTENT_TYPE};
-use axum::http::Method;
 use axum::Router;
+use axum::http::Method;
+use axum::http::header::{AUTHORIZATION, CONTENT_TYPE};
 use tower_http::cors::{AllowOrigin, CorsLayer};
 
 use db::AppState;

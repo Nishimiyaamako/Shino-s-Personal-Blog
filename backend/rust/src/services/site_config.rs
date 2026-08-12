@@ -1,7 +1,7 @@
 use sqlx::{FromRow, PgPool};
 
 use crate::error::ServiceError;
-use crate::models::{now_iso, ApiSiteConfig, SiteConfigPatch};
+use crate::models::{ApiSiteConfig, SiteConfigPatch, now_iso};
 
 #[derive(Debug, FromRow)]
 struct SiteConfigRow {

@@ -376,25 +376,27 @@ async fn main() -> anyhow::Result<()> {
     .fetch_one(&pool)
     .await?;
     match PasswordHash::new(&hash) {
-        Ok(parsed) => {
-            match verify_password {
-                Some(pw) => {
-                    let verify_ok = Argon2::default()
-                        .verify_password(pw.as_bytes(), &parsed)
-                        .is_ok();
-                    if verify_ok {
-                        println!("密码哈希验证: PASS（argon2id，提供的密码可验证，哈希原样复制无需重哈希）");
-                    } else {
-                        ok = false;
-                        println!("密码哈希验证: FAIL（提供的密码无法用 argon2 验证现有哈希）");
-                        fail_list.push("密码哈希验证失败".into());
-                    }
-                }
-                None => {
-                    println!("密码哈希格式: PASS（PHC 格式可解析，兼容 argon2 生态，无需重哈希）；未提供 VERIFY_PASSWORD，跳过实际密码验证");
+        Ok(parsed) => match verify_password {
+            Some(pw) => {
+                let verify_ok = Argon2::default()
+                    .verify_password(pw.as_bytes(), &parsed)
+                    .is_ok();
+                if verify_ok {
+                    println!(
+                        "密码哈希验证: PASS（argon2id，提供的密码可验证，哈希原样复制无需重哈希）"
+                    );
+                } else {
+                    ok = false;
+                    println!("密码哈希验证: FAIL（提供的密码无法用 argon2 验证现有哈希）");
+                    fail_list.push("密码哈希验证失败".into());
                 }
             }
-        }
+            None => {
+                println!(
+                    "密码哈希格式: PASS（PHC 格式可解析，兼容 argon2 生态，无需重哈希）；未提供 VERIFY_PASSWORD，跳过实际密码验证"
+                );
+            }
+        },
         Err(e) => {
             ok = false;
             println!("密码哈希格式: FAIL（无法解析为 argon2 PHC 哈希: {e:?}——迁移后登录将失败）");

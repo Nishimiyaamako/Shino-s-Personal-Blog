@@ -1,7 +1,7 @@
 use sqlx::{FromRow, PgPool};
 
 use crate::error::ServiceError;
-use crate::models::{now_iso, ApiProfileCard, ApiProfileContact, ProfileUpdateInput};
+use crate::models::{ApiProfileCard, ApiProfileContact, ProfileUpdateInput, now_iso};
 
 const DEFAULT_PROFILE_NAME: &str = "Shino";
 const DEFAULT_PROFILE_BIO: &str = "Luna say maybe";
