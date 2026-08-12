@@ -26,7 +26,7 @@ Managed by Trellis. Edits outside this block are preserved; edits inside may be 
 
 > Trellis 块（上方）由 trellis update 管理；本块为工作区治理内容，与 Trellis 块共存。
 
-本仓库是 **Shino's Bolg**（注意：Bolg 为有意拼写，不得自动纠正）个人博客全栈项目：`frontend/`（Vite + Vanilla TS SPA）+ `backend/`（Elysia + SQLite + Drizzle schema）+ `deploy/`（1Panel 运维资产）。开始任何任务前，先读 `.trellis/workflow.md` 与 `.trellis/spec/` 对应分层规范；本文档定义结构地图与维护纪律。
+本仓库是 **Shino's Bolg**（注意：Bolg 为有意拼写，不得自动纠正）个人博客全栈项目：`frontend/`（Vite + Vanilla TS SPA）+ `backend/`（Rust(Axum+Postgres) 单一 crate）+ `deploy/`（systemd + nginx 运维资产）。开始任何任务前，先读 `.trellis/workflow.md` 与 `.trellis/spec/` 对应分层规范；本文档定义结构地图与维护纪律。
 
 ## 结构地图
 
@@ -40,7 +40,7 @@ Managed by Trellis. Edits outside this block are preserved; edits inside may be 
 | `.trellis/spec/frontend/` | 前端规范（directory-structure / component / state-management / type-safety / quality / testing） | 前端开发时 |
 | `docs/conventions.md` | 约定总纲（frontmatter schema、边界规则、自检清单） | 所有文档作者 |
 | `docs/kb/` | 知识文档（deploy-ops / integrations） | 查运维、集成时 |
-| `deploy/` | 部署资产：scripts / nginx 模板 / 手册入口（手册正文见 docs/kb/deploy-ops.md） | 部署运维时 |
+| `deploy/` | 部署资产：systemd 单元 / scripts / nginx 模板 / 手册入口（手册正文见 docs/kb/deploy-ops.md） | 部署运维时 |
 | 根 `llms.txt` | 文件系统索引，pre-commit 钩子自动重生成 | 快速定位文件时 |
 | `.githooks/` + `tools/` | 提交钩子与索引生成脚本 | 提交时自动触发 |
 
@@ -56,7 +56,7 @@ Managed by Trellis. Edits outside this block are preserved; edits inside may be 
 - `llms.txt` 首次生成（未跟踪）时钩子不会自动 add，需手动 `git add llms.txt` 一次。
 - 提交前在仓库根运行自检三命令（见文末自检清单）。
 - 克隆后需执行 `git config core.hooksPath .githooks`，否则钩子不生效。
-- 后端 `.env`、`backend/data/`、`backend/uploads/` 均不入库（各自 .gitignore 兜底）。
+- 后端 `.env`、`backend/rust/target/` 均不入库（.gitignore 兜底）。
 
 ## 凭据红线
 

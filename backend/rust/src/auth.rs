@@ -75,6 +75,12 @@ pub async fn ensure_default_admin(
     username: &str,
     password: &str,
 ) -> Result<(), ServiceError> {
+    if password.is_empty() {
+        return Err(ServiceError::BadRequest(
+            "ADMIN_PASSWORD 为空，拒绝播种空密码管理员".into(),
+        ));
+    }
+
     let row: Option<(i32, String)> =
         sqlx::query_as("SELECT id, password_hash FROM admin_users WHERE username = $1 LIMIT 1")
             .bind(username)

@@ -4,7 +4,7 @@
 
 ## 语言
 
-- **Rust 1.97**：后端全部源码（edition 2021），`cargo` 管理
+- **Rust**：后端全部源码（edition 2021，P1 技术债清理后升级 2024），`cargo` 管理（rustup stable，非交互安装见 docs/kb/deploy-ops.md）
 - **TypeScript 5.9**：前端源码（Vite + Vanilla TS SPA），目标 ES2022，ESNext modules，Bundler resolution
 - **Bash**：部署脚本（`deploy/scripts/`）
 - **SQL**：SQLx 迁移文件（`backend/rust/sql/migrations/`）中的原始 SQL

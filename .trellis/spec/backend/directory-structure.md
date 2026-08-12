@@ -42,9 +42,7 @@ backend/
 │   │   └── migrate-data.rs   # SQLite→PG 数据迁移工具（一次性）
 │   └── tests/
 │       └── api_compat.rs     # 集成测试（tower::ServiceExt::oneshot，独立测试库）
-├── data/                  # （历史）SQLite 数据文件，已被 Postgres 替代
-├── uploads/images/        # 上传的图片（Git 忽略）
-└── src/                   # （历史）Elysia + Bun 旧后端，待删除
+└── .gitignore              # node_modules/dist/data/uploads/.env/rust/target 忽略
 ```
 
 ## Module Organization

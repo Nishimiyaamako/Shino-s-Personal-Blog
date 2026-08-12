@@ -8,6 +8,11 @@
 
 set -euo pipefail
 
+# 非交互 shell（CI/自动化）PATH 无 ~/.cargo/bin 时兜底
+if [[ -d "${HOME}/.cargo/bin" ]] && [[ ":${PATH}:" != *":${HOME}/.cargo/bin:"* ]]; then
+  export PATH="${HOME}/.cargo/bin:${PATH}"
+fi
+
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 RUST_DIR="$ROOT_DIR/backend/rust"
 FRONTEND_DIR="$ROOT_DIR/frontend"

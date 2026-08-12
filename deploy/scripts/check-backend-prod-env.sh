@@ -6,6 +6,11 @@
 
 set -euo pipefail
 
+# 非交互 shell（CI/自动化）PATH 无 ~/.cargo/bin 时兜底
+if [[ -d "${HOME}/.cargo/bin" ]] && [[ ":${PATH}:" != *":${HOME}/.cargo/bin:"* ]]; then
+  export PATH="${HOME}/.cargo/bin:${PATH}"
+fi
+
 ENV_FILE="${1:-backend/.env.example}"
 
 if [[ ! -f "$ENV_FILE" ]]; then

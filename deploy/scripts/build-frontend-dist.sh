@@ -2,6 +2,11 @@
 
 set -euo pipefail
 
+# 非交互 shell（CI/自动化）PATH 兜底（bun/npm 常见于 ~/.bun/bin）
+if [[ -d "${HOME}/.bun/bin" ]] && [[ ":${PATH}:" != *":${HOME}/.bun/bin:"* ]]; then
+  export PATH="${HOME}/.bun/bin:${PATH}"
+fi
+
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 FRONTEND_DIR="$ROOT_DIR/frontend"
 ARTIFACTS_DIR="$ROOT_DIR/deploy/artifacts"

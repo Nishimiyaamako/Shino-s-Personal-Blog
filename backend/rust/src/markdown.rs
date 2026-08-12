@@ -57,8 +57,8 @@ fn render_markdown(markdown: &str) -> String {
 
     for event in parser {
         // 跨事件收集：代码块内容 / 图片 alt 文本
-        if pending.is_some() {
-            match (pending.as_mut().unwrap(), &event) {
+        if let Some(pending_state) = pending.as_mut() {
+            match (pending_state, &event) {
                 (Pending::CodeBlock { code, .. }, Event::Text(text)) => code.push_str(text),
                 (Pending::Image { alt, .. }, Event::Text(text)) => alt.push_str(text),
                 (_, Event::SoftBreak) | (_, Event::HardBreak) => {}
