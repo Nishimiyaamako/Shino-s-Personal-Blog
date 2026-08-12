@@ -1,0 +1,17 @@
+{
+  "items": [
+    {
+      "id": 1,
+      "title": "Contract Shape",
+      "slug": "contract-shape",
+      "date": "2026-04-01",
+      "theme": "tech",
+      "tags": ["shape", "rust"],
+      "summary": "shape test",
+      "coverImageUrl": "https://example.com/cover.png"
+    }
+  ],
+  "total": 1,
+  "page": 1,
+  "pageSize": 20
+}

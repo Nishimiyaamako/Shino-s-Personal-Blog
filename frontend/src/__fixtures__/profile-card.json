@@ -1,0 +1,8 @@
+{
+  "name": "Naga",
+  "bio": "bio",
+  "avatar": "https://a.example/a.png",
+  "contacts": [
+    { "id": 1, "platform": "github", "label": "GH", "href": "https://github.com/x", "displayOrder": 0 }
+  ]
+}

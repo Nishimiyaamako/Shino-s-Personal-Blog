@@ -1275,3 +1275,189 @@ async fn smoke_admin_endpoints_require_auth() {
     assert_eq!(status, StatusCode::UNAUTHORIZED);
     assert_eq!(body["error"], "Unauthorized");
 }
+
+// ---------- 契约形状：公开端点键集对齐前端 types/ ----------
+// 规则：actual 键 ⊆ contract 键。contract 中以 null 占位的键 = 前端未声明的无害多余键（允许），
+// 其余键严格子集校验，递归至数组元素。契约基准对应 frontend/src/types/{content,api,friend-link,profile-card,about}.ts
+// 与 frontend/src/__fixtures__/*.json（双侧镜像，改任一侧必须同步另一侧 + spec/frontend/type-safety.md 的镜像规则）。
+
+fn assert_shape_subset(actual: &Value, contract: &Value, path: &str) {
+    match (actual, contract) {
+        (Value::Object(map), Value::Object(contract_map)) => {
+            for (key, value) in map {
+                match contract_map.get(key) {
+                    Some(contract_value) => {
+                        assert_shape_subset(value, contract_value, &format!("{path}.{key}"));
+                    }
+                    None => panic!("{path}.{key} 超出前端契约（frontend/src/types 未声明）"),
+                }
+            }
+        }
+        (Value::Array(items), Value::Array(contract_items)) => {
+            if let (Some(first), Some(first_contract)) = (items.first(), contract_items.first()) {
+                assert_shape_subset(first, first_contract, &format!("{path}[]"));
+            }
+        }
+        _ => {}
+    }
+}
+
+fn assert_shape(actual: &Value, contract: &Value, path: &str) {
+    assert_shape_subset(actual, contract, path);
+}
+
+/// TS PostSummary + 后端额外 id（前端未声明，允许）
+fn post_summary_contract() -> Value {
+    json!({
+        "id": null,
+        "title": "",
+        "slug": "",
+        "date": "",
+        "theme": "",
+        "tags": [],
+        "summary": "",
+        "coverImageUrl": ""
+    })
+}
+
+#[tokio::test]
+async fn public_response_shapes_match_frontend_types_contract() {
+    let _guard = lock_db().await;
+    let (router, _) = setup().await;
+    let token = login(&router).await;
+
+    // 种子：published 文章（含 theme + cover 以覆盖可选键）+ 友链 + about + profile-card
+    create_post(
+        &router,
+        &token,
+        json!({
+            "title": "Contract Shape", "slug": "contract-shape", "date": "2026-04-01",
+            "summary": "shape test", "tags": ["shape", "rust"], "theme": "tech",
+            "coverImageUrl": "https://example.com/cover.png",
+            "contentMarkdown": "# Shape\n\ncode block", "status": "published"
+        }),
+    )
+    .await;
+    let (status, _) = send(
+        &router,
+        "POST",
+        "/api/admin/friend-links",
+        Some(json!({
+            "name": "Shape Friend", "description": "d", "avatar": "https://a.example/a.png",
+            "url": "https://a.example", "displayOrder": 1
+        })),
+        Some(&token),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK);
+    let (status, _) = send(
+        &router,
+        "PATCH",
+        "/api/admin/about",
+        Some(json!({
+            "heroTitle": "Hi", "heroSubtitle": "sub", "introParagraphs": ["p1"],
+            "narrativeSections": [{"id": "n1", "title": "T", "label": "L", "side": "left", "items": ["i"]}],
+            "timelineTitle": "Timeline", "timelineEvents": [{"id": "1", "date": "2026", "detail": "d"}]
+        })),
+        Some(&token),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK);
+    let (status, _) = send(
+        &router,
+        "PATCH",
+        "/api/admin/profile-card",
+        Some(json!({
+            "name": "Naga", "bio": "bio", "avatar": "https://a.example/a.png",
+            "contacts": [{"platform": "github", "label": "GH", "href": "https://github.com/x"}]
+        })),
+        Some(&token),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK);
+
+    // /api/health
+    let (status, body) = send(&router, "GET", "/api/health", None, None).await;
+    assert_eq!(status, StatusCode::OK);
+    assert_shape(&body, &json!({ "ok": true, "timestamp": "" }), "/api/health");
+
+    // /api/posts（list + item）
+    let (status, body) = send(&router, "GET", "/api/posts", None, None).await;
+    assert_eq!(status, StatusCode::OK);
+    assert_shape(
+        &body,
+        &json!({ "items": [post_summary_contract()], "total": 0, "page": 0, "pageSize": 0 }),
+        "/api/posts",
+    );
+
+    // /api/posts/:slug（detail，flattened）
+    let (status, body) = send(&router, "GET", "/api/posts/contract-shape", None, None).await;
+    assert_eq!(status, StatusCode::OK);
+    let mut detail_contract = post_summary_contract();
+    detail_contract["contentMarkdown"] = json!("");
+    detail_contract["contentHtml"] = json!("");
+    detail_contract["status"] = json!("");
+    detail_contract["publishedAt"] = Value::Null; // 前端未声明，允许
+    assert_shape(&body, &detail_contract, "/api/posts/:slug");
+
+    // /api/search（item）
+    let (status, body) = send(&router, "GET", "/api/search?q=shape", None, None).await;
+    assert_eq!(status, StatusCode::OK);
+    assert_shape(
+        &body,
+        &json!({ "items": [{ "slug": "", "title": "", "summary": "", "tags": [], "snippet": "", "publishedAt": "" }] }),
+        "/api/search",
+    );
+
+    // /api/friend-links（item：id/enabled/displayOrder 前端未声明，允许）
+    let (status, body) = send(&router, "GET", "/api/friend-links", None, None).await;
+    assert_eq!(status, StatusCode::OK);
+    assert_shape(
+        &body,
+        &json!({
+            "items": [{
+                "id": null, "name": "", "description": "", "avatar": "",
+                "url": "", "enabled": null, "displayOrder": null
+            }]
+        }),
+        "/api/friend-links",
+    );
+
+    // /api/about
+    let (status, body) = send(&router, "GET", "/api/about", None, None).await;
+    assert_eq!(status, StatusCode::OK);
+    assert_shape(
+        &body,
+        &json!({
+            "heroTitle": "", "heroSubtitle": "", "introParagraphs": [],
+            "narrativeSections": [{ "id": "", "title": "", "label": "", "side": "", "items": [] }],
+            "timelineTitle": "", "timelineLabel": "", "timelineEvents": [{ "id": "", "date": "", "detail": "" }]
+        }),
+        "/api/about",
+    );
+
+    // /api/profile-card（contact 的 id/displayOrder 前端未声明，允许）
+    let (status, body) = send(&router, "GET", "/api/profile-card", None, None).await;
+    assert_eq!(status, StatusCode::OK);
+    assert_shape(
+        &body,
+        &json!({
+            "name": "", "bio": "", "avatar": "",
+            "contacts": [{ "id": null, "platform": "", "label": "", "href": "", "displayOrder": null }]
+        }),
+        "/api/profile-card",
+    );
+
+    // /api/site-config
+    let (status, body) = send(&router, "GET", "/api/site-config", None, None).await;
+    assert_eq!(status, StatusCode::OK);
+    assert_shape(
+        &body,
+        &json!({
+            "siteTitle": "", "siteSubtitle": "", "slogan": "", "copyrightOwner": "", "poweredBy": "",
+            "icpRecordText": "", "icpRecordUrl": "", "publicSecurityRecordText": "", "publicSecurityRecordUrl": "",
+            "friendLinkTemplate": ""
+        }),
+        "/api/site-config",
+    );
+}

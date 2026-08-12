@@ -1,0 +1,11 @@
+{
+  "heroTitle": "Hi",
+  "heroSubtitle": "sub",
+  "introParagraphs": ["p1"],
+  "narrativeSections": [
+    { "id": "n1", "title": "T", "label": "L", "side": "left", "items": ["i"] }
+  ],
+  "timelineTitle": "Timeline",
+  "timelineLabel": "Timeline",
+  "timelineEvents": [{ "id": "1", "date": "2026", "detail": "d" }]
+}

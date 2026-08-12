@@ -1,0 +1,9 @@
+{
+  "id": 1,
+  "name": "Shape Friend",
+  "description": "d",
+  "avatar": "https://a.example/a.png",
+  "url": "https://a.example",
+  "enabled": true,
+  "displayOrder": 1
+}
