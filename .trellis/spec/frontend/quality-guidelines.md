@@ -4,7 +4,7 @@
 
 ## Overview
 
-无 ESLint/Prettier/Biome 配置，格式约定靠纪律。质量门为 `cd frontend && bun run typecheck && bun run build`。无前端测试框架（已知缺口）。
+无 ESLint/Prettier/Biome 配置，格式约定靠纪律。质量门为 `cd frontend && bun run typecheck && bun run test && bun run build`。测试框架为 Vitest 4 + happy-dom（52 用例，见 `testing.md`）。
 
 ## Forbidden Patterns
 

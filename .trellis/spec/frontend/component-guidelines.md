@@ -6,7 +6,7 @@
 
 本项目无 React/Vue 等组件框架。"组件"是返回 HTML 字符串的渲染函数 + 可复用片段：
 - **Pages**（`pages/`）：整页渲染，纯函数，无副作用
-- **Components**（`components/`）：可复用渲染片段（`post-list.ts`、`profile-card.ts`）
+- **Components**（`components/`）：可复用渲染片段（`post-list.ts`、`profile-card.ts`）+ 应用外壳（`shell.ts`：renderApp/导航/页头/页脚渲染与 history 状态）
 
 ## Component Patterns
 
@@ -29,7 +29,7 @@ type PageRenderer = (context: PageRenderContext) => string
 ## Composition
 
 - 页面模板内嵌组件函数调用（模板字符串拼接）
-- 管理后台壳（`pages/admin.ts`）聚合 6 个管理面板模板（posts/friends/about/profile/media/settings，已知单体债务，见 architecture.md）
+- 管理后台壳（`pages/admin.ts`，~410 行）聚合 6 个管理面板模板（posts/friends/about/profile/media/settings）；页面增强（非渲染）由 `features/admin/*` 承载，外壳经 `setupPageEnhancements`（main.ts）注册
 
 ## Accessibility / 交互
 

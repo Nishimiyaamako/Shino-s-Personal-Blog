@@ -26,7 +26,7 @@
 | Markdown | pulldown-cmark + ammonia | GFM 渲染 + XSS 白名单过滤 |
 | 构建 | Vite 7.2 | 开发服务器 + 构建 + API 代理（`frontend/vite.config.ts`） |
 | SPA | Vanilla TS | 无框架，自定义路由 + 手动 DOM 渲染 |
-| 测试 | cargo test | 单元测试（`src/` 内 `#[cfg(test)]`）+ 集成测试（`tests/api_compat.rs`，tower::ServiceExt::oneshot） |
+| 测试 | cargo test（后端）+ Vitest 4/happy-dom（前端） | 后端：单元（`src/` 内 `#[cfg(test)]`）+ 集成（`tests/api_compat.rs`，tower::ServiceExt::oneshot，含公开端点键集契约断言）；前端：52 用例（`src/**/*.test.ts` + `__fixtures__/contract.test.ts`） |
 
 ## 关键依赖
 
@@ -56,7 +56,9 @@
 
 **前端**：
 - `dompurify` 3.3 — 客户端 HTML 净化
+- `highlight.js` 11.12 — 代码块语法高亮（core + 按需语言注册于 `features/post-detail.ts`）
 - `@iconify/iconify` 3.1 — 名片卡平台图标（`data/platform-presets.ts`）
+- `vitest` + `happy-dom` — 测试框架（devDependencies）
 
 **进程管理**：systemd 单元 `deploy/systemd/shino-blog-backend.service`（替代 PM2，已移除）
 
@@ -86,14 +88,14 @@ cargo fmt && cargo clippy --all-targets -- -D warnings && cargo test --all-targe
 cargo build --release            # 产物 target/release/shino-blog-backend + migrate-data
 
 # 前端（frontend/）
-bun run typecheck && bun run build
+bun run typecheck && bun run test && bun run build
 
 # 数据迁移（SQLite → Postgres，一次性工具）
 cargo run --release --bin migrate-data -- <sqlite路径> <DATABASE_URL>
 ```
 
 - 前端无 ESLint / Prettier / Biome 配置，格式约定靠纪律（见 conventions spec）
-- 旧后端 `backend/src/`（Elysia + Bun + SQLite）已由 Rust 版本替代，属历史代码
+- 旧 Bun 后端（Elysia + SQLite）已删除，Rust 版本（08-11-backend-rust-migration）为其唯一继任者
 
 ## 平台要求
 

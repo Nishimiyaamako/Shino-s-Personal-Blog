@@ -92,12 +92,14 @@
 
 | 组件 | 职责 | 文件 |
 |------|------|------|
-| SPA Entry | 外壳渲染、路由切换、动效系统、事件代理、hydration | `main.ts` |
+| SPA Entry | bootstrap：注册页面增强表、全局事件代理（点击/popstate/beforeunload） | `main.ts`（~260 行） |
+| Shell | 外壳渲染（renderApp/导航/页头/页脚）、history 索引状态、navigateTo、页面增强钩子 | `components/shell.ts` |
+| Motion | 动效系统（selector 表、时序常量、11 个 setup\*Motion、postCardMotionHandle） | `features/motion.ts` |
 | Router | 路径匹配、路由表（/、/blog 系、/friends、/about、/admin/*）、admin 模块解析 | `router/index.ts` |
 | Pages | 纯渲染函数返回 HTML 字符串（含 landing.ts） | `pages/*.ts` |
 | Components | 可复用渲染片段（文章列表、名片卡） | `components/*.ts` |
 | Data Layer | API 包装、指纹变化检测、本地数据变换 | `data/*.ts` |
-| Features | 运行时行为绑定（hydration、admin 模块、登录、dialog） | `features/*.ts` |
+| Features | 运行时行为绑定（hydration、admin 模块、登录、dialog、按宿主页增强：post-detail/tags/posts/archive/friends） | `features/*.ts` |
 
 ## 4. 分层与依赖
 
@@ -156,9 +158,9 @@
 - 前端无循环依赖；各 data 模块独立缓存
 - 管理后台破坏性操作（删除/下线）使用样式化 dialog（`confirmAdminAction`），不新增原生 `window.confirm`
 
-## 9. 已知技术债务
+## 9. 已知技术债务（2026-08-12 处理后状态）
 
-- **单体 main.ts**：`frontend/src/main.ts` 约 3400 行，混合外壳渲染、路由、动效系统、搜索模态框、事件代理、页面增强编排。方向：动效提取到 `features/motion.ts`，外壳提取到 `components/shell.ts`。
-- **前后端类型重复定义**：后端 `models.rs` 与前端 `types/api.ts` 独立维护、形状需手动同步。方向：提取共享契约（OpenAPI 或共享类型）。
-- **Rust 服务响应时间戳**：`/health` 使用 millis ISO 字符串（`2026-08-11T13:25:42.032Z`），旧 Elysia 为秒级——前端不消费该字段，无影响。
-- **syntect 代码高亮未引入**：Rust markdown 代码块仅转义输出 `<pre data-language>` 形态，无 hljs 语法高亮（对比旧后端 highlight.js 行为）。方向：M4 后续按需引入 syntect。
+- ~~**单体 main.ts**~~：已拆分（08-12-tech-debt-architecture/main-split）——动效 → `features/motion.ts`，外壳 → `components/shell.ts`，页面增强按宿主页分发 `features/{post-detail,tags,posts,archive,friends}.ts`，main.ts 收尾为 ~260 行 bootstrap + 增强表 + 全局事件代理。
+- **前后端类型重复定义**：后端 `models.rs` 与前端 `types/api.ts` 独立维护、形状需手动同步。已加测试防线：`tests/api_compat.rs::public_response_shapes_match_frontend_types_contract`（响应键集 ⊆ 契约）与 `frontend/src/__fixtures__/contract.test.ts`（契约键 ⊆ 夹具）双向锁定；方向不变（共享契约/OpenAPI 仍为长期选项，未落地）。
+- ~~**Rust 服务响应时间戳**~~：已关闭（2026-08-12 核验）——`now_iso()` 即 `to_rfc3339_opts(Millis)`，与 JS `toISOString()` 同格式且同时用于 `published_at`，前端不消费 `/health`；秒级仅为旧 Elysia 历史，统一格式是合理现状。
+- ~~**syntect 代码高亮未引入**~~：方向改为**客户端 hljs**（08-12-tech-debt-architecture/client-hljs）——后端 `markdown.rs` 维持 `<pre data-language><code class="hljs language-x">` 标记，前端 `features/post-detail.ts` 挂 `hljs.highlightElement`（core + js/ts/rust/json/bash/xml/css 按需注册），`styles/components/markdown.css` 提供 hljs 主题色；syntect 因类名与 hljs 不兼容被否决。

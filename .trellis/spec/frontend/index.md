@@ -25,7 +25,7 @@
 - **指纹变化检测**：数据变化判断基于内容指纹，不无脑重渲染
 - **API 统一走 `data/api.ts`**：typed `fetchJson<T>` + Bearer token
 - **样式 manifest**：`global.css` 级联导入 tokens → base → layout → components → pages → admin → motion
-- **质量门**：`cd frontend && bun run typecheck && bun run build`
+- **质量门**：`cd frontend && bun run typecheck && bun run test && bun run build`
 
 ## 文档语言
 

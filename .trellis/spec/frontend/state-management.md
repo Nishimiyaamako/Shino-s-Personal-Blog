@@ -24,8 +24,8 @@
 
 ## SPA 导航状态
 
-- `main.ts` 使用 `window.history` + 自定义 `__appNavIndex` 状态键
-- `popstate` 监听驱动重渲染
+- `components/shell.ts` 使用 `window.history` + 自定义 `__appNavIndex` 状态键（`createHistoryStateWithIndex`/`readHistoryIndex`/`getCurrentHistoryIndex`）
+- `popstate` 监听在 `main.ts` bootstrap 驱动重渲染；`navigateTo`（shell）负责 push/replace + 导航索引推进
 - Feature setup 函数返回 teardown，页面切换时清理旧页面监听（cleanup old, setup new）
 
 ## Admin 面板状态

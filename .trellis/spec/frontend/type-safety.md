@@ -21,7 +21,8 @@
 ## Validation
 
 - 无运行时校验库；依赖 TypeScript 编译期检查
-- 与服务端镜像类型同步：**修改后端 `types/api.ts` 时务必同步前端 `types/api.ts`**（现状为手动同步）
+- 与服务端镜像类型同步：**修改后端 `models.rs` 时务必同步前端 `types/*.ts`**（手动同步规则）
+- **契约测试防线（2026-08-12 落地）**：`backend/rust/tests/api_compat.rs::public_response_shapes_match_frontend_types_contract` 断言公开端点响应键集 ⊆ 契约；`frontend/src/__fixtures__/contract.test.ts` + `__fixtures__/*.json` 断言契约键 ⊆ 夹具。**改后端字段流程**：更新 `models.rs` → 同步 `tests/api_compat.rs` 契约 + `__fixtures__/*.json` + `types/*.ts` → 两端测试全绿（`cargo test` / `bun run test`）。契约中以 null 占位的键 = 前端未声明的无害多余键（如公开响应的 `id`/`publishedAt`、profile contact 的 `id`/`displayOrder`、friend-link 的 `id`/`enabled`/`displayOrder`）。
 
 ## 约束
 

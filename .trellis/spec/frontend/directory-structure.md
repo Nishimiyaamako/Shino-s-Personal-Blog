@@ -16,7 +16,7 @@ frontend/
 ├── package.json / bun.lock
 ├── public/images/          # 静态资源（图标、默认头像）
 └── src/
-    ├── main.ts             # 应用入口：外壳渲染 + 路由 + 动效 + 事件代理 + hydration 编排
+    ├── main.ts             # bootstrap：外壳渲染调用 + 页面增强表 + 全局事件代理（~260 行，见 shell/motion/features）
     ├── router/index.ts     # 路由表 (ROUTE_RECORDS) + 路由解析
     ├── pages/              # 页面模板（纯函数，返回 HTML 字符串）
     │   ├── landing.ts / posts.ts / post-detail.ts / tags.ts / tag-detail.ts
@@ -25,6 +25,9 @@ frontend/
     ├── features/           # 运行时行为绑定（渲染后挂载 DOM，返回 cleanup）
     │   ├── admin.ts        # 管理功能入口（barrel）
     │   ├── public-runtime.ts
+    │   ├── motion.ts       # 动效系统（selector 表 + 时序常量 + setup*Motion + postCardMotionHandle）
+    │   ├── post-detail.ts  # 文章详情增强（TOC/代码复制/返回按钮）+ hljs 高亮
+    │   ├── tags.ts / posts.ts / archive.ts / friends.ts  # 对应宿主页增强
     │   └── admin/          # login / dashboard / posts / friends / media
     │       ├── site-settings / content-settings / shared / avatar-crop
     ├── data/               # API 调用 + 客户端数据编排 + 指纹缓存
@@ -33,6 +36,8 @@ frontend/
     │   └── platform-presets.ts
     ├── components/         # 可复用 UI 组件
     │   ├── post-list.ts / profile-card.ts
+    │   ├── shell.ts        # 应用外壳（renderApp/导航/页头/页脚/history 索引/navigateTo/增强钩子）
+    ├── __fixtures__/       # API 契约镜像夹具（对应 tests/api_compat.rs 契约测试）
     ├── types/              # 前端类型定义（router / content / api / profile-card / friend-link / about）
     ├── config/             # 站点配置、主题色板
     │   ├── site.ts / themes.ts

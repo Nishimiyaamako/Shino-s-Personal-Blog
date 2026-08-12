@@ -16,7 +16,7 @@ cd backend/rust && cargo test --all-targets
 ## Test File Organization
 
 - 单元测试：散布在各模块 `#[cfg(test)]`（tokenize、tsquery 构造、时间衰减、质量分、权重）
-- 集成测试：`tests/api_compat.rs`（19 用例，串行互斥）
+- 集成测试：`tests/api_compat.rs`（20 用例，串行互斥）
 - 用例组织：`#[tokio::test]` + 共享 setup（独立库 + TRUNCATE 重置）
 
 ## Test Structure
@@ -60,7 +60,7 @@ async fn login_success_with_default_admin() {
 ## Coverage
 
 - 无覆盖率阈值强制
-- **已覆盖**（api_compat 19 用例）：公开端点（health/posts/详情/friend-links/about/profile-card/site-config/search 含中文）、admin 认证（登录/401）、文章 CRUD + 过滤 + 分页 + slug 重复 + 发布生命周期 + rebuild-search-index、友链 CRUD、上传（MIME/大小拒绝、成功 URL）、媒体列表/删除、静态文件 400/404、about/profile-card/site-config PATCH
+- **已覆盖**（api_compat 20 用例）：公开端点（health/posts/详情/friend-links/about/profile-card/site-config/search 含中文）、admin 认证（登录/401）、文章 CRUD + 过滤 + 分页 + slug 重复 + 发布生命周期 + rebuild-search-index、友链 CRUD、上传（MIME/大小拒绝、成功 URL）、媒体列表/删除、静态文件 400/404、about/profile-card/site-config PATCH、**公开端点键集契约断言**（`public_response_shapes_match_frontend_types_contract`：响应键 ⊆ 前端契约，null 占位 = 允许的多余键；与前端 `__fixtures__/contract.test.ts` 双向锁定）
 - 迁移工具：演练脚本（首次迁移/幂等重跑/完整性抽查/回滚副本/API 冒烟）
 
 ## Common Patterns

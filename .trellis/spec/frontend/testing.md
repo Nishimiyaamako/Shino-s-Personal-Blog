@@ -8,7 +8,7 @@
 - 运行：`bun run test`（vitest run）；`local-verify.sh` 已挂接（步骤 5/6）
 - 依赖：`vitest`、`happy-dom`（devDependencies）
 
-## 测试覆盖现状（45 用例）
+## 测试覆盖现状（52 用例）
 
 | 模块 | 覆盖点 |
 | --- | --- |
@@ -16,6 +16,7 @@
 | `src/router/index.test.ts` | resolveRoute 静态/参数/编码/fallback、resolveAdminModule、isAdminPathname |
 | `src/features/admin/shared.test.ts` | confirmAdminAction（确认/取消/Escape/单次 settle）、splitTags、contacts 序列化往返、generateSlug、readPostFormPayload、renderMarkdownPreviewHtml（DOMPurify 净化）、renderAdminPostList/FriendList |
 | `src/data/site-config.test.ts` | loadSiteConfig 默认值/拷贝、applyRemoteSiteConfig normalize/指纹去重 |
+| `src/__fixtures__/contract.test.ts` | API 契约镜像：夹具键集 ⊆ 契约键集（7 组，对应后端 api_compat 契约测试） |
 
 ## 新增测试指引
 
