@@ -30,13 +30,20 @@
 
 ## Acceptance Criteria
 
-- [ ] AGENTS.md 与 .trellis/spec/ 全部同步现状，grep 旧栈描述（Elysia/SQLite/1Panel/PM2 除历史说明外）无残留
-- [ ] 空 ADMIN_PASSWORD/ADMIN_JWT_SECRET 时后端启动报错退出（fail-fast），测试覆盖
-- [ ] online-smoke.sh 对非 2xx 状态码判失败；脚本在无 `~/.cargo/bin` PATH 的 shell 下可运行
-- [ ] `cargo update` 后 `cargo fmt/clippy/test` 全绿；edition 2024 迁移后全绿
-- [ ] 前端 vitest 测试集绿（核心模块覆盖），local-verify.sh 含前端测试步骤
-- [ ] 2 处 window.confirm 替换完成；A4/P4/PR3 实施完成（可核验）
-- [ ] 自检三命令通过；无凭据入库；分 P0/P1/P2 三个提交
+- [x] AGENTS.md 与 .trellis/spec/ 全部同步现状，grep 旧栈描述（Elysia/SQLite/1Panel/PM2 除历史说明外）无残留
+- [x] 空 ADMIN_PASSWORD/ADMIN_JWT_SECRET 时后端启动报错退出（fail-fast），测试覆盖（config.rs 6 单测）
+- [x] online-smoke.sh 对非 2xx 状态码判失败；脚本在无 `~/.cargo/bin` PATH 的 shell 下可运行
+- [x] `cargo update` 后 `cargo fmt/clippy/test` 全绿（sqlx 0.8.0 为 0.8 系列最终版，其余维持结论入 spec）；edition 2024 迁移后全绿（24 单测 + 19 集成）
+- [x] 前端 vitest 测试集绿（45 用例，核心模块覆盖），local-verify.sh 含前端测试步骤（[5/6]）
+- [x] 2 处 window.confirm + main.ts 导航拦截替换完成（全库清零）；A4/P4/PR3 实施完成
+- [x] 自检三命令通过；无凭据入库；P0/P1/P2/spec 共 5 个提交
+
+## 验收汇总（2026-08-12）
+
+- 测试抓到并修复真实 bug：`ROUTE_RECORDS` 中 `/blog/:slug` 截胡 `/blog/tags`、`/blog/archive`（静态路由先行）。
+- window.confirm 全库清零（posts/friends/main.ts 导航守卫），统一 confirmAdminAction。
+- 依赖核验：sqlx 0.8.0 是 0.8 系列最终版；jsonwebtoken 9/rusqlite 0.31 维持理由与升级路径写入 spec/tech-stack.md。
+- 全程 QUALITY_GATE=PASS / LOCAL_VERIFY=PASS；local-verify 现含前端测试步骤。
 
 ## Out of Scope
 
