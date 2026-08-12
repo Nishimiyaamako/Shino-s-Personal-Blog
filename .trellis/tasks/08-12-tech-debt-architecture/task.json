@@ -1,0 +1,30 @@
+{
+  "id": "tech-debt-architecture",
+  "name": "tech-debt-architecture",
+  "title": "技术债清理（二）：main.ts 拆分 / 类型契约 / 客户端 hljs",
+  "description": "",
+  "status": "planning",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "Nishimiyaamako",
+  "assignee": "Nishimiyaamako",
+  "createdAt": "2026-08-12",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "08-12-main-split",
+    "08-12-type-contract",
+    "08-12-client-hljs"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}
