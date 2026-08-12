@@ -27,10 +27,11 @@ export const ADMIN_MODULE_LINKS: Array<{ href: `/admin/${AdminModuleRoute}`; lab
 export const ROUTE_RECORDS: RouteRecord[] = [
   { path: '/', title: '首页', render: renderLandingPage },
   { path: '/blog', title: '文章列表', render: renderPostsPage },
-  { path: '/blog/:slug', title: '文章详情', render: renderPostDetailPage },
+  // 静态路由必须排在参数路由之前（/blog/:slug 段数相同会截胡 /blog/archive、/blog/tags）
+  { path: '/blog/archive', title: '归档', render: renderArchivePage },
   { path: '/blog/tags', title: '标签总览', render: renderTagsPage },
   { path: '/blog/tags/:tag', title: '标签详情', render: renderTagDetailPage },
-  { path: '/blog/archive', title: '归档', render: renderArchivePage },
+  { path: '/blog/:slug', title: '文章详情', render: renderPostDetailPage },
   { path: '/friends', title: '友链', render: renderFriendsPage },
   { path: '/about', title: '关于', render: renderAboutPage },
   { path: '/admin/login', title: '后台登录', render: renderAdminLoginPage },

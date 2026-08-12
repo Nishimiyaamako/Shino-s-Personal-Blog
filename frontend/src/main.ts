@@ -7,6 +7,7 @@ import { loadSiteConfig } from './data/site-config';
 import { fetchAboutViewModel } from './data/about';
 import { getPostsByTag, getThemeStats } from './data/posts';
 import { setupAdminDashboard, setupAdminLogin } from './features/admin';
+import { confirmAdminAction } from './features/admin/shared';
 import { setupHeaderSearchModal, setupPublicDataHydration } from './features/public-runtime';
 import { renderAboutPageBody } from './pages/about';
 import { PRIMARY_NAV_LINKS, isAdminPathname, resolveRoute, type PrimaryNavIcon } from './router';
@@ -436,7 +437,7 @@ function hasUnsavedAdminChanges(): boolean {
   return adminAppElement?.dataset.adminDirty === 'true';
 }
 
-function confirmAdminNavigation(nextLocation: string): boolean {
+async function confirmAdminNavigation(nextLocation: string): Promise<boolean> {
   if (!hasUnsavedAdminChanges()) {
     return true;
   }
@@ -448,10 +449,13 @@ function confirmAdminNavigation(nextLocation: string): boolean {
     ? '当前有未保存变更，确认切换模块并丢弃这些改动吗？'
     : '当前有未保存变更，确认离开后台并丢弃这些改动吗？';
 
-  return window.confirm(message);
+  return confirmAdminAction({
+    title: '放弃未保存的修改？',
+    message
+  });
 }
 
-function navigateTo(path: string, options: { replace?: boolean } = {}): void {
+async function navigateTo(path: string, options: { replace?: boolean } = {}): Promise<void> {
   const url = new URL(path, window.location.origin);
   const nextLocation = `${url.pathname}${url.search}${url.hash}`;
   const currentLocation = `${window.location.pathname}${window.location.search}${window.location.hash}`;
@@ -464,7 +468,7 @@ function navigateTo(path: string, options: { replace?: boolean } = {}): void {
     return;
   }
 
-  if (!confirmAdminNavigation(nextLocation)) {
+  if (!(await confirmAdminNavigation(nextLocation))) {
     return;
   }
 
@@ -2054,7 +2058,7 @@ function setupPostDetailBackButton(): (() => void) | null {
     return null;
   }
 
-  const handleBackButtonClick = (event: MouseEvent): void => {
+  const handleBackButtonClick = async (event: MouseEvent): Promise<void> => {
     event.preventDefault();
 
     if (currentHistoryIndex > 0) {
@@ -2062,7 +2066,7 @@ function setupPostDetailBackButton(): (() => void) | null {
       return;
     }
 
-    navigateTo('/blog', { replace: true });
+    await navigateTo('/blog', { replace: true });
   };
 
   backButtonElement.addEventListener('click', handleBackButtonClick);
@@ -3385,7 +3389,7 @@ document.addEventListener('click', (event) => {
   }
 
   event.preventDefault();
-  navigateTo(href);
+  void navigateTo(href);
 });
 
 window.addEventListener('popstate', (event) => {

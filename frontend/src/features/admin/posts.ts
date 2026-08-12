@@ -139,16 +139,19 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
     onDirtyChange?.(nextDirty);
   };
 
-  const confirmDiscardDraft = (): boolean => {
+  const confirmDiscardDraft = async (): Promise<boolean> => {
     if (!postFormDirty) {
       return true;
     }
 
-    return window.confirm('当前文章有未保存变更，确认丢弃并继续操作吗？');
+    return confirmAdminAction({
+      title: '放弃未保存的修改？',
+      message: '当前文章有未保存变更，确认丢弃并继续操作吗？'
+    });
   };
 
-  const guardBeforeCollectionRefresh = (actionLabel: string): boolean => {
-    if (confirmDiscardDraft()) {
+  const guardBeforeCollectionRefresh = async (actionLabel: string): Promise<boolean> => {
+    if (await confirmDiscardDraft()) {
       return true;
     }
 
@@ -318,7 +321,7 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
     }
   };
 
-  const handlePostListClick = (event: Event): void => {
+  const handlePostListClick = async (event: Event): Promise<void> => {
     const target = event.target;
     if (!(target instanceof HTMLElement)) {
       return;
@@ -334,7 +337,7 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
       return;
     }
 
-    if (postId !== selectedPostId && !confirmDiscardDraft()) {
+    if (postId !== selectedPostId && !(await confirmDiscardDraft())) {
       setMessage(postErrorElement, '已取消切换文章，当前编辑内容未变更。', { error: true });
       return;
     }
@@ -523,7 +526,7 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
   const handleFilterSubmit = async (event: SubmitEvent): Promise<void> => {
     event.preventDefault();
 
-    if (!guardBeforeCollectionRefresh('应用筛选')) {
+    if (!(await guardBeforeCollectionRefresh('应用筛选'))) {
       return;
     }
 
@@ -539,7 +542,7 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
   };
 
   const handleFilterReset = async (): Promise<void> => {
-    if (!guardBeforeCollectionRefresh('重置筛选')) {
+    if (!(await guardBeforeCollectionRefresh('重置筛选'))) {
       return;
     }
 
@@ -560,7 +563,7 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
       return;
     }
 
-    if (!guardBeforeCollectionRefresh('切换分页')) {
+    if (!(await guardBeforeCollectionRefresh('切换分页'))) {
       return;
     }
 
@@ -574,7 +577,7 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
       return;
     }
 
-    if (!guardBeforeCollectionRefresh('切换分页')) {
+    if (!(await guardBeforeCollectionRefresh('切换分页'))) {
       return;
     }
 
@@ -582,8 +585,8 @@ export function setupAdminPostsModule(options: AdminPostsModuleOptions): AdminPo
     await runPostAction(async () => Promise.resolve(), '');
   };
 
-  const handlePostNew = (): void => {
-    if (!confirmDiscardDraft()) {
+  const handlePostNew = async (): Promise<void> => {
+    if (!(await confirmDiscardDraft())) {
       setMessage(postErrorElement, '已取消新建，当前编辑内容未变更。', { error: true });
       return;
     }

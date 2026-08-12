@@ -642,3 +642,30 @@
         flex-shrink: 1;
     }
 }
+/* --- About 拖拽排序（技术债 A4） --- */
+.admin-about-drag-handle {
+    flex-shrink: 0;
+    color: var(--admin-muted, #8a93a6);
+    cursor: grab;
+    user-select: none;
+    font-size: 0.85rem;
+    line-height: 1;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
+.admin-about-drag-handle:hover {
+    background: var(--admin-hover-bg, rgba(0, 0, 0, 0.05));
+}
+
+.admin-about-narrative-block[draggable="true"],
+.admin-about-timeline-row[draggable="true"] {
+    cursor: grab;
+}
+
+.admin-about-narrative-block.is-dragging,
+.admin-about-timeline-row.is-dragging {
+    opacity: 0.5;
+    outline: 2px dashed var(--admin-accent, #e11d48);
+    outline-offset: 2px;
+}

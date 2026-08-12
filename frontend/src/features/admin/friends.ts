@@ -195,12 +195,15 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
     return true;
   };
 
-  const confirmDiscardDraft = (actionLabel: string): boolean => {
+  const confirmDiscardDraft = async (actionLabel: string): Promise<boolean> => {
     if (!formDirty) {
       return true;
     }
 
-    const shouldContinue = window.confirm('当前友链表单有未保存变更，确认丢弃并继续操作吗？');
+    const shouldContinue = await confirmAdminAction({
+      title: '放弃未保存的修改？',
+      message: '当前友链表单有未保存变更，确认丢弃并继续操作吗？'
+    });
     if (!shouldContinue) {
       setMessage(friendErrorElement, `已取消${actionLabel}，当前编辑内容未变更。`, { error: true });
     }
@@ -326,8 +329,8 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
     }
   };
 
-  const handleFriendCancel = (): void => {
-    if (!confirmDiscardDraft('取消编辑')) {
+  const handleFriendCancel = async (): Promise<void> => {
+    if (!(await confirmDiscardDraft('取消编辑'))) {
       return;
     }
 
@@ -401,7 +404,7 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
         return;
       }
 
-      if (friendId !== selectedFriendId && !confirmDiscardDraft('切换友链')) {
+      if (friendId !== selectedFriendId && !(await confirmDiscardDraft('切换友链'))) {
         return;
       }
 
@@ -421,7 +424,7 @@ export function setupAdminFriendsModule(options: AdminFriendsModuleOptions): Adm
       return;
     }
 
-    if (friendId !== selectedFriendId && !confirmDiscardDraft('删除友链')) {
+    if (friendId !== selectedFriendId && !(await confirmDiscardDraft('删除友链'))) {
       return;
     }
 

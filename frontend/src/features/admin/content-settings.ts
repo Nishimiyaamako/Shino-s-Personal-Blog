@@ -117,7 +117,8 @@ export function setupAdminContentSettingsModule(
 
   const renderNarrativeList = (): void => {
     aboutNarrativeList.innerHTML = narrativeSections.map((s, i) => `
-      <div class="admin-about-narrative-block" data-narrative-index="${i}">
+      <div class="admin-about-narrative-block" data-narrative-index="${i}" data-drag-index="${i}" draggable="true">
+        <div class="admin-about-drag-handle" title="拖拽排序">⋮⋮</div>
         <div class="admin-form-grid">
           <label><span>标题</span><input type="text" data-role="admin-about-narrative-title" value="${escapeHtml(s.title)}" /></label>
           <label><span>标签</span><input type="text" data-role="admin-about-narrative-label" value="${escapeHtml(s.label)}" /></label>
@@ -146,7 +147,8 @@ export function setupAdminContentSettingsModule(
 
   const renderTimelineList = (): void => {
     aboutTimelineList.innerHTML = timelineEvents.map((e, i) => `
-      <div class="admin-about-timeline-row" data-timeline-index="${i}">
+      <div class="admin-about-timeline-row" data-timeline-index="${i}" data-drag-index="${i}" draggable="true">
+        <span class="admin-about-drag-handle" title="拖拽排序">⋮⋮</span>
         <input type="text" data-role="admin-about-timeline-date" value="${escapeHtml(e.date)}" placeholder="YYYY-MM" />
         <input type="text" data-role="admin-about-timeline-detail" value="${escapeHtml(e.detail)}" placeholder="事件描述" />
         <button type="button" class="admin-btn admin-btn-danger admin-btn-sm" data-role="admin-about-remove-timeline" data-timeline-index="${i}">删除</button>
@@ -190,6 +192,23 @@ export function setupAdminContentSettingsModule(
 
   const handleAvatarUpload = (): void => { avatarUploadInput.click(); };
 
+  /** 读取图片实际像素尺寸（用于头像上传前校验） */
+  const readImageSize = (file: File): Promise<{ width: number; height: number }> => {
+    return new Promise((resolve, reject) => {
+      const objectUrl = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(objectUrl);
+        resolve({ width: img.naturalWidth, height: img.naturalHeight });
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        reject(new Error('无法解析图片尺寸'));
+      };
+      img.src = objectUrl;
+    });
+  };
+
   const handleAvatarFileChange = async (): Promise<void> => {
     const file = avatarUploadInput.files?.[0];
     if (!file) return;
@@ -202,6 +221,24 @@ export function setupAdminContentSettingsModule(
 
     if (file.size > 10 * 1024 * 1024) {
       setMessage(profileErrorElement, '图片超过 10MB，请压缩后再上传。', { error: true });
+      avatarUploadInput.value = '';
+      return;
+    }
+
+    try {
+      const { width, height } = await readImageSize(file);
+      if (width < 64 || height < 64) {
+        setMessage(profileErrorElement, `图片尺寸过小（${width}×${height}），至少需要 64×64 才能裁剪为头像。`, { error: true });
+        avatarUploadInput.value = '';
+        return;
+      }
+      if (width > 8192 || height > 8192) {
+        setMessage(profileErrorElement, `图片尺寸过大（${width}×${height}，上限 8192px），请压缩后再上传。`, { error: true });
+        avatarUploadInput.value = '';
+        return;
+      }
+    } catch {
+      setMessage(profileErrorElement, '无法解析图片信息，请更换图片后重试。', { error: true });
       avatarUploadInput.value = '';
       return;
     }
@@ -417,6 +454,92 @@ export function setupAdminContentSettingsModule(
   const handleAboutFormInput = (): void => setAboutFormDirty(true);
   const handleProfileFormInput = (): void => setProfileFormDirty(true);
 
+  // --- About 时间线/叙事拖动排序（HTML5 drag & drop，委托在容器上） ---
+  const reorderInPlace = <T,>(items: T[], from: number, to: number): void => {
+    const [moved] = items.splice(from, 1);
+    items.splice(to, 0, moved);
+  };
+
+  const bindAboutDragReorder = (
+    list: HTMLElement | null,
+    getItems: () => { length: number },
+    apply: (from: number, to: number) => void,
+    rerender: () => void
+  ): (() => void) => {
+    if (!list) {
+      return () => {};
+    }
+
+    let draggedIndex: number | null = null;
+
+    const clearDragging = (): void => {
+      draggedIndex = null;
+      list.querySelectorAll('.is-dragging').forEach((el) => el.classList.remove('is-dragging'));
+    };
+
+    const handleDragStart = (event: DragEvent): void => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) {
+        return;
+      }
+      const row = target.closest<HTMLElement>('[data-drag-index]');
+      if (!row) {
+        return;
+      }
+      const index = Number(row.dataset.dragIndex);
+      if (Number.isNaN(index)) {
+        return;
+      }
+      draggedIndex = index;
+      row.classList.add('is-dragging');
+      if (event.dataTransfer) {
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', String(index));
+      }
+    };
+
+    const handleDragOver = (event: DragEvent): void => {
+      if (draggedIndex === null) {
+        return;
+      }
+      event.preventDefault();
+      if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = 'move';
+      }
+    };
+
+    const handleDrop = (event: DragEvent): void => {
+      event.preventDefault();
+      if (draggedIndex === null) {
+        return;
+      }
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) {
+        clearDragging();
+        return;
+      }
+      const row = target.closest<HTMLElement>('[data-drag-index]');
+      const to = row ? Number(row.dataset.dragIndex) : getItems().length - 1;
+      if (!Number.isNaN(to) && to !== draggedIndex) {
+        apply(draggedIndex, to);
+        rerender();
+      }
+      clearDragging();
+    };
+
+    list.addEventListener('dragstart', handleDragStart);
+    list.addEventListener('dragover', handleDragOver);
+    list.addEventListener('drop', handleDrop);
+    list.addEventListener('dragend', clearDragging);
+
+    return () => {
+      list.removeEventListener('dragstart', handleDragStart);
+      list.removeEventListener('dragover', handleDragOver);
+      list.removeEventListener('drop', handleDrop);
+      list.removeEventListener('dragend', clearDragging);
+    };
+  };
+
   // --- Bind events ---
   aboutForm.addEventListener('submit', handleAboutSubmit);
   aboutForm.addEventListener('input', handleAboutFormInput);
@@ -430,6 +553,19 @@ export function setupAdminContentSettingsModule(
   contactAddButton.addEventListener('click', handleAddContact);
   contactListElement.addEventListener('click', handleContactRemove);
   contactPlatformSelect.addEventListener('change', handlePlatformSelectChange);
+
+  const unbindNarrativeDrag = bindAboutDragReorder(
+    aboutNarrativeList,
+    () => narrativeSections,
+    (from, to) => reorderInPlace(narrativeSections, from, to),
+    () => { renderNarrativeList(); setAboutFormDirty(true); }
+  );
+  const unbindTimelineDrag = bindAboutDragReorder(
+    aboutTimelineList,
+    () => timelineEvents,
+    (from, to) => reorderInPlace(timelineEvents, from, to),
+    () => { renderTimelineList(); setAboutFormDirty(true); }
+  );
 
   return {
     refresh,
@@ -446,6 +582,8 @@ export function setupAdminContentSettingsModule(
       contactAddButton.removeEventListener('click', handleAddContact);
       contactListElement.removeEventListener('click', handleContactRemove);
       contactPlatformSelect.removeEventListener('change', handlePlatformSelectChange);
+      unbindNarrativeDrag();
+      unbindTimelineDrag();
       setAboutFormDirty(false);
       setProfileFormDirty(false);
     }

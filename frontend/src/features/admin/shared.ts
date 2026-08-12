@@ -213,12 +213,18 @@ export function renderAdminPostList(posts: AdminPost[], selectedPostId: number):
     .map(
       (post) => `<li>
       <button type="button" class="admin-list-button${post.id === selectedPostId ? ' is-active' : ''}" data-role="admin-post-select" data-post-id="${post.id}">
-        <strong class="admin-truncate">${escapeHtml(post.title)}</strong>
-        <small>${escapeHtml(post.date)} · ${escapeHtml(formatPostStatus(post))}</small>
-        ${post.tags.length > 0
-          ? `<small class="admin-post-list-tags">${post.tags.slice(0, 3).map((tag) => escapeHtml(tag)).join(' · ')}</small>`
+        ${post.coverImageUrl
+          ? `<img class="admin-post-list-cover" src="${escapeHtml(post.coverImageUrl)}" alt="" loading="lazy" />`
           : ''
         }
+        <span class="admin-list-button-text">
+          <strong class="admin-truncate">${escapeHtml(post.title)}</strong>
+          <small>${escapeHtml(post.date)} · ${escapeHtml(formatPostStatus(post))}</small>
+          ${post.tags.length > 0
+            ? `<small class="admin-post-list-tags">${post.tags.slice(0, 3).map((tag) => escapeHtml(tag)).join(' · ')}</small>`
+            : ''
+          }
+        </span>
       </button>
     </li>`
     )

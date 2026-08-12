@@ -27,17 +27,17 @@ need_cmd() {
 need_cmd cargo
 need_cmd git
 
-echo "[1/5] Rust format check"
+echo "[1/6] Rust format check"
 cd "$RUST_DIR"
 cargo fmt --check
 
-echo "[2/5] Rust clippy (all targets, warnings as errors)"
+echo "[2/6] Rust clippy (all targets, warnings as errors)"
 cargo clippy --all-targets -- -D warnings
 
-echo "[3/5] Rust tests (all targets)"
+echo "[3/6] Rust tests (all targets)"
 cargo test --all-targets
 
-echo "[4/5] Frontend build"
+echo "[4/6] Frontend build"
 cd "$FRONTEND_DIR"
 if command -v bun >/dev/null 2>&1; then
   bun run build
@@ -48,7 +48,17 @@ else
   exit 1
 fi
 
-echo "[5/5] Self-check greps"
+echo "[5/6] Frontend tests"
+if command -v bun >/dev/null 2>&1; then
+  bun run test
+elif command -v npm >/dev/null 2>&1; then
+  npm run test
+else
+  echo "Neither bun nor npm found; skipping frontend tests" >&2
+  exit 1
+fi
+
+echo "[6/6] Self-check greps"
 cd "$ROOT_DIR"
 echo "--- 待核验标记（期望为空） ---"
 grep -rn '⚠ 待核验' . --include='*.md' || true
