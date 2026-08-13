@@ -89,3 +89,7 @@ git config core.hooksPath
 ```
 
 期望：前两条输出为空（或仅为 `<凭据位置>` 占位与正文合法引用），第三、四条无误；`git config core.hooksPath` 应返回 `.githooks`。
+
+## 知识自动入库
+
+知识自动入库：本工作区已提交的文档由 kb-sync 自动同步进 RAGFlow 知识库（git 提交 = 审核通过，回滚 = git revert）；管理用 kb-manage skill；质量标准见 /home/shino/workspace/ragflow-sync/docs/kb-standard.md
